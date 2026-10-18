@@ -103,5 +103,22 @@
 
 ---
 
-*문서 최종 개정일: 2026년 10월 19일 (브랜드 사용 체계 및 디자인 락다운 원칙 확립)*  
+## 7. 로고 및 브랜드 에셋 네이밍 표준 규약 (Asset Naming Standards)
+
+브랜드 자산이 파편화되지 않고 모든 카드, 웹페이지, 템플릿에서 일관되게 호출되도록 `logo_` 접두사 기반의 네이밍 표준을 확립한다.
+
+| 브랜드 | 공식 심볼 모션 (GIF) | 워드마크 / 플레이트 아트워크 | 슬로건 (Official Slogan) |
+|:---|:---|:---|:---|
+| **TOOMCARD** | `assets/logo_toomcard.gif` | `assets/logo_toomcard_wordmark.png`<br>`assets/toomcard_front_plate.jpg` | **DIGITAL BUSINESS CARD** |
+| **MAZA** | `assets/logo_maza.gif` | `assets/maza_card_minimal.jpg`<br>`assets/maza_front_plate.jpg` | **DIGITAL ASSET FLIPPING** |
+| **SETUPOD** | `assets/logo_setupod.gif` | `assets/setupod_card_minimal.jpg`<br>`assets/setupod_front_plate.jpg` | **DIGITAL BUSINESS PLATFORM** |
+| **TOOMUS** | `assets/logo_toomus.gif` | `assets/toomus_card_minimal.jpg`<br>`assets/toomus_front_plate.jpg` | **CONNECTING ENDLESS POTENTIAL** |
+| **공통 폴백** | `assets/logo_default.png` | `assets/icon-512.png` | - |
+
+* **하위 호환성 보장 원칙:** 외부 공유 링크, 구버전 캐시 및 과거 경로(`mazalogo.gif`, `setupod.gif`, `toomuslogo.gif`, `wordmark.png` 등)는 듀얼 미러링으로 영구 유지하여 404 링크 깨짐을 원천 방지한다.
+
+---
+
+*문서 최종 개정일: 2026년 10월 19일 (브랜드 사용 체계, 디자인 락다운 원칙 및 에셋 네이밍 표준 규약 확립)*  
 *TOOMUS Global & TOOMCARD Brand Architecture*
+

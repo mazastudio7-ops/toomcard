@@ -19,8 +19,8 @@
     "기업 공식명함"
   ],
   "logo": {
-    "src": "/assets/setupod.gif",
-    "fallback": "/assets/setupod.gif",
+    "src": "/assets/logo_setupod.gif",
+    "fallback": "/assets/logo_setupod.gif",
     "alt": "NEXUS GLOBAL Logo"
   },
   "primaryAction": {
@@ -60,6 +60,6 @@
     "ogDescription": "GLOBAL INNOVATION | NEXUS GLOBAL 공식 디지털 명함",
     "ogImage": "https://toomcard.com/assets/toomcard_card_hybrid.jpg"
   },
-  "avatar": "/assets/setupod.gif",
+  "avatar": "/assets/logo_setupod.gif",
   "plateCardImage": "/assets/toomcard_front_plate.png"
 }

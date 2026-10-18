@@ -20,11 +20,11 @@
     "글로벌 파트너십"
   ],
   "logo": {
-    "src": "/assets/toomuslogo.gif",
-    "fallback": "/assets/toomuslogo.gif",
+    "src": "/assets/logo_toomus.gif",
+    "fallback": "/assets/logo_toomus.gif",
     "alt": "TOOMUS Logo"
   },
-  "avatar": "/assets/toomuslogo.gif",
+  "avatar": "/assets/logo_toomus.gif",
   "plateCardImage": "/assets/toomus_front_plate.png",
   "primaryAction": {
     "url": "https://toomus.com",

@@ -20,11 +20,11 @@
     "기업 도메인 연동"
   ],
   "logo": {
-    "src": "/assets/toomcard_hd.gif",
-    "fallback": "/assets/toomcard_hd.gif",
+    "src": "/assets/logo_toomcard_hd.gif",
+    "fallback": "/assets/logo_toomcard_hd.gif",
     "alt": "TOOMCARD Enterprise Logo"
   },
-  "avatar": "/assets/toomcard_hd.gif",
+  "avatar": "/assets/logo_toomcard_hd.gif",
   "plateCardImage": "/assets/toomcard_front_plate.jpg",
   "primaryAction": {
     "url": "https://toomcard.com#enterprise",

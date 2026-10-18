@@ -22,11 +22,11 @@
     "1초 원클릭 런칭"
   ],
   "logo": {
-    "src": "/assets/setupod.gif",
-    "fallback": "/assets/setupod.gif",
+    "src": "/assets/logo_setupod.gif",
+    "fallback": "/assets/logo_setupod.gif",
     "alt": "SETUPOD Logo"
   },
-  "avatar": "/assets/setupod.gif",
+  "avatar": "/assets/logo_setupod.gif",
   "plateCardImage": "/assets/setupod_front_plate.jpg",
   "primaryAction": {
     "url": "https://setupod.com",

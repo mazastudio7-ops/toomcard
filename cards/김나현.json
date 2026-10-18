@@ -19,8 +19,8 @@
     "Connected"
   ],
   "logo": {
-    "src": "/assets/toomuslogo.gif",
-    "fallback": "/assets/toomuslogo.gif",
+    "src": "/assets/logo_toomus.gif",
+    "fallback": "/assets/logo_toomus.gif",
     "alt": "TOOMUS Logo"
   },
   "primaryAction": {
@@ -47,6 +47,6 @@
     "ogDescription": "Life, Connected | TOOMUS 공식 디지털 명함",
     "ogImage": "https://toomcard.com/assets/toomus_card_minimal.jpg"
   },
-  "avatar": "/assets/toomuslogo.gif",
+  "avatar": "/assets/logo_toomus.gif",
   "plateCardImage": "/assets/toomus_front_plate.png"
 }

@@ -24,7 +24,7 @@ const DEFAULT_CARD_FALLBACK = {
   origin: "TOOMCARD Global",
   moatTags: ["3D 인터랙티브", "vCard 주소록 저장", "스마트 NFC 하드웨어"],
   logo: {
-    src: "/assets/toomcard.gif",
+    src: "/assets/logo_toomcard.gif",
     fallback: "/assets/toomcard-brand-logo.svg",
     alt: "TOOMCARD Logo"
   },
@@ -361,8 +361,8 @@ function populateCard(data) {
     const fContainer = document.querySelector('.card-medallion-area') || document.querySelector('.front-logo-container');
     if (fContainer) fContainer.style.display = 'none';
   } else if (data.logo) {
-    const primarySrc = resolveAssetUrl(data.logo.src || '/assets/toomcard_hd.gif');
-    const fallbackSrc = resolveAssetUrl(data.logo.fallback || '/assets/toomcard_hd.gif');
+    const primarySrc = resolveAssetUrl(data.logo.src || '/assets/logo_toomcard_hd.gif');
+    const fallbackSrc = resolveAssetUrl(data.logo.fallback || '/assets/logo_toomcard_hd.gif');
 
     if (frontLogoImg) {
       frontLogoImg.onerror = function() {
@@ -941,8 +941,8 @@ function populateCardFromCloud(cloud, company) {
     affiliateAction: affiliateAction,
     socials: socials,
     logo: innerCard.logo || {
-      src: p.avatar_url || '/assets/toomcard_hd.gif',
-      fallback: '/assets/toomcard_hd.gif',
+      src: p.avatar_url || '/assets/logo_toomcard_hd.gif',
+      fallback: '/assets/logo_toomcard_hd.gif',
       alt: companyName
     },
     plateCardImage: innerCard.plateCardImage || '/assets/toomcard_front_plate.png',
