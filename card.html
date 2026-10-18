@@ -1567,6 +1567,25 @@
     let deferredPrompt = null;
     let isAppInstalled = false;
 
+    // 0. 클라이언트 사이드 개인별 동적 Manifest 연결
+    (function updateDynamicManifest() {
+      try {
+        const pathParts = window.location.pathname.split('/').filter(Boolean);
+        const slug = (pathParts.length > 0 && !pathParts[pathParts.length - 1].includes('.')) 
+          ? pathParts[pathParts.length - 1] 
+          : (new URLSearchParams(window.location.search).get('id') || 'toomus');
+        if (slug) {
+          let manifestLink = document.querySelector('link[rel="manifest"]');
+          if (!manifestLink) {
+            manifestLink = document.createElement('link');
+            manifestLink.rel = 'manifest';
+            document.head.appendChild(manifestLink);
+          }
+          manifestLink.href = `/manifest/${encodeURIComponent(slug)}.json`;
+        }
+      } catch(e) {}
+    })();
+
     // 1. Service Worker 등록
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {

@@ -3,6 +3,9 @@
   "functions": {
     "api/render.js": {
       "includeFiles": "cards/**"
+    },
+    "api/manifest.js": {
+      "includeFiles": "cards/**"
     }
   },
   "rewrites": [
@@ -69,6 +72,10 @@
     {
       "source": "/manifest.json",
       "destination": "/manifest.json"
+    },
+    {
+      "source": "/manifest/:slug.json",
+      "destination": "/api/manifest?slug=:slug"
     },
     {
       "source": "/sw.js",

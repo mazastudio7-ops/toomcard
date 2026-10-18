@@ -216,6 +216,10 @@ module.exports = async (req, res) => {
     html = html.replace(/<meta\s+property=["']og:description["'].*?>/i, `<meta property="og:description" content="${ogDesc}" />`);
     html = html.replace(/<meta\s+property=["']og:image["'].*?>/i, `<meta property="og:image" content="${ogImageUrl}" />`);
 
+    // 개인별 맞춤 PWA Manifest 동적 교체 (앱 설치 시 내 명함 이름 및 start_url 직행)
+    const dynamicManifestUrl = `/manifest/${encodeURIComponent(cleanSlug || 'toomus')}.json`;
+    html = html.replace(/<link\s+rel=["']manifest["'].*?>/i, `<link rel="manifest" href="${dynamicManifestUrl}">`);
+
     const extraTags = `
       <meta property="og:url" content="https://toomcard.com/${isHyangwon ? 'hyangwon' : (cleanSlug || 'toomus')}" />
       <meta property="twitter:card" content="summary_large_image" />
