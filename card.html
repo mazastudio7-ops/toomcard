@@ -27,8 +27,15 @@
   <meta property="og:image:height" content="675">
   <meta property="og:image:type" content="image/jpeg">
 
-  <!-- Favicon -->
+  <!-- Favicon & PWA Icons -->
   <link rel="icon" type="image/x-icon" href="/assets/favicon.ico">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="TOOMCARD">
+  <meta name="theme-color" content="#07040d">
+  <link rel="apple-touch-icon" href="/assets/icon-192.png">
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1283,10 +1290,10 @@
       <span>카드를 탭하거나 슬라이드하면 앞면 ↔ 뒷면이 뒤집힙니다</span>
     </div>
 
-    <!-- Install App Hint -->
-    <div class="flip-hint flip-hint-install" onclick="openInstallModal()" style="color: #ffd978; margin-top: 12px; margin-bottom: -4px;">
-      <i data-lucide="smartphone" style="width: 14px; height: 14px;"></i>
-      <span>내 폰 홈 화면에 명함 앱 설치하기 📱</span>
+    <!-- Install App Hint (PWA 1-Click & Smart Guide) -->
+    <div class="flip-hint flip-hint-install" id="installAppBtn" onclick="handleInstallClick()" style="color: #ffd978; margin-top: 12px; margin-bottom: -4px; cursor: pointer; transition: all 0.25s ease;">
+      <i data-lucide="smartphone" id="installAppIcon" style="width: 14px; height: 14px;"></i>
+      <span id="installAppText">내 폰 홈 화면에 명함 앱 설치하기 📱</span>
     </div>
 
     <!-- Affiliate / Monetization Slot (쿠팡 파트너스 / 추천 링크) -->
@@ -1383,30 +1390,194 @@
     </div>
   </div>
 
-  <!-- Install App Modal -->
+  <!-- Install App Modal (Smart PWA & OS Adaptive) -->
   <div class="modal-overlay" id="installModal" onclick="if(event.target===this) closeInstallModal()">
-    <div class="modal-box">
-      <div class="modal-title">앱으로 설치하기 📱</div>
-      <div class="modal-desc" style="text-align: left; line-height: 1.6; margin-top: 10px; font-size: 13px; color: rgba(255, 255, 255, 0.85); width: 100%;">
-        홈 화면에 추가하면 진짜 앱처럼 편리하게 바로 실행할 수 있습니다!<br><br>
-        <strong style="color:#ffd978;">🍎 아이폰 (Safari)</strong><br>
-        1. 하단 메뉴에서 [공유 📤] 버튼 탭<br>
-        2. [홈 화면에 추가 ➕] 탭<br><br>
-        <strong style="color:#ffd978;">🌌 갤럭시 (Chrome/삼성인터넷)</strong><br>
-        1. 브라우저 [메뉴 ⁝ 또는 ≡] 탭<br>
-        2. [홈 화면에 추가] 탭
+    <div class="modal-box" style="max-width: 340px;">
+      <div class="modal-title" style="display:flex; align-items:center; gap:8px;">
+        <i data-lucide="smartphone" style="width:18px; height:18px; color:#ffd978;"></i>
+        <span>바탕화면에 명함 설치 📱</span>
       </div>
-      <button class="modal-close-btn" onclick="closeInstallModal()">확인</button>
+      <div class="modal-desc" style="margin-bottom: 14px;">설치하면 앱처럼 터치 한 번으로 열립니다</div>
+
+      <!-- In-App Browser Escape Banner (KakaoTalk / Instagram) -->
+      <div id="installInAppBox" style="display: none; width: 100%; margin-bottom: 14px; background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.35); border-radius: 12px; padding: 12px; text-align: left;">
+        <div style="display: flex; align-items: center; gap: 6px; color: #fca5a5; font-size: 12.5px; font-weight: 700; margin-bottom: 6px;">
+          <i data-lucide="alert-triangle" style="width: 14px; height: 14px; flex-shrink: 0;"></i>
+          <span>카카오톡/인앱 브라우저 안내</span>
+        </div>
+        <div style="font-size: 11.5px; color: rgba(255,255,255,0.85); line-height: 1.5; margin-bottom: 10px;">
+          카카오톡 안에서는 보안상 바로가기 설치가 차단됩니다. 아래 버튼을 눌러 <strong>Chrome</strong>으로 열면 <strong>1초 만에 설치</strong>할 수 있습니다!
+        </div>
+        <button onclick="openInChrome()" style="width: 100%; padding: 11px; background: linear-gradient(90deg, #38bdf8, #2563eb); border: none; border-radius: 8px; color: white; font-weight: 700; font-size: 12.5px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);">
+          <i data-lucide="external-link" style="width: 14px; height: 14px;"></i>
+          <span>Chrome으로 열고 바로 설치 ⚡</span>
+        </button>
+      </div>
+
+      <!-- OS Selection Tabs -->
+      <div style="display: flex; gap: 6px; width: 100%; margin-bottom: 14px; background: rgba(255, 255, 255, 0.05); padding: 4px; border-radius: 12px;">
+        <button id="tabInstallAndroid" onclick="switchInstallTab('android')" style="flex: 1; padding: 9px 0; border-radius: 9px; border: none; background: rgba(168, 85, 247, 0.25); color: #d8b4fe; font-weight: 700; font-size: 12.5px; cursor: pointer; transition: all 0.2s;">🤖 갤럭시/안드로이드</button>
+        <button id="tabInstallIos" onclick="switchInstallTab('ios')" style="flex: 1; padding: 9px 0; border-radius: 9px; border: none; background: transparent; color: rgba(255, 255, 255, 0.5); font-weight: 500; font-size: 12.5px; cursor: pointer; transition: all 0.2s;">🍎 아이폰 (Safari)</button>
+      </div>
+
+      <!-- Android Step Guide -->
+      <div id="contentInstallAndroid" style="text-align: left; line-height: 1.6; font-size: 12.5px; color: rgba(255, 255, 255, 0.85); width: 100%; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 12px 14px; margin-bottom: 16px;">
+        <div style="font-weight: 700; color: #4ade80; margin-bottom: 4px;">🌐 크롬 (Chrome)</div>
+        1. 우측 상단 메뉴 <strong style="color:#ffd978;">[ ⁝ ]</strong> 터치<br>
+        2. <strong style="color:#ffd978;">[홈 화면에 추가]</strong> 또는 <strong>[앱 설치]</strong> 터치<br><br>
+        <div style="font-weight: 700; color: #38bdf8; margin-bottom: 4px;">🌌 삼성 인터넷</div>
+        1. 우측 하단 메뉴 <strong style="color:#ffd978;">[ ≡ ]</strong> 터치<br>
+        2. <strong style="color:#ffd978;">[현재 페이지 추가] ➔ [홈 화면]</strong> 터치
+      </div>
+
+      <!-- iOS Step Guide -->
+      <div id="contentInstallIos" style="display: none; text-align: left; line-height: 1.6; font-size: 12.5px; color: rgba(255, 255, 255, 0.85); width: 100%; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 12px 14px; margin-bottom: 16px;">
+        <div style="font-weight: 700; color: #ffd978; margin-bottom: 4px;">🧭 사파리 (Safari)</div>
+        1. 화면 하단 중앙 <strong style="color:#ffd978;">[공유 📤]</strong> 아이콘 터치<br>
+        2. 메뉴 스크롤 후 <strong style="color:#ffd978;">[홈 화면에 추가 ➕]</strong> 터치<br>
+        3. 우측 상단 <strong style="color:#ffd978;">[추가]</strong> 터치하면 완료!
+      </div>
+
+      <button class="modal-close-btn" onclick="closeInstallModal()" style="width: 100%;">닫기</button>
     </div>
   </div>
   
   <script>
+    let deferredPrompt = null;
+    let isAppInstalled = false;
+
+    // 1. Service Worker 등록
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(() => {});
+      });
+    }
+
+    // 2. Android Chrome / PWA 원클릭 설치 감지
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      
+      const installBtn = document.getElementById('installAppBtn');
+      const installText = document.getElementById('installAppText');
+      if (installBtn && installText) {
+        installBtn.style.color = '#4ade80';
+        installBtn.style.borderColor = 'rgba(74, 222, 128, 0.45)';
+        installBtn.style.background = 'rgba(74, 222, 128, 0.12)';
+        installBtn.style.boxShadow = '0 0 15px rgba(74, 222, 128, 0.2)';
+        installText.innerHTML = '⚡ 바탕화면에 1초 설치 (원클릭)';
+        const icon = document.getElementById('installAppIcon');
+        if (icon) {
+          icon.setAttribute('data-lucide', 'download');
+          icon.style.color = '#4ade80';
+          if (window.lucide) window.lucide.createIcons();
+        }
+      }
+    });
+
+    window.addEventListener('appinstalled', () => {
+      deferredPrompt = null;
+      isAppInstalled = true;
+      if (typeof showToast === 'function') {
+        showToast('바탕화면에 앱이 성공적으로 설치되었습니다! 🎉');
+      }
+      const installBtn = document.getElementById('installAppBtn');
+      const installText = document.getElementById('installAppText');
+      if (installBtn && installText) {
+        installBtn.style.color = '#4ade80';
+        installBtn.style.borderColor = 'rgba(74, 222, 128, 0.2)';
+        installBtn.style.background = 'transparent';
+        installText.innerHTML = '바탕화면 설치 완료 ✨';
+      }
+    });
+
+    // 3. 인스톨 버튼 클릭 핸들러
+    async function handleInstallClick() {
+      if (isAppInstalled) {
+        if (typeof showToast === 'function') showToast('이미 바탕화면에 설치된 명함입니다 ✨');
+        return;
+      }
+
+      // A. PWA 원클릭 프롬프트가 대기 중인 경우 (안드로이드 크롬 등)
+      if (deferredPrompt) {
+        try {
+          deferredPrompt.prompt();
+          const { outcome } = await deferredPrompt.userChoice;
+          if (outcome === 'accepted') {
+            if (typeof showToast === 'function') showToast('바탕화면에 추가 중입니다...');
+            deferredPrompt = null;
+          }
+          return;
+        } catch (err) {
+          console.error("Install prompt error:", err);
+        }
+      }
+
+      // B. 그 외 브라우저 또는 인앱 브라우저는 스마트 가이드 모달 팝업
+      openInstallModal();
+    }
+
     function openInstallModal() {
-      document.getElementById('installModal').classList.add('active');
+      const modal = document.getElementById('installModal');
+      if (!modal) return;
+
+      const ua = navigator.userAgent || '';
+      const isInApp = /KAKAOTALK|Instagram|NAVER|Line|FBAN|FBAV/i.test(ua);
+      const isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+      const inAppBox = document.getElementById('installInAppBox');
+      if (inAppBox) {
+        inAppBox.style.display = isInApp ? 'block' : 'none';
+      }
+
+      if (isIOS) {
+        switchInstallTab('ios');
+      } else {
+        switchInstallTab('android');
+      }
+
+      modal.classList.add('active');
     }
     
     function closeInstallModal() {
-      document.getElementById('installModal').classList.remove('active');
+      const modal = document.getElementById('installModal');
+      if (modal) modal.classList.remove('active');
+    }
+
+    function switchInstallTab(type) {
+      const tabAndroid = document.getElementById('tabInstallAndroid');
+      const tabIos = document.getElementById('tabInstallIos');
+      const contentAndroid = document.getElementById('contentInstallAndroid');
+      const contentIos = document.getElementById('contentInstallIos');
+
+      if (!tabAndroid || !tabIos || !contentAndroid || !contentIos) return;
+
+      if (type === 'android') {
+        tabAndroid.style.background = 'rgba(168, 85, 247, 0.25)';
+        tabAndroid.style.color = '#d8b4fe';
+        tabAndroid.style.fontWeight = '700';
+        tabIos.style.background = 'transparent';
+        tabIos.style.color = 'rgba(255, 255, 255, 0.5)';
+        tabIos.style.fontWeight = '500';
+        contentAndroid.style.display = 'block';
+        contentIos.style.display = 'none';
+      } else {
+        tabIos.style.background = 'rgba(168, 85, 247, 0.25)';
+        tabIos.style.color = '#d8b4fe';
+        tabIos.style.fontWeight = '700';
+        tabAndroid.style.background = 'transparent';
+        tabAndroid.style.color = 'rgba(255, 255, 255, 0.5)';
+        tabAndroid.style.fontWeight = '500';
+        contentIos.style.display = 'block';
+        contentAndroid.style.display = 'none';
+      }
+    }
+
+    // 안드로이드 카카오톡/인앱 브라우저 탈출 -> Chrome 직행 인텐트
+    function openInChrome() {
+      const cleanUrl = window.location.href.replace(/^https?:\/\//i, '');
+      const chromeIntent = `intent://${cleanUrl}#Intent;scheme=https;package=com.android.chrome;end`;
+      window.location.href = chromeIntent;
     }
 
     async function submitLead() {

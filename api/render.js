@@ -192,23 +192,23 @@ module.exports = async (req, res) => {
       try {
         const cJson = JSON.parse(fs.readFileSync(targetJsonPath, 'utf8'));
         if (cJson.theme) cardTheme = cJson.theme;
-        if (cJson.meta?.ogImage) ogImageUrl = cJson.meta.ogImage.startsWith('http') ? cJson.meta.ogImage : `https://toomcard.com${cJson.meta.ogImage}`;
         if (cJson.meta?.ogTitle) ogTitle = cJson.meta.ogTitle;
         if (cJson.meta?.ogDescription) ogDesc = cJson.meta.ogDescription;
+
+        // 개인 전용 맞춤 커스텀 이미지가 지정되어 있는 경우 우선 적용
+        if (cJson.meta?.ogImage && !cJson.meta.ogImage.includes('toomcard_card_hybrid') && !cJson.meta.ogImage.includes('toomus_card_minimal') && !cJson.meta.ogImage.includes('toomcard_front_plate')) {
+          ogImageUrl = cJson.meta.ogImage.startsWith('http') ? cJson.meta.ogImage : `https://toomcard.com${cJson.meta.ogImage}`;
+        }
       } catch(e) {}
     }
 
-    // Default theme-matched high-res 3D card preview banner
+    // [옵션 1] 개인마다 이름, 직함, 회사명이 실시간 렌더링된 1200x630 동적 OG 이미지 생성
     if (!ogImageUrl) {
-      if (cardTheme === 'gold') {
-        ogImageUrl = 'https://toomcard.com/assets/toomcard_front_plate.jpg';
-      } else if (cardTheme === 'nexus' || cardTheme === 'cyber') {
-        ogImageUrl = 'https://toomcard.com/assets/toomcard_card_hybrid.jpg';
-      } else if (cardTheme === 'corporate' || cardTheme === 'enterprise') {
-        ogImageUrl = 'https://toomcard.com/assets/toomcard_card_3d.jpg';
-      } else {
-        ogImageUrl = 'https://toomcard.com/assets/toomcard_og_banner.jpg';
-      }
+      const qTitle = encodeURIComponent(title || 'TOOMCARD');
+      const qCompany = encodeURIComponent(company || 'TOOMCARD');
+      const qSub = encodeURIComponent(subtitle || '3D 인터랙티브 스마트 명함');
+      const qTheme = encodeURIComponent(cardTheme || 'obsidian');
+      ogImageUrl = `https://toomcard.com/api/og?title=${qTitle}&company=${qCompany}&subtitle=${qSub}&theme=${qTheme}`;
     }
 
     html = html.replace(/<title>.*?<\/title>/i, `<title>${ogTitle}</title>`);
