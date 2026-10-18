@@ -241,6 +241,13 @@ module.exports = async (req, res) => {
       if (loadedCardObj.theme && loadedCardObj.theme !== 'obsidian') {
         html = html.replace('/themes/obsidian.css', `/themes/${loadedCardObj.theme}.css`);
       }
+      if (loadedCardObj.plateCardImage) {
+        html = html.replace('/assets/toomcard_front_plate.jpg', loadedCardObj.plateCardImage);
+        html = html.replace('/assets/toomcard_front_plate.png', loadedCardObj.plateCardImage);
+      }
+      if (loadedCardObj.logo && loadedCardObj.logo.src) {
+        html = html.replace(/src=["']\/assets\/toomcard_hd\.gif["']/g, `src="${loadedCardObj.logo.src}"`);
+      }
     }
 
     const initialDataScript = loadedCardObj ? `<script>window.INITIAL_CARD_DATA = ${JSON.stringify(loadedCardObj).replace(/</g, '\\u003c')};</script>` : '';
