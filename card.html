@@ -1063,12 +1063,31 @@
       opacity: 1;
       pointer-events: auto;
     }
+
+    /* Top Mode for Chrome on iOS (Address Bar at Top) */
+    .safari-pointer-tooltip.top-mode {
+      bottom: auto;
+      top: max(60px, env(safe-area-inset-top, 60px));
+      transform: translateX(-50%) translateY(-120px);
+    }
+    .safari-pointer-tooltip.top-mode.active {
+      transform: translateX(-50%) translateY(0);
+    }
+
     @keyframes bounceDown {
       0%, 100% { transform: translateY(0); }
       50% { transform: translateY(7px); }
     }
     .bounce-arrow {
       animation: bounceDown 1.1s infinite ease-in-out;
+    }
+
+    @keyframes bounceUp {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-7px); }
+    }
+    .bounce-arrow-up {
+      animation: bounceUp 1.1s infinite ease-in-out;
     }
 
     .qr-container {
@@ -1469,8 +1488,8 @@
       <!-- iOS Step Guide (High-Fidelity Visual Guide) -->
       <div id="contentInstallIos" style="display: none; width: 100%; margin-bottom: 16px;">
         <!-- Mistake Prevention Tip -->
-        <div style="background: rgba(245, 158, 11, 0.12); border: 1px solid rgba(245, 158, 11, 0.35); border-radius: 10px; padding: 9px 12px; margin-bottom: 12px; text-align: left; font-size: 11.5px; color: #fef08a; line-height: 1.45;">
-          💡 <strong>주의:</strong> 주소창 메뉴가 아니라, 사파리 화면 맨 아래 툴바의 <strong>[ 네모 위 화살표 📤 ]</strong> 아이콘을 누르셔야 합니다!
+        <div id="iosMistakeTip" style="background: rgba(245, 158, 11, 0.12); border: 1px solid rgba(245, 158, 11, 0.35); border-radius: 10px; padding: 9px 12px; margin-bottom: 12px; text-align: left; font-size: 11.5px; color: #fef08a; line-height: 1.45;">
+          💡 <strong>주의:</strong> 주소창 메뉴가 아니라, 화면 맨 아래 툴바의 <strong>[ 네모 위 화살표 📤 ]</strong> 아이콘을 누르셔야 합니다!
         </div>
 
         <div style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 14px; padding: 14px; text-align: left;">
@@ -1485,8 +1504,8 @@
             </div>
             <div>
               <div style="font-size: 10.5px; color: #94a3b8; font-weight: 700; letter-spacing: 0.5px;">STEP 1</div>
-              <div style="font-size: 13px; font-weight: 700; color: #ffffff;">사파리 하단 <strong style="color:#38bdf8;">[ 공유 📤 ]</strong> 터치</div>
-              <div style="font-size: 11px; color: rgba(255, 255, 255, 0.6);">화면 맨 아래 가운데 네모 위 화살표 아이콘</div>
+              <div id="iosStep1Title" style="font-size: 13px; font-weight: 700; color: #ffffff;">사파리 하단 <strong style="color:#38bdf8;">[ 공유 📤 ]</strong> 터치</div>
+              <div id="iosStep1Desc" style="font-size: 11px; color: rgba(255, 255, 255, 0.6);">화면 맨 아래 가운데 네모 위 화살표 아이콘</div>
             </div>
           </div>
 
@@ -1519,8 +1538,8 @@
           </div>
         </div>
 
-        <button onclick="highlightSafariShare()" style="width: 100%; margin-top: 12px; padding: 11px; background: linear-gradient(90deg, #c084fc, #a855f7); border: none; border-radius: 10px; color: white; font-weight: 700; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 14px rgba(168, 85, 247, 0.4);">
-          <span>알겠어요! 지금 바로 추가할게요 👇</span>
+        <button id="btnHighlightShare" onclick="highlightSafariShare()" style="width: 100%; margin-top: 12px; padding: 11px; background: linear-gradient(90deg, #c084fc, #a855f7); border: none; border-radius: 10px; color: white; font-weight: 700; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 14px rgba(168, 85, 247, 0.4);">
+          <span id="btnHighlightShareText">알겠어요! 지금 바로 추가할게요 👇</span>
         </button>
       </div>
 
@@ -1528,15 +1547,18 @@
     </div>
   </div>
 
-  <!-- Safari Share Bottom Pointer Tooltip (A2HS Floating Pointer) -->
+  <!-- Safari / Chrome Share Pointer Tooltip (A2HS Floating Pointer) -->
   <div id="safariPointerTooltip" class="safari-pointer-tooltip" onclick="hideSafariPointer()">
-    <div style="font-size: 13.5px; font-weight: 800; color: #ffffff; text-align: center;">
+    <div class="bounce-arrow-up" id="tooltipArrowUp" style="display: none; font-size: 22px; margin-bottom: 2px;">
+      👆
+    </div>
+    <div id="tooltipTextMain" style="font-size: 13.5px; font-weight: 800; color: #ffffff; text-align: center;">
       지금 화면 맨 아래 <strong style="color: #38bdf8;">[ 📤 공유 ]</strong> 아이콘 터치!
     </div>
-    <div style="font-size: 11px; color: rgba(255,255,255,0.75); text-align: center;">
+    <div id="tooltipTextSub" style="font-size: 11px; color: rgba(255,255,255,0.75); text-align: center;">
       그 다음 <strong style="color: #ffd978;">[홈 화면에 추가]</strong>를 누르면 설치 완료!
     </div>
-    <div class="bounce-arrow" style="margin-top: 4px; font-size: 22px;">
+    <div class="bounce-arrow" id="tooltipArrowDown" style="margin-top: 4px; font-size: 22px;">
       👇
     </div>
   </div>
@@ -1641,6 +1663,38 @@
         }
       }
 
+      // iOS 가이드 내용: 크롬 vs 사파리 스마트 감지 분기
+      const isChromeIOS = /CriOS/i.test(ua);
+      const tabIos = document.getElementById('tabInstallIos');
+      const iosMistakeTip = document.getElementById('iosMistakeTip');
+      const iosStep1Title = document.getElementById('iosStep1Title');
+      const iosStep1Desc = document.getElementById('iosStep1Desc');
+      const btnHighlightShareText = document.getElementById('btnHighlightShareText');
+
+      if (isChromeIOS) {
+        if (tabIos) tabIos.textContent = '🍎 아이폰 (Chrome)';
+        if (iosMistakeTip) {
+          iosMistakeTip.style.background = 'rgba(56, 189, 248, 0.12)';
+          iosMistakeTip.style.borderColor = 'rgba(56, 189, 248, 0.35)';
+          iosMistakeTip.style.color = '#bae6fd';
+          iosMistakeTip.innerHTML = '🌐 <strong>아이폰 크롬(Chrome)</strong> 감지! 화면 맨 위 주소창 오른쪽 끝의 <strong>[ 네모 위 화살표 📤 ]</strong> 아이콘을 누르셔야 합니다!';
+        }
+        if (iosStep1Title) iosStep1Title.innerHTML = '화면 맨 위 주소창 옆 <strong style="color:#38bdf8;">[ 공유 📤 ]</strong> 터치';
+        if (iosStep1Desc) iosStep1Desc.innerHTML = '주소창(toomcard.com) 바로 오른쪽에 붙어있는 네모 위 화살표 아이콘';
+        if (btnHighlightShareText) btnHighlightShareText.textContent = '알겠어요! 맨 위 [공유 📤] 위치 보기 👆';
+      } else {
+        if (tabIos) tabIos.textContent = '🍎 아이폰 (Safari)';
+        if (iosMistakeTip) {
+          iosMistakeTip.style.background = 'rgba(245, 158, 11, 0.12)';
+          iosMistakeTip.style.borderColor = 'rgba(245, 158, 11, 0.35)';
+          iosMistakeTip.style.color = '#fef08a';
+          iosMistakeTip.innerHTML = '💡 <strong>주의:</strong> 주소창 메뉴가 아니라, 화면 맨 아래 툴바의 <strong>[ 네모 위 화살표 📤 ]</strong> 아이콘을 누르셔야 합니다!';
+        }
+        if (iosStep1Title) iosStep1Title.innerHTML = '사파리 하단 <strong style="color:#38bdf8;">[ 공유 📤 ]</strong> 터치';
+        if (iosStep1Desc) iosStep1Desc.innerHTML = '화면 맨 아래 가운데 네모 위 화살표 아이콘';
+        if (btnHighlightShareText) btnHighlightShareText.textContent = '알겠어요! 지금 바로 추가할게요 👇';
+      }
+
       if (isIOS) {
         switchInstallTab('ios');
       } else {
@@ -1704,13 +1758,37 @@
     function highlightSafariShare() {
       closeInstallModal();
       const tooltip = document.getElementById('safariPointerTooltip');
-      if (tooltip) {
-        tooltip.classList.add('active');
-        if (safariPointerTimer) clearTimeout(safariPointerTimer);
-        safariPointerTimer = setTimeout(() => {
-          tooltip.classList.remove('active');
-        }, 8000);
+      if (!tooltip) return;
+
+      const ua = navigator.userAgent || '';
+      const isChromeIOS = /CriOS/i.test(ua);
+      
+      const textMain = document.getElementById('tooltipTextMain');
+      const textSub = document.getElementById('tooltipTextSub');
+      const arrowUp = document.getElementById('tooltipArrowUp');
+      const arrowDown = document.getElementById('tooltipArrowDown');
+
+      if (isChromeIOS) {
+        // 아이폰 크롬(Chrome): 주소창 옆 [ 📤 ]를 위쪽으로 가리킴
+        tooltip.classList.add('top-mode');
+        if (textMain) textMain.innerHTML = '화면 맨 위 주소창 옆 <strong style="color: #38bdf8;">[ 📤 공유 ]</strong> 아이콘 터치!';
+        if (textSub) textSub.innerHTML = '아래로 내려 <strong style="color: #ffd978;">[홈 화면에 추가]</strong>를 누르면 설치 완료!';
+        if (arrowUp) arrowUp.style.display = 'block';
+        if (arrowDown) arrowDown.style.display = 'none';
+      } else {
+        // 사파리: 화면 맨 아래 [ 📤 ]를 아래쪽으로 가리킴
+        tooltip.classList.remove('top-mode');
+        if (textMain) textMain.innerHTML = '지금 화면 맨 아래 <strong style="color: #38bdf8;">[ 📤 공유 ]</strong> 아이콘 터치!';
+        if (textSub) textSub.innerHTML = '그 다음 <strong style="color: #ffd978;">[홈 화면에 추가]</strong>를 누르면 설치 완료!';
+        if (arrowUp) arrowUp.style.display = 'none';
+        if (arrowDown) arrowDown.style.display = 'block';
       }
+
+      tooltip.classList.add('active');
+      if (safariPointerTimer) clearTimeout(safariPointerTimer);
+      safariPointerTimer = setTimeout(() => {
+        tooltip.classList.remove('active');
+      }, 9000);
     }
 
     function hideSafariPointer() {
