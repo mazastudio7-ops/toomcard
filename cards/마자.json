@@ -20,11 +20,11 @@
     "수익형 자산 엑시트"
   ],
   "logo": {
-    "src": "/assets/logo.png",
+    "src": "/assets/mazalogo.gif",
     "fallback": "/assets/logo.png",
     "alt": "MAZA Logo"
   },
-  "avatar": "/assets/logo.png",
+  "avatar": "/assets/mazalogo.gif",
   "plateCardImage": "/assets/maza_front_plate.jpg",
   "primaryAction": {
     "url": "https://toomcard.com",
