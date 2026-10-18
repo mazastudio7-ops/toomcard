@@ -1,33 +1,33 @@
 :root {
-  --bg-body: #07040d;
-  --bg-card: #130a24;
-  --card-gradient: linear-gradient(155deg, #130a24 0%, #1a0f30 52%, #1f1042 100%);
+  --bg-body: radial-gradient(circle at 50% 15%, #151122 0%, #0a0912 65%, #050408 100%);
+  --bg-card: #0a0b10;
+  --card-gradient: linear-gradient(155deg, #12111a 0%, #090a0e 48%, #14111f 100%);
   --neon-accent: #a855f7;
-  --neon-glow: rgba(168, 85, 247, 0.4);
-  --border-accent: rgba(168, 85, 247, 0.4);
-  --border-subtle: rgba(168, 85, 247, 0.2);
-  --gold-accent: #ffd978;
-  --tagline-color: rgba(255, 217, 120, 0.38);
-  --logo-bg: #07040d;
-  --logo-border: rgba(168, 85, 247, 0.5);
-  --logo-shadow: 0 16px 40px rgba(0, 0, 0, 0.75), 0 0 28px rgba(168, 85, 247, 0.35);
-  --key-color: #c084fc;
-  --moat-bg: rgba(168, 85, 247, 0.12);
-  --moat-border: rgba(168, 85, 247, 0.32);
-  --moat-text: #e9d5ff;
-  --save-btn-bg: linear-gradient(135deg, #ffd978 0%, #f59e0b 100%);
-  --save-btn-shadow: 0 4px 14px rgba(245, 158, 11, 0.3);
-  --save-btn-color: #110d1a;
-  --watermark-color: rgba(255, 255, 255, 0.045);
+  --neon-glow: rgba(168, 85, 247, 0.25);
+  --border-accent: rgba(255, 255, 255, 0.2);
+  --border-subtle: rgba(255, 255, 255, 0.09);
+  --gold-accent: #c084fc;
+  --tagline-color: rgba(255, 255, 255, 0.72);
+  --logo-bg: radial-gradient(circle at 35% 35%, #191626 0%, #090810 100%);
+  --logo-border: rgba(168, 85, 247, 0.32);
+  --logo-shadow: 0 16px 36px rgba(0, 0, 0, 0.9), 0 0 22px rgba(168, 85, 247, 0.22);
+  --key-color: #ffffff;
+  --moat-bg: rgba(255, 255, 255, 0.045);
+  --moat-border: rgba(168, 85, 247, 0.22);
+  --moat-text: #f1f5f9;
+  --save-btn-bg: linear-gradient(135deg, #9333ea 0%, #7e22ce 52%, #6b21a8 100%);
+  --save-btn-shadow: 0 6px 20px rgba(147, 51, 234, 0.42), inset 0 1px 1px rgba(255, 255, 255, 0.35);
+  --save-btn-color: #ffffff;
+  --watermark-color: rgba(255, 255, 255, 0.025);
 }
 
 @keyframes logoPulse {
   0%, 100% {
-    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6), 0 0 26px rgba(168, 85, 247, 0.3);
-    border-color: rgba(168, 85, 247, 0.45);
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.85), 0 0 20px rgba(168, 85, 247, 0.2);
+    border-color: rgba(168, 85, 247, 0.32);
   }
   50% {
-    box-shadow: 0 20px 48px rgba(0, 0, 0, 0.75), 0 0 38px rgba(217, 70, 239, 0.5);
-    border-color: rgba(217, 70, 239, 0.6);
+    box-shadow: 0 20px 48px rgba(0, 0, 0, 0.95), 0 0 32px rgba(168, 85, 247, 0.38);
+    border-color: rgba(168, 85, 247, 0.55);
   }
 }
