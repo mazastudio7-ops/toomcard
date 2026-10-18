@@ -9,7 +9,7 @@
   "title": "대표",
   "company": "SETUPOD",
   "companyWatermark": "SETUPOD",
-  "slogan": "스마트한 일상을 완성하는 비즈니스 플랫폼",
+  "slogan": "내 도메인에 즉시 연결하는 턴키 디지털 비즈니스 플랫폼",
   "tagline": "DIGITAL BUSINESS PLATFORM",
   "phone": "010-2661-0070",
   "phoneLabel": "M",
@@ -17,9 +17,9 @@
   "emailLabel": "E",
   "origin": "SETUPOD Global",
   "moatTags": [
-    "3D 인터랙티브",
-    "vCard 주소록 저장",
-    "비즈니스 워크스페이스"
+    "턴키 웹 비즈니스",
+    "디지털 자산 분양",
+    "1초 원클릭 런칭"
   ],
   "logo": {
     "src": "/assets/setupod.gif",
@@ -60,13 +60,13 @@
     "tel": "010-2661-0070",
     "email": "ceo@setupod.com",
     "url": "https://setupod.com",
-    "note": "SETUPOD | 스마트한 일상을 완성하는 비즈니스 플랫폼"
+    "note": "SETUPOD | 내 도메인에 즉시 연결하는 턴키 디지털 비즈니스 플랫폼"
   },
   "meta": {
     "title": "SETUPOD | Andrew K 대표 3D 디지털 명함",
     "siteName": "SETUPOD",
     "ogTitle": "Andrew K 대표 | SETUPOD",
-    "ogDescription": "스마트한 일상을 완성하는 비즈니스 플랫폼 | SETUPOD 공식 3D 디지털 명함",
+    "ogDescription": "내 도메인에 즉시 연결하는 턴키 디지털 비즈니스 플랫폼 | SETUPOD 공식 3D 디지털 명함",
     "ogImage": "https://toomcard.com/assets/setupod_card_minimal.jpg"
   }
 }
