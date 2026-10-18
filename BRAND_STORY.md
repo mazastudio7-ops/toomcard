@@ -110,15 +110,46 @@
 | 브랜드 | 공식 심볼 모션 (GIF) | 워드마크 / 플레이트 아트워크 | 슬로건 (Official Slogan) |
 |:---|:---|:---|:---|
 | **TOOMCARD** | `assets/logo_toomcard.gif` | `assets/logo_toomcard_wordmark.png`<br>`assets/toomcard_front_plate.jpg` | **DIGITAL BUSINESS CARD** |
-| **MAZA** | `assets/logo_maza.gif` | `assets/maza_card_minimal.jpg`<br>`assets/maza_front_plate.jpg` | **DIGITAL ASSET FLIPPING** |
+| **MAZA** | `assets/logo_maza.gif`<br>`assets/logo_maza.png` | `assets/maza_card_minimal.jpg`<br>`assets/maza_front_plate.jpg` | **DIGITAL ASSET FLIPPING** |
 | **SETUPOD** | `assets/logo_setupod.gif`<br>`assets/logo_setupod.png` (`.jpg`) | `assets/setupod_card_minimal.jpg`<br>`assets/setupod_front_plate.jpg` | **DIGITAL BUSINESS PLATFORM** |
-| **TOOMUS** | `assets/logo_toomus.gif` | `assets/toomus_card_minimal.jpg`<br>`assets/toomus_front_plate.jpg` | **CONNECTING ENDLESS POTENTIAL** |
-| **공통 폴백** | `assets/logo_default.png` | `assets/icon-512.png` | - |
+| **TOOMUS** | `assets/logo_toomus.gif`<br>`assets/logo_toomus.jpg` | `assets/toomus_card_minimal.jpg`<br>`assets/toomus_front_plate.jpg` | **CONNECTING ENDLESS POTENTIAL** |
 
 * **단일화 원칙 (Single Source of Truth):** 과거 비정형 파일명(`mazalogo.gif`, `setupod.gif`, `toomuslogo.gif`, `wordmark.png` 등)은 전사 코드 및 assets에서 완전 영구 퇴출되었으며, 오직 `logo_` 표준 규격 단일 파일만 사용한다.
 
 ---
 
-*문서 최종 개정일: 2026년 10월 19일 (브랜드 사용 체계, 디자인 락다운 원칙 및 에셋 네이밍 표준 규약 확립)*  
+## 8. 듀얼 에디션 브랜드 매트릭스 (Dual-Edition Matrix)
+
+모든 패밀리 브랜드(TOOMUS, SETUPOD, MAZA)는 사용자의 브랜드 감성과 비즈니스 맥락에 맞춰 선택할 수 있도록 **상호 대칭적인 듀얼 에디션(Dual-Edition Architecture)**으로 완벽히 전개된다.
+
+```
+┌────────────────────────────────────────────────────────────────────────┐
+│                        TOOMUS BRAND ARCHITECTURE                       │
+├──────────────────────────────────┬─────────────────────────────────────┤
+│   Line 1: NEON TITANIUM EDITION  │  Line 2: PLATINUM CHROME EDITION    │
+│   (옵시디언 티타늄 & 네온 바이올렛)│  (스위스 플래티넘 크롬 & 브러시드)  │
+├──────────────────────────────────┼─────────────────────────────────────┤
+│ • TOOMUS Neon Violet             │ • TOOMUS Architectural Chrome (원조)│
+│ • SETUPOD Neon Violet (원조)      │ • SETUPOD Platinum Chrome           │
+│ • MAZA Neon Violet (원조)         │ • MAZA Platinum Chrome              │
+└──────────────────────────────────┴─────────────────────────────────────┘
+```
+
+### 공식 에셋 매트릭스 명세
+
+| 브랜드 | Line 1: Neon Titanium (사이버/네온 럭셔리) | Line 2: Platinum Chrome (스위스 클래식 럭셔리) | 공식 슬로건 |
+|:---|:---|:---|:---|
+| **TOOMUS** | `assets/toomus_card_neon.jpg`<br>`assets/toomus_front_plate_neon.jpg` | `assets/toomus_card_minimal.jpg`<br>`assets/toomus_front_plate.jpg` | **CONNECTING ENDLESS POTENTIAL** |
+| **SETUPOD** | `assets/setupod_card_minimal.jpg`<br>`assets/setupod_front_plate.jpg` | `assets/setupod_card_chrome.jpg`<br>`assets/setupod_front_plate_chrome.jpg` | **DIGITAL BUSINESS PLATFORM** |
+| **MAZA** | `assets/maza_card_minimal.jpg`<br>`assets/maza_front_plate.jpg` | `assets/maza_card_chrome.jpg`<br>`assets/maza_front_plate_chrome.jpg` | **DIGITAL ASSET FLIPPING** |
+
+* **에디션별 미학 설계:**
+  - **Neon Titanium:** 심해의 다크 옵시디언 티타늄 배경 위 3D 베벨 엠보싱 림과 바이올렛 네온 앰비언트 글로우의 초현대적 사이버 럭셔리.
+  - **Platinum Chrome:** 스위스 바우하우스 건축 미학의 헤어라인 브러시드 스틸 배경 위 차가운 하이 콘트라스트 플래티넘 크롬 양각 메탈.
+
+---
+
+*문서 최종 개정일: 2026년 10월 19일 (브랜드 사용 체계, 디자인 락다운 원칙, 에셋 네이밍 표준 및 3대 브랜드 듀얼 에디션 매트릭스 확립)*  
 *TOOMUS Global & TOOMCARD Brand Architecture*
+
 
