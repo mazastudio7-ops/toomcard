@@ -23,7 +23,7 @@
   ],
   "logo": {
     "src": "/assets/logo_setupod.gif",
-    "fallback": "/assets/logo_setupod.gif",
+    "fallback": "/assets/logo_setupod.png",
     "alt": "SETUPOD Logo"
   },
   "avatar": "/assets/logo_setupod.gif",

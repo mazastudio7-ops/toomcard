@@ -111,7 +111,7 @@
 |:---|:---|:---|:---|
 | **TOOMCARD** | `assets/logo_toomcard.gif` | `assets/logo_toomcard_wordmark.png`<br>`assets/toomcard_front_plate.jpg` | **DIGITAL BUSINESS CARD** |
 | **MAZA** | `assets/logo_maza.gif` | `assets/maza_card_minimal.jpg`<br>`assets/maza_front_plate.jpg` | **DIGITAL ASSET FLIPPING** |
-| **SETUPOD** | `assets/logo_setupod.gif` | `assets/setupod_card_minimal.jpg`<br>`assets/setupod_front_plate.jpg` | **DIGITAL BUSINESS PLATFORM** |
+| **SETUPOD** | `assets/logo_setupod.gif`<br>`assets/logo_setupod.png` (`.jpg`) | `assets/setupod_card_minimal.jpg`<br>`assets/setupod_front_plate.jpg` | **DIGITAL BUSINESS PLATFORM** |
 | **TOOMUS** | `assets/logo_toomus.gif` | `assets/toomus_card_minimal.jpg`<br>`assets/toomus_front_plate.jpg` | **CONNECTING ENDLESS POTENTIAL** |
 | **공통 폴백** | `assets/logo_default.png` | `assets/icon-512.png` | - |
 
