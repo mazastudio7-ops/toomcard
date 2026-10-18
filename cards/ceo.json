@@ -5,31 +5,31 @@
   "layout": "classic",
   "edition": "SWISS TITANIUM PRO",
   "name": "Andrew K",
-  "role": "투머스 / 대표",
+  "role": "툼카드 / 대표",
   "title": "대표",
-  "company": "TOOMUS",
-  "companyWatermark": "TOOMUS",
-  "slogan": "무한한 가능성을 연결하는 비즈니스 플랫폼",
-  "tagline": "ENDLESS POTENTIAL",
+  "company": "TOOMCARD",
+  "companyWatermark": "TOOMCARD",
+  "slogan": "오늘의 짧은 만남을 내일의 거대한 비즈니스로 잇는 스마트 카드",
+  "tagline": "NEXT-GEN 3D BIZ CARD",
   "phone": "010-2661-0070",
-  "email": "ceo@toomus.com",
-  "origin": "TOOMUS Global",
+  "email": "ceo@toomcard.com",
+  "origin": "TOOMCARD Global",
   "moatTags": [
-    "디지털 자산화",
-    "전략적 비즈니스 빌드",
-    "글로벌 파트너십"
+    "3D 인터랙티브",
+    "원클릭 vCard 저장",
+    "스마트 NFC 하드웨어"
   ],
   "logo": {
-    "src": "/assets/toomuslogo.gif",
-    "fallback": "/assets/toomuslogo.gif",
-    "alt": "TOOMUS Logo"
+    "src": "/assets/toomcard_hd.gif",
+    "fallback": "/assets/toomcard_hd.gif",
+    "alt": "TOOMCARD Logo"
   },
-  "avatar": "/assets/toomuslogo.gif",
-  "plateCardImage": "/assets/toomus_front_plate.png",
+  "avatar": "/assets/toomcard_hd.gif",
+  "plateCardImage": "/assets/toomcard_front_plate.png",
   "primaryAction": {
-    "url": "https://toomus.com",
-    "label": "공식 웹사이트",
-    "icon": "globe"
+    "url": "https://toomcard.com",
+    "label": "TOOMCARD 바로가기",
+    "icon": "sparkles"
   },
   "socials": [
     {
@@ -47,17 +47,18 @@
     "firstName": "Andrew",
     "lastName": "K",
     "formattedName": "Andrew K",
-    "org": "TOOMUS",
-    "title": "투머스 대표 / Product Lead",
+    "org": "TOOMCARD",
+    "title": "툼카드 대표 / Product Lead",
     "tel": "010-2661-0070",
-    "email": "ceo@toomus.com",
-    "url": "https://toomus.com"
+    "email": "ceo@toomcard.com",
+    "url": "https://toomcard.com/ceo",
+    "note": "TOOMCARD | 오늘의 짧은 만남을 내일의 거대한 비즈니스로 잇는 3D 스마트 명함"
   },
   "meta": {
-    "title": "TOOMUS | Andrew K 대표 디지털 명함",
-    "siteName": "TOOMUS",
-    "ogTitle": "Andrew K | TOOMUS 대표",
-    "ogDescription": "무한한 가능성을 연결하는 비즈니스 플랫폼 | TOOMUS 공식 디지털 명함",
-    "ogImage": "/assets/toomus_card_minimal.jpg"
+    "title": "TOOMCARD | Andrew K 대표 3D 디지털 명함",
+    "siteName": "TOOMCARD",
+    "ogTitle": "Andrew K | TOOMCARD 대표",
+    "ogDescription": "오늘의 짧은 만남을 내일의 거대한 비즈니스로 잇는 살아 움직이는 3D 스마트 명함",
+    "ogImage": "/assets/toomcard_card_hybrid.jpg"
   }
 }
