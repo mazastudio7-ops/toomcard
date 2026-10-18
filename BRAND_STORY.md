@@ -115,7 +115,7 @@
 | **TOOMUS** | `assets/logo_toomus.gif` | `assets/toomus_card_minimal.jpg`<br>`assets/toomus_front_plate.jpg` | **CONNECTING ENDLESS POTENTIAL** |
 | **공통 폴백** | `assets/logo_default.png` | `assets/icon-512.png` | - |
 
-* **하위 호환성 보장 원칙:** 외부 공유 링크, 구버전 캐시 및 과거 경로(`mazalogo.gif`, `setupod.gif`, `toomuslogo.gif`, `wordmark.png` 등)는 듀얼 미러링으로 영구 유지하여 404 링크 깨짐을 원천 방지한다.
+* **단일화 원칙 (Single Source of Truth):** 과거 비정형 파일명(`mazalogo.gif`, `setupod.gif`, `toomuslogo.gif`, `wordmark.png` 등)은 전사 코드 및 assets에서 완전 영구 퇴출되었으며, 오직 `logo_` 표준 규격 단일 파일만 사용한다.
 
 ---
 
