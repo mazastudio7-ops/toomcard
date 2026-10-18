@@ -1405,12 +1405,12 @@
           <i data-lucide="alert-triangle" style="width: 14px; height: 14px; flex-shrink: 0;"></i>
           <span>카카오톡/인앱 브라우저 안내</span>
         </div>
-        <div style="font-size: 11.5px; color: rgba(255,255,255,0.85); line-height: 1.5; margin-bottom: 10px;">
-          카카오톡 안에서는 보안상 바로가기 설치가 차단됩니다. 아래 버튼을 눌러 <strong>Chrome</strong>으로 열면 <strong>1초 만에 설치</strong>할 수 있습니다!
+        <div id="installInAppDesc" style="font-size: 11.5px; color: rgba(255,255,255,0.85); line-height: 1.5; margin-bottom: 10px;">
+          카카오톡 안에서는 바로가기 추가가 차단됩니다. 아래 버튼을 눌러 외부 브라우저로 열어주세요!
         </div>
-        <button onclick="openInChrome()" style="width: 100%; padding: 11px; background: linear-gradient(90deg, #38bdf8, #2563eb); border: none; border-radius: 8px; color: white; font-weight: 700; font-size: 12.5px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);">
+        <button onclick="openExternalBrowser()" style="width: 100%; padding: 11px; background: linear-gradient(90deg, #38bdf8, #2563eb); border: none; border-radius: 8px; color: white; font-weight: 700; font-size: 12.5px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);">
           <i data-lucide="external-link" style="width: 14px; height: 14px;"></i>
-          <span>Chrome으로 열고 바로 설치 ⚡</span>
+          <span id="installInAppBtnText">Safari(사파리)로 열기 🧭</span>
         </button>
       </div>
 
@@ -1526,8 +1526,20 @@
       const isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
       const inAppBox = document.getElementById('installInAppBox');
+      const inAppDesc = document.getElementById('installInAppDesc');
+      const inAppBtnText = document.getElementById('installInAppBtnText');
+
       if (inAppBox) {
         inAppBox.style.display = isInApp ? 'block' : 'none';
+        if (isInApp) {
+          if (isIOS) {
+            if (inAppDesc) inAppDesc.innerHTML = '카카오톡 안에서는 바로가기 추가가 차단됩니다.<br>아래 버튼을 눌러 <strong>Safari(사파리)</strong>로 열어주세요!';
+            if (inAppBtnText) inAppBtnText.textContent = 'Safari(사파리)로 열기 🧭';
+          } else {
+            if (inAppDesc) inAppDesc.innerHTML = '카카오톡 안에서는 바로가기 설치가 차단됩니다.<br>아래 버튼을 눌러 <strong>Chrome</strong>으로 열면 <strong>1초 만에 설치</strong>할 수 있습니다!';
+            if (inAppBtnText) inAppBtnText.textContent = 'Chrome으로 열고 바로 설치 ⚡';
+          }
+        }
       }
 
       if (isIOS) {
@@ -1573,11 +1585,20 @@
       }
     }
 
-    // 안드로이드 카카오톡/인앱 브라우저 탈출 -> Chrome 직행 인텐트
-    function openInChrome() {
-      const cleanUrl = window.location.href.replace(/^https?:\/\//i, '');
-      const chromeIntent = `intent://${cleanUrl}#Intent;scheme=https;package=com.android.chrome;end`;
-      window.location.href = chromeIntent;
+    // 카카오톡/인앱 브라우저 탈출 -> 기기별 외부 브라우저(Safari / Chrome) 직행
+    function openExternalBrowser() {
+      const ua = navigator.userAgent || '';
+      const isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+      const currentUrl = window.location.href;
+
+      if (isIOS) {
+        // iOS 카카오톡 인앱 브라우저 탈출 -> Safari 직행 (카카오톡 공식 스킴)
+        window.location.href = 'kakaotalk://web/openExternal?url=' + encodeURIComponent(currentUrl);
+      } else {
+        // Android 카카오톡 인앱 브라우저 탈출 -> Chrome 직행
+        const cleanUrl = currentUrl.replace(/^https?:\/\//i, '');
+        window.location.href = `intent://${cleanUrl}#Intent;scheme=https;package=com.android.chrome;end`;
+      }
     }
 
     async function submitLead() {
