@@ -1,18 +1,21 @@
 {
   "slug": "setupod",
+  "id": "setupod",
+  "theme": "maza",
+  "layout": "plate",
+  "edition": "TITANIUM PRO",
+  "name": "Andrew K",
+  "role": "대표",
+  "title": "대표",
   "company": "SETUPOD",
-  "companySlug": "setupod",
-  "layout": "classic",
-  "theme": "obsidian",
   "companyWatermark": "SETUPOD",
   "slogan": "스마트한 일상을 완성하는 비즈니스 플랫폼",
   "tagline": "SMART LIFE · WORKSPACE",
-  "role": "대표",
-  "name": "Andrew K",
   "phone": "010-2661-0070",
   "phoneLabel": "M",
   "email": "ceo@setupod.com",
   "emailLabel": "E",
+  "origin": "SETUPOD Global",
   "moatTags": [
     "3D 인터랙티브",
     "vCard 주소록 저장",
@@ -23,10 +26,16 @@
     "fallback": "/assets/setupod.gif",
     "alt": "SETUPOD Logo"
   },
+  "avatar": "/assets/setupod.gif",
+  "plateCardImage": "/assets/setupod_front_plate.jpg",
   "primaryAction": {
     "url": "https://setupod.com",
     "label": "공식 웹사이트",
     "icon": "sparkles"
+  },
+  "affiliateAction": {
+    "url": "https://link.coupang.com/a/hU0XFYJxfg",
+    "label": "추천 아이템 / 파트너 링크 🛍️"
   },
   "socials": [
     {
@@ -54,12 +63,10 @@
     "note": "SETUPOD | 스마트한 일상을 완성하는 비즈니스 플랫폼"
   },
   "meta": {
-    "title": "SETUPOD | Andrew K 대표 디지털 명함",
+    "title": "SETUPOD | Andrew K 대표 3D 디지털 명함",
     "siteName": "SETUPOD",
     "ogTitle": "Andrew K 대표 | SETUPOD",
-    "ogDescription": "스마트한 일상을 완성하는 비즈니스 플랫폼 | SETUPOD 공식 디지털 명함",
-    "ogImage": "https://toomcard.com/assets/toomcard_card_hybrid.jpg"
-  },
-  "avatar": "/assets/setupod.gif",
-  "plateCardImage": "/assets/toomcard_front_plate.png"
+    "ogDescription": "스마트한 일상을 완성하는 비즈니스 플랫폼 | SETUPOD 공식 3D 디지털 명함",
+    "ogImage": "https://toomcard.com/assets/setupod_card_minimal.jpg"
+  }
 }
