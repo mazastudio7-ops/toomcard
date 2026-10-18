@@ -181,6 +181,7 @@ module.exports = async (req, res) => {
     let html = fs.readFileSync(htmlPath, 'utf8');
 
     // 4. Determine Dynamic OG Meta Tags
+    const isCeo = slugsToTry.some(s => s === 'ceo' || s === 'andrew' || s === '대표');
     const isHyangwon = slugsToTry.some(s => s === 'hyangwon' || s === '이향원' || s === 'hyanwon' || s === 'won');
 
     let cardTheme = loadedCardObj?.theme || 'obsidian';
@@ -188,7 +189,11 @@ module.exports = async (req, res) => {
     let ogTitle = `${title} | ${company} - TOOMCARD`;
     let ogDesc = subtitle || '종이 명함의 시대를 끝내는 살아 움직이는 3D 스마트 명함';
 
-    if (isHyangwon) {
+    if (isCeo) {
+      ogImageUrl = 'https://toomcard.com/assets/toomcard_og_ceo.jpg';
+      ogTitle = 'Andrew K 대표 (CEO) | TOOMCARD 3D 디지털 명함';
+      ogDesc = '종이 명함의 시대를 끝내는 살아 움직이는 3D 스마트 명함 · 탭하여 연락처 저장 및 프로필 확인';
+    } else if (isHyangwon) {
       ogImageUrl = 'https://toomcard.com/assets/toomcard_og_hyangwon.jpg';
       ogTitle = '이향원 이사(Director) | TOOMCARD 3D 디지털 명함';
       ogDesc = '종이 명함의 시대를 끝내는 살아 움직이는 3D 스마트 명함 · 탭하여 연락처 저장 및 프로필 확인';

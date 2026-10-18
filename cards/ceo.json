@@ -31,6 +31,10 @@
     "label": "TOOMCARD 바로가기",
     "icon": "sparkles"
   },
+  "affiliateAction": {
+    "url": "https://link.coupang.com/a/hU0XFYJxfg",
+    "label": "추천 아이템 / 파트너 링크 🛍️"
+  },
   "socials": [
     {
       "type": "kakao",
@@ -57,8 +61,8 @@
   "meta": {
     "title": "TOOMCARD | Andrew K 대표 3D 디지털 명함",
     "siteName": "TOOMCARD",
-    "ogTitle": "Andrew K | TOOMCARD 대표",
-    "ogDescription": "오늘의 짧은 만남을 내일의 거대한 비즈니스로 잇는 살아 움직이는 3D 스마트 명함",
-    "ogImage": "/assets/toomcard_card_hybrid.jpg"
+    "ogTitle": "Andrew K 대표 (CEO) | TOOMCARD 3D 디지털 명함",
+    "ogDescription": "종이 명함의 시대를 끝내는 살아 움직이는 3D 스마트 명함 · 탭하여 연락처 저장 및 프로필 확인",
+    "ogImage": "https://toomcard.com/assets/toomcard_og_ceo.jpg"
   }
 }
