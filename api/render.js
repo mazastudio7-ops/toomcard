@@ -116,10 +116,13 @@ module.exports = async (req, res) => {
     
     let targetJsonPath = candidates.find(p => fs.existsSync(p)) || null;
 
+    let loadedCardObj = null;
+
     if (targetJsonPath) {
       try {
         const raw = fs.readFileSync(targetJsonPath, 'utf8');
         const card = JSON.parse(raw);
+        loadedCardObj = card;
         title = card.name || card.meta?.title || title;
         subtitle = `${card.role || ''} · ${card.slogan || ''}`.trim() || subtitle;
         company = card.company || company;
@@ -160,6 +163,7 @@ module.exports = async (req, res) => {
 
       if (pod && pod.components_json) {
         const card = pod.components_json.card || pod.components_json;
+        loadedCardObj = card;
         title = card.name || profile?.name || title;
         subtitle = `${card.role || profile?.handle || ''} · ${card.slogan || card.tagline || ''}`.trim() || subtitle;
         company = card.company || profile?.bio || company;
@@ -179,7 +183,7 @@ module.exports = async (req, res) => {
     // 4. Determine Dynamic OG Meta Tags
     const isHyangwon = slugsToTry.some(s => s === 'hyangwon' || s === '이향원' || s === 'hyanwon' || s === 'won');
 
-    let cardTheme = 'obsidian';
+    let cardTheme = loadedCardObj?.theme || 'obsidian';
     let ogImageUrl = '';
     let ogTitle = `${title} | ${company} - TOOMCARD`;
     let ogDesc = subtitle || '종이 명함의 시대를 끝내는 살아 움직이는 3D 스마트 명함';
@@ -188,18 +192,14 @@ module.exports = async (req, res) => {
       ogImageUrl = 'https://toomcard.com/assets/toomcard_og_hyangwon.jpg';
       ogTitle = '이향원 이사(Director) | TOOMCARD 3D 디지털 명함';
       ogDesc = '종이 명함의 시대를 끝내는 살아 움직이는 3D 스마트 명함 · 탭하여 연락처 저장 및 프로필 확인';
-    } else if (targetJsonPath) {
-      try {
-        const cJson = JSON.parse(fs.readFileSync(targetJsonPath, 'utf8'));
-        if (cJson.theme) cardTheme = cJson.theme;
-        if (cJson.meta?.ogTitle) ogTitle = cJson.meta.ogTitle;
-        if (cJson.meta?.ogDescription) ogDesc = cJson.meta.ogDescription;
+    } else if (loadedCardObj) {
+      if (loadedCardObj.meta?.ogTitle) ogTitle = loadedCardObj.meta.ogTitle;
+      if (loadedCardObj.meta?.ogDescription) ogDesc = loadedCardObj.meta.ogDescription;
 
-        // 개인 전용 맞춤 커스텀 이미지가 지정되어 있는 경우 우선 적용
-        if (cJson.meta?.ogImage && !cJson.meta.ogImage.includes('toomcard_card_hybrid') && !cJson.meta.ogImage.includes('toomus_card_minimal') && !cJson.meta.ogImage.includes('toomcard_front_plate')) {
-          ogImageUrl = cJson.meta.ogImage.startsWith('http') ? cJson.meta.ogImage : `https://toomcard.com${cJson.meta.ogImage}`;
-        }
-      } catch(e) {}
+      // 개인 전용 맞춤 커스텀 이미지가 지정되어 있는 경우 우선 적용
+      if (loadedCardObj.meta?.ogImage && !loadedCardObj.meta.ogImage.includes('toomcard_card_hybrid') && !loadedCardObj.meta.ogImage.includes('toomus_card_minimal') && !loadedCardObj.meta.ogImage.includes('toomcard_front_plate')) {
+        ogImageUrl = loadedCardObj.meta.ogImage.startsWith('http') ? loadedCardObj.meta.ogImage : `https://toomcard.com${loadedCardObj.meta.ogImage}`;
+      }
     }
 
     // [옵션 1] 개인마다 이름, 직함, 회사명이 실시간 렌더링된 1200x630 동적 OG 이미지 생성
@@ -220,7 +220,26 @@ module.exports = async (req, res) => {
     const dynamicManifestUrl = `/manifest/${encodeURIComponent(cleanSlug || 'toomus')}.json`;
     html = html.replace(/<link\s+rel=["']manifest["'].*?>/i, `<link rel="manifest" href="${dynamicManifestUrl}">`);
 
+    // SSR 레이아웃 & 테마 사전 적용 (첫 화면 깜빡임 완벽 제거)
+    if (loadedCardObj) {
+      const layout = loadedCardObj.layout || 'classic';
+      if (layout !== 'classic') {
+        html = html.replace(
+          '<link rel="stylesheet" id="layoutStylesheet" href="">',
+          `<link rel="stylesheet" id="layoutStylesheet" href="/themes/layout-${layout}.css">`
+        );
+        html = html.replace('class="card-scene"', `class="card-scene layout-${layout}"`);
+        html = html.replace('class="card-flipper"', `class="card-flipper layout-${layout}"`);
+      }
+      if (loadedCardObj.theme && loadedCardObj.theme !== 'obsidian') {
+        html = html.replace('/themes/obsidian.css', `/themes/${loadedCardObj.theme}.css`);
+      }
+    }
+
+    const initialDataScript = loadedCardObj ? `<script>window.INITIAL_CARD_DATA = ${JSON.stringify(loadedCardObj).replace(/</g, '\\u003c')};</script>` : '';
+
     const extraTags = `
+      ${initialDataScript}
       <meta property="og:url" content="https://toomcard.com/${isHyangwon ? 'hyangwon' : (cleanSlug || 'toomus')}" />
       <meta property="twitter:card" content="summary_large_image" />
       <meta property="twitter:title" content="${ogTitle}" />

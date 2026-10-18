@@ -295,7 +295,7 @@ function renderSocialModal(data) {
   modalList.innerHTML = itemsHtml;
 }
 
-// 메인 데이터 바인딩
+// 메인 데이터 바인딩 (layout CSS 로드 완료 후 resolve하는 Promise 반환)
 function populateCard(data) {
   cardData = data;
 
@@ -303,9 +303,26 @@ function populateCard(data) {
   const layout = data.layout || 'classic';
   const layoutStylesheet = document.getElementById('layoutStylesheet');
   const base = getBasePath();
-  if (layoutStylesheet) {
-    layoutStylesheet.href = layout === 'classic' ? '' : `${base}/themes/layout-${layout}.css`;
-  }
+
+  // layout CSS 로드 대기용 Promise
+  const layoutReady = new Promise((resolve) => {
+    if (!layoutStylesheet || layout === 'classic') {
+      if (layoutStylesheet) layoutStylesheet.href = '';
+      resolve();
+    } else {
+      const newHref = `${base}/themes/layout-${layout}.css`;
+      if (layoutStylesheet.href && layoutStylesheet.href.endsWith(newHref.replace(/^\./, ''))) {
+        resolve(); // 이미 같은 CSS 로드됨
+      } else {
+        layoutStylesheet.onload = () => resolve();
+        layoutStylesheet.onerror = () => resolve(); // 에러 시에도 멈추지 않도록
+        layoutStylesheet.href = newHref;
+        // 2초 타임아웃 보험 (네트워크 지연 방어)
+        setTimeout(resolve, 2000);
+      }
+    }
+  });
+
   const cardElement = document.getElementById('cardScene');
   if (cardElement) {
     cardElement.classList.remove('layout-classic', 'layout-metal', 'layout-visual', 'layout-editorial', 'layout-plate');
@@ -490,6 +507,9 @@ function populateCard(data) {
   if (window.lucide) {
     lucide.createIcons();
   }
+
+  // layout CSS 로드 완료 Promise 반환 (FOUC 방지)
+  return layoutReady;
 }
 
 // 3D Flip Card Toggle with 250ms Debounce & Propagation Protection
@@ -876,8 +896,7 @@ function populateCardFromCloud(cloud, company) {
 
   // 1. 직접 저장된 고품질 명함 객체(card)가 유효한 경우 바로 렌더링
   if (innerCard && innerCard.name && (innerCard.role || innerCard.company)) {
-    populateCard(innerCard);
-    return;
+    return populateCard(innerCard);
   }
 
   // 2. profile과 components_json을 누락 없이 지능형 병합 (단일 명함 발행 지원)
@@ -947,7 +966,7 @@ function populateCardFromCloud(cloud, company) {
     }
   };
 
-  populateCard(cardModel);
+  return populateCard(cardModel);
 }
 
 const CARD_ALIAS_MAP = {
@@ -1001,6 +1020,16 @@ const CARD_ALIAS_MAP = {
 
 // 초기화 진입점
 async function initCardEngine() {
+  // 0. SSR에서 주입된 데이터가 있으면 네트워크 대기 0초 즉시 렌더링 (화면 깜빡임 원천 차단)
+  if (window.INITIAL_CARD_DATA) {
+    await populateCard(window.INITIAL_CARD_DATA);
+    setupSwipe();
+    applyInitialFlipState();
+    const container = document.querySelector('.container');
+    if (container) container.classList.add('loaded');
+    return;
+  }
+
   const { company, slug } = getCardIdentifier();
   let decodedSlug = slug;
   try { decodedSlug = decodeURIComponent(slug); } catch(e) {}
@@ -1018,7 +1047,7 @@ async function initCardEngine() {
           cloud = await loadPodFromCloud(s);
         }
         if (cloud && (cloud.profile || cloud.pod)) {
-          populateCardFromCloud(cloud, company);
+          await populateCardFromCloud(cloud, company);
           setupSwipe();
           applyInitialFlipState();
           const container = document.querySelector('.container');
@@ -1054,7 +1083,7 @@ async function initCardEngine() {
       const res = await fetch(p);
       if (res.ok) {
         const data = await res.json();
-        populateCard(data);
+        await populateCard(data);
         loaded = true;
         break;
       }
@@ -1075,7 +1104,7 @@ async function initCardEngine() {
         const fallbackRes = await fetch(fb);
         if (fallbackRes.ok) {
           const fallbackData = await fallbackRes.json();
-          populateCard(fallbackData);
+          await populateCard(fallbackData);
           loaded = true;
           break;
         }
@@ -1086,7 +1115,7 @@ async function initCardEngine() {
   // 4. 완전 오프라인 / 404 차단용 내장 마스터 폴백 (절대 흰 화면 방지)
   if (!loaded) {
     console.warn("Using embedded master card fallback");
-    populateCard(DEFAULT_CARD_FALLBACK);
+    await populateCard(DEFAULT_CARD_FALLBACK);
     loaded = true;
   }
 
