@@ -93,7 +93,9 @@ module.exports = async (req, res) => {
     'andrew': 'andrew',
     'toomus': 'toomus',
     'setupod': 'setupod',
-    'toomcard': 'toomcard'
+    'toomcard': 'toomcard',
+    'maza': 'maza',
+    '마자': 'maza'
   };
 
   const aliasTarget = ALIAS_MAP[cleanSlug] || ALIAS_MAP[decodedSlug] || null;

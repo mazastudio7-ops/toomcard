@@ -1,0 +1,68 @@
+{
+  "slug": "maza",
+  "id": "maza",
+  "theme": "maza",
+  "layout": "plate",
+  "edition": "TITANIUM PRO",
+  "name": "Andrew K",
+  "role": "마자 / 대표",
+  "title": "대표",
+  "company": "MAZA",
+  "companyWatermark": "MAZA",
+  "slogan": "AI 자동화와 디지털 자산의 새로운 기준",
+  "tagline": "AI AUTOMATION & DIGITAL ASSETS",
+  "phone": "010-2661-0070",
+  "email": "ceo@toomcard.com",
+  "origin": "MAZA Global",
+  "moatTags": [
+    "AI 자동화 아키텍처",
+    "디지털 자산화",
+    "글로벌 비즈니스 빌드"
+  ],
+  "logo": {
+    "src": "/assets/logo.png",
+    "fallback": "/assets/logo.png",
+    "alt": "MAZA Logo"
+  },
+  "avatar": "/assets/logo.png",
+  "plateCardImage": "/assets/maza_front_plate.jpg",
+  "primaryAction": {
+    "url": "https://toomcard.com",
+    "label": "TOOMCARD 바로가기",
+    "icon": "sparkles"
+  },
+  "affiliateAction": {
+    "url": "https://link.coupang.com/a/hU0XFYJxfg",
+    "label": "추천 아이템 / 파트너 링크 🛍️"
+  },
+  "socials": [
+    {
+      "type": "kakao",
+      "url": "https://open.kakao.com/o/sFAWAlQi",
+      "label": "카카오 1:1"
+    },
+    {
+      "type": "instagram",
+      "url": "https://instagram.com/toomus7",
+      "label": "인스타그램"
+    }
+  ],
+  "vcard": {
+    "firstName": "Andrew",
+    "lastName": "K",
+    "formattedName": "Andrew K",
+    "org": "MAZA",
+    "title": "마자 대표 / Product Lead",
+    "tel": "010-2661-0070",
+    "email": "ceo@toomcard.com",
+    "url": "https://toomcard.com/maza",
+    "note": "MAZA | AI 자동화와 디지털 자산의 새로운 기준"
+  },
+  "meta": {
+    "title": "MAZA | Andrew K 대표 3D 디지털 명함",
+    "siteName": "MAZA",
+    "ogTitle": "Andrew K 대표 (CEO) | MAZA",
+    "ogDescription": "AI 자동화 & 디지털 자산의 새로운 기준 | MAZA 3D 디지털 명함",
+    "ogImage": "https://toomcard.com/assets/maza_card_minimal.jpg"
+  }
+}

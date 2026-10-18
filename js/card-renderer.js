@@ -1015,7 +1015,9 @@ const CARD_ALIAS_MAP = {
   'setupod': 'setupod',
   'toomcard': 'toomcard',
   'gold': 'gold',
-  'enterprise': 'enterprise'
+  'enterprise': 'enterprise',
+  'maza': 'maza',
+  '마자': 'maza'
 };
 
 // 초기화 진입점
