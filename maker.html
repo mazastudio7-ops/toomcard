@@ -2845,31 +2845,35 @@
         <div id="plateUploadSection">
           <div class="file-upload-box" onclick="document.getElementById('plateFileInput').click()" style="background:rgba(255,217,120,0.08); border:2px dashed rgba(255,217,120,0.5); border-radius:16px; padding:20px; text-align:center; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:6px; transition:all 0.2s;">
             <i data-lucide="layers" style="width:28px;height:28px;color:#ffd978;"></i>
-            <span style="font-size:13.5px;font-weight:900;color:#ffffff;">카드 앞면 전체를 채울 사진/아트워크 업로드</span>
-            <span style="font-size:11.5px;color:rgba(255,255,255,0.7);">피트니스/모델 사진, 아이언맨/조각 각인 일러스트, 매장 전경 등 (100% Full Bleed)</span>
+            <span style="font-size:13.5px;font-weight:900;color:#ffffff;">카드 앞면 전체를 채울 나만의 3D 아트워크 업로드</span>
+            <span style="font-size:11.5px;color:rgba(255,255,255,0.7);">앞면 디자인이 불변 고정되며, 뒷면 콕핏에 내 프로필이 입력되는 전면 100% 풀커버 플레이트</span>
             <input type="file" id="plateFileInput" accept="image/*" style="display:none" onchange="handlePlateUpload(event)">
           </div>
 
-          <!-- 추천 전면 풀커버 플레이트 샘플 (원클릭 테스트) -->
+          <!-- 추천 3D 브랜드 완성형 플레이트 (앞면 디자인 불변 원클릭 장착) -->
           <div style="margin-top:12px;">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
               <span style="font-size:12px;font-weight:800;color:#ffd978;display:flex;align-items:center;gap:6px;">
-                <i data-lucide="sparkles" style="width:14px;height:14px;"></i> 추천 전면 풀커버 플레이트 샘플
+                <i data-lucide="sparkles" style="width:14px;height:14px;"></i> 3D 완성형 브랜드 플레이트 (앞면 불변 고정)
               </span>
-              <span style="font-size:10.5px;color:rgba(255,255,255,0.5);">탭하면 전면 100% 반영</span>
+              <span style="font-size:10.5px;color:rgba(255,255,255,0.5);">탭하면 앞면 100% 장착</span>
             </div>
-            <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:8px;">
-              <button type="button" class="btn-logo-preset" style="padding:8px 4px; flex-direction:column; gap:6px; height:auto; text-align:center; background:rgba(255,255,255,0.05); border:1px solid rgba(255,217,120,0.3); border-radius:12px;" onclick="selectPlateArtwork('/assets/plate_fitness_membership.jpg', '피트니스 멤버십', this)">
-                <img src="/assets/plate_fitness_membership.jpg" style="width:48px;height:72px;border-radius:6px;object-fit:cover;border:1px solid #ffd978;box-shadow:0 0 10px rgba(255,217,120,0.3);">
-                <span style="font-size:10.5px;font-weight:800;color:#ffffff;">피트니스 멤버십</span>
+            <div style="display:grid;grid-template-columns:repeat(4, 1fr);gap:8px;">
+              <button type="button" class="btn-logo-preset" style="padding:8px 4px; flex-direction:column; gap:6px; height:auto; text-align:center; background:rgba(255,255,255,0.05); border:1px solid rgba(192,132,252,0.4); border-radius:12px;" onclick="selectDesignPreset('setupod')">
+                <img src="/assets/setupod_front_plate.jpg" style="width:48px;height:72px;border-radius:6px;object-fit:cover;border:1px solid #c084fc;box-shadow:0 0 10px rgba(192,132,252,0.35);">
+                <span style="font-size:10.5px;font-weight:800;color:#ffffff;">SETUPOD ⚡</span>
               </button>
-              <button type="button" class="btn-logo-preset" style="padding:8px 4px; flex-direction:column; gap:6px; height:auto; text-align:center; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.15); border-radius:12px;" onclick="selectPlateArtwork('/assets/plate_iron_titanium.jpg', '아이언 3D 각인', this)">
-                <img src="/assets/plate_iron_titanium.jpg" style="width:48px;height:72px;border-radius:6px;object-fit:cover;border:1px solid #cbd5e1;box-shadow:0 4px 10px rgba(0,0,0,0.6);">
-                <span style="font-size:10.5px;font-weight:800;color:#ffffff;">아이언 3D 각인</span>
+              <button type="button" class="btn-logo-preset" style="padding:8px 4px; flex-direction:column; gap:6px; height:auto; text-align:center; background:rgba(255,255,255,0.05); border:1px solid rgba(255,217,120,0.4); border-radius:12px;" onclick="selectDesignPreset('toomus')">
+                <img src="/assets/toomus_front_plate.jpg" style="width:48px;height:72px;border-radius:6px;object-fit:cover;border:1px solid #ffd978;box-shadow:0 0 10px rgba(255,217,120,0.35);">
+                <span style="font-size:10.5px;font-weight:800;color:#ffffff;">TOOMUS 👑</span>
               </button>
-              <button type="button" class="btn-logo-preset" style="padding:8px 4px; flex-direction:column; gap:6px; height:auto; text-align:center; background:rgba(255,255,255,0.05); border:1px solid rgba(255,217,120,0.3); border-radius:12px;" onclick="selectPlateArtwork('/assets/toomcard_front_plate.jpg', '옵시디언 골드', this)">
-                <img src="/assets/toomcard_front_plate.jpg" style="width:48px;height:72px;border-radius:6px;object-fit:cover;border:1px solid #ffd978;box-shadow:0 0 10px rgba(255,217,120,0.3);">
-                <span style="font-size:10.5px;font-weight:800;color:#ffffff;">옵시디언 골드</span>
+              <button type="button" class="btn-logo-preset" style="padding:8px 4px; flex-direction:column; gap:6px; height:auto; text-align:center; background:rgba(255,255,255,0.05); border:1px solid rgba(168,85,247,0.4); border-radius:12px;" onclick="selectDesignPreset('maza')">
+                <img src="/assets/maza_front_plate.jpg" style="width:48px;height:72px;border-radius:6px;object-fit:cover;border:1px solid #a855f7;box-shadow:0 0 10px rgba(168,85,247,0.35);">
+                <span style="font-size:10.5px;font-weight:800;color:#ffffff;">MAZA 💎</span>
+              </button>
+              <button type="button" class="btn-logo-preset" style="padding:8px 4px; flex-direction:column; gap:6px; height:auto; text-align:center; background:rgba(255,255,255,0.05); border:1px solid rgba(255,217,120,0.3); border-radius:12px;" onclick="selectDesignPreset('toomcard-plate')">
+                <img src="/assets/toomcard_front_plate.jpg" style="width:48px;height:72px;border-radius:6px;object-fit:cover;border:1px solid #cbd5e1;box-shadow:0 4px 10px rgba(0,0,0,0.6);">
+                <span style="font-size:10.5px;font-weight:800;color:#ffffff;">TOOMCARD 🔥</span>
               </button>
             </div>
           </div>
@@ -3869,40 +3873,76 @@
     // 3D 완성형 디자인 프리셋 카탈로그 시스템 (Photomon Biz Style)
     // ==========================================
     const DESIGN_PRESETS = {
-      'fitness-plate': {
-        name: '헬스클럽 & 피트니스 전면 풀커버 멤버십',
-        badge: 'FULL COVER 🏋️',
-        typeLabel: 'Full Bleed Plate',
+      'setupod': {
+        name: 'SETUPOD 스마트 플랫폼 3D 실물 에디션',
+        badge: 'SETUPOD ⚡',
+        typeLabel: '3D Brand Plate',
         layout: 'plate',
-        theme: 'obsidian',
-        plateCardImage: '/assets/plate_fitness_membership.jpg',
-        company: 'HEALTH CLUB',
-        namePerson: 'Jessica Park',
-        role: '수석 트레이너 / Head Coach',
-        slogan: '프리미엄 1:1 피트니스 & 웰니스 멤버십',
-        tagline: 'ELITE ACCESS',
-        watermark: 'FITNESS',
-        phone: '010-3333-8888',
-        email: 'vip@healthclub.com',
-        tags: ['#전면풀커버', '#피트니스멤버십', '#스마트NFC'],
-        logo: '/assets/logo_toomcard_hd.gif'
+        theme: 'violet',
+        plateCardImage: '/assets/setupod_front_plate.jpg',
+        company: 'SETUPOD',
+        namePerson: 'Alex Rivera',
+        role: '대표 디렉터 / Founder',
+        slogan: 'DIGITAL BUSINESS PLATFORM',
+        tagline: 'DIGITAL BUSINESS PLATFORM',
+        watermark: 'SETUPOD',
+        phone: '010-8204-1234',
+        email: 'alex@setupod.com',
+        tags: ['#SETUPOD', '#스마트플랫폼', '#3D실물명함'],
+        logo: '/assets/logo_setupod.jpg'
       },
-      'iron-plate': {
-        name: '아이언 티타늄 3D 조각 각인 플레이트',
-        badge: '3D ENGRAVED 🛡️',
-        typeLabel: 'Titanium Art Plate',
+      'toomus': {
+        name: 'TOOMUS 티타늄 골드 3D 아키텍처',
+        badge: 'TOOMUS 👑',
+        typeLabel: 'Titanium Gold Plate',
+        layout: 'plate',
+        theme: 'navy-gold',
+        plateCardImage: '/assets/toomus_front_plate.jpg',
+        company: 'TOOMUS',
+        namePerson: 'Andrew K',
+        role: '대표 / Founder',
+        slogan: 'CONNECTING ENDLESS POTENTIAL',
+        tagline: 'CONNECTING ENDLESS POTENTIAL',
+        watermark: 'TOOMUS',
+        phone: '010-7788-9900',
+        email: 'andrew@toomus.com',
+        tags: ['#TOOMUS', '#티타늄골드', '#글로벌네트워크'],
+        logo: '/assets/logo_toomus.gif'
+      },
+      'maza': {
+        name: 'MAZA 디지털 자산 3D 사이버 럭셔리',
+        badge: 'MAZA 💎',
+        typeLabel: 'Digital Asset Plate',
         layout: 'plate',
         theme: 'obsidian',
-        plateCardImage: '/assets/plate_iron_titanium.jpg',
-        company: 'MECH PROTOCOL',
-        namePerson: 'Andrew K',
-        role: '총괄 디렉터 / Creator',
-        slogan: '일반 필름은 심심하니까! 블랙 티타늄 3D 양각 조각',
-        tagline: 'ARMOR TITANIUM',
-        watermark: 'TITANIUM',
-        phone: '010-7788-9900',
-        email: 'andrew@toomcard.com',
-        tags: ['#블랙티타늄', '#3D조각각인', '#아트워크플레이트'],
+        plateCardImage: '/assets/maza_front_plate.jpg',
+        company: 'MAZA',
+        namePerson: 'Jin Maza',
+        role: '에셋 아키텍트 / Managing Partner',
+        slogan: 'DIGITAL ASSET FLIPPING',
+        tagline: 'DIGITAL ASSET FLIPPING',
+        watermark: 'MAZA',
+        phone: '010-5566-7788',
+        email: 'contact@maza.io',
+        tags: ['#MAZA', '#디지털자산', '#사이버럭셔리'],
+        logo: '/assets/logo_maza.png'
+      },
+      'toomcard-plate': {
+        name: 'TOOMCARD 옵시디언 티타늄 오리지널',
+        badge: 'TOOMCARD 🔥',
+        typeLabel: 'Obsidian Plate',
+        layout: 'plate',
+        theme: 'obsidian',
+        plateCardImage: '/assets/toomcard_front_plate.jpg',
+        company: 'TOOMCARD',
+        namePerson: 'Michael Chang',
+        role: '총괄 디렉터 / CEO',
+        slogan: 'DIGITAL BUSINESS CARD',
+        tagline: 'DIGITAL BUSINESS CARD',
+        watermark: 'TOOMCARD',
+        phone: '010-1234-5678',
+        email: 'ceo@toomcard.com',
+        tags: ['#TOOMCARD', '#3D디지털명함', '#스마트NFC'],
         logo: '/assets/logo_toomcard_hd.gif'
       },
       'obsidian': {

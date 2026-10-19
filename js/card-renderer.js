@@ -434,11 +434,15 @@ function populateCard(data) {
     if (data.plateCardImage) {
       rawPath = data.plateCardImage;
     } else if (data.company && data.company.toLowerCase().includes('toomus')) {
-      rawPath = '/assets/toomus_front_plate.png';
+      rawPath = '/assets/toomus_front_plate.jpg';
+    } else if (data.company && data.company.toLowerCase().includes('setupod')) {
+      rawPath = '/assets/setupod_front_plate.jpg';
+    } else if (data.company && data.company.toLowerCase().includes('maza')) {
+      rawPath = '/assets/maza_front_plate.jpg';
     }
     plateImg.onerror = function() {
       this.onerror = null;
-      this.src = './assets/toomcard_front_plate.png';
+      this.src = './assets/toomcard_front_plate.jpg';
     };
     if (rawPath.startsWith('data:') || rawPath.startsWith('blob:')) {
       plateImg.src = rawPath;
