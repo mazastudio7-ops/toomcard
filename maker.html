@@ -1033,6 +1033,234 @@
       user-select: none;
     }
 
+    .plate-flip-pill:hover {
+      background: rgba(15, 15, 24, 0.9);
+      border-color: rgba(255, 217, 120, 0.85);
+      color: #ffd978;
+      transform: translateX(-50%) translateY(-2px);
+    }
+
+    /* Smart Fallback Morphing QR in Maker */
+    .plate-morph-qr-wrap {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+      opacity: 0;
+      pointer-events: none;
+      backdrop-filter: blur(0px);
+      -webkit-backdrop-filter: blur(0px);
+      background: rgba(6, 6, 12, 0);
+      transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), 
+                  backdrop-filter 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+                  background 0.4s ease;
+      border-radius: 28px;
+      overflow: hidden;
+    }
+
+    .plate-morph-qr-wrap.active {
+      opacity: 1;
+      pointer-events: auto;
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      background: rgba(6, 6, 12, 0.65);
+    }
+
+    .plate-morph-card {
+      width: 236px;
+      background: linear-gradient(155deg, rgba(24, 24, 38, 0.94) 0%, rgba(12, 12, 20, 0.98) 100%);
+      border: 1.5px solid rgba(255, 255, 255, 0.22);
+      border-radius: 22px;
+      padding: 16px 16px 14px 16px;
+      box-shadow: 
+        0 24px 60px rgba(0, 0, 0, 0.9),
+        0 0 35px var(--neon-glow, rgba(168, 85, 247, 0.35)),
+        inset 0 1px 1px rgba(255, 255, 255, 0.4);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      transform: scale(0.85) translateY(14px);
+      transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+      user-select: none;
+    }
+
+    .plate-morph-qr-wrap.active .plate-morph-card {
+      transform: scale(1) translateY(0);
+    }
+
+    .plate-morph-header {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 4px;
+    }
+
+    .plate-morph-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      color: #ffffff;
+    }
+
+    .plate-morph-pulse-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 10px #10b981;
+      animation: morphPulse 1.8s infinite;
+    }
+
+    .plate-morph-close-btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      color: rgba(255, 255, 255, 0.8);
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .plate-morph-close-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+      color: #ffffff;
+      transform: scale(1.1);
+    }
+
+    .plate-morph-qr-box {
+      position: relative;
+      width: 154px;
+      height: 154px;
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+      overflow: hidden;
+    }
+
+    .plate-morph-qr-box canvas,
+    .plate-morph-qr-box img {
+      width: 100% !important;
+      height: 100% !important;
+      display: block !important;
+    }
+
+    .plate-morph-laser-line {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #a855f7, #ffd978, transparent);
+      box-shadow: 0 0 8px #a855f7;
+      animation: morphLaser 2.4s ease-in-out infinite;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    .plate-morph-guide {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      text-align: center;
+    }
+
+    .morph-main-text {
+      font-size: 11px;
+      font-weight: 700;
+      color: rgba(255, 255, 255, 0.95);
+      letter-spacing: -0.01em;
+    }
+
+    .morph-sub-text {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 8.5px;
+      font-weight: 700;
+      color: rgba(255, 255, 255, 0.45);
+      letter-spacing: 0.1em;
+    }
+
+    .plate-qr-toggle-pill {
+      position: absolute;
+      bottom: 20px;
+      right: 16px;
+      z-index: 4;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 7px 12px;
+      background: rgba(10, 10, 16, 0.78);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 99px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 9.5px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      color: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
+      cursor: pointer;
+      transition: all 0.25s ease;
+      user-select: none;
+    }
+
+    .plate-qr-toggle-pill:hover {
+      background: rgba(20, 20, 32, 0.92);
+      border-color: var(--neon-accent, #a855f7);
+      color: #ffffff;
+      transform: translateY(-2px);
+    }
+
+    .plate-to-front-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 99px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      color: rgba(255, 255, 255, 0.9);
+      cursor: pointer;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      margin-top: 8px;
+      margin-bottom: 2px;
+      transition: all 0.25s ease;
+      user-select: none;
+      align-self: center;
+    }
+
+    .plate-to-front-pill:hover {
+      background: rgba(255, 255, 255, 0.16);
+      border-color: rgba(255, 217, 120, 0.7);
+      color: #ffd978;
+      transform: translateY(-1px);
+    }
+
     /* 거대 워터마크 - 테두리에 밀착되면서도 글자가 잘리지 않는 최적 좌표 */
     .watermark-dynamic {
       position: absolute;
@@ -3212,9 +3440,38 @@
               <div class="plate-artwork-container" id="plateArtworkContainer" title="카드를 탭하면 뒤집힙니다">
                 <img id="plateArtworkImg" src="/assets/toomcard_front_plate.png" alt="Metal Card Plate" class="plate-artwork-img">
                 <div class="plate-specular-sheen"></div>
+
+                <!-- 스마트 폴백 모핑 QR 레이어 -->
+                <div class="plate-morph-qr-wrap" id="plateMorphQrWrap" onclick="event.stopPropagation();">
+                  <div class="plate-morph-card">
+                    <div class="plate-morph-header">
+                      <div class="plate-morph-badge">
+                        <span class="plate-morph-pulse-dot"></span>
+                        <span>SMART SCAN</span>
+                      </div>
+                      <button type="button" class="plate-morph-close-btn" onclick="togglePlateMorphQR(false); event.stopPropagation();" title="QR 닫기">✕</button>
+                    </div>
+                    <div class="plate-morph-qr-box">
+                      <div class="plate-morph-laser-line"></div>
+                      <div id="plateMorphQrTarget" class="plate-morph-qr-canvas"></div>
+                    </div>
+                    <div class="plate-morph-guide">
+                      <span class="morph-main-text">카메라로 스캔하면 스마트 콕핏으로 연결됩니다</span>
+                      <span class="morph-sub-text">TAP TO CLOSE OR FLIP</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Front Flip Pill (가운데 힌트 알약) -->
                 <div class="plate-flip-pill" onclick="event.stopPropagation(); toggleCardFlip(event);">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:12px;height:12px;"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"></path><path d="M16 21h5v-5"></path></svg>
                   <span>TAP TO FLIP ↺</span>
+                </div>
+
+                <!-- Front QR Manual Toggle Pill (우측 하단 보조 알약) -->
+                <div class="plate-qr-toggle-pill" onclick="event.stopPropagation(); togglePlateMorphQR();" title="QR 코드 열기/닫기">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:11px;height:11px;"><rect width="5" height="5" x="3" y="3" rx="1"></rect><rect width="5" height="5" x="16" y="3" rx="1"></rect><rect width="5" height="5" x="3" y="16" rx="1"></rect><path d="M21 16h-3a2 2 0 0 0-2 2v3"></path><path d="M21 21v.01"></path><path d="M12 7v3a2 2 0 0 1-2 2H7"></path><path d="M3 12h.01"></path><path d="M12 3h.01"></path><path d="M12 16v.01"></path><path d="M16 12h1"></path><path d="M21 12v.01"></path><path d="M12 21v-1"></path></svg>
+                  <span>QR코드 ☲</span>
                 </div>
               </div>
 
@@ -3278,6 +3535,14 @@
                       </div>
 
                     </div>
+                  </div>
+                </div>
+
+                <!-- 3D Metal Front Plate Showcase Hint Pill -->
+                <div style="display: flex; justify-content: center; width: 100%;">
+                  <div class="plate-to-front-pill" onclick="event.stopPropagation(); toggleCardFlip(event);" title="3D 메탈 앞면 감상하기">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:11px;height:11px;"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"></path><path d="M16 21h5v-5"></path></svg>
+                    <span>3D 메탈 카드 앞면 보기 ↺</span>
                   </div>
                 </div>
 
@@ -3394,6 +3659,48 @@
     }
 
     let isMakerFlipping = false;
+    let makerMorphTimer = null;
+
+    function initMakerPlateMorphQR() {
+      const target = document.getElementById('plateMorphQrTarget');
+      if (!target) return;
+      target.innerHTML = "";
+      if (typeof QRCode !== 'undefined') {
+        try {
+          new QRCode(target, {
+            text: window.location.href.split('?')[0] + '?view=back',
+            width: 136,
+            height: 136,
+            colorDark: "#0c0a14",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.M
+          });
+        } catch (e) {
+          console.warn("Maker morph QR error:", e);
+        }
+      }
+    }
+
+    window.togglePlateMorphQR = function(forceState) {
+      if (makerMorphTimer) {
+        clearTimeout(makerMorphTimer);
+        makerMorphTimer = null;
+      }
+      const wrap = document.getElementById('plateMorphQrWrap');
+      if (!wrap) return;
+
+      const willBeActive = (typeof forceState === 'boolean') ? forceState : !wrap.classList.contains('active');
+      if (willBeActive) {
+        wrap.classList.add('active');
+        const target = document.getElementById('plateMorphQrTarget');
+        if (target && (!target.hasChildNodes() || target.children.length === 0)) {
+          initMakerPlateMorphQR();
+        }
+      } else {
+        wrap.classList.remove('active');
+      }
+    };
+
     function toggleCardFlip(e) {
       if (e && typeof e.stopPropagation === 'function') {
         e.stopPropagation();
@@ -3402,12 +3709,21 @@
       isMakerFlipping = true;
       setTimeout(() => { isMakerFlipping = false; }, 250);
 
+      // 카드를 뒤집을 때는 모핑 QR 닫기
+      if (makerMorphTimer) {
+        clearTimeout(makerMorphTimer);
+        makerMorphTimer = null;
+      }
+      const morphWrap = document.getElementById('plateMorphQrWrap');
+      if (morphWrap) morphWrap.classList.remove('active');
+
       const scene = document.getElementById('cardScene');
       if (scene) scene.classList.toggle('flipped');
     }
     
     function forceCardFront() {
-      document.getElementById('cardScene').classList.remove('flipped');
+      const scene = document.getElementById('cardScene');
+      if (scene) scene.classList.remove('flipped');
     }
     
     function forceCardBack() {

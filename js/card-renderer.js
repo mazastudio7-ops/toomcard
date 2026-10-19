@@ -483,6 +483,9 @@ function populateCard(data) {
   // 뒷면 직관 QR 코드 실시간 생성
   renderBackDirectQr();
 
+  // 앞면 스마트 폴백 모핑 QR 코드 생성 및 스케줄러 등록
+  initPlateMorphQR(data);
+
   // 액션 독 바인딩
   renderActionDocks(data);
 
@@ -512,6 +515,84 @@ function populateCard(data) {
   return layoutReady;
 }
 
+// ==================================================
+// SMART FALLBACK MORPHING QR ENGINE
+// 1차: 앞면 메탈 플레이트 스텔스 스캔 시도
+// 2차: 2.5초 지연/미감지 시 or 탭 시 3D 크롬 모핑 QR 자동 팝업
+// 3차: 스캔 시 상대방에게는 ?view=back으로 스마트 콕핏 우선 로드
+// ==================================================
+let plateMorphTimer = null;
+let plateMorphQrObj = null;
+
+function initPlateMorphQR(data) {
+  const target = document.getElementById('plateMorphQrTarget');
+  if (!target) return;
+
+  // 상대방이 카메라로 스캔했을 때 즉시 뒷면(스마트 콕핏)이 로드되도록 ?view=back URL 인코딩
+  let scanUrl;
+  try {
+    const url = new URL(window.location.href);
+    url.searchParams.set('view', 'back');
+    scanUrl = url.toString();
+  } catch (e) {
+    scanUrl = window.location.href + (window.location.href.includes('?') ? '&view=back' : '?view=back');
+  }
+
+  target.innerHTML = "";
+  if (typeof QRCode !== 'undefined') {
+    try {
+      plateMorphQrObj = new QRCode(target, {
+        text: scanUrl,
+        width: 136,
+        height: 136,
+        colorDark: "#0c0a14",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.M
+      });
+    } catch (err) {
+      console.warn("Plate Morph QR generate error:", err);
+    }
+  }
+
+  // 2.5초 후 자동 팝업 타이머 시작 (카드가 앞면일 때만)
+  schedulePlateMorphAutoPopup();
+}
+
+function schedulePlateMorphAutoPopup() {
+  if (plateMorphTimer) {
+    clearTimeout(plateMorphTimer);
+    plateMorphTimer = null;
+  }
+  const scene = document.getElementById('cardScene');
+  if (scene && scene.classList.contains('flipped')) {
+    return;
+  }
+  plateMorphTimer = setTimeout(() => {
+    togglePlateMorphQR(true);
+  }, 2500);
+}
+
+// 스마트 모핑 QR 오버레이 토글
+window.togglePlateMorphQR = function(forceState) {
+  if (plateMorphTimer) {
+    clearTimeout(plateMorphTimer);
+    plateMorphTimer = null;
+  }
+  const wrap = document.getElementById('plateMorphQrWrap');
+  if (!wrap) return;
+
+  const willBeActive = (typeof forceState === 'boolean') ? forceState : !wrap.classList.contains('active');
+  if (willBeActive) {
+    wrap.classList.add('active');
+    const target = document.getElementById('plateMorphQrTarget');
+    if (target && (!target.hasChildNodes() || target.children.length === 0)) {
+      initPlateMorphQR(cardData);
+    }
+  } else {
+    wrap.classList.remove('active');
+  }
+};
+
 // 3D Flip Card Toggle with 250ms Debounce & Propagation Protection
 let isCardFlipping = false;
 function toggleCardFlip(e) {
@@ -521,6 +602,16 @@ function toggleCardFlip(e) {
   if (isCardFlipping) return;
   isCardFlipping = true;
   setTimeout(() => { isCardFlipping = false; }, 250);
+
+  // 카드를 뒤집을 때는 앞면의 모핑 QR 타이머 취소 및 팝업 닫기
+  if (plateMorphTimer) {
+    clearTimeout(plateMorphTimer);
+    plateMorphTimer = null;
+  }
+  const morphWrap = document.getElementById('plateMorphQrWrap');
+  if (morphWrap) {
+    morphWrap.classList.remove('active');
+  }
 
   const scene = document.getElementById('cardScene');
   if (scene) {
@@ -549,17 +640,22 @@ function setupSwipe() {
   }, { passive: true });
 }
 
-// URL 쿼리 파라미터(side=back / flipped=true)에 따른 초기 카드 회전 상태 적용
+// URL 쿼리 파라미터(view=back / side=back / flipped=true)에 따른 초기 카드 회전 상태 적용
 function applyInitialFlipState() {
   try {
     const urlParams = new URLSearchParams(window.location.search);
-    const side = urlParams.get('side');
+    const view = urlParams.get('view') || urlParams.get('side');
     const flipped = urlParams.get('flipped');
     const scene = document.getElementById('cardScene');
     if (scene) {
-      if (side === 'back' || flipped === 'true' || flipped === '1') {
+      if (view === 'back' || flipped === 'true' || flipped === '1') {
         scene.classList.add('flipped');
-      } else if (side === 'front') {
+        // 방문자가 뒷면으로 즉시 들어왔으므로 앞면 2.5초 자동 팝업 타이머 해제
+        if (plateMorphTimer) {
+          clearTimeout(plateMorphTimer);
+          plateMorphTimer = null;
+        }
+      } else if (view === 'front') {
         scene.classList.remove('flipped');
       }
     }
