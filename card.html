@@ -848,6 +848,23 @@
       transition: all 0.3s ease;
     }
 
+    /* Custom Portrait Photo Frame (has-photo) */
+    .front-logo-box.has-photo, .back-top-logo.has-photo {
+      border-radius: 50% !important;
+      padding: 0 !important;
+      border: 2px solid var(--neon-accent, #ffd978) !important;
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.9), 0 0 25px var(--neon-glow, rgba(255, 217, 120, 0.45)) !important;
+      background: #000000 !important;
+      overflow: hidden !important;
+    }
+    .front-logo-box.has-photo img, .back-top-logo.has-photo img {
+      width: 100% !important;
+      height: 100% !important;
+      object-fit: cover !important;
+      border-radius: 50% !important;
+      transform: scale(1.02);
+    }
+
     /* Living Hologram GIF Motion FX */
     @keyframes cardPulseGlow {
       0%, 100% { filter: drop-shadow(0 0 8px rgba(168, 85, 247, 0.5)); transform: scale(1); }

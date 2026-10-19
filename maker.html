@@ -1334,6 +1334,23 @@
       transition: all 0.3s ease;
     }
 
+    /* Custom Portrait Photo Frame (has-photo) */
+    .front-logo-box.has-photo, .back-top-logo.has-photo {
+      border-radius: 50% !important;
+      padding: 0 !important;
+      border: 2px solid var(--neon-accent, #ffd978) !important;
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.9), 0 0 25px var(--neon-glow, rgba(255, 217, 120, 0.45)) !important;
+      background: #000000 !important;
+      overflow: hidden !important;
+    }
+    .front-logo-box.has-photo img, .back-top-logo.has-photo img {
+      width: 100% !important;
+      height: 100% !important;
+      object-fit: cover !important;
+      border-radius: 50% !important;
+      transform: scale(1.02);
+    }
+
     /* Back 3D Flipper (Logo ↔ QR) */
     .back-flipper-container {
       display: flex;
@@ -2801,33 +2818,62 @@
         </div>
       </div>
 
-      <!-- 3. 로고 이미지 설정 -->
+      <!-- 3. 내 사진 / 프로필 사진 & 브랜드 로고 연출 -->
       <div>
         <div class="section-title-wrap">
-          <div class="section-icon-box"><i data-lucide="image" style="width:16px;height:16px;"></i></div>
-          <h2 class="section-title">3. 로고 / 프로필 & 누끼 연출</h2>
-        </div>
-        <div class="file-upload-box" onclick="document.getElementById('logoFileInput').click()">
-          <i data-lucide="upload-cloud" style="width:24px;height:24px;color:#c084fc;"></i>
-          <span style="font-size:13px;font-weight:700;">로고 / 프로필 이미지 업로드 (투명 누끼 PNG, GIF 권장)</span>
-          <span style="font-size:11px;color:rgba(255,255,255,0.4);">클릭하여 파일을 선택하세요. 업로드 즉시 3D 카드에 반영됩니다.</span>
-          <input type="file" id="logoFileInput" accept="image/*" style="display:none" onchange="handleLogoUpload(event)">
+          <div class="section-icon-box"><i data-lucide="camera" style="width:16px;height:16px;color:#ffd978;"></i></div>
+          <h2 class="section-title">3. 내 사진 / 프로필 사진 & 브랜드 로고</h2>
         </div>
 
+        <!-- 탭 전환: 내 프로필 사진 vs 공식 브랜드 로고 -->
+        <div style="display:flex; gap:8px; margin-bottom:12px; background:rgba(255,255,255,0.05); padding:4px; border-radius:12px; border:1px solid rgba(255,255,255,0.1);">
+          <button type="button" id="tabPhotoActive" onclick="switchVisualTab('photo')" style="flex:1; padding:8px 12px; border-radius:9px; border:none; font-size:12.5px; font-weight:800; cursor:pointer; background:linear-gradient(135deg, #ffd978, #f59e0b); color:#000; display:flex; align-items:center; justify-content:center; gap:6px; transition:all 0.2s;">
+            <i data-lucide="user" style="width:14px;height:14px;"></i>
+            <span>내 얼굴/프로필 사진 모드</span>
+          </button>
+          <button type="button" id="tabLogoActive" onclick="switchVisualTab('logo')" style="flex:1; padding:8px 12px; border-radius:9px; border:none; font-size:12.5px; font-weight:800; cursor:pointer; background:transparent; color:rgba(255,255,255,0.7); display:flex; align-items:center; justify-content:center; gap:6px; transition:all 0.2s;">
+            <i data-lucide="sparkles" style="width:14px;height:14px;"></i>
+            <span>회사 브랜드 로고 모드</span>
+          </button>
+        </div>
 
-        <!-- 공식 브랜드 로고 빠른 선택 -->
-        <div style="margin-top:10px;">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-            <span style="font-size:12px;font-weight:800;color:#e2e8f0;display:flex;align-items:center;gap:6px;">
-              <i data-lucide="sparkles" style="width:14px;height:14px;color:#ffd978;"></i> 공식 브랜드 로고 빠른 선택
-            </span>
-            <span style="font-size:10.5px;color:#a78bfa;font-weight:700;">원클릭 3D 반영</span>
+        <!-- 1) 프로필 사진 업로드 영역 -->
+        <div id="photoUploadSection">
+          <div class="file-upload-box" onclick="document.getElementById('logoFileInput').click()" style="background:rgba(255,217,120,0.05); border:1.5px dashed rgba(255,217,120,0.4); border-radius:16px; padding:20px; text-align:center; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:6px; transition:all 0.2s;">
+            <i data-lucide="camera" style="width:28px;height:28px;color:#ffd978;"></i>
+            <span style="font-size:13.5px;font-weight:800;color:#ffffff;">내 사진 / 프로필 사진 등록하기 (탭하여 선택)</span>
+            <span style="font-size:11.5px;color:rgba(255,255,255,0.65);">증명사진, 인물 프로필, 스튜디오 컷 등 모든 사진 지원 (자동 3D 엠보싱 최적화)</span>
+            <input type="file" id="logoFileInput" accept="image/*" style="display:none" onchange="handleLogoUpload(event)">
           </div>
+
+          <!-- 인기 프로필 샘플 원클릭 적용 -->
+          <div style="margin-top:12px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+              <span style="font-size:12px;font-weight:800;color:#ffd978;display:flex;align-items:center;gap:6px;">
+                <i data-lucide="users" style="width:14px;height:14px;"></i> 추천 프로필 사진 샘플 (원클릭 테스트)
+              </span>
+              <span style="font-size:10.5px;color:rgba(255,255,255,0.5);">탭하면 즉시 반영</span>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:8px;">
+              <button type="button" class="btn-logo-preset" style="padding:10px 6px; flex-direction:column; gap:6px; height:auto; text-align:center; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.12); border-radius:12px;" onclick="selectBrandLogo('/assets/sample_profile_ceo.jpg', 'CEO 비즈니스', this)">
+                <img src="/assets/sample_profile_ceo.jpg" style="width:40px;height:40px;border-radius:50%;object-fit:cover;border:2px solid #ffd978;box-shadow:0 0 10px rgba(255,217,120,0.4);">
+                <span style="font-size:11px;font-weight:800;color:#ffffff;">CEO 비즈니스</span>
+              </button>
+              <button type="button" class="btn-logo-preset" style="padding:10px 6px; flex-direction:column; gap:6px; height:auto; text-align:center; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.12); border-radius:12px;" onclick="selectBrandLogo('/assets/sample_profile_creator.jpg', '크리에이터', this)">
+                <img src="/assets/sample_profile_creator.jpg" style="width:40px;height:40px;border-radius:10px;object-fit:cover;border:2px solid #fff;box-shadow:0 4px 10px rgba(0,0,0,0.5);">
+                <span style="font-size:11px;font-weight:800;color:#ffffff;">크리에이터</span>
+              </button>
+              <button type="button" class="btn-logo-preset" style="padding:10px 6px; flex-direction:column; gap:6px; height:auto; text-align:center; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.12); border-radius:12px;" onclick="selectBrandLogo('/assets/sample_profile_tech.jpg', '스타트업 리더', this)">
+                <img src="/assets/sample_profile_tech.jpg" style="width:40px;height:40px;border-radius:50%;object-fit:cover;border:2px solid #c084fc;box-shadow:0 0 10px rgba(192,132,252,0.5);">
+                <span style="font-size:11px;font-weight:800;color:#ffffff;">스타트업 리더</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2) 브랜드 로고 영역 (기존 로고 선택) -->
+        <div id="logoUploadSection" style="display:none; margin-top:10px;">
           <div style="display:grid;grid-template-columns:repeat(2, 1fr);gap:8px;" id="logoPresetGroup">
-            <button type="button" class="btn-logo-preset active" data-logo-src="/assets/logo_toomcard_hd.gif" onclick="selectBrandLogo('/assets/logo_toomcard_hd.gif', 'TOOMCARD 3D 모션 HD', this)">
-              <img src="/assets/logo_toomcard_hd.gif" style="width:20px;height:20px;border-radius:5px;object-fit:cover;flex-shrink:0;">
-              <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">TOOMCARD 모션 HD</span>
-            </button>
             <button type="button" class="btn-logo-preset active" data-logo-src="/assets/logo_toomcard_hd.gif" onclick="selectBrandLogo('/assets/logo_toomcard_hd.gif', 'TOOMCARD 3D 모션 HD', this)">
               <img src="/assets/logo_toomcard_hd.gif" style="width:20px;height:20px;border-radius:5px;object-fit:cover;flex-shrink:0;">
               <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">TOOMCARD 모션 HD</span>
@@ -2839,6 +2885,10 @@
             <button type="button" class="btn-logo-preset" data-logo-src="/assets/logo_toomus.gif" onclick="selectBrandLogo('/assets/logo_toomus.gif', 'TOOMUS 3D 모션 회전', this)">
               <img src="/assets/logo_toomus.gif" style="width:20px;height:20px;border-radius:5px;object-fit:cover;flex-shrink:0;">
               <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">TOOMUS 모션 GIF</span>
+            </button>
+            <button type="button" class="btn-logo-preset" data-logo-src="/assets/logo_setupod.gif" onclick="selectBrandLogo('/assets/logo_setupod.gif', 'SETUPOD 공식 3D', this)">
+              <img src="/assets/logo_setupod.gif" style="width:20px;height:20px;border-radius:5px;object-fit:cover;flex-shrink:0;">
+              <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">SETUPOD 공식 3D</span>
             </button>
           </div>
         </div>
@@ -4290,11 +4340,45 @@
           currentLogoSrc = canvas.toDataURL('image/webp', 0.8);
           document.getElementById('frontLogoImg').src = currentLogoSrc;
           document.getElementById('backLogoImg').src = currentLogoSrc;
-          showToast('새 로고가 실시간 반영되었습니다! (최적화 완료)');
+          document.querySelector('.front-logo-box')?.classList.add('has-photo');
+          document.querySelector('.back-top-logo')?.classList.add('has-photo');
+          showToast('새 사진/로고가 실시간 반영되었습니다! (최적화 완료)');
         };
         img.src = e.target.result;
       };
       reader.readAsDataURL(file);
+    }
+
+    function switchVisualTab(tab) {
+      const pSec = document.getElementById('photoUploadSection');
+      const lSec = document.getElementById('logoUploadSection');
+      const pTab = document.getElementById('tabPhotoActive');
+      const lTab = document.getElementById('tabLogoActive');
+      if (tab === 'photo') {
+        if (pSec) pSec.style.display = 'block';
+        if (lSec) lSec.style.display = 'none';
+        if (pTab) {
+          pTab.style.background = 'linear-gradient(135deg, #ffd978, #f59e0b)';
+          pTab.style.color = '#000';
+        }
+        if (lTab) {
+          lTab.style.background = 'transparent';
+          lTab.style.color = 'rgba(255,255,255,0.7)';
+        }
+        if (typeof forceCardFront === 'function') forceCardFront();
+      } else {
+        if (pSec) pSec.style.display = 'none';
+        if (lSec) lSec.style.display = 'block';
+        if (lTab) {
+          lTab.style.background = 'linear-gradient(135deg, #a855f7, #7e22ce)';
+          lTab.style.color = '#fff';
+        }
+        if (pTab) {
+          pTab.style.background = 'transparent';
+          pTab.style.color = 'rgba(255,255,255,0.7)';
+        }
+        if (typeof forceCardFront === 'function') forceCardFront();
+      }
     }
 
     function selectBrandLogo(path, label, btnElem) {
@@ -4304,6 +4388,12 @@
       if (frontImg) frontImg.src = currentLogoSrc;
       if (backImg) backImg.src = currentLogoSrc;
 
+      const isPhoto = currentLogoSrc && (currentLogoSrc.includes('sample_profile') || currentLogoSrc.startsWith('data:image'));
+      const fBox = document.querySelector('.front-logo-box');
+      const bBox = document.querySelector('.back-top-logo');
+      if (fBox) fBox.classList.toggle('has-photo', isPhoto);
+      if (bBox) bBox.classList.toggle('has-photo', isPhoto);
+
       document.querySelectorAll('.btn-logo-preset').forEach(b => b.classList.remove('active'));
       if (btnElem) {
         btnElem.classList.add('active');
@@ -4311,7 +4401,7 @@
         const matchingBtn = document.querySelector(`[data-logo-src="${path}"]`);
         if (matchingBtn) matchingBtn.classList.add('active');
       }
-      showToast(`${label || '로고'}가 실시간 적용되었습니다.`);
+      showToast(`${label || '프로필/로고'}가 실시간 적용되었습니다.`);
     }
 
     function liveUpdate() {
@@ -4488,6 +4578,12 @@
         tagline: tagline,
         phone: phone,
         email: email,
+        photo: currentLogoSrc,
+        logo: {
+          src: currentLogoSrc,
+          alt: company
+        },
+        logoMotion: currentLogoMotion,
         theme: currentTheme,
         layout: currentLayout,
         edition: 'TITANIUM PRO',
@@ -5256,12 +5352,28 @@
       }
 
       // 3. 갤러리 프리셋 파라미터가 명시된 경우 해당 디자인 및 데이터를 최우선 적용
+      if (DESIGN_PRESETS && !DESIGN_PRESETS['editorial'] && DESIGN_PRESETS['white-minimal']) {
+        DESIGN_PRESETS['editorial'] = DESIGN_PRESETS['white-minimal'];
+      }
       if (presetParam && DESIGN_PRESETS[presetParam] && !editSlug) {
         if (modeParam === 'team' || modeParam === 'enterprise') {
           if (typeof selectTeamDesignPreset === 'function') selectTeamDesignPreset(presetParam);
         } else {
           if (typeof selectDesignPreset === 'function') selectDesignPreset(presetParam, false, true);
         }
+      }
+
+      // 4. URL에서 avatar / photo 파라미터가 명시된 경우 프로필 사진으로 최우선 적용
+      const avatarParam = urlParams.get('avatar') || urlParams.get('photo');
+      if (avatarParam) {
+        currentLogoSrc = avatarParam;
+        const frontImg = document.getElementById('frontLogoImg');
+        const backImg = document.getElementById('backLogoImg');
+        if (frontImg) frontImg.src = currentLogoSrc;
+        if (backImg) backImg.src = currentLogoSrc;
+        if (typeof switchVisualTab === 'function') switchVisualTab('photo');
+      } else if (modeParam === 'photo') {
+        if (typeof switchVisualTab === 'function') switchVisualTab('photo');
       }
 
       if (savedData) {

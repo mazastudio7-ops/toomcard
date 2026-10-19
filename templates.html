@@ -335,6 +335,40 @@
       background: currentColor;
     }
 
+    /* Photo Avatar Frame on Card */
+    .v-avatar-frame {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      margin: 2px 0 6px 0;
+      position: relative;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.6);
+      overflow: hidden;
+      flex-shrink: 0;
+      border: 1.5px solid #ffd978;
+    }
+    .v-avatar-frame.square {
+      border-radius: 10px;
+    }
+    .v-avatar-frame img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .v-obsidian .v-avatar-frame {
+      border-color: #ffd978;
+      box-shadow: 0 0 12px rgba(255, 217, 120, 0.45);
+    }
+    .v-white-minimal .v-avatar-frame {
+      border-color: #0f172a;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.2);
+    }
+    .v-violet .v-avatar-frame {
+      border-color: #c084fc;
+      box-shadow: 0 0 14px rgba(192, 132, 252, 0.6);
+    }
+
     /* Card Middle Content */
     .v-mid {
       position: relative;
@@ -664,7 +698,8 @@
   <!-- Sub-filter Tabs Bar -->
   <div class="filter-tabs-bar">
     <div class="filter-inner">
-      <div class="filter-tab active" onclick="filterCatalog('all', this)">전체 3D 템플릿 (8종)</div>
+      <div class="filter-tab active" onclick="filterCatalog('all', this)">전체 3D 템플릿</div>
+      <div class="filter-tab" onclick="filterCatalog('photo', this)" style="color:#ffd978; font-weight:800;">📸 시그니처 포토 명함 (NEW)</div>
       <div class="filter-tab" onclick="filterCatalog('best', this)">BEST 추천 모델</div>
       <div class="filter-tab" onclick="filterCatalog('metal', this)">C-Level & 메탈 티타늄</div>
       <div class="filter-tab" onclick="filterCatalog('editorial', this)">미니멀 & 감성 에디토리얼</div>
@@ -684,13 +719,146 @@
     </h1>
     <p class="hero-sub">
       카드 자체를 클릭하면 해당 세로형 3D 디자인이 편집기에 1초 만에 세팅됩니다.<br>
-      내 정보(이름, 회사, 전화번호)만 입력하고 즉시 발행하세요.
+      내 사진(또는 프로필 이미지)과 정보만 입력하고 즉시 3D 명함을 발행하세요.
     </p>
   </section>
 
-  <!-- 8 Authentic Vertical 3D Card Templates Grid -->
+  <!-- Authentic Vertical 3D Card Templates Grid -->
   <main class="template-grid-wrap">
     <div class="template-grid" id="catalogGrid">
+
+      <!-- P1. Obsidian Gold Photo Edition (Photo VIP) -->
+      <div class="template-card-box" data-category="photo best metal">
+        <a href="/maker?preset=obsidian&mode=photo&avatar=/assets/sample_profile_ceo.jpg" class="stage-area" title="옵시디언 골드 포토 디자인으로 세팅하기">
+          <div class="v-card v-obsidian">
+            <div class="v-watermark">TOOMCARD</div>
+            <div class="v-top">
+              <img src="/assets/logo_toomcard_hd.gif" class="v-logo" alt="Logo">
+              <div class="v-live-chip">PHOTO VIP</div>
+            </div>
+            <div class="v-avatar-frame">
+              <img src="/assets/sample_profile_ceo.jpg" alt="Profile Photo">
+            </div>
+            <div class="v-mid">
+              <div class="v-company">TOOMCARD</div>
+              <div class="v-role">총괄 디렉터 (Managing Director)</div>
+              <div class="v-name">Andrew K</div>
+            </div>
+            <div class="v-bot">
+              <div class="v-tags">
+                <span class="v-tag">#내사진등록</span>
+                <span class="v-tag">#골드3D림</span>
+              </div>
+              <div class="v-action-btn">
+                <i data-lucide="camera" style="width:10px;height:10px;"></i>
+                <span>포토 명함으로 세팅</span>
+              </div>
+            </div>
+          </div>
+        </a>
+        <div class="card-meta-wrap">
+          <div>
+            <div class="badge-row">
+              <span class="style-badge badge-best">PHOTO VIP 🔥</span>
+              <span style="font-size:11px; color:#ffd978; font-weight:700;">Gold Circle Rim</span>
+            </div>
+            <h3 class="card-title-text">시그니처 VIP 골드 포토</h3>
+            <p class="card-desc-text">내 얼굴/프로필 사진과 24K 정밀 골드 림이 결합된 최고급 개인 명함</p>
+          </div>
+          <a href="/maker?preset=obsidian&mode=photo&avatar=/assets/sample_profile_ceo.jpg" class="btn-select-design">
+            <span>이 명함으로 만들기</span>
+            <i data-lucide="arrow-right" style="width:14px;height:14px;"></i>
+          </a>
+        </div>
+      </div>
+
+      <!-- P2. Minimal Editorial Studio Photo (Creator) -->
+      <div class="template-card-box" data-category="photo editorial best">
+        <a href="/maker?preset=editorial&mode=photo&avatar=/assets/sample_profile_creator.jpg" class="stage-area" title="에디토리얼 스튜디오 포토로 세팅하기">
+          <div class="v-card v-white-minimal">
+            <div class="v-watermark">ATELIER</div>
+            <div class="v-top">
+              <div class="v-live-chip" style="background:#0f172a; color:#fff;">CREATIVE</div>
+            </div>
+            <div class="v-avatar-frame square">
+              <img src="/assets/sample_profile_creator.jpg" alt="Profile Photo">
+            </div>
+            <div class="v-mid">
+              <div class="v-company">STUDIO ATELIER</div>
+              <div class="v-role">크리에이티브 디렉터</div>
+              <div class="v-name">한수빈 (Soobin H.)</div>
+            </div>
+            <div class="v-bot">
+              <div class="v-tags">
+                <span class="v-tag">#스퀘어포토</span>
+                <span class="v-tag">#에디토리얼</span>
+              </div>
+              <div class="v-action-btn" style="background:#0f172a; color:#fff;">
+                <i data-lucide="camera" style="width:10px;height:10px;"></i>
+                <span>포토 명함으로 세팅</span>
+              </div>
+            </div>
+          </div>
+        </a>
+        <div class="card-meta-wrap">
+          <div>
+            <div class="badge-row">
+              <span class="style-badge badge-boutique">CREATOR 📸</span>
+              <span style="font-size:11px; color:#94a3b8; font-weight:700;">Studio Square</span>
+            </div>
+            <h3 class="card-title-text">크리에이터 에디토리얼 포토</h3>
+            <p class="card-desc-text">전문가, 강사, 작가, 프리랜서를 위한 감성 사각 컷 3D 프로필 명함</p>
+          </div>
+          <a href="/maker?preset=editorial&mode=photo&avatar=/assets/sample_profile_creator.jpg" class="btn-select-design">
+            <span>이 명함으로 만들기</span>
+            <i data-lucide="arrow-right" style="width:14px;height:14px;"></i>
+          </a>
+        </div>
+      </div>
+
+      <!-- P3. Cyber Violet Neon Photo (Tech) -->
+      <div class="template-card-box" data-category="photo special">
+        <a href="/maker?preset=violet&mode=photo&avatar=/assets/sample_profile_tech.jpg" class="stage-area" title="사이버 바이올렛 네온 포토로 세팅하기">
+          <div class="v-card v-violet">
+            <div class="v-watermark">NEXUS</div>
+            <div class="v-top">
+              <div class="v-live-chip">TECH LEADER</div>
+            </div>
+            <div class="v-avatar-frame">
+              <img src="/assets/sample_profile_tech.jpg" alt="Profile Photo">
+            </div>
+            <div class="v-mid">
+              <div class="v-company">NEXUS LABS</div>
+              <div class="v-role">총괄 디렉터 / Co-Founder</div>
+              <div class="v-name">김민준 (Minjun)</div>
+            </div>
+            <div class="v-bot">
+              <div class="v-tags">
+                <span class="v-tag">#네온3D림</span>
+                <span class="v-tag">#스타트업</span>
+              </div>
+              <div class="v-action-btn">
+                <i data-lucide="camera" style="width:10px;height:10px;"></i>
+                <span>포토 명함으로 세팅</span>
+              </div>
+            </div>
+          </div>
+        </a>
+        <div class="card-meta-wrap">
+          <div>
+            <div class="badge-row">
+              <span class="style-badge badge-startup">STARTUP ⚡</span>
+              <span style="font-size:11px; color:#c084fc; font-weight:700;">Neon Halo Ring</span>
+            </div>
+            <h3 class="card-title-text">사이버 바이올렛 네온 포토</h3>
+            <p class="card-desc-text">IT 테크 창업가 및 개발자 리더를 위한 네온 글로우 프로필 3D 명함</p>
+          </div>
+          <a href="/maker?preset=violet&mode=photo&avatar=/assets/sample_profile_tech.jpg" class="btn-select-design">
+            <span>이 명함으로 만들기</span>
+            <i data-lucide="arrow-right" style="width:14px;height:14px;"></i>
+          </a>
+        </div>
+      </div>
 
       <!-- 1. Obsidian Titanium (Plate) -->
       <div class="template-card-box" data-category="best metal">

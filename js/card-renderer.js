@@ -357,7 +357,32 @@ function populateCard(data) {
 
   const frontLogoImg = document.getElementById('frontLogoImg');
   const backLogoImg = document.getElementById('backLogoImg');
-  if (data.logo === false || (data.logo && data.logo.src === "")) {
+  const fLogoBox = document.querySelector('.card-medallion-box') || document.querySelector('.front-logo-box');
+  const bLogoBox = document.querySelector('.back-medallion-box') || document.querySelector('.back-top-logo');
+
+  // 사진(Photo/Avatar) 우선 바인딩
+  const photoSrc = data.photo || data.avatar;
+  const isCustomPhoto = !!photoSrc || (data.logo && (data.logo.isPhoto || (typeof data.logo.src === 'string' && (data.logo.src.includes('sample_profile') || data.logo.src.startsWith('data:image')))));
+
+  if (isCustomPhoto) {
+    if (fLogoBox) fLogoBox.classList.add('has-photo');
+    if (bLogoBox) bLogoBox.classList.add('has-photo');
+  } else {
+    if (fLogoBox) fLogoBox.classList.remove('has-photo');
+    if (bLogoBox) bLogoBox.classList.remove('has-photo');
+  }
+
+  if (photoSrc) {
+    const pUrl = resolveAssetUrl(photoSrc);
+    if (frontLogoImg) {
+      frontLogoImg.src = pUrl;
+      frontLogoImg.alt = data.name || data.company;
+    }
+    if (backLogoImg) {
+      backLogoImg.src = pUrl;
+      backLogoImg.alt = data.name || data.company;
+    }
+  } else if (data.logo === false || (data.logo && data.logo.src === "")) {
     const fContainer = document.querySelector('.card-medallion-area') || document.querySelector('.front-logo-container');
     if (fContainer) fContainer.style.display = 'none';
   } else if (data.logo) {
