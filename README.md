@@ -78,3 +78,26 @@ TOOMUS 생태계의 고성능 Supabase & Vercel Edge 인프라를 활용하여 *
    * Porkbun DNS 관리창에 Vercel이 안내하는 A 레코드 / CNAME 레코드 추가:
      * A 레코드: `@` ➔ `76.76.21.21`
      * CNAME 레코드: `www` ➔ `cname.vercel-dns.com`
+
+---
+
+## 5. 데이터 분석 및 추적 규격 (Analytics & Tracking)
+* **Google Analytics 4 (GA4) 측정 ID (Measurement ID):** `G-1KRR01VT4L`
+* **GA4 Property ID (SETUPOD Fleet Hub 연동):** `559488195` (TOOMCARD 3D Hub)
+* **전체 7개 페이지 100% 탑재 및 실시간 수집:**
+  1. `index.html`: 공식 브랜드 랜딩 및 라이브 3D 카드 쇼룸
+  2. `templates.html`: 3D 스마트 명함 템플릿 갤러리
+  3. `maker.html`: 3D 명함 제작 에디터
+  4. `card.html`: 3D 인터랙티브 개별 명함 뷰어 (`/:slug`)
+  5. `dashboard.html`: 개인/기업 명함 관리 및 방문자 통계 콘솔
+  6. `privacy.html`: 개인정보처리방침
+  7. `terms.html`: 서비스 이용약관
+* **주요 추적 이벤트 (Key Conversion Events):**
+  * `page_view`: 전 페이지 트래픽 및 유입 채널 분석
+  * `view_card`: 3D 디지털 명함 열람
+  * `card_flip`: 3D 카드 앞/뒷면 180도 회전 감상
+  * `view_qr`: 스마트 모핑 QR 코드 팝업 스캔
+  * `save_contact`: 1초 vCard 스마트폰 연락처 저장
+  * `share`: 카카오톡 공유 및 URL 복사
+  * `lead_submit`: 인앱 B2B 및 명함 방문자 리드 연락처 제출
+
