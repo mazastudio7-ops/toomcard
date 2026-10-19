@@ -2818,27 +2818,65 @@
         </div>
       </div>
 
-      <!-- 3. 내 사진 / 프로필 사진 & 브랜드 로고 연출 -->
+      <!-- 3. 카드 앞면 디자인 (전면 풀커버 / 프로필 사진 / 로고) -->
       <div>
         <div class="section-title-wrap">
-          <div class="section-icon-box"><i data-lucide="camera" style="width:16px;height:16px;color:#ffd978;"></i></div>
-          <h2 class="section-title">3. 내 사진 / 프로필 사진 & 브랜드 로고</h2>
+          <div class="section-icon-box"><i data-lucide="sparkles" style="width:16px;height:16px;color:#ffd978;"></i></div>
+          <h2 class="section-title">3. 카드 앞면 디자인 (전면 풀커버 / 프로필 / 로고)</h2>
         </div>
 
-        <!-- 탭 전환: 내 프로필 사진 vs 공식 브랜드 로고 -->
-        <div style="display:flex; gap:8px; margin-bottom:12px; background:rgba(255,255,255,0.05); padding:4px; border-radius:12px; border:1px solid rgba(255,255,255,0.1);">
-          <button type="button" id="tabPhotoActive" onclick="switchVisualTab('photo')" style="flex:1; padding:8px 12px; border-radius:9px; border:none; font-size:12.5px; font-weight:800; cursor:pointer; background:linear-gradient(135deg, #ffd978, #f59e0b); color:#000; display:flex; align-items:center; justify-content:center; gap:6px; transition:all 0.2s;">
-            <i data-lucide="user" style="width:14px;height:14px;"></i>
-            <span>내 얼굴/프로필 사진 모드</span>
+        <!-- 3대 모드 탭 전환: 전면 풀커버 vs 프로필 사진 vs 브랜드 로고 -->
+        <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:6px; margin-bottom:12px; background:rgba(255,255,255,0.05); padding:4px; border-radius:12px; border:1px solid rgba(255,255,255,0.1);">
+          <button type="button" id="tabPlateActive" onclick="switchVisualTab('plate')" style="padding:8px 6px; border-radius:9px; border:none; font-size:11.5px; font-weight:800; cursor:pointer; background:linear-gradient(135deg, #ffd978, #f59e0b); color:#000; display:flex; align-items:center; justify-content:center; gap:4px; transition:all 0.2s;">
+            <i data-lucide="layers" style="width:13px;height:13px;"></i>
+            <span>전면 풀커버</span>
           </button>
-          <button type="button" id="tabLogoActive" onclick="switchVisualTab('logo')" style="flex:1; padding:8px 12px; border-radius:9px; border:none; font-size:12.5px; font-weight:800; cursor:pointer; background:transparent; color:rgba(255,255,255,0.7); display:flex; align-items:center; justify-content:center; gap:6px; transition:all 0.2s;">
-            <i data-lucide="sparkles" style="width:14px;height:14px;"></i>
-            <span>회사 브랜드 로고 모드</span>
+          <button type="button" id="tabPhotoActive" onclick="switchVisualTab('photo')" style="padding:8px 6px; border-radius:9px; border:none; font-size:11.5px; font-weight:800; cursor:pointer; background:transparent; color:rgba(255,255,255,0.7); display:flex; align-items:center; justify-content:center; gap:4px; transition:all 0.2s;">
+            <i data-lucide="user" style="width:13px;height:13px;"></i>
+            <span>프로필 사진</span>
+          </button>
+          <button type="button" id="tabLogoActive" onclick="switchVisualTab('logo')" style="padding:8px 6px; border-radius:9px; border:none; font-size:11.5px; font-weight:800; cursor:pointer; background:transparent; color:rgba(255,255,255,0.7); display:flex; align-items:center; justify-content:center; gap:4px; transition:all 0.2s;">
+            <i data-lucide="image" style="width:13px;height:13px;"></i>
+            <span>브랜드 로고</span>
           </button>
         </div>
 
-        <!-- 1) 프로필 사진 업로드 영역 -->
-        <div id="photoUploadSection">
+        <!-- 1) 전면 풀커버 플레이트 디자인 업로드 영역 -->
+        <div id="plateUploadSection">
+          <div class="file-upload-box" onclick="document.getElementById('plateFileInput').click()" style="background:rgba(255,217,120,0.08); border:2px dashed rgba(255,217,120,0.5); border-radius:16px; padding:20px; text-align:center; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:6px; transition:all 0.2s;">
+            <i data-lucide="layers" style="width:28px;height:28px;color:#ffd978;"></i>
+            <span style="font-size:13.5px;font-weight:900;color:#ffffff;">카드 앞면 전체를 채울 사진/아트워크 업로드</span>
+            <span style="font-size:11.5px;color:rgba(255,255,255,0.7);">피트니스/모델 사진, 아이언맨/조각 각인 일러스트, 매장 전경 등 (100% Full Bleed)</span>
+            <input type="file" id="plateFileInput" accept="image/*" style="display:none" onchange="handlePlateUpload(event)">
+          </div>
+
+          <!-- 추천 전면 풀커버 플레이트 샘플 (원클릭 테스트) -->
+          <div style="margin-top:12px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+              <span style="font-size:12px;font-weight:800;color:#ffd978;display:flex;align-items:center;gap:6px;">
+                <i data-lucide="sparkles" style="width:14px;height:14px;"></i> 추천 전면 풀커버 플레이트 샘플
+              </span>
+              <span style="font-size:10.5px;color:rgba(255,255,255,0.5);">탭하면 전면 100% 반영</span>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:8px;">
+              <button type="button" class="btn-logo-preset" style="padding:8px 4px; flex-direction:column; gap:6px; height:auto; text-align:center; background:rgba(255,255,255,0.05); border:1px solid rgba(255,217,120,0.3); border-radius:12px;" onclick="selectPlateArtwork('/assets/plate_fitness_membership.jpg', '피트니스 멤버십', this)">
+                <img src="/assets/plate_fitness_membership.jpg" style="width:48px;height:72px;border-radius:6px;object-fit:cover;border:1px solid #ffd978;box-shadow:0 0 10px rgba(255,217,120,0.3);">
+                <span style="font-size:10.5px;font-weight:800;color:#ffffff;">피트니스 멤버십</span>
+              </button>
+              <button type="button" class="btn-logo-preset" style="padding:8px 4px; flex-direction:column; gap:6px; height:auto; text-align:center; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.15); border-radius:12px;" onclick="selectPlateArtwork('/assets/plate_iron_titanium.jpg', '아이언 3D 각인', this)">
+                <img src="/assets/plate_iron_titanium.jpg" style="width:48px;height:72px;border-radius:6px;object-fit:cover;border:1px solid #cbd5e1;box-shadow:0 4px 10px rgba(0,0,0,0.6);">
+                <span style="font-size:10.5px;font-weight:800;color:#ffffff;">아이언 3D 각인</span>
+              </button>
+              <button type="button" class="btn-logo-preset" style="padding:8px 4px; flex-direction:column; gap:6px; height:auto; text-align:center; background:rgba(255,255,255,0.05); border:1px solid rgba(255,217,120,0.3); border-radius:12px;" onclick="selectPlateArtwork('/assets/toomcard_front_plate.jpg', '옵시디언 골드', this)">
+                <img src="/assets/toomcard_front_plate.jpg" style="width:48px;height:72px;border-radius:6px;object-fit:cover;border:1px solid #ffd978;box-shadow:0 0 10px rgba(255,217,120,0.3);">
+                <span style="font-size:10.5px;font-weight:800;color:#ffffff;">옵시디언 골드</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2) 프로필 사진 업로드 영역 -->
+        <div id="photoUploadSection" style="display:none;">
           <div class="file-upload-box" onclick="document.getElementById('logoFileInput').click()" style="background:rgba(255,217,120,0.05); border:1.5px dashed rgba(255,217,120,0.4); border-radius:16px; padding:20px; text-align:center; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:6px; transition:all 0.2s;">
             <i data-lucide="camera" style="width:28px;height:28px;color:#ffd978;"></i>
             <span style="font-size:13.5px;font-weight:800;color:#ffffff;">내 사진 / 프로필 사진 등록하기 (탭하여 선택)</span>
@@ -2871,7 +2909,7 @@
           </div>
         </div>
 
-        <!-- 2) 브랜드 로고 영역 (기존 로고 선택) -->
+        <!-- 3) 브랜드 로고 영역 (기존 로고 선택) -->
         <div id="logoUploadSection" style="display:none; margin-top:10px;">
           <div style="display:grid;grid-template-columns:repeat(2, 1fr);gap:8px;" id="logoPresetGroup">
             <button type="button" class="btn-logo-preset active" data-logo-src="/assets/logo_toomcard_hd.gif" onclick="selectBrandLogo('/assets/logo_toomcard_hd.gif', 'TOOMCARD 3D 모션 HD', this)">
@@ -3831,6 +3869,42 @@
     // 3D 완성형 디자인 프리셋 카탈로그 시스템 (Photomon Biz Style)
     // ==========================================
     const DESIGN_PRESETS = {
+      'fitness-plate': {
+        name: '헬스클럽 & 피트니스 전면 풀커버 멤버십',
+        badge: 'FULL COVER 🏋️',
+        typeLabel: 'Full Bleed Plate',
+        layout: 'plate',
+        theme: 'obsidian',
+        plateCardImage: '/assets/plate_fitness_membership.jpg',
+        company: 'HEALTH CLUB',
+        namePerson: 'Jessica Park',
+        role: '수석 트레이너 / Head Coach',
+        slogan: '프리미엄 1:1 피트니스 & 웰니스 멤버십',
+        tagline: 'ELITE ACCESS',
+        watermark: 'FITNESS',
+        phone: '010-3333-8888',
+        email: 'vip@healthclub.com',
+        tags: ['#전면풀커버', '#피트니스멤버십', '#스마트NFC'],
+        logo: '/assets/logo_toomcard_hd.gif'
+      },
+      'iron-plate': {
+        name: '아이언 티타늄 3D 조각 각인 플레이트',
+        badge: '3D ENGRAVED 🛡️',
+        typeLabel: 'Titanium Art Plate',
+        layout: 'plate',
+        theme: 'obsidian',
+        plateCardImage: '/assets/plate_iron_titanium.jpg',
+        company: 'MECH PROTOCOL',
+        namePerson: 'Andrew K',
+        role: '총괄 디렉터 / Creator',
+        slogan: '일반 필름은 심심하니까! 블랙 티타늄 3D 양각 조각',
+        tagline: 'ARMOR TITANIUM',
+        watermark: 'TITANIUM',
+        phone: '010-7788-9900',
+        email: 'andrew@toomcard.com',
+        tags: ['#블랙티타늄', '#3D조각각인', '#아트워크플레이트'],
+        logo: '/assets/logo_toomcard_hd.gif'
+      },
       'obsidian': {
         name: '스위스 옵시디언 티타늄',
         badge: 'BEST 🔥',
@@ -4020,6 +4094,10 @@
         }
         if (p.logo) {
           selectBrandLogo(p.logo, p.company, null);
+        }
+        if (p.plateCardImage) {
+          selectPlateArtwork(p.plateCardImage, p.name, null);
+          switchVisualTab('plate');
         }
       }
 
@@ -4349,34 +4427,93 @@
       reader.readAsDataURL(file);
     }
 
+    let currentPlateCardImage = '/assets/toomcard_front_plate.jpg';
+
+    function handlePlateUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const img = new Image();
+        img.onload = function() {
+          const canvas = document.createElement('canvas');
+          const MAX_W = 1080;
+          let width = img.width;
+          let height = img.height;
+
+          if (width > MAX_W) {
+            height *= MAX_W / width;
+            width = MAX_W;
+          }
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+
+          currentPlateCardImage = canvas.toDataURL('image/jpeg', 0.88);
+          selectPlateArtwork(currentPlateCardImage, '내 전면 풀커버 사진');
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function selectPlateArtwork(path, label, btnElem) {
+      currentPlateCardImage = path;
+      const plateImg = document.getElementById('plateArtworkImg');
+      if (plateImg) plateImg.src = currentPlateCardImage;
+
+      // 레이아웃을 plate 모드로 자동 전환
+      selectLayout('plate');
+
+      document.querySelectorAll('#plateUploadSection .btn-logo-preset').forEach(b => b.classList.remove('active'));
+      if (btnElem) btnElem.classList.add('active');
+
+      showToast(`${label || '전면 풀커버 플레이트'}가 실시간 적용되었습니다!`);
+      if (typeof forceCardFront === 'function') forceCardFront();
+    }
+
     function switchVisualTab(tab) {
+      const plateSec = document.getElementById('plateUploadSection');
       const pSec = document.getElementById('photoUploadSection');
       const lSec = document.getElementById('logoUploadSection');
+
+      const plateTab = document.getElementById('tabPlateActive');
       const pTab = document.getElementById('tabPhotoActive');
       const lTab = document.getElementById('tabLogoActive');
-      if (tab === 'photo') {
+
+      [plateSec, pSec, lSec].forEach(s => { if (s) s.style.display = 'none'; });
+      [plateTab, pTab, lTab].forEach(t => { 
+        if (t) {
+          t.style.background = 'transparent';
+          t.style.color = 'rgba(255,255,255,0.7)';
+        }
+      });
+
+      if (tab === 'plate') {
+        if (plateSec) plateSec.style.display = 'block';
+        if (plateTab) {
+          plateTab.style.background = 'linear-gradient(135deg, #ffd978, #f59e0b)';
+          plateTab.style.color = '#000';
+        }
+        selectLayout('plate');
+        if (typeof forceCardFront === 'function') forceCardFront();
+      } else if (tab === 'photo') {
         if (pSec) pSec.style.display = 'block';
-        if (lSec) lSec.style.display = 'none';
         if (pTab) {
           pTab.style.background = 'linear-gradient(135deg, #ffd978, #f59e0b)';
           pTab.style.color = '#000';
         }
-        if (lTab) {
-          lTab.style.background = 'transparent';
-          lTab.style.color = 'rgba(255,255,255,0.7)';
-        }
+        if (currentLayout === 'plate') selectLayout('metal');
         if (typeof forceCardFront === 'function') forceCardFront();
       } else {
-        if (pSec) pSec.style.display = 'none';
         if (lSec) lSec.style.display = 'block';
         if (lTab) {
           lTab.style.background = 'linear-gradient(135deg, #a855f7, #7e22ce)';
           lTab.style.color = '#fff';
         }
-        if (pTab) {
-          pTab.style.background = 'transparent';
-          pTab.style.color = 'rgba(255,255,255,0.7)';
-        }
+        if (currentLayout === 'plate') selectLayout('metal');
         if (typeof forceCardFront === 'function') forceCardFront();
       }
     }
@@ -4445,7 +4582,9 @@
 
       const plateArtworkImg = document.getElementById('plateArtworkImg');
       if (plateArtworkImg) {
-        if (company.toUpperCase().includes('TOOMUS')) {
+        if (currentPlateCardImage) {
+          plateArtworkImg.src = currentPlateCardImage;
+        } else if (company.toUpperCase().includes('TOOMUS')) {
           plateArtworkImg.src = '/assets/toomus_front_plate.png';
         } else {
           plateArtworkImg.src = '/assets/toomcard_front_plate.png';
@@ -4586,6 +4725,7 @@
         logoMotion: currentLogoMotion,
         theme: currentTheme,
         layout: currentLayout,
+        plateCardImage: currentPlateCardImage,
         edition: 'TITANIUM PRO',
         moatTags: [
           document.getElementById('inputTag1').value,

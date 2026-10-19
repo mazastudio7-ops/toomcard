@@ -300,7 +300,7 @@ function populateCard(data) {
   cardData = data;
 
   // 레이아웃 적용 (기본: SETUPOD 정통 3D 카드)
-  const layout = data.layout || 'classic';
+  const layout = data.layout || (data.plateCardImage ? 'plate' : 'classic');
   const layoutStylesheet = document.getElementById('layoutStylesheet');
   const base = getBasePath();
 
@@ -409,8 +409,6 @@ function populateCard(data) {
 
   // 3D 홀로그램 & GIF 모션 연출 바인딩
   const logoMotion = data.logoMotion || data.avatarMotion;
-  const fLogoBox = document.querySelector('.card-medallion-box') || document.querySelector('.front-logo-box');
-  const bLogoBox = document.querySelector('.back-medallion-box') || document.querySelector('.back-top-logo');
   if (logoMotion && logoMotion !== 'none') {
     const motionClasses = ['fx-hologram-pulse', 'fx-cyber-shimmer', 'fx-3d-floating', 'fx-gold-sparkle'];
     if (fLogoBox) {
@@ -432,7 +430,6 @@ function populateCard(data) {
   // Plate 레이아웃 전용 실물 카드 아트워크 바인딩 (Base Path 및 캐시 무효화 적용)
   const plateImg = document.getElementById('plateArtworkImg');
   if (plateImg) {
-    const cacheBuster = '?v=3dmaster_' + Date.now().toString(36);
     let rawPath = '/assets/toomcard_front_plate.jpg';
     if (data.plateCardImage) {
       rawPath = data.plateCardImage;
@@ -441,9 +438,14 @@ function populateCard(data) {
     }
     plateImg.onerror = function() {
       this.onerror = null;
-      this.src = './assets/toomcard_front_plate.png' + cacheBuster;
+      this.src = './assets/toomcard_front_plate.png';
     };
-    plateImg.src = resolveAssetUrl(rawPath) + cacheBuster;
+    if (rawPath.startsWith('data:') || rawPath.startsWith('blob:')) {
+      plateImg.src = rawPath;
+    } else {
+      const cacheBuster = '?v=3dmaster_' + Date.now().toString(36);
+      plateImg.src = resolveAssetUrl(rawPath) + cacheBuster;
+    }
   }
 
   // 앞면 정보 바인딩 (태그라인, 회사명, 슬로건, 이름, 직함)

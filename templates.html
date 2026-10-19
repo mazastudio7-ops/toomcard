@@ -286,6 +286,52 @@
       box-shadow: 0 24px 48px rgba(0, 0, 0, 0.75), 0 0 20px rgba(255, 217, 120, 0.2);
     }
 
+    /* Full Bleed Card Plate Image (전면 풀커버 플레이트) */
+    .v-card-plate {
+      padding: 0 !important;
+      background: #000;
+      border: 1.5px solid rgba(255, 217, 120, 0.4);
+    }
+    .v-plate-img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      border-radius: 11px;
+    }
+    .v-plate-sheen {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.3) 0%, transparent 45%, transparent 60%, rgba(255,217,120,0.18) 100%);
+      pointer-events: none;
+      border-radius: 11px;
+    }
+    .v-plate-overlay-badge {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 217, 120, 0.4);
+      color: #ffd978;
+      font-size: 7.5px;
+      font-weight: 800;
+      padding: 2.5px 6px;
+      border-radius: 4px;
+      letter-spacing: 0.5px;
+      z-index: 2;
+    }
+    .v-plate-overlay-bottom {
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+      right: 10px;
+      z-index: 2;
+    }
+
     /* Watermark text behind card */
     .v-watermark {
       position: absolute;
@@ -699,7 +745,8 @@
   <div class="filter-tabs-bar">
     <div class="filter-inner">
       <div class="filter-tab active" onclick="filterCatalog('all', this)">전체 3D 템플릿</div>
-      <div class="filter-tab" onclick="filterCatalog('photo', this)" style="color:#ffd978; font-weight:800;">📸 시그니처 포토 명함 (NEW)</div>
+      <div class="filter-tab" onclick="filterCatalog('plate', this)" style="color:#ffd978; font-weight:800;">🎨 전면 풀커버 디자인 (HOT)</div>
+      <div class="filter-tab" onclick="filterCatalog('photo', this)">📸 프로필 인물 컷</div>
       <div class="filter-tab" onclick="filterCatalog('best', this)">BEST 추천 모델</div>
       <div class="filter-tab" onclick="filterCatalog('metal', this)">C-Level & 메탈 티타늄</div>
       <div class="filter-tab" onclick="filterCatalog('editorial', this)">미니멀 & 감성 에디토리얼</div>
@@ -719,13 +766,75 @@
     </h1>
     <p class="hero-sub">
       카드 자체를 클릭하면 해당 세로형 3D 디자인이 편집기에 1초 만에 세팅됩니다.<br>
-      내 사진(또는 프로필 이미지)과 정보만 입력하고 즉시 3D 명함을 발행하세요.
+      내 사진(또는 전면 풀커버 아트워크)과 정보만 입력하고 즉시 3D 명함을 발행하세요.
     </p>
   </section>
 
   <!-- Authentic Vertical 3D Card Templates Grid -->
   <main class="template-grid-wrap">
     <div class="template-grid" id="catalogGrid">
+
+      <!-- FULL PLATE 1. Fitness & Health Club Membership Full Plate -->
+      <div class="template-card-box" data-category="plate photo best">
+        <a href="/maker?preset=fitness-plate" class="stage-area" title="헬스클럽 피트니스 전면 풀커버 디자인으로 세팅하기">
+          <div class="v-card v-card-plate">
+            <img src="/assets/plate_fitness_membership.jpg" class="v-plate-img" alt="Fitness Full Cover Plate">
+            <div class="v-plate-sheen"></div>
+            <div class="v-plate-overlay-badge">FULL COVER 🏋️</div>
+            <div class="v-plate-overlay-bottom">
+              <div class="v-action-btn" style="background:linear-gradient(135deg, #ffd978, #f59e0b); color:#000;">
+                <i data-lucide="sparkles" style="width:10px;height:10px;"></i>
+                <span>전면 풀커버로 만들기</span>
+              </div>
+            </div>
+          </div>
+        </a>
+        <div class="card-meta-wrap">
+          <div>
+            <div class="badge-row">
+              <span class="style-badge badge-best">FULL COVER 🏋️</span>
+              <span style="font-size:11px; color:#ffd978; font-weight:700;">Full-Bleed Photo</span>
+            </div>
+            <h3 class="card-title-text">헬스클럽 & 피트니스 전면 풀커버</h3>
+            <p class="card-desc-text">카드 앞면 전체에 인물/모델 사진과 브랜드 그래픽을 100% 꽉 채우는 프리미엄 멤버십 카드</p>
+          </div>
+          <a href="/maker?preset=fitness-plate" class="btn-select-design">
+            <span>이 명함으로 만들기</span>
+            <i data-lucide="arrow-right" style="width:14px;height:14px;"></i>
+          </a>
+        </div>
+      </div>
+
+      <!-- FULL PLATE 2. Iron Titanium 3D Mech Engraved Plate -->
+      <div class="template-card-box" data-category="plate metal best">
+        <a href="/maker?preset=iron-plate" class="stage-area" title="아이언 티타늄 3D 조각 각인 디자인으로 세팅하기">
+          <div class="v-card v-card-plate">
+            <img src="/assets/plate_iron_titanium.jpg" class="v-plate-img" alt="Iron Titanium Engraved Plate">
+            <div class="v-plate-sheen"></div>
+            <div class="v-plate-overlay-badge">3D ENGRAVED 🛡️</div>
+            <div class="v-plate-overlay-bottom">
+              <div class="v-action-btn" style="background:linear-gradient(135deg, #e2e8f0, #94a3b8); color:#000;">
+                <i data-lucide="sparkles" style="width:10px;height:10px;"></i>
+                <span>전면 풀커버로 만들기</span>
+              </div>
+            </div>
+          </div>
+        </a>
+        <div class="card-meta-wrap">
+          <div>
+            <div class="badge-row">
+              <span class="style-badge badge-c">3D ENGRAVED 🛡️</span>
+              <span style="font-size:11px; color:#cbd5e1; font-weight:700;">Titanium Art Plate</span>
+            </div>
+            <h3 class="card-title-text">아이언 티타늄 3D 조각 각인</h3>
+            <p class="card-desc-text">일반 필름은 심심하니까! 블랙 티타늄 표면 전체에 나만의 캐릭터/일러스트를 정밀 조각한 메탈 카드</p>
+          </div>
+          <a href="/maker?preset=iron-plate" class="btn-select-design">
+            <span>이 명함으로 만들기</span>
+            <i data-lucide="arrow-right" style="width:14px;height:14px;"></i>
+          </a>
+        </div>
+      </div>
 
       <!-- P1. Obsidian Gold Photo Edition (Photo VIP) -->
       <div class="template-card-box" data-category="photo best metal">
