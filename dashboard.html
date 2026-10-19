@@ -748,6 +748,10 @@
 
       <!-- Right Action Pathway -->
       <div style="display:flex; align-items:center; gap:10px;">
+                <div id="ga4LivePulseBadge" style="display:inline-flex; align-items:center; gap:6px; background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.3); padding:4px 10px; border-radius:99px; font-size:11px; font-weight:800; color:#10b981; font-family:'JetBrains Mono',monospace;">
+          <span style="width:6px;height:6px;border-radius:50%;background:#10b981;box-shadow:0 0 8px #10b981;"></span>
+          <span id="ga4LiveText">GA4 Live (G-1KRR01VT4L)</span>
+        </div>
         <a href="/" class="btn-exit-home" title="메인 홈으로 이동">
           <i data-lucide="arrow-left" style="width:15px;height:15px;"></i>
           <span>홈으로 나가기</span>
@@ -2772,5 +2776,114 @@
       </p>
     </div>
   </footer>
+<script>
+    // ── TOOMCARD Dedicated Live GA4 Telemetry (Powered by SETUPOD Gateway) ──
+    async function syncToomcardGa4LiveData() {
+      try {
+        const res = await fetch('https://setupod.com/api/ga4-stats?pod=toomcard');
+        if (!res.ok) return;
+        const data = await res.json();
+        const myStats = data.pods && data.pods.toomcard ? data.pods.toomcard : null;
+        if (!myStats) return;
+
+        // 1. Live Active Visitors Pulse
+        if (myStats.realtime) {
+          const liveUsers = myStats.realtime.activeUsers || 0;
+          const liveEl = document.getElementById('ga4LiveText');
+          if (liveEl) {
+            liveEl.innerText = liveUsers > 0 ? `LIVE ${liveUsers}명 실시간 열람 중` : 'GA4 Live (G-1KRR01VT4L)';
+          }
+        }
+
+        // 2. Summary KPI Sync
+        if (myStats.summary && myStats.summary.pageViews > 0) {
+          const totalViewsEl = document.getElementById('statTotalViewsCount');
+          if (totalViewsEl) totalViewsEl.textContent = `${myStats.summary.pageViews.toLocaleString()}회`;
+        }
+
+        // 3. Traffic Trend Chart Direct Integration
+        if (myStats.trend && myStats.trend.labels && myStats.trend.labels.length > 0 && myStats.trend.views && myStats.trend.views.some(v => v > 0)) {
+          const ctx = document.getElementById('mainTrafficChart');
+          if (ctx && window.Chart) {
+            if (window._mainTrafficChartInstance) window._mainTrafficChartInstance.destroy();
+            const chartCtx = ctx.getContext('2d');
+            const gradViews = chartCtx.createLinearGradient(0, 0, 0, 300);
+            gradViews.addColorStop(0, 'rgba(192, 132, 252, 0.45)');
+            gradViews.addColorStop(1, 'rgba(192, 132, 252, 0.0)');
+
+            window._mainTrafficChartInstance = new Chart(chartCtx, {
+              type: 'line',
+              data: {
+                labels: myStats.trend.labels,
+                datasets: [{
+                  label: '3D 명함 열람수 (GA4 실측)',
+                  data: myStats.trend.views,
+                  borderColor: '#c084fc',
+                  backgroundColor: gradViews,
+                  borderWidth: 3,
+                  fill: true,
+                  tension: 0.38,
+                  pointRadius: 4,
+                  pointBackgroundColor: '#c084fc'
+                }]
+              },
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                  legend: { display: false },
+                  tooltip: { backgroundColor: 'rgba(15,23,42,0.9)', padding: 10 }
+                },
+                scales: {
+                  x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
+                  y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8', beginAtZero: true } }
+                }
+              }
+            });
+
+            const totalViews = myStats.trend.views.reduce((a, b) => a + b, 0);
+            const avgViews = (totalViews / myStats.trend.views.length).toFixed(1);
+            const avgEl = document.getElementById('chartStatAvgViews');
+            if (avgEl) avgEl.textContent = `${avgViews}회`;
+          }
+        }
+
+        // 4. Distribution Chart Direct Integration
+        if (myStats.channels && myStats.channels.length > 0) {
+          const distCtx = document.getElementById('mainDistributionChart');
+          if (distCtx && window.Chart) {
+            if (window._mainDistChartInstance) window._mainDistChartInstance.destroy();
+            window._mainDistChartInstance = new Chart(distCtx.getContext('2d'), {
+              type: 'doughnut',
+              data: {
+                labels: myStats.channels.map(c => c.name),
+                datasets: [{
+                  data: myStats.channels.map(c => parseInt(c.count) || 1),
+                  backgroundColor: ['#a855f7', '#ec4899', '#38bdf8', '#10b981', '#f59e0b'],
+                  borderWidth: 0
+                }]
+              },
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                  legend: { position: 'bottom', labels: { color: '#cbd5e1', font: { size: 11 } } }
+                },
+                cutout: '72%'
+              }
+            });
+          }
+        }
+      } catch (err) {
+        console.debug('Toomcard live GA4 sync fallback active:', err.message);
+      }
+    }
+
+    // Auto-invoke sync on load & 60s polling
+    window.addEventListener('DOMContentLoaded', () => {
+      syncToomcardGa4LiveData();
+      setInterval(syncToomcardGa4LiveData, 60000);
+    });
+</script>
 </body>
 </html>
