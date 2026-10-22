@@ -677,7 +677,7 @@
       layout: 'plate', theme: 'obsidian', edition: 'TITANIUM PRO',
       name: '', role: '', company: '', slogan: '', phone: '', email: '',
       moatTags: [],
-      logo: { src: '/assets/logo_toomcard_hd.webp', alt: '' },
+      logo: { src: '/assets/logo_toomcard_hd.gif', alt: '' },
       primaryAction: { url: '', label: '', icon: 'globe' },
       socials: [], links: [], backLayout: 'default',
       emblem: { on: true, source: 'initials', text: '', img: '', material: 'gold', shape: 'coin', motion: 'sweep' },
@@ -717,10 +717,10 @@
     // 디자인(캐러셀·시작점): 배경 + 글자 위치 + 마감 + 뒷면 색을 한 번에.
     // 브랜드 플레이트 3장은 샘플이고, 단색은 색·밝기를 마음대로 바꾼다.
     const DESIGNS = [
-      { key: 'toomcard', label: 'TOOMCARD', bgId: 'toomcard', text: 'none', finish: 'metal', theme: 'obsidian' },
-      { key: 'toomus',   label: 'TOOMUS',   bgId: 'toomus',   text: 'none', finish: 'metal', theme: 'navy-gold' },
-      { key: 'setupod',  label: 'SETUPOD',  bgId: 'setupod',  text: 'none', finish: 'glass', theme: 'violet' },
-      { key: 'maza',     label: 'MAZA',     bgId: 'maza',     text: 'none', finish: 'metal', theme: 'violet' },
+      { key: 'toomcard', label: 'TOOMCARD', bgId: 'toomcard', text: 'none', finish: 'metal', theme: 'obsidian', logo: '/assets/logo_toomcard_hd.gif' },
+      { key: 'toomus',   label: 'TOOMUS',   bgId: 'toomus',   text: 'none', finish: 'metal', theme: 'navy-gold', logo: '/assets/logo_toomus.gif' },
+      { key: 'setupod',  label: 'SETUPOD',  bgId: 'setupod',  text: 'none', finish: 'glass', theme: 'violet', logo: '/assets/logo_setupod.gif' },
+      { key: 'maza',     label: 'MAZA',     bgId: 'maza',     text: 'none', finish: 'metal', theme: 'violet', logo: '/assets/logo_maza.gif' },
       { key: 'solid',    labelKey: 'maker.solid', bgId: 'solid', text: 'bottom-left', finish: 'metal', theme: 'obsidian' },
     ];
     // 예전 주소(?preset=...)와 templates.html 링크 호환: 단색 + 마감 + 뒷면 색으로 바꿔 연다
@@ -1070,6 +1070,10 @@
       if (!textTouched) { card.front.text.layout = s.text; pressOnly($('textChips'), 'layout', s.text); }
       card.front.finish = s.finish; pressOnly($('finishChips'), 'finish', s.finish);
       card.theme = s.theme; renderThemeChips();
+      // 브랜드 샘플은 직접 만든 움직이는 로고(GIF)를 그대로 보여주고, 그 밖의 디자인은 자동 엠블럼
+      if (d && d.logo) { card.logo = { src: d.logo, alt: '' }; card.emblem.on = false; }
+      else { card.logo = { src: DEFAULT_CARD.logo.src, alt: '' }; card.emblem.on = true; }
+      if (typeof syncEmblemUI === 'function') syncEmblemUI();
       render();
     }
 

@@ -340,8 +340,6 @@ function populateCard(data) {
 
   // 로고 이미지 (Base Path 정규화 & 무한 onerror 루프 완전 차단)
   function resolveAssetUrl(url) {
-    // 2.4MB/11MB 움직이는 GIF 로고는 가벼운 WebP로. 메이커 미리보기에서는 정지 이미지.
-    if (/logo_toomcard(_hd)?\.gif$/.test(url || '')) url = window.__MAKER ? '/assets/logo_toomcard_still.webp' : '/assets/logo_toomcard_hd.webp';
     if (!url) return '';
     if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:') || url.startsWith('blob:')) {
       return url;

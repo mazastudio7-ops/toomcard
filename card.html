@@ -1254,19 +1254,7 @@
     .plate-text-overlay[hidden] { display: none; }
     .plate-artwork-img[hidden] { display: none !important; }
     /* 메이커 미리보기: 반짝임·맥박·레이저 같은 무한 애니메이션과 배경 흐림을 끈다 (폰 버벅임 원인) */
-    /* 빛이 한 번 훑고 지나간다 — transform만 쓰는 한 겹이라 가볍다. 에디터 미리보기에서도 움직인다 */
-    .plate-shine { position: absolute; inset: 0; z-index: 3; pointer-events: none; overflow: hidden; border-radius: inherit; }
-    .plate-shine::before {
-      content: ""; position: absolute; top: -20%; bottom: -20%; left: 0; width: 38%;
-      background: linear-gradient(100deg, transparent 0%, rgba(255,255,255,0.05) 30%, rgba(255,246,214,0.34) 50%, rgba(255,255,255,0.05) 70%, transparent 100%);
-      transform: translateX(-130%) skewX(-16deg); will-change: transform;
-      animation: plateShine 5.2s cubic-bezier(.45,.05,.25,1) infinite;
-    }
-    @keyframes plateShine { 0% { transform: translateX(-130%) skewX(-16deg); } 38%, 100% { transform: translateX(330%) skewX(-16deg); } }
-    .plate-finish-matte .plate-shine, .plate-finish-studio .plate-shine { display: none; }
-    @media (prefers-reduced-motion: reduce) { .plate-shine { display: none; } }
-    .maker-embed *:not(.plate-shine), .maker-embed *:not(.plate-shine)::before, .maker-embed *::after { animation: none !important; }
-    .maker-embed .plate-shine::before { animation: plateShine 5.2s cubic-bezier(.45,.05,.25,1) infinite !important; }
+    .maker-embed *, .maker-embed *::before, .maker-embed *::after { animation: none !important; }
     .maker-embed * { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
     .maker-embed .container { opacity: 1 !important; transition: none !important; }
     .plate-tint { position: absolute; inset: 0; z-index: 1; pointer-events: none; mix-blend-mode: color; opacity: 0.9; border-radius: inherit; }
@@ -1739,7 +1727,6 @@
             </div>
             <!-- 마감(finish) 질감·반사 -->
             <div class="plate-fx" id="plateFx"></div>
-            <div class="plate-shine" aria-hidden="true"></div>
 
             <!-- 앞면 레이어: 글자·로고 오버레이 (front.text) -->
             <div class="plate-text-overlay" id="plateTextOverlay" hidden>
@@ -1794,7 +1781,7 @@
             <!-- 로고 박스 (탭 시 QR 팝업) -->
             <div class="front-logo-container">
               <div class="front-logo-box" onclick="event.stopPropagation(); openShareModal();" title="로고를 탭하면 QR코드가 열립니다">
-                <img id="frontLogoImg" src="/assets/logo_toomcard_hd.webp" alt="Logo" onerror="this.onerror=null; this.src='/assets/logo_toomcard.gif';">
+                <img id="frontLogoImg" src="/assets/logo_toomcard_hd.gif" alt="Logo" onerror="this.onerror=null; this.src='/assets/logo_toomcard.gif';">
               </div>
             </div>
 
@@ -1833,7 +1820,7 @@
                   <div class="back-flipper-face back-flipper-logo" id="backFlipperLogoFace">
                     <div class="back-top-logo">
                       <div class="back-emblem-host" id="backEmblem" hidden></div>
-                      <img id="backLogoImg" src="/assets/logo_toomcard_hd.webp" alt="Logo" onerror="this.onerror=null; this.src='/assets/logo_toomcard.gif';">
+                      <img id="backLogoImg" src="/assets/logo_toomcard_hd.gif" alt="Logo" onerror="this.onerror=null; this.src='/assets/logo_toomcard.gif';">
                     </div>
                   </div>
                 </div>
