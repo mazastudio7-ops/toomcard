@@ -695,6 +695,72 @@ function setupSwipe() {
   }, { passive: true });
 }
 
+
+// 받는 사람 화면: 손가락·마우스·폰 기울기를 따라 카드가 살짝 기울고, 광택이 따라온다.
+function setupTilt() {
+  const scene = document.getElementById('cardScene');
+  if (window.__tiltOn) return;
+  if (!scene || window.__MAKER || (window.self !== window.top && new URLSearchParams(location.search).get('maker') === '1')) return;
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  window.__tiltOn = true;
+  let tx = 0, ty = 0, cx = 0, cy = 0, raf = 0, last = 0, hasInput = false;
+  const MAX = 11;
+  function set(nx, ny) {       // nx, ny: -1..1
+    hasInput = true; last = performance.now();
+    ty = Math.max(-1, Math.min(1, nx)) * MAX;
+    tx = -Math.max(-1, Math.min(1, ny)) * MAX * 0.8;
+    kick();
+  }
+  function kick() { if (!raf) raf = requestAnimationFrame(frame); }
+  function frame() {
+    raf = 0;
+    cx += (tx - cx) * 0.14; cy += (ty - cy) * 0.14;
+    scene.style.setProperty('--tx', cx.toFixed(2) + 'deg');
+    scene.style.setProperty('--ty', cy.toFixed(2) + 'deg');
+    const gx = 50 + (cy / MAX) * 38, gy = 28 - (cx / (MAX * 0.8)) * 30;
+    scene.style.setProperty('--gx', gx.toFixed(1) + '%');
+    scene.style.setProperty('--gy', gy.toFixed(1) + '%');
+    scene.style.setProperty('--go', Math.min(1, (Math.abs(cx) + Math.abs(cy)) / 7).toFixed(2));
+    if (Math.abs(tx - cx) > 0.02 || Math.abs(ty - cy) > 0.02) kick();
+  }
+  const rel = (e) => { const r = scene.getBoundingClientRect(); return [((e.clientX - r.left) / r.width - .5) * 2, ((e.clientY - r.top) / r.height - .5) * 2]; };
+  window.addEventListener('pointermove', (e) => { if (e.pointerType === 'touch') return; const [x, y] = rel(e); set(x * 0.9, y * 0.9); });
+  scene.addEventListener('touchmove', (e) => { const t = e.touches[0]; const [x, y] = rel(t); set(x, y); }, { passive: true });
+  scene.addEventListener('touchend', () => { tx = 0; ty = 0; kick(); }, { passive: true });
+  scene.addEventListener('pointerleave', () => { tx = 0; ty = 0; kick(); });
+
+  // 폰 기울기(자이로): iOS는 첫 터치에서 허용을 한 번 묻는다. 거절·미지원이면 터치 기울기만 쓴다.
+  let base = null;
+  function onOri(e) {
+    if (e.gamma == null || e.beta == null) return;
+    if (!base) base = { b: e.beta, g: e.gamma };
+    set((e.gamma - base.g) / 22, (e.beta - base.b) / 26);
+  }
+  function listenOri() { window.addEventListener('deviceorientation', onOri, true); }
+  if (typeof DeviceOrientationEvent !== 'undefined') {
+    if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+      const ask = () => {
+        document.removeEventListener('touchend', ask, true);
+        DeviceOrientationEvent.requestPermission().then((r) => { if (r === 'granted') listenOri(); }).catch(() => {});
+      };
+      document.addEventListener('touchend', ask, true);
+    } else if ('ontouchstart' in window) { listenOri(); }
+  }
+
+  // 들어오자마자 한 번 훑어서 "움직이는 카드"임을 보여준다
+  setTimeout(() => {
+    if (hasInput) return;
+    const t0 = performance.now();
+    (function sweep(now) {
+      if (hasInput) return;
+      const k = (now - t0) / 1500;
+      if (k >= 1) { tx = 0; ty = 0; kick(); return; }
+      ty = Math.sin(k * Math.PI * 2) * MAX * 0.8; tx = Math.sin(k * Math.PI) * -3;
+      kick(); requestAnimationFrame(sweep);
+    })(t0);
+  }, 900);
+}
+
 // URL 쿼리 파라미터(view=back / side=back / flipped=true)에 따른 초기 카드 회전 상태 적용
 function applyInitialFlipState() {
   try {
@@ -1445,6 +1511,7 @@ async function initCardEngine() {
   if (window.INITIAL_CARD_DATA) {
     await populateCard(window.INITIAL_CARD_DATA);
     setupSwipe();
+    setupTilt();
     applyInitialFlipState();
     const container = document.querySelector('.container');
     if (container) container.classList.add('loaded');
@@ -1470,6 +1537,7 @@ async function initCardEngine() {
         if (cloud && (cloud.profile || cloud.pod)) {
           await populateCardFromCloud(cloud, company);
           setupSwipe();
+          setupTilt();
           applyInitialFlipState();
           const container = document.querySelector('.container');
           if (container) container.classList.add('loaded');
@@ -1541,6 +1609,7 @@ async function initCardEngine() {
   }
 
   setupSwipe();
+  setupTilt();
   applyInitialFlipState();
   
   // Reveal the container after rendering
