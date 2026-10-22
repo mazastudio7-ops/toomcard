@@ -174,8 +174,10 @@
       .studio { grid-template-columns: 1fr; min-height: auto; }
       .panel { max-height: none; overflow: visible; }
       .panel-left, .panel-right { border: none; }
-      .stage { order: -1; position: sticky; top: 53px; z-index: 10; padding: 14px 12px; }
-      .stage iframe { height: 58vh; min-height: 440px; width: min(360px, 100%); }
+      .stage { order: -1; position: sticky; top: 53px; z-index: 10; padding: 8px 12px 10px; gap: 8px; box-shadow: 0 10px 24px rgba(0,0,0,0.5); }
+      .stage iframe { height: 36vh; min-height: 260px; max-height: 340px; width: 100%; border-radius: 16px; }
+      .stage-tools .tool-btn { padding: 6px 12px; font-size: 11.5px; }
+      .panel-left { padding-top: 16px; }
       .panel-right { padding-top: 0; }
     }
   </style>
@@ -253,8 +255,8 @@
       <section class="section">
         <div class="section-title"><i data-lucide="type"></i><span data-i18n="maker.sec_text">3. 앞면 글자</span></div>
         <div class="chips" id="textChips">
-          <button class="chip" data-layout="none" data-i18n="maker.text_none">글자 없음</button>
-          <button class="chip" data-layout="bottom-left" aria-pressed="true" data-i18n="maker.text_bl">왼쪽 아래</button>
+          <button class="chip" data-layout="none" aria-pressed="true" data-i18n="maker.text_none">글자 없음</button>
+          <button class="chip" data-layout="bottom-left" data-i18n="maker.text_bl">왼쪽 아래</button>
           <button class="chip" data-layout="bottom-center" data-i18n="maker.text_bc">가운데 아래</button>
           <button class="chip" data-layout="center" data-i18n="maker.text_c">정중앙</button>
           <button class="chip" data-layout="top-left" data-i18n="maker.text_tl">왼쪽 위</button>
@@ -331,7 +333,7 @@
       logo: { src: '/assets/logo_toomcard_hd.gif', alt: '' },
       primaryAction: { url: '', label: '', icon: 'globe' },
       socials: [],
-      front: { bg: { type: 'image', src: '/assets/toomcard_front_plate.jpg' }, text: { layout: 'bottom-left', showLogo: false, tone: 'auto' }, finish: 'metal', qr: 'subtle' }
+      front: { bg: { type: 'image', src: '/assets/toomcard_front_plate.jpg' }, text: { layout: 'none', showLogo: false, tone: 'auto' }, finish: 'metal', qr: 'subtle' }
     };
     let card = JSON.parse(JSON.stringify(DEFAULT_CARD));
     let publishedUrl = '';
@@ -401,12 +403,29 @@
       return card;
     }
 
+    // 입력칸 placeholder에서 예시 값을 뽑는다 ("예: 홍길동" → "홍길동")
+    function sample(id) { return ($(id).getAttribute('placeholder') || '').replace(/^(예:|e\.g\.|z\. ?B\.)\s*/i, '').trim(); }
+
+    // 빈 칸은 미리보기에서만 예시 값으로 채운다. 발행 데이터에는 들어가지 않는다.
+    function previewCard() {
+      const c = JSON.parse(JSON.stringify(collect()));
+      if (!c.name) c.name = sample('fName');
+      if (!c.role) c.role = sample('fRole');
+      if (!c.company) { c.company = sample('fCompany'); c.companyWatermark = c.company; }
+      if (!c.slogan) c.slogan = sample('fSlogan');
+      if (!c.phone) c.phone = sample('fPhone');
+      if (!c.email) c.email = sample('fEmail');
+      if (!c.primaryAction) c.primaryAction = { url: '#', label: t('common.website'), icon: 'globe' };
+      if (!c.moatTags.length) c.moatTags = sample('fTags').split(',').map((s) => s.trim()).filter(Boolean).slice(0, 3);
+      return c;
+    }
+
     let renderTimer = null;
     function render() {
       clearTimeout(renderTimer);
       renderTimer = setTimeout(() => {
         const frame = $('preview');
-        if (frame && frame.contentWindow) frame.contentWindow.postMessage({ action: 'render', card: JSON.parse(JSON.stringify(collect())) }, '*');
+        if (frame && frame.contentWindow) frame.contentWindow.postMessage({ action: 'render', card: previewCard() }, '*');
       }, 80);
     }
     function flip(action) { const f = $('preview'); if (f && f.contentWindow) f.contentWindow.postMessage({ action }, '*'); }
@@ -432,8 +451,13 @@
       if (currentBgId === 'upload') grid.querySelector('.upload').setAttribute('aria-pressed', 'true');
       else grid.querySelector('.upload').setAttribute('aria-pressed', 'false');
     }
+    let textTouched = false;
     function setBg(bg, id) {
       currentBgId = id || bg.id;
+      if (!textTouched) {
+        const layout = bg.tag ? 'none' : 'bottom-left';  // tag 있는 4장은 글자가 그려진 브랜드 플레이트
+        card.front.text.layout = layout; pressOnly($('textChips'), 'layout', layout);
+      }
       card.front.bg = bg.type === 'image' ? { type: 'image', src: bg.src }
                     : bg.type === 'gradient' ? { type: 'gradient', from: bg.from, to: bg.to, angle: bg.angle }
                     : { type: 'color', color: bg.color };
@@ -469,6 +493,7 @@
     }
     $('textChips').addEventListener('click', (e) => {
       const b = e.target.closest('.chip'); if (!b) return;
+      textTouched = true;
       card.front.text.layout = b.dataset.layout; pressOnly($('textChips'), 'layout', b.dataset.layout); render();
     });
     function setLogo(on) { card.front.text.showLogo = !!on; $('logoSwitch').setAttribute('aria-checked', on ? 'true' : 'false'); }

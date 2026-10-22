@@ -747,7 +747,8 @@ function renderFrontLayers(data) {
     }
   }
 
-  // 옅은 QR
+  // 옅은 QR. 켜져 있으면 하단 'QR코드' 알약은 중복이라 숨긴다
+  container.classList.toggle('has-subtle-qr', front.qr === 'subtle');
   if (subtleQr) {
     if (front.qr === 'subtle' && typeof QRCode !== 'undefined') {
       subtleQr.hidden = false;
