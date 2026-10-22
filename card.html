@@ -1278,6 +1278,7 @@
     .plate-text-overlay[hidden] { display: none; }
     .plate-artwork-img[hidden] { display: none !important; }
     /* 메이커 미리보기: 반짝임·맥박·레이저 같은 무한 애니메이션과 배경 흐림을 끈다 (폰 버벅임 원인) */
+    .maker-embed .plate-specular-sheen { display: none; }   /* 멈춘 채로는 가운데 뿌연 띠로 보여 화질이 떨어져 보인다 — 움직이는 실제 카드에서만 쓴다 */
     .maker-embed *, .maker-embed *::before, .maker-embed *::after { animation: none !important; }
     .maker-embed * { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
     .maker-embed .container { opacity: 1 !important; transition: none !important; }
