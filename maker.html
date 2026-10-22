@@ -2,6 +2,17 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
+  <script>
+    // 넓은 화면(웹): 폰 크기 화면을 가운데에 두고 보여준다(maker-shell). 모바일 화면이 가장 깔끔해서 같은 화면을 그대로 쓴다.
+    // ?classic=1 을 붙이면 예전 3단 화면.
+    (function () {
+      try {
+        if (window.top === window.self) {
+          if (window.innerWidth > 980 && !/[?&]classic=1/.test(location.search)) { location.replace('/maker-shell.html' + location.search + location.hash); }
+        } else { document.write('<base target="_top">'); }
+      } catch (e) {}
+    })();
+  </script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>TOOMCARD Studio | 3D 디지털 명함 만들기</title>
   <meta name="description" content="앞면은 내 배경화면처럼, 뒷면은 내 정보. 30초면 완성되는 3D 디지털 명함.">

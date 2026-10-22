@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TOOMCARD Studio | 3D 디지털 명함 만들기</title>
+  <link rel="icon" href="/assets/favicon.ico">
+  <style>
+    html, body { margin: 0; height: 100%; background: #07050d; }
+    body { display: flex; align-items: center; justify-content: center; background: radial-gradient(80% 60% at 50% 0%, #1b1030 0%, #07050d 70%); }
+    .f { width: min(430px, 92vw); height: min(880px, calc(100dvh - 28px)); border-radius: 30px; border: 1px solid rgba(255,255,255,.14); box-shadow: 0 30px 80px rgba(0,0,0,.6), 0 0 0 8px rgba(255,255,255,.03); overflow: hidden; background: #07050d; }
+    iframe { width: 100%; height: 100%; border: 0; display: block; }
+    .c { position: fixed; right: 18px; bottom: 14px; font: 600 12px system-ui, sans-serif; }
+    .c a { color: rgba(255,255,255,.4); text-decoration: none; }
+    .c a:hover { color: #fff; }
+  </style>
+</head>
+<body>
+  <div class="f"><iframe id="app" allow="clipboard-write; web-share; fullscreen" title="TOOMCARD Studio"></iframe></div>
+  <div class="c"><a id="classic" href="/maker.html?classic=1">넓은 화면으로 보기</a></div>
+  <script>
+    // 폭이 좁아지면 shell 없이 바로 메이커로
+    if (window.innerWidth <= 980) { location.replace('/maker.html' + location.search + location.hash); }
+    var q = location.search;
+    document.getElementById('app').src = '/maker.html' + q;
+    document.getElementById('classic').href = '/maker.html' + (q ? q + '&' : '?') + 'classic=1';
+  </script>
+</body>
+</html>
