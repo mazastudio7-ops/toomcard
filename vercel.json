@@ -19,6 +19,10 @@
       "destination": "/maker.html"
     },
     {
+      "source": "/maker-legacy",
+      "destination": "/maker-legacy.html"
+    },
+    {
       "source": "/templates",
       "destination": "/templates.html"
     },

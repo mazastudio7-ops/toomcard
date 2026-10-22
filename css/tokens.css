@@ -101,6 +101,7 @@
   letter-spacing: 0.3px;
   padding: 6px 8px;
   border-radius: 6px;
+  white-space: nowrap;
   cursor: pointer;
   transition: color 0.15s ease, background 0.15s ease;
 }

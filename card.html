@@ -1251,6 +1251,62 @@
     .action-bar-btn[hidden] { display: none; }
     body { padding-bottom: calc(84px + env(safe-area-inset-bottom)) !important; }
 
+    /* 앞면 레이어 ---------------------------------------------------- */
+    .plate-text-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 3;
+      padding: 28px 24px 78px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      align-items: flex-start;
+      text-align: left;
+      pointer-events: none;
+      color: #ffffff;
+      text-shadow: 0 2px 14px rgba(0, 0, 0, 0.45);
+    }
+    .plate-text-overlay[hidden] { display: none; }
+    .plate-artwork-img[hidden] { display: none !important; }
+    .plate-text-overlay.pos-top-left { justify-content: flex-start; }
+    .plate-text-overlay.pos-center { justify-content: center; align-items: center; text-align: center; }
+    .plate-text-overlay.pos-bottom-center { align-items: center; text-align: center; }
+    .plate-text-overlay.tone-dark { color: #0b0a10; text-shadow: 0 1px 10px rgba(255, 255, 255, 0.4); }
+    .plate-text-overlay .pt-logo { width: 46px; height: 46px; border-radius: 12px; object-fit: cover; margin-bottom: 12px; box-shadow: 0 6px 18px rgba(0,0,0,0.4); }
+    .plate-text-overlay .pt-logo[hidden] { display: none; }
+    .plate-text-overlay .pt-company { font: 800 11px/1 'Montserrat', sans-serif; letter-spacing: 0.22em; text-transform: uppercase; opacity: 0.85; margin-bottom: 8px; }
+    .plate-text-overlay .pt-name { font: 900 26px/1.1 'Montserrat', 'Pretendard', sans-serif; letter-spacing: -0.01em; word-break: keep-all; }
+    .plate-text-overlay .pt-role { font: 600 12.5px/1.35 'Pretendard', sans-serif; opacity: 0.82; margin-top: 5px; }
+    .plate-text-overlay .pt-company:empty, .plate-text-overlay .pt-role:empty { display: none; }
+
+    /* 마감: metal(기본 광택) / glass / matte */
+    .plate-finish-glass .plate-specular-sheen { opacity: 0.5; }
+    .plate-finish-glass::after {
+      content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; z-index: 2;
+      background: linear-gradient(160deg, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.04) 35%, rgba(255,255,255,0) 60%);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.28);
+    }
+    .plate-finish-matte .plate-specular-sheen { display: none; }
+    .plate-finish-matte .plate-artwork-img { filter: saturate(0.92) contrast(0.98); }
+
+    .plate-subtle-qr {
+      position: absolute; top: 16px; right: 16px; z-index: 4;
+      width: 72px; height: 72px; opacity: 0.26; cursor: pointer;
+      transition: opacity 0.2s ease;
+    }
+    .plate-subtle-qr[hidden] { display: none; }
+    .plate-subtle-qr:hover { opacity: 0.6; }
+    .plate-subtle-qr canvas, .plate-subtle-qr img { width: 100% !important; height: 100% !important; display: block; }
+
+    /* 뒷면 연락처 한 줄 */
+    .contact-line {
+      display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px;
+      font-size: 12.5px; font-weight: 600; letter-spacing: 0.01em;
+      color: var(--text-main, #e8e8f0); opacity: 0.9; margin: 10px 0 2px;
+    }
+    .contact-line .contact-dot { opacity: 0.4; }
+    .contact-line .contact-dot[hidden], .contact-line span:empty { display: none; }
+
     /* 더보기 시트 버튼: 독일어 등 긴 라벨은 두 줄 허용 */
     .modal-box .btn-action {
       height: auto;
@@ -1544,6 +1600,17 @@
             <img id="plateArtworkImg" src="/assets/toomcard_front_plate.jpg" alt="Metal Card Plate" class="plate-artwork-img" onerror="this.onerror=null; this.src='/assets/toomcard_front_plate.png';">
             <div class="plate-specular-sheen"></div>
 
+            <!-- 앞면 레이어: 글자·로고 오버레이 (front.text) -->
+            <div class="plate-text-overlay" id="plateTextOverlay" hidden>
+              <img class="pt-logo" id="ptLogo" alt="" hidden>
+              <div class="pt-company" id="ptCompany"></div>
+              <div class="pt-name" id="ptName"></div>
+              <div class="pt-role" id="ptRole"></div>
+            </div>
+
+            <!-- 옅은 QR (front.qr = subtle): 배경에 녹아 있고, 탭하면 선명한 QR -->
+            <div class="plate-subtle-qr" id="plateSubtleQr" hidden onclick="event.stopPropagation(); togglePlateMorphQR(true);" title="QR"></div>
+
             <!-- 스마트 폴백 모핑 QR 레이어 (스캔 미감지 시 2.5초 후 or 탭 시 부드럽게 오버레이) -->
             <div class="plate-morph-qr-wrap" id="plateMorphQrWrap" onclick="event.stopPropagation();">
               <div class="plate-morph-card">
@@ -1617,45 +1684,21 @@
           <div class="watermark-dynamic" id="watermarkContainerBack" aria-hidden="true"></div>
 
           <div class="back-wrapper">
-            <!-- Top Logo on Back (Interactive 3D Flipper) -->
+            <!-- 로고 (정적). QR은 더보기 시트와 앞면 알약에 있다 -->
             <div class="back-top-logo-container">
-              <div class="back-flipper-container" id="backFlipperContainer" onclick="toggleBackLogoQr(event);">
+              <div class="back-flipper-container">
                 <div class="back-flipper" id="backFlipper">
-                  <!-- [FRONT OF FLIPPER]: Brand Animated 3D Logo Emblem (Default) -->
                   <div class="back-flipper-face back-flipper-logo" id="backFlipperLogoFace">
                     <div class="back-top-logo">
                       <img id="backLogoImg" src="/assets/logo_toomcard_hd.gif" alt="Logo" onerror="this.onerror=null; this.src='/assets/logo_toomcard.gif';">
-                    </div>
-                  </div>
-
-                  <!-- [BACK OF FLIPPER]: Instant QR Code (Revealed on Tap) -->
-                  <div class="back-flipper-face back-flipper-qr" id="backFlipperQrFace">
-                    <div id="backQrDirectTarget" class="back-qr-box" onclick="event.stopPropagation(); openShareModal();" title="더블탭하여 QR 크게 보기"></div>
-                    <div class="back-flipper-pill qr-return-pill">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:12px;height:12px;">
-                        <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
-                        <path d="M3 3v5h5"></path>
-                        <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"></path>
-                        <path d="M16 21h5v-5"></path>
-                      </svg>
-                      <span>탭하여 로고 보기 ↺</span>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
 
-            <!-- 3D Metal Front Plate Showcase Hint Pill -->
-            <div style="display: flex; justify-content: center; width: 100%;">
-              <div class="plate-to-front-pill" onclick="event.stopPropagation(); toggleCardFlip(event);" title="3D 메탈 앞면 감상하기">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:11px;height:11px;"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"></path><path d="M16 21h5v-5"></path></svg>
-                <span>3D 메탈 카드 앞면 보기 ↺</span>
-              </div>
-            </div>
-
             <!-- Main Business Info -->
             <div class="back-info-container">
-              <div class="brand-sub-engraving" id="backTagline"></div>
               <div class="back-company-name" id="backCompany"></div>
               <div class="back-company-slogan" id="backSlogan"></div>
 
@@ -1664,18 +1707,11 @@
                 <span class="name-title" id="nameTitle"></span>
               </div>
 
-              <div class="contact-group">
-                <!-- Phone -->
-                <a href="#" class="contact-row" id="phoneLink" onclick="event.stopPropagation()" title="전화 걸기">
-                  <span class="contact-key" id="phoneKey">T</span>
-                  <span class="contact-value" id="phoneValue"></span>
-                </a>
-
-                <!-- Email -->
-                <a href="#" class="contact-row" id="emailLink" onclick="event.stopPropagation()" title="이메일 보내기">
-                  <span class="contact-key" id="emailKey">E</span>
-                  <span class="contact-value" id="emailValue"></span>
-                </a>
+              <!-- 연락처 한 줄 (전화·메시지는 하단 바가 맡는다) -->
+              <div class="contact-line" id="contactLine">
+                <span id="phoneValue"></span>
+                <span class="contact-dot" id="contactDot">·</span>
+                <span id="emailValue"></span>
               </div>
 
               <!-- Moat Tags on Back -->

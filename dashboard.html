@@ -853,7 +853,7 @@
             </p>
           </div>
           <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
-            <a href="/maker?mode=team" class="btn-hero" style="background:linear-gradient(135deg,#0284c7,#38bdf8); color:#fff; font-weight:800; box-shadow:0 4px 16px rgba(56,189,248,0.3);">
+            <a href="/maker-legacy?mode=team" class="btn-hero" style="background:linear-gradient(135deg,#0284c7,#38bdf8); color:#fff; font-weight:800; box-shadow:0 4px 16px rgba(56,189,248,0.3);">
               <i data-lucide="user-plus" style="width:15px;height:15px;"></i>
               <span>+ 새 팀원 명함 발급</span>
             </a>
@@ -1437,7 +1437,7 @@
         if (headerTitle) headerTitle.textContent = '소속 기업·고객사별 3D 명함 & 영업 파이프라인 관리';
         if (headerDesc) headerDesc.textContent = '관리자로서 투머스(TOOMUS), 마자 스튜디오(MAZA STUDIO) 등 소속사별 임직원 명함 발급, 조직별 리드, NFC 실물 카드 제작을 통합 관제합니다.';
         if (headerActionBtn) {
-          headerActionBtn.href = '/maker?mode=team';
+          headerActionBtn.href = '/maker-legacy?mode=team';
           headerActionBtn.style.background = 'linear-gradient(135deg,#0284c7,#38bdf8)';
         }
         if (headerActionBtnText) headerActionBtnText.textContent = '+ 새 팀원 명함 발급';
@@ -2090,7 +2090,7 @@
             <a href="/${staff.slug}" target="_blank" class="btn-action">
               <i data-lucide="external-link" style="width:13px;height:13px;"></i> 보기
             </a>
-            <a href="/maker?edit=${staff.slug}&mode=team" class="btn-action">
+            <a href="/maker-legacy?edit=${staff.slug}&mode=team" class="btn-action">
               <i data-lucide="edit-3" style="width:13px;height:13px;"></i> 수정
             </a>
             <button class="btn-action" style="color:#ffd978; background:rgba(255,217,120,0.1);" onclick="openNfcOrderModalForCard('${staff.slug}', '${name.replace(/'/g, "\\'")}')">
@@ -2764,7 +2764,7 @@
           <i data-lucide="arrow-left" style="width: 14px; height: 14px;"></i> 메인 홈으로 나가기
         </a>
         <a href="/maker?mode=single" style="color: rgba(255,255,255,0.7); text-decoration: none; font-weight: 600;">👤 새 개인 명함 만들기</a>
-        <a href="/maker?mode=team" style="color: rgba(255,255,255,0.7); text-decoration: none; font-weight: 600;">🏢 기업 팀원 단체 발행</a>
+        <a href="/maker-legacy?mode=team" style="color: rgba(255,255,255,0.7); text-decoration: none; font-weight: 600;">🏢 기업 팀원 단체 발행</a>
         <a href="/#showcase" style="color: rgba(255,255,255,0.7); text-decoration: none;">3D 쇼룸</a>
         <a href="/#nfc" style="color: rgba(255,255,255,0.7); text-decoration: none;">스마트 NFC 주문</a>
         <a href="/#pricing" style="color: rgba(255,255,255,0.7); text-decoration: none;">요금제 안내</a>

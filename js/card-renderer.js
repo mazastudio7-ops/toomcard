@@ -138,11 +138,8 @@ function renderActionDocks(data) {
     }
   });
 
-  // 2개씩 한 줄
-  let html = '';
-  for (let i = 0; i < links.length; i += 2) {
-    html += `<div class="inside-action-row">${links[i]}${links[i + 1] || ''}</div>`;
-  }
+  // 최대 2개, 한 줄. 나머지는 더보기 시트
+  const html = links.length ? `<div class="inside-action-row">${links.slice(0, 2).join('')}</div>` : '';
   if (dockFront) dockFront.innerHTML = html;
   if (dockBack) dockBack.innerHTML = html;
 }
@@ -409,6 +406,9 @@ function populateCard(data) {
     }
   }
 
+  // 앞면 레이어 (배경 · 글자 · 마감 · 옅은 QR)
+  renderFrontLayers(data);
+
   // 앞면 정보 바인딩 (태그라인, 회사명, 슬로건, 이름, 직함)
   const frontTagline = document.getElementById('frontTagline');
   const frontCompany = document.getElementById('frontCompany');
@@ -438,28 +438,13 @@ function populateCard(data) {
   if (roleTitle) roleTitle.innerText = data.role || '';
   if (nameTitle) nameTitle.innerText = data.name || '';
 
-  // 연락처 정보 바인딩
-  const phoneLink = document.getElementById('phoneLink');
-  const phoneKey = document.getElementById('phoneKey');
+  // 연락처 한 줄 (전화·이메일 텍스트. 동작은 하단 액션 바)
   const phoneValue = document.getElementById('phoneValue');
-  if (phoneLink && data.phone) {
-    phoneLink.href = `tel:${data.phone}`;
-    if (phoneKey) {
-      phoneKey.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;flex-shrink:0;"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>`;
-    }
-    if (phoneValue) phoneValue.innerText = data.phone;
-  }
-
-  const emailLink = document.getElementById('emailLink');
-  const emailKey = document.getElementById('emailKey');
   const emailValue = document.getElementById('emailValue');
-  if (emailLink && data.email) {
-    emailLink.href = `mailto:${data.email}`;
-    if (emailKey) {
-      emailKey.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;flex-shrink:0;"><rect width="20" height="16" x="2" y="4" rx="2"></rect><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path></svg>`;
-    }
-    if (emailValue) emailValue.innerText = data.email;
-  }
+  const contactDot = document.getElementById('contactDot');
+  if (phoneValue) phoneValue.innerText = data.phone || '';
+  if (emailValue) emailValue.innerText = data.email || '';
+  if (contactDot) contactDot.hidden = !(data.phone && data.email);
 
   // 해자 태그 (Moat Tags) 바인딩
   const frontMoatTags = document.getElementById('frontMoatTags');
@@ -654,11 +639,146 @@ function applyInitialFlipState() {
 }
 
 // 부모 프레임(iframe 쇼케이스 등)으로부터 카드 앞/뒷면 제어 메시지 수신 연동
+/* ------------------------------------------------------------------
+ * 앞면 레이어 모델
+ *   front: {
+ *     bg:     { type: 'image'|'color'|'gradient', src?, color?, from?, to?, angle? },
+ *     text:   { layout: 'none'|'bottom-left'|'bottom-center'|'center'|'top-left', showLogo?, tone?: 'auto'|'light'|'dark' },
+ *     finish: 'metal'|'glass'|'matte',
+ *     qr:     'subtle'|'off'
+ *   }
+ * 예전 카드(plateCardImage 한 장)는 image 배경 + 글자 없음으로 읽는다.
+ * ------------------------------------------------------------------ */
+function normalizeFront(data) {
+  const f = data.front || {};
+  const bg = f.bg || (data.plateCardImage ? { type: 'image', src: data.plateCardImage } : { type: 'image', src: '/assets/toomcard_front_plate.jpg' });
+  const text = Object.assign({ layout: 'none', showLogo: false, tone: 'auto' }, f.text || {});
+  return {
+    bg: bg,
+    text: text,
+    finish: f.finish || 'metal',
+    qr: f.qr || 'off'
+  };
+}
+
+function bgCss(bg) {
+  if (!bg) return '';
+  if (bg.type === 'color') return bg.color || '#101018';
+  if (bg.type === 'gradient') return `linear-gradient(${bg.angle || 160}deg, ${bg.from || '#1a1530'} 0%, ${bg.to || '#07050d'} 100%)`;
+  return '';
+}
+
+// 이미지 평균 밝기 → 글자 톤. 교차 출처 이미지는 읽을 수 없으니 밝은 글자로 둔다.
+function detectTone(img, cb) {
+  try {
+    const c = document.createElement('canvas');
+    c.width = 12; c.height = 12;
+    const ctx = c.getContext('2d');
+    ctx.drawImage(img, 0, 0, 12, 12);
+    const d = ctx.getImageData(0, 6, 12, 6).data; // 아래 절반 (글자 자리)
+    let sum = 0;
+    for (let i = 0; i < d.length; i += 4) sum += 0.2126 * d[i] + 0.7152 * d[i + 1] + 0.0722 * d[i + 2];
+    cb(sum / (d.length / 4) > 150 ? 'dark' : 'light');
+  } catch (e) {
+    cb('light');
+  }
+}
+
+function renderFrontLayers(data) {
+  const container = document.getElementById('plateArtworkContainer');
+  const plateImg = document.getElementById('plateArtworkImg');
+  const overlay = document.getElementById('plateTextOverlay');
+  const subtleQr = document.getElementById('plateSubtleQr');
+  if (!container) return;
+  const front = normalizeFront(data);
+
+  // 배경
+  if (front.bg.type === 'image') {
+    const src = front.bg.src || '/assets/toomcard_front_plate.jpg';
+    if (plateImg) {
+      plateImg.hidden = false;
+      if (plateImg.getAttribute('src') !== src) plateImg.src = src;
+    }
+    container.style.background = '';
+  } else {
+    if (plateImg) plateImg.hidden = true;
+    container.style.background = bgCss(front.bg);
+  }
+
+  // 마감
+  container.classList.remove('plate-finish-metal', 'plate-finish-glass', 'plate-finish-matte');
+  container.classList.add(`plate-finish-${front.finish}`);
+
+  // 글자·로고
+  if (overlay) {
+    const layout = front.text.layout || 'none';
+    if (layout === 'none') {
+      overlay.hidden = true;
+    } else {
+      overlay.hidden = false;
+      overlay.className = `plate-text-overlay pos-${layout}`;
+      const el = (id) => document.getElementById(id);
+      if (el('ptName')) el('ptName').innerText = data.name || '';
+      if (el('ptRole')) el('ptRole').innerText = data.role || '';
+      if (el('ptCompany')) el('ptCompany').innerText = data.company || '';
+      const logo = el('ptLogo');
+      if (logo) {
+        const logoSrc = front.text.showLogo ? ((data.logo && data.logo.src) || data.avatar || '') : '';
+        logo.hidden = !logoSrc;
+        if (logoSrc) logo.src = logoSrc;
+      }
+      const applyTone = (tone) => { overlay.classList.remove('tone-light', 'tone-dark'); overlay.classList.add(`tone-${tone}`); };
+      if (front.text.tone && front.text.tone !== 'auto') {
+        applyTone(front.text.tone);
+      } else if (front.bg.type === 'image' && plateImg) {
+        applyTone('light');
+        const probe = new Image();
+        if (!/^(data:|blob:)/.test(plateImg.src) && new URL(plateImg.src, location.href).origin === location.origin) probe.crossOrigin = 'anonymous';
+        probe.onload = () => detectTone(probe, applyTone);
+        probe.src = plateImg.src;
+      } else if (front.bg.type === 'color') {
+        const hex = (front.bg.color || '#101018').replace('#', '');
+        const n = parseInt(hex.length === 3 ? hex.split('').map((c) => c + c).join('') : hex, 16);
+        const lum = 0.2126 * ((n >> 16) & 255) + 0.7152 * ((n >> 8) & 255) + 0.0722 * (n & 255);
+        applyTone(lum > 150 ? 'dark' : 'light');
+      } else {
+        applyTone('light');
+      }
+    }
+  }
+
+  // 옅은 QR
+  if (subtleQr) {
+    if (front.qr === 'subtle' && typeof QRCode !== 'undefined') {
+      subtleQr.hidden = false;
+      subtleQr.innerHTML = '';
+      const dark = !(overlay && overlay.classList.contains('tone-dark'));
+      try {
+        new QRCode(subtleQr, {
+          text: (data.slug ? `${location.origin}/${data.slug}` : location.href),
+          width: 72, height: 72,
+          colorDark: dark ? '#ffffff' : '#000000',
+          colorLight: 'rgba(0,0,0,0)',
+          correctLevel: QRCode.CorrectLevel.M
+        });
+      } catch (e) { subtleQr.hidden = true; }
+    } else {
+      subtleQr.hidden = true;
+      subtleQr.innerHTML = '';
+    }
+  }
+}
+
 window.addEventListener('message', (event) => {
   if (!event || !event.data) return;
   const scene = document.getElementById('cardScene');
   if (!scene) return;
   const action = typeof event.data === 'string' ? event.data : event.data.action;
+  if (action === 'render' && event.data.card) {
+    // 메이커 미리보기: 카드 데이터를 통째로 다시 그린다
+    populateCard(event.data.card);
+    return;
+  }
   if (action === 'show_back') {
     scene.classList.add('flipped');
   } else if (action === 'show_front') {
@@ -1215,6 +1335,13 @@ async function initCardEngine() {
     container.classList.add('loaded');
   }
   
+  // 메이커 미리보기(iframe)에서는 조회수를 기록하지 않고, 부모에게 준비 신호만 보낸다
+  const embedded = window.self !== window.top;
+  if (embedded) {
+    try { window.parent.postMessage({ action: 'card_ready' }, '*'); } catch (e) {}
+    return;
+  }
+
   // Analytics 조회수 기록
   if (typeof recordPageView === 'function') {
     const targetSlug = company ? `${company}/${slug}` : slug;
