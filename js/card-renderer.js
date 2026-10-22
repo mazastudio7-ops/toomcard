@@ -110,81 +110,117 @@ function renderActionDocks(data) {
   const dockFront = document.getElementById('insideActionDockFront');
   const dockBack = document.getElementById('insideActionDockBack');
 
-  const primaryAction = data.primaryAction || {
-    url: 'https://toomus.com',
-    label: '공식 웹사이트',
-    icon: 'globe'
-  };
-
-  const socials = data.socials || [];
-  const social1 = socials[0] || null;
-  const social2 = socials[1] || null;
-
-  function buildSocialBtn(social) {
-    if (!social) return '';
+  const links = [];
+  if (data.primaryAction && data.primaryAction.url) {
+    const p = data.primaryAction;
+    links.push(`
+      <a href="${p.url}" target="_blank" rel="noopener noreferrer" class="btn-action btn-glass" onclick="event.stopPropagation()" title="${p.label || ''}">
+        <i data-lucide="${p.icon || 'globe'}" style="width: 14px; height: 14px; color: #38bdf8;"></i>
+        <span>${p.label || t('common.website')}</span>
+      </a>
+    `);
+  }
+  (data.socials || []).slice(0, 2).forEach((social) => {
     if (social.type === 'social_modal') {
-      return `
+      links.push(`
         <button class="btn-action btn-glass" onclick="event.stopPropagation(); openSocialModal();" title="${social.label}">
           <i data-lucide="${social.icon || 'globe'}" style="width: 14px; height: 14px; color: #38bdf8;"></i>
           <span>${social.label}</span>
         </button>
-      `;
+      `);
+    } else if (social.url) {
+      links.push(`
+        <a href="${social.url}" target="_blank" rel="noopener noreferrer" class="btn-action btn-glass" onclick="event.stopPropagation()" title="${social.label}">
+          ${getSocialIconSvg(social.type)}
+          <span>${social.label}</span>
+        </a>
+      `);
     }
-    return `
-      <a href="${social.url}" target="_blank" rel="noopener noreferrer" class="btn-action btn-glass" onclick="event.stopPropagation()" title="${social.label}">
-        ${getSocialIconSvg(social.type)}
-        <span>${social.label}</span>
-      </a>
-    `;
+  });
+
+  // 2개씩 한 줄
+  let html = '';
+  for (let i = 0; i < links.length; i += 2) {
+    html += `<div class="inside-action-row">${links[i]}${links[i + 1] || ''}</div>`;
   }
-
-  const social1Btn = buildSocialBtn(social1) || `
-    <a href="https://open.kakao.com" target="_blank" rel="noopener noreferrer" class="btn-action btn-glass" onclick="event.stopPropagation()" title="카카오 1:1">
-      ${getSocialIconSvg('kakao')}
-      <span>카카오 1:1</span>
-    </a>
-  `;
-
-  const social2Btn = buildSocialBtn(social2);
-
-  const row1 = `
-    <div class="inside-action-row">
-      <button class="btn-action btn-save" onclick="event.stopPropagation(); downloadVCard();" title="주소록에 연락처 저장">
-        <i data-lucide="user-plus" style="width: 14px; height: 14px;"></i>
-        <span>연락처 저장</span>
-      </button>
-      <a href="${primaryAction.url}" target="_blank" rel="noopener noreferrer" class="btn-action btn-glass" onclick="event.stopPropagation()" title="${primaryAction.label}">
-        <i data-lucide="${primaryAction.icon || 'globe'}" style="width: 14px; height: 14px; color: #38bdf8;"></i>
-        <span>${primaryAction.label}</span>
-      </a>
-    </div>
-  `;
-
-  const leadBtn = `
-    <button class="btn-action btn-glass" onclick="event.stopPropagation(); document.getElementById('leadModal').classList.add('active');" style="border-color: rgba(168, 85, 247, 0.4); background: rgba(168, 85, 247, 0.12);" title="명함 주인에게 연락처 및 문의 남기기">
-      <i data-lucide="message-square" style="width: 14px; height: 14px; color: #c084fc;"></i>
-      <span style="color: #e9d5ff; font-weight: 700;">상담/문의</span>
-    </button>
-  `;
-
-  let row2Buttons = '';
-  if (social1Btn && social2Btn) {
-    row2Buttons = `${social1Btn}${social2Btn}`;
-  } else if (social1Btn) {
-    row2Buttons = `${social1Btn}${leadBtn}`;
-  } else {
-    row2Buttons = `${leadBtn}`;
-  }
-
-  const row2 = `
-    <div class="inside-action-row">
-      ${row2Buttons}
-    </div>
-  `;
-
-  if (dockFront) dockFront.innerHTML = row1 + row2;
-  if (dockBack) dockBack.innerHTML = row1 + row2;
+  if (dockFront) dockFront.innerHTML = html;
+  if (dockBack) dockBack.innerHTML = html;
 }
+
+// i18n 미로드 시 안전한 번역 헬퍼
+function t(key) {
+  return (window.i18n && typeof window.i18n.t === 'function') ? window.i18n.t(key) : key;
+}
+
+// 전화번호를 wa.me 용 국제 형식 숫자로. 국가번호가 없으면 null (국내 번호는 WhatsApp에 못 넣는다)
+function toIntlDigits(phone) {
+  if (!phone) return null;
+  const raw = String(phone).trim();
+  const digits = raw.replace(/[^\d]/g, '');
+  if (raw.startsWith('+') && digits.length >= 8) return digits;
+  if (/^(82|49|1)\d{7,}$/.test(digits)) return digits;
+  return null;
+}
+
+// 하단 고정 액션 바: 저장 / 전화 / 메시지(로케일별) / 더보기
+function renderActionBar(data) {
+  const callBtn = document.getElementById('actionCall');
+  const msgBtn = document.getElementById('actionMessage');
+  const msgLabel = document.getElementById('actionMessageLabel');
+  if (!callBtn || !msgBtn) return;
+
+  const phone = data.phone || (data.vcard && data.vcard.tel) || '';
+  const lang = (window.i18n && window.i18n.lang) || 'ko';
+  const kakao = (data.socials || []).find((s) => s.type === 'kakao' && s.url);
+  const whatsapp = (data.socials || []).find((s) => s.type === 'whatsapp' && s.url);
+  const intl = toIntlDigits(phone);
+  const telDigits = String(phone).replace(/[^\d+]/g, '');
+
+  if (phone) {
+    callBtn.href = `tel:${telDigits}`;
+    callBtn.hidden = false;
+  } else {
+    callBtn.hidden = true;
+  }
+
+  // 메시지 채널 우선순위: ko → 카카오톡, de → WhatsApp, en → SMS. 없으면 다음 후보.
+  const sms = phone ? { href: `sms:${telDigits}`, label: t('common.sms') } : null;
+  const wa = whatsapp ? { href: whatsapp.url, label: 'WhatsApp' }
+           : (intl ? { href: `https://wa.me/${intl}`, label: 'WhatsApp' } : null);
+  const kk = kakao ? { href: kakao.url, label: t('card.kakao') } : null;
+  let target;
+  if (lang === 'ko') target = kk || sms || wa;
+  else if (lang === 'de') target = wa || sms || kk;
+  else target = sms || wa || kk;
+
+  if (target) {
+    msgBtn.href = target.href;
+    msgBtn.target = target.href.startsWith('http') ? '_blank' : '';
+    msgBtn.rel = 'noopener';
+    if (msgLabel) { msgLabel.removeAttribute('data-i18n'); msgLabel.textContent = target.label; }
+    msgBtn.hidden = false;
+  } else {
+    msgBtn.hidden = true;
+  }
+
+  // 더보기 시트의 카카오 전용 요소: ko 로케일이거나 카카오 채널이 있을 때만
+  const showKakao = lang === 'ko' || !!kakao;
+  const qrToggle = document.getElementById('qrTypeToggle');
+  const saveKakao = document.getElementById('btnSaveKakao');
+  if (qrToggle) qrToggle.style.display = showKakao ? '' : 'none';
+  if (saveKakao) saveKakao.style.display = showKakao ? '' : 'none';
+  if (!showKakao && typeof window.switchQrType === 'function') window.switchQrType('web');
+
+  // 바이럴 배지: 어느 명함에서 왔는지 ref로
+  const viral = document.getElementById('viralBadgeLink');
+  if (viral && data.slug) viral.href = `/maker?ref=${encodeURIComponent(data.slug)}`;
+
+  if (window.lucide) lucide.createIcons();
+}
+
+document.addEventListener('i18n:change', () => {
+  if (cardData) renderActionBar(cardData);
+});
 
 // 소셜 채널 모달 채우기
 function renderSocialModal(data) {
@@ -260,7 +296,7 @@ function populateCard(data) {
 
   // 브라우저 타이틀 및 OG 태그
   if (data.meta) {
-    document.title = data.meta.title || `${data.company} | ${data.name} 디지털 명함`;
+    document.title = data.meta.title || `${data.name} | ${data.company} · ${t('brand.descriptor')}`;
   }
 
   // 워터마크
@@ -435,11 +471,12 @@ function populateCard(data) {
   // 뒷면 직관 QR 코드 실시간 생성
   renderBackDirectQr();
 
-  // 앞면 스마트 폴백 모핑 QR 코드 생성 및 스케줄러 등록
+  // 앞면 모핑 QR 코드 생성 (자동 팝업은 하지 않는다 — 카드를 가리므로. QR 알약으로 수동 열기)
   initPlateMorphQR(data);
 
-  // 액션 독 바인딩
+  // 카드 안 링크 독 + 하단 고정 액션 바
   renderActionDocks(data);
+  renderActionBar(data);
 
   // 소셜 모달 바인딩
   renderSocialModal(data);
@@ -507,7 +544,7 @@ function initPlateMorphQR(data) {
   }
 
   // 2.5초 후 자동 팝업 타이머 시작 (카드가 앞면일 때만)
-  schedulePlateMorphAutoPopup();
+  // schedulePlateMorphAutoPopup(); // 자동 팝업 비활성 (Phase 1)
 }
 
 function schedulePlateMorphAutoPopup() {

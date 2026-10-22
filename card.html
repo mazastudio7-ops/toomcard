@@ -150,6 +150,7 @@
       gap: 0 !important;
     }
     body.in-simulator .flip-hint,
+    body.in-simulator .action-bar,
     body.in-simulator .viral-badge-link,
     body.in-simulator .flip-hint-install,
     body.in-simulator #affiliateBannerContainer {
@@ -172,7 +173,7 @@
     .card-scene {
       width: 100%;
       max-width: 375px;
-      height: min(630px, calc(100dvh - 96px - env(safe-area-inset-top) - env(safe-area-inset-bottom)));
+      height: min(630px, calc(100dvh - 150px - env(safe-area-inset-top) - env(safe-area-inset-bottom)));
       min-height: 520px;
       max-height: 645px;
       perspective: 1400px;
@@ -190,7 +191,7 @@
         gap: 8px;
       }
       .card-scene {
-        height: min(580px, calc(100dvh - 84px - env(safe-area-inset-top) - env(safe-area-inset-bottom)));
+        height: min(580px, calc(100dvh - 140px - env(safe-area-inset-top) - env(safe-area-inset-bottom)));
         min-height: 480px;
       }
       .card-face {
@@ -1197,6 +1198,68 @@
     }
 
     /* Viral Powered-By Badge */
+    /* 하단 고정 액션 바: 저장 / 전화 / 메시지 / 더보기 (앞·뒷면 공통) */
+    .action-bar {
+      position: fixed;
+      left: 0; right: 0;
+      bottom: 0;
+      z-index: 50;
+      display: flex;
+      justify-content: center;
+      padding: 8px 12px calc(10px + env(safe-area-inset-bottom));
+      background: linear-gradient(to top, rgba(7, 4, 13, 0.98) 60%, rgba(7, 4, 13, 0));
+      pointer-events: none;
+    }
+    .action-bar-inner {
+      pointer-events: auto;
+      width: 100%;
+      max-width: 375px;
+      display: grid;
+      grid-template-columns: 1.4fr 1fr 1fr 1fr;
+      gap: 8px;
+      padding: 6px;
+      border-radius: 18px;
+      background: rgba(20, 16, 30, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--tc-border, rgba(255,255,255,0.08));
+      box-shadow: var(--tc-shadow, 0 10px 30px rgba(0,0,0,0.5));
+    }
+    .action-bar-btn {
+      appearance: none;
+      border: none;
+      background: rgba(255, 255, 255, 0.06);
+      color: #ffffff;
+      height: 48px;
+      border-radius: 13px;
+      font: 700 12px/1 var(--tc-font-body, inherit);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.15s ease, transform 0.15s ease;
+    }
+    .action-bar-btn:active { transform: scale(0.96); }
+    .action-bar-btn i { width: 17px; height: 17px; }
+    .action-bar-btn.primary {
+      background: var(--tc-accent, #ffd978);
+      color: #000;
+    }
+    .action-bar-btn[hidden] { display: none; }
+    body { padding-bottom: calc(84px + env(safe-area-inset-bottom)) !important; }
+
+    /* 더보기 시트 버튼: 독일어 등 긴 라벨은 두 줄 허용 */
+    .modal-box .btn-action {
+      height: auto;
+      min-height: 42px;
+      font-size: 12px;
+      line-height: 1.25;
+      text-align: center;
+    }
+
     .viral-badge-link {
       margin-top: 6px;
       background: rgba(255, 255, 255, 0.05);
@@ -1496,7 +1559,7 @@
                   <div id="plateMorphQrTarget" class="plate-morph-qr-canvas"></div>
                 </div>
                 <div class="plate-morph-guide">
-                  <span class="morph-main-text">카메라로 스캔하면 스마트 콕핏으로 연결됩니다</span>
+                  <span class="morph-main-text" data-i18n="card.qr_desc">카메라로 QR을 스캔하면 이 명함이 열려요</span>
                   <span class="morph-sub-text">TAP TO CLOSE OR FLIP</span>
                 </div>
               </div>
@@ -1628,17 +1691,7 @@
       </div>
     </div>
 
-    <!-- Flip Hint Bar -->
-    <div class="flip-hint" onclick="toggleCardFlip()">
-      <i data-lucide="refresh-cw" class="flip-icon" style="width: 14px; height: 14px;"></i>
-      <span>카드를 탭하거나 슬라이드하면 앞면 ↔ 뒷면이 뒤집힙니다</span>
-    </div>
 
-    <!-- Install App Hint (PWA 1-Click & Smart Guide) -->
-    <div class="flip-hint flip-hint-install" id="installAppBtn" onclick="handleInstallClick()" style="color: #ffd978; margin-top: 12px; margin-bottom: -4px; cursor: pointer; transition: all 0.25s ease;">
-      <i data-lucide="smartphone" id="installAppIcon" style="width: 14px; height: 14px;"></i>
-      <span id="installAppText">내 폰 홈 화면에 명함 앱 설치하기 📱</span>
-    </div>
 
     <!-- Affiliate / Monetization Slot (쿠팡 파트너스 / 추천 링크) -->
     <div id="affiliateBannerContainer" style="display: none; width: 100%; margin-top: 4px;">
@@ -1655,28 +1708,52 @@
     </div>
 
     <!-- Viral Powered-By Badge -->
-    <a href="/maker" class="viral-badge-link" title="TOOMCARD에서 나만의 3D 명함 만들기">
+    <a href="/maker" class="viral-badge-link" id="viralBadgeLink">
       <i data-lucide="sparkles" style="width: 13px; height: 13px; color: var(--neon-accent);"></i>
-      <span data-i18n="card.made_with">Build your 3D card with TOOMCARD</span>
+      <span data-i18n="card.made_with">TOOMCARD로 만든 명함</span>
+      <span style="opacity:0.5;">·</span>
+      <span data-i18n="card.make_mine" style="color:#ffd978;">내 명함 만들기</span>
     </a>
 
   </div>
 
-  <!-- QR Code Modal -->
+  <!-- 하단 고정 액션 바 -->
+  <div class="action-bar" id="actionBar">
+    <div class="action-bar-inner">
+      <button type="button" class="action-bar-btn primary" onclick="downloadVCard()">
+        <i data-lucide="user-plus"></i>
+        <span data-i18n="common.save_contact">연락처 저장</span>
+      </button>
+      <a class="action-bar-btn" id="actionCall" href="#" hidden>
+        <i data-lucide="phone"></i>
+        <span data-i18n="common.call">전화</span>
+      </a>
+      <a class="action-bar-btn" id="actionMessage" href="#" hidden>
+        <i data-lucide="message-circle"></i>
+        <span id="actionMessageLabel" data-i18n="common.message">메시지</span>
+      </a>
+      <button type="button" class="action-bar-btn" onclick="openShareModal()">
+        <i data-lucide="more-horizontal"></i>
+        <span data-i18n="common.more">더보기</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- 더보기 시트 (QR · 공유 · 연락처 남기기 · 앱 설치) -->
   <div class="modal-overlay" id="shareModal" onclick="handleModalBgClick(event)">
     <div class="modal-box">
-      <div class="modal-title" data-i18n="card.qr_title">디지털 명함 QR코드</div>
-      <div class="modal-desc" data-i18n="card.qr_desc">상대방 카메라로 QR코드를 스캔하세요</div>
+      <div class="modal-title" data-i18n="card.more_title">공유 &amp; 더보기</div>
+      <div class="modal-desc" data-i18n="card.qr_desc">카메라로 QR을 스캔하면 이 명함이 열려요</div>
       
       <!-- QR 타입 선택 토글 -->
-      <div style="display: flex; gap: 8px; margin: 16px 0; background: rgba(255, 255, 255, 0.05); padding: 4px; border-radius: 12px;">
-        <button id="btnQrWeb" onclick="switchQrType('web')" style="flex: 1; padding: 10px 0; border-radius: 10px; border: none; background: rgba(168, 85, 247, 0.2); color: #d8b4fe; font-weight: 700; font-size: 13px; white-space: nowrap; cursor: pointer; transition: all 0.2s;">🌐 명함 웹</button>
-        <button id="btnQrKakao" onclick="switchQrType('kakao')" style="flex: 1; padding: 10px 0; border-radius: 10px; border: none; background: transparent; color: rgba(255, 255, 255, 0.5); font-weight: 700; font-size: 13px; white-space: nowrap; cursor: pointer; transition: all 0.2s;">💬 바로 카톡</button>
+      <div id="qrTypeToggle" style="display: flex; gap: 8px; margin: 16px 0; background: rgba(255, 255, 255, 0.05); padding: 4px; border-radius: 12px;">
+        <button id="btnQrWeb" onclick="switchQrType('web')" style="flex: 1; padding: 10px 0; border-radius: 10px; border: none; background: rgba(168, 85, 247, 0.2); color: #d8b4fe; font-weight: 700; font-size: 13px; white-space: nowrap; cursor: pointer; transition: all 0.2s;"><span data-i18n="card.qr_web">명함 링크</span></button>
+        <button id="btnQrKakao" onclick="switchQrType('kakao')" style="flex: 1; padding: 10px 0; border-radius: 10px; border: none; background: transparent; color: rgba(255, 255, 255, 0.5); font-weight: 700; font-size: 13px; white-space: nowrap; cursor: pointer; transition: all 0.2s;"><span data-i18n="card.qr_kakao">카카오톡</span></button>
       </div>
 
       <div class="qr-container" id="qrContainer"></div>
 
-      <button class="btn-action" style="width: 100%; margin-top: 14px; padding: 11px 12px; font-size: 13px; background: #fee500; color: #000000; border: none; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;" onclick="shareToKakao()">
+      <button class="btn-action" id="btnSaveKakao" style="width: 100%; margin-top: 14px; padding: 11px 12px; font-size: 13px; background: #fee500; color: #000000; border: none; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;" onclick="shareToKakao()">
         <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
           <path d="M12 3c-5.52 0-10 3.58-10 8 0 2.82 1.83 5.3 4.6 6.72-.25.96-.92 3.51-.96 3.65-.12.44.15.43.34.3l4.3-2.83c.55.09 1.12.14 1.72.14 5.52 0 10-3.58 10-8s-4.48-8-10-8z"/>
         </svg>
@@ -1691,6 +1768,17 @@
         <button class="btn-action btn-glass" style="flex: 1; padding: 11px 12px; font-size: 13px;" onclick="nativeShare()">
           <i data-lucide="share-2" style="width: 15px; height: 15px;"></i>
           <span data-i18n="common.share_other">다른 앱 공유</span>
+        </button>
+      </div>
+
+      <div style="display: flex; gap: 8px; margin-top: 8px; width: 100%;">
+        <button class="btn-action btn-glass" style="flex: 1; padding: 11px 8px; font-size: 12px;" onclick="closeShareModal(); document.getElementById('leadModal').classList.add('active');">
+          <i data-lucide="message-square" style="width: 15px; height: 15px;"></i>
+          <span data-i18n="card.leave_contact">연락처 남기기</span>
+        </button>
+        <button class="btn-action btn-glass" style="flex: 1; padding: 11px 8px; font-size: 12px;" id="installAppBtn" onclick="closeShareModal(); handleInstallClick();">
+          <i data-lucide="smartphone" style="width: 15px; height: 15px;" id="installAppIcon"></i>
+          <span data-i18n="card.install_app" id="installAppText">홈 화면에 추가</span>
         </button>
       </div>
 
@@ -1715,18 +1803,18 @@
     <div class="modal-box" style="max-width: 330px;">
       <div class="modal-title" style="display:flex; align-items:center; justify-content:center; gap:8px;">
         <i data-lucide="phone-call" style="width:20px; height:20px; color:#c084fc;"></i>
-        <span>상담 및 연락처 남기기</span>
+        <span data-i18n="card.lead_title">내 연락처 남기기</span>
       </div>
-      <div class="modal-desc" style="margin-bottom: 20px;">명함 주인에게 연락처와 문의 내용을 남겨주시면 확인 후 빠르게 회신드립니다.</div>
+      <div class="modal-desc" style="margin-bottom: 20px;"><span data-i18n="card.lead_desc">연락처를 남기면 명함 주인에게 바로 전달돼요.</span></div>
       
       <div style="text-align: left; margin-bottom: 12px;">
-        <label style="display: block; font-size: 12px; color: rgba(255,255,255,0.7); margin-bottom: 6px; font-weight:600;">연락받으실 전화번호 *</label>
+        <label style="display: block; font-size: 12px; color: rgba(255,255,255,0.7); margin-bottom: 6px; font-weight:600;"><span data-i18n="card.lead_phone">내 전화번호</span> *</label>
         <input type="tel" id="leadPhoneInput" placeholder="010-1234-5678" style="width: 100%; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 12px; color: white; font-size: 14px; outline: none; transition: border-color 0.2s;" onfocus="this.style.borderColor='#a855f7';" onblur="this.style.borderColor='rgba(255,255,255,0.15)';">
       </div>
 
       <div style="text-align: left; margin-bottom: 16px;">
-        <label style="display: block; font-size: 12px; color: rgba(255,255,255,0.7); margin-bottom: 6px; font-weight:600;">간단한 문의/용건 (선택)</label>
-        <input type="text" id="leadMemoInput" placeholder="예: 협업 문의, 견적 문의 등" style="width: 100%; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 12px; color: white; font-size: 13.5px; outline: none; transition: border-color 0.2s;" onfocus="this.style.borderColor='#a855f7';" onblur="this.style.borderColor='rgba(255,255,255,0.15)';">
+        <label style="display: block; font-size: 12px; color: rgba(255,255,255,0.7); margin-bottom: 6px; font-weight:600;"><span data-i18n="card.lead_memo">메모 (선택)</span></label>
+        <input type="text" id="leadMemoInput" placeholder="예: 협업 문의" data-i18n-placeholder="card.lead_memo_ph" style="width: 100%; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 12px; color: white; font-size: 13.5px; outline: none; transition: border-color 0.2s;" onfocus="this.style.borderColor='#a855f7';" onblur="this.style.borderColor='rgba(255,255,255,0.15)';">
       </div>
       
       <button class="btn-primary" style="width: 100%; padding: 14px; border-radius: 12px; background: linear-gradient(90deg, #c084fc, #a855f7); color: white; font-weight: 800; font-size: 15px; border: none; cursor: pointer; margin-bottom: 12px; box-shadow: 0 4px 15px rgba(168, 85, 247, 0.4);" onclick="submitLead()"><span data-i18n="card.lead_submit">1초 만에 연락처 전달하기</span></button>
