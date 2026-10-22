@@ -33,7 +33,9 @@
 
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@0.344.0"></script>
+  <script src="/js/i18n.js" defer></script>
 
+  <link rel="stylesheet" href="/css/tokens.css">
   <style>
     :root {
       --bg-page: #0b0914;
@@ -727,16 +729,17 @@
       </a>
 
       <ul class="nav-links">
-        <li><a href="/" class="active">홈으로</a></li>
-        <li><a href="/maker.html">3D 에디터</a></li>
-        <li><a href="/maker.html?mode=team">기업 B2B 단체</a></li>
-        <li><a href="/#nfc">NFC 스마트 실물</a></li>
-        <li><a href="/dashboard">내 명함 관리</a></li>
+        <li><a href="/" class="active" data-i18n="nav.home">홈으로</a></li>
+        <li><a href="/maker.html" data-i18n="nav.editor">3D 에디터</a></li>
+        <li><a href="/maker.html?mode=team" data-i18n="nav.teams">기업 B2B 단체</a></li>
+        <li><a href="/#nfc" data-i18n="nav.nfc_physical">NFC 스마트 실물</a></li>
+        <li><a href="/dashboard" data-i18n="nav.dashboard">내 명함 관리</a></li>
       </ul>
 
+      <div data-i18n-switcher></div>
       <a href="/maker.html" class="btn-cta-maker">
         <i data-lucide="sparkles" style="width:14px;height:14px;"></i>
-        <span>무료 바로 만들기</span>
+        <span data-i18n="nav.maker">무료 바로 만들기</span>
       </a>
     </div>
   </header>

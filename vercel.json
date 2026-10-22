@@ -1,4 +1,5 @@
 {
+  "buildCommand": "node scripts/stamp-sw.js",
   "cleanUrls": true,
   "functions": {
     "api/render.js": {

@@ -16,6 +16,7 @@
   
   <link rel="icon" type="image/x-icon" href="/assets/favicon.ico">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,700;0,800;0,900;1,900&family=Pretendard:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/tokens.css">
   <script src="https://unpkg.com/lucide@0.344.0"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   
@@ -24,6 +25,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="/js/supabase.js"></script>
   <script src="/js/auth-modal.js"></script>
+  <script src="/js/i18n.js" defer></script>
 
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
@@ -739,19 +741,16 @@
       <nav class="nav-center-links">
         <a href="/" style="display:flex; align-items:center; gap:6px;">
           <i data-lucide="home" style="width:14px;height:14px;"></i>
-          <span>메인 홈</span>
+          <span data-i18n="nav.home">메인 홈</span>
         </a>
-        <a href="/#showcase">3D 쇼룸</a>
-        <a href="/#nfc">스마트 NFC</a>
-        <a href="/#pricing">요금제</a>
+        <a href="/#showcase" data-i18n="nav.showcase">3D 쇼룸</a>
+        <a href="/#nfc" data-i18n="nav.nfc">스마트 NFC</a>
+        <a href="/#pricing" data-i18n="nav.pricing">요금제</a>
       </nav>
 
       <!-- Right Action Pathway -->
       <div style="display:flex; align-items:center; gap:10px;">
-                <div id="ga4LivePulseBadge" style="display:inline-flex; align-items:center; gap:6px; background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.3); padding:4px 10px; border-radius:99px; font-size:11px; font-weight:800; color:#10b981; font-family:'JetBrains Mono',monospace;">
-          <span style="width:6px;height:6px;border-radius:50%;background:#10b981;box-shadow:0 0 8px #10b981;"></span>
-          <span id="ga4LiveText">GA4 Live (G-1KRR01VT4L)</span>
-        </div>
+        <div data-i18n-switcher></div>
         <a href="/" class="btn-exit-home" title="메인 홈으로 이동">
           <i data-lucide="arrow-left" style="width:15px;height:15px;"></i>
           <span>홈으로 나가기</span>

@@ -51,6 +51,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="/js/supabase.js"></script>
 
+  <link rel="stylesheet" href="/css/tokens.css">
   <!-- Default Theme Stylesheet (동적으로 교체됨) -->
   <link rel="stylesheet" id="themeStylesheet" href="/themes/obsidian.css">
 
@@ -1656,7 +1657,7 @@
     <!-- Viral Powered-By Badge -->
     <a href="/maker" class="viral-badge-link" title="TOOMCARD에서 나만의 3D 명함 만들기">
       <i data-lucide="sparkles" style="width: 13px; height: 13px; color: var(--neon-accent);"></i>
-      <span>Build your 3D card with <strong>TOOMCARD</strong></span>
+      <span data-i18n="card.made_with">Build your 3D card with TOOMCARD</span>
     </a>
 
   </div>
@@ -1664,8 +1665,8 @@
   <!-- QR Code Modal -->
   <div class="modal-overlay" id="shareModal" onclick="handleModalBgClick(event)">
     <div class="modal-box">
-      <div class="modal-title">디지털 명함 QR코드</div>
-      <div class="modal-desc">상대방 카메라로 QR코드를 스캔하세요</div>
+      <div class="modal-title" data-i18n="card.qr_title">디지털 명함 QR코드</div>
+      <div class="modal-desc" data-i18n="card.qr_desc">상대방 카메라로 QR코드를 스캔하세요</div>
       
       <!-- QR 타입 선택 토글 -->
       <div style="display: flex; gap: 8px; margin: 16px 0; background: rgba(255, 255, 255, 0.05); padding: 4px; border-radius: 12px;">
@@ -1679,21 +1680,21 @@
         <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
           <path d="M12 3c-5.52 0-10 3.58-10 8 0 2.82 1.83 5.3 4.6 6.72-.25.96-.92 3.51-.96 3.65-.12.44.15.43.34.3l4.3-2.83c.55.09 1.12.14 1.72.14 5.52 0 10-3.58 10-8s-4.48-8-10-8z"/>
         </svg>
-        <span style="font-weight: 600;">내 카톡에 명함 저장하기</span>
+        <span style="font-weight: 600;" data-i18n="card.save_kakao">내 카톡에 명함 저장하기</span>
       </button>
 
       <div style="display: flex; gap: 8px; margin-top: 8px; width: 100%;">
         <button class="btn-action btn-save" style="flex: 1; padding: 11px 12px; font-size: 13px;" onclick="copyCardUrl()">
           <i data-lucide="copy" style="width: 15px; height: 15px;"></i>
-          <span>링크 복사</span>
+          <span data-i18n="common.copy_link">링크 복사</span>
         </button>
         <button class="btn-action btn-glass" style="flex: 1; padding: 11px 12px; font-size: 13px;" onclick="nativeShare()">
           <i data-lucide="share-2" style="width: 15px; height: 15px;"></i>
-          <span>다른 앱 공유</span>
+          <span data-i18n="common.share_other">다른 앱 공유</span>
         </button>
       </div>
 
-      <button class="modal-close-btn" onclick="closeShareModal()">닫기</button>
+      <button class="modal-close-btn" onclick="closeShareModal()" data-i18n="common.close">닫기</button>
     </div>
   </div>
 
@@ -1705,7 +1706,7 @@
 
       <div class="channel-list" id="socialModalList"></div>
 
-      <button class="modal-close-btn" onclick="closeSocialModal()">닫기</button>
+      <button class="modal-close-btn" onclick="closeSocialModal()" data-i18n="common.close">닫기</button>
     </div>
   </div>
   
@@ -1728,8 +1729,8 @@
         <input type="text" id="leadMemoInput" placeholder="예: 협업 문의, 견적 문의 등" style="width: 100%; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 12px; color: white; font-size: 13.5px; outline: none; transition: border-color 0.2s;" onfocus="this.style.borderColor='#a855f7';" onblur="this.style.borderColor='rgba(255,255,255,0.15)';">
       </div>
       
-      <button class="btn-primary" style="width: 100%; padding: 14px; border-radius: 12px; background: linear-gradient(90deg, #c084fc, #a855f7); color: white; font-weight: 800; font-size: 15px; border: none; cursor: pointer; margin-bottom: 12px; box-shadow: 0 4px 15px rgba(168, 85, 247, 0.4);" onclick="submitLead()">1초 만에 연락처 전달하기</button>
-      <button class="modal-close-btn" onclick="document.getElementById('leadModal').classList.remove('active')">취소</button>
+      <button class="btn-primary" style="width: 100%; padding: 14px; border-radius: 12px; background: linear-gradient(90deg, #c084fc, #a855f7); color: white; font-weight: 800; font-size: 15px; border: none; cursor: pointer; margin-bottom: 12px; box-shadow: 0 4px 15px rgba(168, 85, 247, 0.4);" onclick="submitLead()"><span data-i18n="card.lead_submit">1초 만에 연락처 전달하기</span></button>
+      <button class="modal-close-btn" onclick="document.getElementById('leadModal').classList.remove('active')"><span data-i18n="common.cancel">취소</span></button>
     </div>
   </div>
 
@@ -2135,6 +2136,8 @@
   </div>
 
   <!-- Dynamic Card Renderer Engine Script -->
+  <script src="/js/card-core.js"></script>
+  <script src="/js/i18n.js"></script>
   <script src="./js/card-renderer.js"></script>
   <script src="./js/toast.js"></script>
   <script src="./js/maza-telemetry.js"></script>

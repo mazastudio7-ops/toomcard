@@ -50,14 +50,7 @@ const DEFAULT_CARD_FALLBACK = {
   }
 };
 
-// Live Server 등 하위 디렉토리 호스팅 환경(/toomcard/) 자동 감지
-function getBasePath() {
-  const path = window.location.pathname;
-  if (path.includes('/toomcard/')) {
-    return '/toomcard';
-  }
-  return '';
-}
+// getBasePath / applyTheme / renderWatermark → /js/card-core.js
 
 // URL 파라미터 또는 경로에서 회사 및 카드 slug 추출 (Live Server /card.html 호환)
 function getCardIdentifier() {
@@ -93,79 +86,7 @@ function getCardSlug() {
 }
 
 // 테마 스타일시트 동적 주입 (Base Path 자동 결합)
-function applyTheme(themeName) {
-  const existingThemeLink = document.getElementById('themeStylesheet');
-  const base = getBasePath();
-  const themeHref = `${base}/themes/${themeName || 'obsidian'}.css`;
-  
-  if (existingThemeLink) {
-    existingThemeLink.href = themeHref;
-  } else {
-    const link = document.createElement('link');
-    link.id = 'themeStylesheet';
-    link.rel = 'stylesheet';
-    link.href = themeHref;
-    document.head.appendChild(link);
-  }
-}
 
-// 텍스트를 거꾸로 분해하여 워터마크 세로 텍스트 생성 (글자 수에 따른 지능형 동적 스케일링)
-function renderWatermark(text) {
-  const container = document.getElementById('watermarkContainerFront');
-  const containerBack = document.getElementById('watermarkContainerBack');
-  if (!text) return;
-
-  const letters = text.toUpperCase().split('').reverse();
-  const n = letters.length;
-
-  let fontSize, spanHeight, spanWidth, rightOffset;
-
-  if (n <= 3) {
-    fontSize = 140;
-    spanHeight = 115;
-    spanWidth = 140;
-    rightOffset = -22;
-  } else if (n === 4) {
-    // MAZA 원본 스펙: 135px x 105px
-    fontSize = 135;
-    spanHeight = 105;
-    spanWidth = 135;
-    rightOffset = -20;
-  } else if (n === 5) {
-    fontSize = 105;
-    spanHeight = 92;
-    spanWidth = 105;
-    rightOffset = -15;
-  } else if (n === 6) {
-    fontSize = 88;
-    spanHeight = 80;
-    spanWidth = 88;
-    rightOffset = -12;
-  } else if (n === 7) {
-    fontSize = 72;
-    spanHeight = 70;
-    spanWidth = 72;
-    rightOffset = -8;
-  } else if (n === 8) {
-    fontSize = 64;
-    spanHeight = 62;
-    spanWidth = 64;
-    rightOffset = -6;
-  } else {
-    spanHeight = Math.max(36, Math.floor(485 / n));
-    fontSize = Math.round(spanHeight * 1.12);
-    spanWidth = fontSize;
-    rightOffset = -4;
-  }
-
-  const html = letters.map(c => `<span style="font-size:${fontSize}px !important; width:${spanWidth}px !important; height:${spanHeight}px !important; line-height:1;">${c}</span>`).join('');
-
-  [container, containerBack].forEach(c => {
-    if (!c) return;
-    c.innerHTML = html;
-    c.style.right = `${rightOffset}px`;
-  });
-}
 
 // Lucide 아이콘 매핑 헬퍼
 function getSocialIconSvg(type) {
