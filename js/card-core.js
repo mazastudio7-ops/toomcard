@@ -87,8 +87,16 @@
     dim:   'brightness(0.72) contrast(1.05)'
   };
 
+  // 사진관 룩 4가지 (색 보정). 비네팅·빛·그레인은 뷰어 CSS가 입힌다
+  var LOOK_FILTERS = {
+    clean:     'contrast(1.03)',
+    studio:    'contrast(1.06) saturate(1.06) brightness(1.05) sepia(0.07)',
+    editorial: 'grayscale(1) contrast(1.2) brightness(0.97)',
+    film:      'sepia(0.32) contrast(0.94) saturate(0.88) brightness(1.04) hue-rotate(-6deg)'
+  };
+
   // bg = { zoom: 1~2.5, x: 0~100, y: 0~100, filter: key, brightness: 0.6~1.4, blur: 0~12, tint: '#hex' | '' }
-  function frontImageStyle(bg) {
+  function frontImageStyle(bg, look) {
     bg = bg || {};
     var blur = Math.min(16, Math.max(0, Number(bg.blur) || 0));
     // 흐리게 하면 가장자리가 비치므로 그만큼 살짝 더 키운다
@@ -96,11 +104,16 @@
     var x = bg.x == null ? 50 : Number(bg.x);
     var y = bg.y == null ? 50 : Number(bg.y);
     var parts = [];
+    if (LOOK_FILTERS[look]) parts.push(LOOK_FILTERS[look]);
     if (FRONT_FILTERS[bg.filter]) parts.push(FRONT_FILTERS[bg.filter]);
     var b = Number(bg.brightness);
     if (b && b !== 1) parts.push('brightness(' + b + ')');
+    var base = parts.join(' ');
+    // 사진관 룩의 가장자리 흐림용 두 번째 레이어: 같은 보정 + 더 강한 흐림
+    var softFilter = (base ? base + ' ' : '') + 'blur(' + (blur + 6) + 'px)';
     if (blur) parts.push('blur(' + blur + 'px)');
     return {
+      softFilter: softFilter,
       tint: /^#[0-9a-f]{3,8}$/i.test(bg.tint || '') ? bg.tint : '',
       objectPosition: x + '% ' + y + '%',
       transform: zoom === 1 ? 'none' : 'scale(' + zoom + ')',
@@ -160,6 +173,7 @@
 
   var core = {
     solidBg: solidBg,
+    LOOK_FILTERS: LOOK_FILTERS,
     FRONT_FILTERS: FRONT_FILTERS,
     frontImageStyle: frontImageStyle,
     getBasePath: getBasePath,

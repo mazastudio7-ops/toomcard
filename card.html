@@ -1294,15 +1294,71 @@
     .plate-text-overlay .pt-role { font: 600 12.5px/1.35 'Pretendard', sans-serif; opacity: 0.82; margin-top: 5px; }
     .plate-text-overlay .pt-company:empty, .plate-text-overlay .pt-role:empty { display: none; }
 
-    /* 마감: metal(기본 광택) / glass / matte */
-    .plate-finish-glass .plate-specular-sheen { opacity: 0.5; }
-    .plate-finish-glass::after {
-      content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; z-index: 2;
-      background: linear-gradient(160deg, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.04) 35%, rgba(255,255,255,0) 60%);
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.28);
+    /* ── 앞면 틀(frame) ────────────────────────────────────────────── */
+    :root { --tc-noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+    .plate-photo { position: absolute; inset: 0; z-index: 1; overflow: hidden; }
+    .plate-photo .plate-artwork-img { position: absolute !important; inset: 0 !important; border-radius: 0 !important; }
+    .plate-soft-img {
+      -webkit-mask-image: radial-gradient(closest-side at 50% 46%, transparent 60%, #000 100%);
+      mask-image: radial-gradient(closest-side at 50% 46%, transparent 60%, #000 100%);
+    }
+    .plate-photo .plate-tint { z-index: 1; }
+
+    /* 풀 블리드(full)는 기본. 나머지는 틀 뒤에 배경(backdrop)이 깔린다 */
+    .frame-rim { background: linear-gradient(135deg, #e9ecf2 0%, #8c92a0 22%, #f7f9fc 48%, #858b99 74%, #d6dae2 100%); }
+    .frame-rim .plate-photo { inset: 9px; border-radius: 20px; box-shadow: inset 0 0 0 1px rgba(0,0,0,0.35); }
+    .frame-matte.fb-dark, .frame-arch.fb-dark, .frame-round.fb-dark { background: radial-gradient(120% 90% at 50% 0%, #20202a 0%, #0b0b10 100%); }
+    .frame-matte.fb-light, .frame-arch.fb-light, .frame-round.fb-light { background: radial-gradient(120% 90% at 50% 0%, #f8f5ef 0%, #e6e0d4 100%); }
+    .frame-matte { --band-top: 75.5%; }
+    .frame-matte .plate-photo { inset: auto; left: 5%; right: 5%; top: 3.2%; height: 70%; border-radius: 6px; box-shadow: 0 8px 22px rgba(0,0,0,0.35); }
+    .frame-arch { --band-top: 72.5%; }
+    .frame-arch .plate-photo { inset: auto; left: 11%; right: 11%; top: 6%; height: 64%; border-radius: 9999px 9999px 16px 16px; box-shadow: 0 10px 26px rgba(0,0,0,0.35); }
+    .frame-round { --band-top: 54.5%; }
+    .frame-round .plate-photo { inset: auto; left: 50%; top: 7%; height: 44%; aspect-ratio: 1; transform: translateX(-50%); border-radius: 50%; box-shadow: 0 0 0 3px rgba(255,217,120,0.85), 0 14px 34px rgba(0,0,0,0.45); }
+    .frame-round.fb-light .plate-photo { box-shadow: 0 0 0 3px rgba(30,30,40,0.8), 0 14px 34px rgba(0,0,0,0.3); }
+
+    /* 틀 안의 글자: 사진 밑 띠 / 메탈 림은 테두리만큼 안쪽으로 */
+    .plate-text-overlay.pos-band { top: var(--band-top, 76%); padding: 0 20px 76px; justify-content: flex-start; align-items: center; text-align: center; }
+    .frame-rim .plate-text-overlay { padding: 38px 30px 88px; }
+    .frame-matte .plate-subtle-qr, .frame-arch .plate-subtle-qr, .frame-round .plate-subtle-qr { top: auto; bottom: 74px; right: 14px; width: 15%; }
+    .frame-rim .plate-subtle-qr { top: 6.5%; right: 8.5%; }
+
+    /* ── 사진관 룩(look): 비네팅·빛·그레인 (색 보정은 JS가 사진 필터로) ── */
+    .plate-photo::before, .plate-photo::after { content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 2; }
+    .look-studio .plate-photo::before { background: radial-gradient(125% 92% at 50% 36%, transparent 46%, rgba(0,0,0,0.52) 100%), linear-gradient(180deg, rgba(255,242,222,0.26), transparent 42%); }
+    .look-editorial .plate-photo::before { background: radial-gradient(130% 100% at 50% 40%, transparent 55%, rgba(0,0,0,0.42) 100%); }
+    .look-editorial .plate-photo::after { background-image: var(--tc-noise); background-size: 140px; mix-blend-mode: overlay; opacity: 0.5; }
+    .look-film .plate-photo::before { background: linear-gradient(98deg, rgba(255,110,50,0.32) 0%, rgba(255,110,50,0) 26%), radial-gradient(130% 100% at 50% 45%, transparent 58%, rgba(40,20,0,0.38) 100%); }
+    .look-film .plate-photo::after { background-image: var(--tc-noise); background-size: 150px; mix-blend-mode: overlay; opacity: 0.42; }
+
+    /* ── 마감(finish) 5가지: 브러시드 메탈 · 아크릴 글라스 · 매트 페이퍼 · 소프트 라이트 · 홀로그램 ── */
+    .plate-fx { position: absolute; inset: 0; z-index: 2; pointer-events: none; border-radius: inherit; }
+    .plate-finish-metal .plate-fx {
+      background: repeating-linear-gradient(90deg, rgba(255,255,255,0.04) 0 1px, rgba(0,0,0,0.04) 1px 2px, transparent 2px 4px);
+      mix-blend-mode: overlay;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.22), inset 0 1px 0 rgba(255,255,255,0.42), inset 0 -22px 34px rgba(0,0,0,0.26);
+    }
+    .plate-finish-glass .plate-specular-sheen { display: none; }
+    .plate-finish-glass .plate-fx {
+      background: linear-gradient(118deg, rgba(255,255,255,0) 16%, rgba(255,255,255,0.28) 29%, rgba(255,255,255,0) 43%), linear-gradient(180deg, rgba(255,255,255,0.24), rgba(255,255,255,0) 26%);
+      box-shadow: inset 0 0 0 1.5px rgba(255,255,255,0.42), inset 0 0 0 7px rgba(255,255,255,0.06), inset 0 0 28px rgba(255,255,255,0.2);
     }
     .plate-finish-matte .plate-specular-sheen { display: none; }
+    .plate-finish-matte .plate-fx { background-image: var(--tc-noise); background-size: 160px; mix-blend-mode: multiply; opacity: 0.2; }
     .plate-finish-matte .plate-artwork-img { filter: saturate(0.92) contrast(0.98); }
+    .plate-finish-studio .plate-specular-sheen { display: none; }
+    .plate-finish-studio .plate-fx {
+      background: radial-gradient(90% 55% at 50% -6%, rgba(255,247,232,0.55), transparent 70%), radial-gradient(120% 70% at 50% 122%, rgba(0,0,0,0.5), transparent 62%);
+      mix-blend-mode: soft-light;
+    }
+    .plate-finish-holo .plate-specular-sheen { display: none; }
+    .plate-finish-holo .plate-fx {
+      background: linear-gradient(115deg, rgba(255,61,154,0) 8%, rgba(255,61,154,0.55) 26%, rgba(61,214,255,0.55) 42%, rgba(255,232,61,0.45) 56%, rgba(138,92,255,0.55) 70%, rgba(255,61,154,0) 90%);
+      background-size: 260% 100%; background-position: 20% 0; mix-blend-mode: color-dodge; opacity: 0.55;
+      animation: holoShift 7s ease-in-out infinite alternate;
+    }
+    @keyframes holoShift { from { background-position: 0% 0; } to { background-position: 100% 0; } }
+    .maker-embed .plate-finish-holo .plate-fx { background-position: 38% 0; }
 
     .plate-subtle-qr {
       position: absolute; top: 5%; right: 6%; z-index: 4;
@@ -1646,9 +1702,15 @@
         <div class="card-face front">
           <!-- Pure Physical Card Plate Artwork (Layout Plate) -->
           <div class="plate-artwork-container" id="plateArtworkContainer" title="카드를 탭하면 뒤집힙니다">
-            <img id="plateArtworkImg" src="/assets/toomcard_front_plate.jpg" alt="Metal Card Plate" class="plate-artwork-img" onerror="this.onerror=null; this.src='/assets/toomcard_front_plate.png';">
-            <!-- 색 입히기(front.bg.tint): 사진 밝기는 두고 색만 바꾼다 -->
-            <div class="plate-tint" id="plateTint" hidden></div>
+            <!-- 사진 창: 틀(frame)에 따라 크기·모양이 바뀐다. 룩의 비네팅·빛·그레인은 ::before/::after -->
+            <div class="plate-photo" id="platePhoto">
+              <img id="plateArtworkImg" src="/assets/toomcard_front_plate.jpg" alt="Metal Card Plate" class="plate-artwork-img" onerror="this.onerror=null; this.src='/assets/toomcard_front_plate.png';">
+              <img id="plateSoftImg" class="plate-artwork-img plate-soft-img" alt="" aria-hidden="true" hidden>
+              <!-- 색 입히기(front.bg.tint): 사진 밝기는 두고 색만 바꾼다 -->
+              <div class="plate-tint" id="plateTint" hidden></div>
+            </div>
+            <!-- 마감(finish) 질감·반사 -->
+            <div class="plate-fx" id="plateFx"></div>
             <div class="plate-specular-sheen"></div>
 
             <!-- 앞면 레이어: 글자·로고 오버레이 (front.text) -->

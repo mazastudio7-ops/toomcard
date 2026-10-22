@@ -209,7 +209,15 @@
     input[type=range]::-moz-range-thumb { width: 20px; height: 20px; border: none; border-radius: 50%; background: var(--tc-accent); cursor: pointer; }
     .photo-off { font-size: 12px; color: var(--tc-text-subtle); }
     #photoAdjust[hidden] { display: none; }
-    .filter-chips .chip { padding: 6px 10px; font-size: 11.5px; }
+    .chip.disabled { opacity: 0.5; }
+    #toneRow[hidden], #frameHint[hidden] { display: none; }
+    /* 캐러셀 틀 썸네일 */
+    .car-thumb { overflow: hidden; }
+    .ft-photo { position: absolute; background-size: cover; background-position: center; }
+    .ft-rim { inset: 3%; border-radius: 10% / 6%; }
+    .ft-matte { left: 5%; right: 5%; top: 3.2%; height: 70%; border-radius: 3px; box-shadow: 0 4px 10px rgba(0,0,0,0.35); }
+    .ft-arch { left: 11%; right: 11%; top: 6%; height: 64%; border-radius: 999px 999px 8px 8px; }
+    .ft-round { left: 50%; top: 7%; height: 44%; aspect-ratio: 1; transform: translateX(-50%); border-radius: 50%; }
     .tint-row { display: flex; gap: 10px; flex-wrap: wrap; }
     .tint { width: 30px; height: 30px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.15); cursor: pointer; padding: 0; }
     .tint.none { background: transparent; color: var(--tc-text-subtle); font: 700 14px var(--tc-font-body); }
@@ -391,6 +399,15 @@
       <section class="section" id="secPhoto" data-tab="photo">
         <div class="section-title"><i data-lucide="sliders-horizontal"></i><span data-i18n="maker.sec_photo">사진 조정</span></div>
         <button type="button" class="btn-secondary" onclick="pickPhoto()"><i data-lucide="image-plus"></i><span data-i18n="maker.pick_photo">내 사진 고르기</span></button>
+        <div class="field">
+          <label data-i18n="maker.look">룩</label>
+          <div class="chips" id="lookChips">
+            <button class="chip" data-look="clean" aria-pressed="true" data-i18n="maker.look_clean">클린</button>
+            <button class="chip" data-look="studio" data-i18n="maker.look_studio">사진관</button>
+            <button class="chip" data-look="editorial" data-i18n="maker.look_editorial">에디토리얼</button>
+            <button class="chip" data-look="film" data-i18n="maker.look_film">필름</button>
+          </div>
+        </div>
         <p class="photo-off" id="photoOff" data-i18n="maker.photo_only">사진 배경일 때 크기·위치·색을 바꿀 수 있어요.</p>
         <div id="photoAdjust" style="display:flex; flex-direction:column; gap:14px;" hidden>
           <p class="photo-off" data-i18n="maker.adj_gesture">카드 위에서 끌면 위치, 두 손가락으로 벌리면 크기가 바뀌어요.</p>
@@ -411,15 +428,6 @@
               <button class="tint" data-tint="#2a9d8f" style="background:#2a9d8f"></button>
               <button class="tint" data-tint="#8d99ae" style="background:#8d99ae"></button>
             </div>
-          </div>
-          <div class="chips filter-chips" id="filterChips">
-            <button class="chip" data-filter="none" aria-pressed="true" data-i18n="maker.f_none">원본</button>
-            <button class="chip" data-filter="vivid" data-i18n="maker.f_vivid">선명</button>
-            <button class="chip" data-filter="mono" data-i18n="maker.f_mono">흑백</button>
-            <button class="chip" data-filter="warm" data-i18n="maker.f_warm">따뜻하게</button>
-            <button class="chip" data-filter="cool" data-i18n="maker.f_cool">차갑게</button>
-            <button class="chip" data-filter="film" data-i18n="maker.f_film">필름</button>
-            <button class="chip" data-filter="dim" data-i18n="maker.f_dim">어둡게</button>
           </div>
           <button type="button" class="link-reset" onclick="resetAdjust()" data-i18n="maker.adj_reset">조정 초기화</button>
         </div>
@@ -452,11 +460,34 @@
 
       <!-- 4. 마감 -->
       <section class="section" id="secFinish" data-tab="finish">
-        <div class="section-title"><i data-lucide="gem"></i><span data-i18n="maker.sec_finish">4. 마감 &amp; 뒷면</span></div>
-        <div class="chips" id="finishChips">
-          <button class="chip" data-finish="metal" aria-pressed="true" data-i18n="maker.finish_metal">메탈</button>
-          <button class="chip" data-finish="glass" data-i18n="maker.finish_glass">유리</button>
-          <button class="chip" data-finish="matte" data-i18n="maker.finish_matte">매트</button>
+        <div class="section-title"><i data-lucide="gem"></i><span data-i18n="maker.sec_finish">틀 · 마감 · 뒷면</span></div>
+        <div class="field">
+          <label data-i18n="maker.frame">틀</label>
+          <div class="chips" id="frameChips">
+            <button class="chip" data-frame="full" aria-pressed="true" data-i18n="maker.frame_full">풀 블리드</button>
+            <button class="chip" data-frame="rim" data-i18n="maker.frame_rim">메탈 림</button>
+            <button class="chip" data-frame="matte" data-i18n="maker.frame_matte">매트 프레임</button>
+            <button class="chip" data-frame="arch" data-i18n="maker.frame_arch">아치 창</button>
+            <button class="chip" data-frame="round" data-i18n="maker.frame_round">원형 초상</button>
+          </div>
+          <p class="photo-off" id="frameHint" data-i18n="maker.frame_hint">내 사진을 올리면 틀을 고를 수 있어요.</p>
+          <div id="toneRow" hidden>
+            <label style="font-size:11.5px;font-weight:700;color:var(--tc-text-muted);" data-i18n="maker.frame_tone">틀 배경</label>
+            <div class="chips" id="toneChips" style="margin-top:6px;">
+              <button class="chip" data-ft="dark" aria-pressed="true" data-i18n="maker.tone_dark">다크</button>
+              <button class="chip" data-ft="light" data-i18n="maker.tone_light">라이트</button>
+            </div>
+          </div>
+        </div>
+        <div class="field">
+          <label data-i18n="maker.finish">마감</label>
+          <div class="chips" id="finishChips">
+            <button class="chip" data-finish="metal" aria-pressed="true" data-i18n="maker.finish_metal">브러시드 메탈</button>
+            <button class="chip" data-finish="glass" data-i18n="maker.finish_glass">아크릴 글라스</button>
+            <button class="chip" data-finish="matte" data-i18n="maker.finish_matte">매트 페이퍼</button>
+            <button class="chip" data-finish="studio" data-i18n="maker.finish_studio">소프트 라이트</button>
+            <button class="chip" data-finish="holo" data-i18n="maker.finish_holo">홀로그램</button>
+          </div>
         </div>
         <div class="toggle"><span data-i18n="maker.qr_subtle">앞면에 옅은 QR 깔기</span><button class="switch" id="qrSwitch" role="switch" aria-checked="true"></button></div>
         <div class="field">
@@ -548,7 +579,7 @@
       logo: { src: '/assets/logo_toomcard_hd.webp', alt: '' },
       primaryAction: { url: '', label: '', icon: 'globe' },
       socials: [], links: [], backLayout: 'default',
-      front: { bg: { type: 'image', src: '/assets/toomcard_front_plate.jpg' }, text: { layout: 'none', showLogo: false, tone: 'auto' }, finish: 'metal', qr: 'subtle' }
+      front: { bg: { type: 'image', src: '/assets/toomcard_front_plate.jpg' }, text: { layout: 'none', showLogo: false, tone: 'auto' }, finish: 'metal', qr: 'subtle', frame: 'full', frameTone: 'dark', look: 'clean' }
     };
     let card = JSON.parse(JSON.stringify(DEFAULT_CARD));
     // 일반(personal) / 비즈니스(business): 입력칸 이름·필수 항목·뒷면 구성이 달라진다
@@ -738,6 +769,7 @@
     let photoBg = null;   // 내 사진 배경 + 조정값. 다른 디자인을 보고 돌아와도 그대로 쓴다
     function setBg(bg, id) {
       currentBgId = id || bg.id;
+      if (currentBgId !== 'upload') card.front.frame = 'full';   // 틀은 내 사진에서만
       if (currentBgId === 'upload' && photoBg && photoBg.src === bg.src) {
         if (!textTouched) { card.front.text.layout = 'none'; pressOnly($('textChips'), 'layout', 'none'); }
         card.front.bg = photoBg;
@@ -775,7 +807,7 @@
       readImage(f, 1440, (dataUrl) => {
         uploadedPhoto = dataUrl; photoBg = null;
         setBg({ type: 'image', src: dataUrl }, 'upload');
-        designIdx = 0; renderCarousel();
+        setFrame('full'); designIdx = 0; renderCarousel();
         if (isMobile()) { currentTab = ''; openTab('photo'); }
         toast(t('maker.bg_set'));
       });
@@ -840,16 +872,59 @@
       render();
     }
 
+    /* ── 틀 · 틀 배경 · 룩 ───────────────────────────── */
+    function setFrame(f) {
+      if (!FRAMES.includes(f)) f = 'full';
+      card.front.frame = f;
+      // 띠가 있는 틀은 이름을 사진 밑에 두는 게 자연스럽다 (직접 고른 글자 위치는 건드리지 않는다)
+      if (!textTouched && isImageBg()) {
+        const layout = BAND_FRAMES.includes(f) ? 'bottom-center' : 'none';
+        card.front.text.layout = layout; pressOnly($('textChips'), 'layout', layout);
+      }
+      syncFrameUI();
+    }
+    function syncFrameUI() {
+      const enabled = currentBgId === 'upload';
+      document.querySelectorAll('#frameChips .chip').forEach((c) => {
+        c.classList.toggle('disabled', !enabled);
+        c.setAttribute('aria-pressed', enabled && c.dataset.frame === card.front.frame ? 'true' : 'false');
+      });
+      $('frameHint').hidden = enabled;
+      $('toneRow').hidden = !(enabled && BAND_FRAMES.includes(card.front.frame));
+      pressOnly($('toneChips'), 'ft', card.front.frameTone || 'dark');
+      pressOnly($('lookChips'), 'look', card.front.look || 'clean');
+    }
+    $('frameChips').addEventListener('click', (e) => {
+      const b = e.target.closest('.chip'); if (!b) return;
+      if (currentBgId !== 'upload') { pickPhoto(); return; }       // 사진이 없으면 사진부터
+      setFrame(b.dataset.frame);
+      designIdx = Math.max(0, designs().findIndex((d) => d.key === 'frame:' + card.front.frame));
+      renderCarousel(); render(true);
+    });
+    $('toneChips').addEventListener('click', (e) => {
+      const b = e.target.closest('.chip'); if (!b) return;
+      card.front.frameTone = b.dataset.ft === 'light' ? 'light' : 'dark';
+      syncFrameUI(); renderCarousel(); render(true);
+    });
+    $('lookChips').addEventListener('click', (e) => {
+      const b = e.target.closest('.chip'); if (!b) return;
+      card.front.look = b.dataset.look; syncFrameUI(); render(true);
+    });
+
     /* ── 팬 캐러셀 ───────────────────────────────────── */
     let uploadedPhoto = '';
     let designIdx = 0;
+    const FRAMES = ['full', 'rim', 'matte', 'arch', 'round'];
+    const BAND_FRAMES = ['matte', 'arch', 'round'];   // 사진 밑에 이름 띠가 생기는 틀
     function designs() {
       const list = DESIGNS.map((d) => ({
         key: d.key, label: d.labelKey ? t(d.labelKey) : d.label,
         bg: d.key === 'solid' ? (solidMemory || makeSolid(DEFAULT_SOLID)) : CURATED_BG.find((b) => b.id === d.bgId)
       }));
-      if (uploadedPhoto) list.unshift({ key: 'photo', label: t('maker.bg_upload'), bg: { type: 'image', src: uploadedPhoto } });
-      return list;
+      if (!uploadedPhoto) return list;
+      // 사진을 올리면 그 사진이 틀 5가지로 먼저 나온다: 넘기면서 틀을 고른다
+      const photo = { type: 'image', src: uploadedPhoto };
+      return FRAMES.map((f) => ({ key: 'frame:' + f, frame: f, label: t('maker.frame_' + f), bg: photo })).concat(list);
     }
     // 카드 썸네일 7장(-3..3)을 한 줄로 두고, 넘길 때 전체가 한 칸씩 움직인다.
     // 가운데(0) 썸네일은 iframe 카드 바로 뒤에 같은 크기로 깔려, 넘기는 동안 카드 역할을 한다.
@@ -878,6 +953,19 @@
       el.style.opacity = hidden ? 0 : st.o; el.style.zIndex = st.z;
       el.style.pointerEvents = (hidden || off === 0) ? 'none' : 'auto';
     }
+    // 틀 썸네일: 틀 배경 위에 그 모양의 사진 창을 올린다 (뷰어와 같은 비율)
+    const THUMB_DARK = 'radial-gradient(120% 90% at 50% 0%, #20202a 0%, #0b0b10 100%)';
+    const THUMB_LIGHT = 'radial-gradient(120% 90% at 50% 0%, #f8f5ef 0%, #e6e0d4 100%)';
+    const THUMB_RIM = 'linear-gradient(135deg, #e9ecf2 0%, #8c92a0 22%, #f7f9fc 48%, #858b99 74%, #d6dae2 100%)';
+    function paintThumb(el, d) {
+      el.innerHTML = '';
+      if (!d.frame || d.frame === 'full') { el.setAttribute('style', d.bg ? thumbStyle(d.bg) : ''); return; }
+      const back = d.frame === 'rim' ? THUMB_RIM : (card.front.frameTone === 'light' ? THUMB_LIGHT : THUMB_DARK);
+      el.setAttribute('style', `background:${back}`);
+      const p = document.createElement('div');
+      p.className = 'ft-photo ft-' + d.frame; p.style.backgroundImage = `url('${d.bg.src}')`;
+      el.appendChild(p);
+    }
     function renderCarousel() {
       const list = designs(); const n = list.length;
       designIdx = ((designIdx % n) + n) % n;
@@ -893,7 +981,7 @@
       [...stack.children].forEach((el) => {
         const off = Number(el.dataset.off);
         const d = list[(designIdx + off + n * 4) % n];
-        el.setAttribute('style', d.bg ? thumbStyle(d.bg) : '');
+        paintThumb(el, d);
         el.style.width = box.w + 'px'; el.style.height = box.h + 'px';
         placeThumb(el, off);
         el.onclick = off === 0 ? null : () => goDesign(designIdx + off, Math.sign(off));
@@ -928,7 +1016,7 @@
       const list = designs(); const n = list.length;
       designIdx = ((i % n) + n) % n;
       const d = list[designIdx];
-      if (d.key === 'photo') setBg(d.bg, 'upload'); else applyStart(d.key);
+      if (d.key.startsWith('frame:')) { setBg(d.bg, 'upload'); setFrame(d.frame); } else applyStart(d.key);
       $('designName').textContent = d.label;
       $('designIdxLabel').textContent = `${designIdx + 1} / ${n}`;
     }
@@ -958,6 +1046,7 @@
     function isImageBg() { return card.front.bg && card.front.bg.type === 'image'; }
     function isSolidBg() { return card.front.bg && card.front.bg.type === 'color'; }
     function syncAdjustUI() {
+      syncFrameUI();
       const img = isImageBg(), sol = isSolidBg();
       $('photoAdjust').hidden = !img; $('solidAdjust').hidden = !sol; $('photoOff').hidden = img || sol;
       if (sol) {
@@ -975,7 +1064,6 @@
       $('outBright').textContent = Math.round((b.brightness || 1) * 100) + '%';
       $('adjBlur').value = b.blur || 0; $('outBlur').textContent = b.blur || 0;
       document.querySelectorAll('#tintChips .tint').forEach((el) => el.setAttribute('aria-pressed', (el.dataset.tint || '') === (b.tint || '') ? 'true' : 'false'));
-      pressOnly($('filterChips'), 'filter', b.filter || 'none');
     }
     // 단색: 색 고르기 · 밝기 · 부드러운 그라데이션
     (function buildSolidChips() {
@@ -997,10 +1085,6 @@
     });
     [['adjZoom', 'zoom'], ['adjX', 'x'], ['adjY', 'y'], ['adjBright', 'brightness'], ['adjBlur', 'blur']].forEach(([id, key]) => {
       $(id).addEventListener('input', (e) => { if (!isImageBg()) return; card.front.bg[key] = Number(e.target.value); liveAdjust(); });
-    });
-    $('filterChips').addEventListener('click', (e) => {
-      const b = e.target.closest('.chip'); if (!b || !isImageBg()) return;
-      card.front.bg.filter = b.dataset.filter; syncAdjustUI(); render();
     });
     // 사진 탭이 열려 있는 동안 뷰어는 스와이프 대신 이동(pan)·확대(pinch)를 보내온다
     let photoMode = false;
@@ -1149,11 +1233,18 @@
           const zoom = (bg.zoom || 1) * (1 + (bg.blur || 0) * 0.012), px = (bg.x == null ? 50 : bg.x) / 100, py = (bg.y == null ? 50 : bg.y) / 100;
           const s = Math.max(W / img.width, H / img.height) * zoom;
           const w = img.width * s, h = img.height * s;
-          if ('filter' in ctx && window.TCCore) { const f = TCCore.frontImageStyle(bg).filter; if (f && f !== 'none') ctx.filter = f; }
+          if ('filter' in ctx && window.TCCore) { const f = TCCore.frontImageStyle(bg, c.front.look).filter; if (f && f !== 'none') ctx.filter = f; }
           ctx.drawImage(img, (W - w) * px, (H - h) * py, w, h);
           ctx.filter = 'none';
           const tint = window.TCCore ? TCCore.frontImageStyle(bg).tint : '';
           if (tint) { ctx.globalCompositeOperation = 'color'; ctx.globalAlpha = 0.9; ctx.fillStyle = tint; ctx.fillRect(0, 0, W, H); ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1; }
+          // 룩의 비네팅 (배경화면에는 틀·마감 없이 사진 + 룩만 담는다)
+          const lk = c.front.look;
+          if (lk && lk !== 'clean') {
+            const g = ctx.createRadialGradient(W / 2, H * 0.4, H * 0.28, W / 2, H * 0.4, H * 0.78);
+            g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, lk === 'film' ? 'rgba(40,20,0,0.4)' : 'rgba(0,0,0,0.5)');
+            ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+          }
           drawText();
         };
         img.onerror = () => { ctx.fillStyle = '#101018'; ctx.fillRect(0, 0, W, H); drawText(); };
@@ -1191,11 +1282,12 @@
       const knownPlate = CURATED_BG.find((b) => b.type === 'image' && b.src === card.front.bg.src);
       currentBgId = card.front.bg.type === 'color' ? 'solid' : (knownPlate ? knownPlate.id : 'upload');
       if (currentBgId === 'solid') solidMemory = card.front.bg;
+      card.front = Object.assign({ frame: 'full', frameTone: 'dark', look: 'clean' }, card.front);
       setBackLayout(c.backLayout); setExtraLinks(c.links);
       pressOnly($('textChips'), 'layout', card.front.text.layout); setLogo(card.front.text.showLogo);
       pressOnly($('finishChips'), 'finish', card.front.finish); $('qrSwitch').setAttribute('aria-checked', card.front.qr === 'subtle' ? 'true' : 'false');
       if (currentBgId === 'upload') { uploadedPhoto = card.front.bg.src; photoBg = card.front.bg; }
-      designIdx = Math.max(0, designs().findIndex((d) => d.key === (currentBgId === 'upload' ? 'photo' : currentBgId)));
+      designIdx = Math.max(0, designs().findIndex((d) => d.key === (currentBgId === 'upload' ? 'frame:' + card.front.frame : currentBgId)));
       renderBgGrid(); renderThemeChips(); renderStartChips(); renderCarousel(); syncAdjustUI(); render();
     }
 

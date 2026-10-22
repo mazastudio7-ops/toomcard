@@ -738,8 +738,12 @@ function normalizeFront(data) {
   return {
     bg: bg,
     text: text,
-    finish: f.finish || 'metal',
-    qr: f.qr || 'off'
+    finish: ['metal', 'glass', 'matte', 'studio', 'holo'].includes(f.finish) ? f.finish : 'metal',
+    qr: f.qr || 'off',
+    // 틀은 사진이 있을 때만. 단색 배경은 항상 풀 블리드
+    frame: (bg.type === 'image' && ['rim', 'matte', 'arch', 'round'].includes(f.frame)) ? f.frame : 'full',
+    frameTone: f.frameTone === 'light' ? 'light' : 'dark',
+    look: ['studio', 'editorial', 'film'].includes(f.look) ? f.look : 'clean'
   };
 }
 
@@ -766,6 +770,27 @@ function detectTone(img, cb) {
   }
 }
 
+function setClassGroup(el, prefix, list, value) {
+  list.forEach((v) => el.classList.remove(prefix + v));
+  el.classList.add(prefix + value);
+}
+
+// 사진 크기·위치·보정(룩 포함)을 사진 레이어와 가장자리 흐림 레이어에 함께 적용
+function applyPhotoStyle(bg, look) {
+  const img = document.getElementById('plateArtworkImg');
+  const soft = document.getElementById('plateSoftImg');
+  if (!img || !window.TCCore) return;
+  const st = TCCore.frontImageStyle(bg, look);
+  [[img, st.filter], [soft, st.softFilter]].forEach(([el, filter]) => {
+    if (!el) return;
+    el.style.setProperty('object-position', st.objectPosition, 'important');
+    el.style.setProperty('transform', st.transform);
+    el.style.setProperty('transform-origin', st.transformOrigin);
+    el.style.setProperty('filter', filter, 'important');
+  });
+  applyTint(st.tint);
+}
+
 function applyTint(color) {
   const el = document.getElementById('plateTint');
   if (!el) return;
@@ -780,6 +805,12 @@ function renderFrontLayers(data) {
   const subtleQr = document.getElementById('plateSubtleQr');
   if (!container) return;
   const front = normalizeFront(data);
+  const soft = document.getElementById('plateSoftImg');
+  window.__look = front.look;
+  setClassGroup(container, 'frame-', ['full', 'rim', 'matte', 'arch', 'round'], front.frame);
+  setClassGroup(container, 'fb-', ['dark', 'light'], front.frameTone);
+  setClassGroup(container, 'look-', ['clean', 'studio', 'editorial', 'film'], front.look);
+  const bandFrame = ['matte', 'arch', 'round'].includes(front.frame);
 
   // 배경
   if (front.bg.type === 'image') {
@@ -787,19 +818,18 @@ function renderFrontLayers(data) {
     if (plateImg) {
       plateImg.hidden = false;
       if (plateImg.src !== new URL(src, location.href).href) plateImg.src = src;
-      // 사진 조정: 크기(zoom) · 위치(x, y) · 필터 · 밝기
-      if (window.TCCore && TCCore.frontImageStyle) {
-        const st = TCCore.frontImageStyle(front.bg);
-        plateImg.style.setProperty('object-position', st.objectPosition, 'important');
-        plateImg.style.setProperty('transform', st.transform);
-        plateImg.style.setProperty('transform-origin', st.transformOrigin);
-        plateImg.style.setProperty('filter', st.filter, 'important');
-        applyTint(st.tint);
+      // 사진 조정: 크기(zoom) · 위치(x, y) · 룩 · 필터 · 밝기 · 흐림 · 색 입히기
+      applyPhotoStyle(front.bg, front.look);
+      // 사진관 룩: 가장자리만 흐린 두 번째 레이어 (인물 배경이 부드럽게 날아간 느낌)
+      if (soft) {
+        soft.hidden = front.look !== 'studio';
+        if (!soft.hidden && soft.src !== plateImg.src) soft.src = plateImg.src;
       }
     }
     container.style.background = '';
   } else {
     if (plateImg) plateImg.hidden = true;
+    if (soft) soft.hidden = true;
     applyTint('');
     container.style.background = bgCss(front.bg);
   }
@@ -815,7 +845,7 @@ function renderFrontLayers(data) {
       overlay.hidden = true;
     } else {
       overlay.hidden = false;
-      overlay.className = `plate-text-overlay pos-${layout}`;
+      overlay.className = `plate-text-overlay ${bandFrame ? 'pos-band' : 'pos-' + layout}`;
       const el = (id) => document.getElementById(id);
       if (el('ptName')) el('ptName').innerText = data.name || '';
       if (el('ptRole')) el('ptRole').innerText = data.role || '';
@@ -827,7 +857,9 @@ function renderFrontLayers(data) {
         if (logoSrc) logo.src = logoSrc;
       }
       const applyTone = (tone) => { overlay.classList.remove('tone-light', 'tone-dark'); overlay.classList.add(`tone-${tone}`); };
-      if (front.text.tone && front.text.tone !== 'auto') {
+      if (bandFrame) {
+        applyTone(front.frameTone === 'light' ? 'dark' : 'light');   // 사진 밑 띠는 틀 배경색 기준
+      } else if (front.text.tone && front.text.tone !== 'auto') {
         applyTone(front.text.tone);
       } else if (front.bg.type === 'image' && plateImg) {
         applyTone('light');
@@ -892,15 +924,7 @@ window.addEventListener('message', (event) => {
   }
   if (action === 'adjust' && event.data.bg) {
     // 메이커에서 사진을 끌거나 벌리는 동안: 전체를 다시 그리지 않고 사진 스타일만 바꾼다
-    const img = document.getElementById('plateArtworkImg');
-    if (img && window.TCCore) {
-      const st = TCCore.frontImageStyle(event.data.bg);
-      img.style.setProperty('object-position', st.objectPosition, 'important');
-      img.style.setProperty('transform', st.transform);
-      img.style.setProperty('transform-origin', st.transformOrigin);
-      img.style.setProperty('filter', st.filter, 'important');
-      applyTint(st.tint);
-    }
+    applyPhotoStyle(event.data.bg, window.__look);
     return;
   }
   if (action === 'render' && event.data.card) {
