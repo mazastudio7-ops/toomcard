@@ -384,30 +384,6 @@
       filter: contrast(1.03) brightness(1.02);
     }
 
-    .plate-specular-sheen {
-      position: absolute;
-      top: -60%;
-      left: -60%;
-      width: 220%;
-      height: 220%;
-      background: linear-gradient(115deg, 
-        transparent 36%, 
-        rgba(255, 255, 255, 0.04) 44%, 
-        rgba(255, 255, 255, 0.22) 50%, 
-        rgba(255, 217, 120, 0.18) 53%, 
-        rgba(255, 255, 255, 0.06) 56%, 
-        transparent 64%);
-      pointer-events: none;
-      z-index: 3;
-      transform: rotate(-15deg);
-      animation: plateHoloSweep 6.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-      opacity: 0.85;
-    }
-
-    @keyframes plateHoloSweep {
-      0% { transform: translateY(-110%) rotate(-15deg); }
-      28%, 100% { transform: translateY(130%) rotate(-15deg); }
-    }
 
     .plate-flip-pill {
       position: absolute;
@@ -1278,7 +1254,6 @@
     .plate-text-overlay[hidden] { display: none; }
     .plate-artwork-img[hidden] { display: none !important; }
     /* 메이커 미리보기: 반짝임·맥박·레이저 같은 무한 애니메이션과 배경 흐림을 끈다 (폰 버벅임 원인) */
-    .maker-embed .plate-specular-sheen { display: none; }   /* 멈춘 채로는 가운데 뿌연 띠로 보여 화질이 떨어져 보인다 — 움직이는 실제 카드에서만 쓴다 */
     .maker-embed *, .maker-embed *::before, .maker-embed *::after { animation: none !important; }
     .maker-embed * { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
     .maker-embed .container { opacity: 1 !important; transition: none !important; }
@@ -1339,20 +1314,16 @@
       mix-blend-mode: overlay;
       box-shadow: inset 0 0 0 1px rgba(255,255,255,0.22), inset 0 1px 0 rgba(255,255,255,0.42), inset 0 -22px 34px rgba(0,0,0,0.26);
     }
-    .plate-finish-glass .plate-specular-sheen { display: none; }
     .plate-finish-glass .plate-fx {
       background: linear-gradient(118deg, rgba(255,255,255,0) 16%, rgba(255,255,255,0.28) 29%, rgba(255,255,255,0) 43%), linear-gradient(180deg, rgba(255,255,255,0.24), rgba(255,255,255,0) 26%);
       box-shadow: inset 0 0 0 1.5px rgba(255,255,255,0.42), inset 0 0 0 7px rgba(255,255,255,0.06), inset 0 0 28px rgba(255,255,255,0.2);
     }
-    .plate-finish-matte .plate-specular-sheen { display: none; }
     .plate-finish-matte .plate-fx { background-image: var(--tc-noise); background-size: 160px; mix-blend-mode: multiply; opacity: 0.2; }
     .plate-finish-matte .plate-artwork-img { filter: saturate(0.92) contrast(0.98); }
-    .plate-finish-studio .plate-specular-sheen { display: none; }
     .plate-finish-studio .plate-fx {
       background: radial-gradient(90% 55% at 50% -6%, rgba(255,247,232,0.55), transparent 70%), radial-gradient(120% 70% at 50% 122%, rgba(0,0,0,0.5), transparent 62%);
       mix-blend-mode: soft-light;
     }
-    .plate-finish-holo .plate-specular-sheen { display: none; }
     .plate-finish-holo .plate-fx {
       background: linear-gradient(115deg, rgba(255,61,154,0) 8%, rgba(255,61,154,0.55) 26%, rgba(61,214,255,0.55) 42%, rgba(255,232,61,0.45) 56%, rgba(138,92,255,0.55) 70%, rgba(255,61,154,0) 90%);
       background-size: 260% 100%; background-position: 20% 0; mix-blend-mode: color-dodge; opacity: 0.55;
@@ -1756,7 +1727,6 @@
             </div>
             <!-- 마감(finish) 질감·반사 -->
             <div class="plate-fx" id="plateFx"></div>
-            <div class="plate-specular-sheen"></div>
 
             <!-- 앞면 레이어: 글자·로고 오버레이 (front.text) -->
             <div class="plate-text-overlay" id="plateTextOverlay" hidden>
