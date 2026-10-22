@@ -1370,6 +1370,50 @@
     .plate-subtle-qr:hover { opacity: 0.6; }
     .plate-subtle-qr canvas, .plate-subtle-qr img { width: 100% !important; height: 100% !important; display: block; }
 
+    /* ── 로고 엠블럼: 자동 3D 메탈 (재질 4 · 모양 3 · 움직임 4) ───────────────
+       모양(마스크)은 글자나 로고에서 만들고, 금속 그라데이션·베벨·빛은 전부 CSS */
+    .back-top-logo { position: relative; }
+    .back-emblem-host { position: absolute; inset: 0; }
+    .back-emblem-host[hidden], .pt-emblem[hidden] { display: none; }
+    .card-scene.has-emblem .back-flipper-face { background: none !important; border-color: transparent !important; box-shadow: none !important; padding: 0 !important; }
+    .pt-emblem { width: 56px; height: 56px; margin-bottom: 10px; flex-shrink: 0; }
+    .emblem {
+      position: relative; width: 100%; height: 100%;
+      --m1: #fff6cf; --m2: #f1cf6b; --m3: #b5832a; --m4: #ffe9a3; --m5: #6e4a12;
+      --plate-in: radial-gradient(circle at 35% 30%, #2d2616 0%, #0c0a06 100%);
+    }
+    .emblem.mat-silver { --m1: #ffffff; --m2: #d9dde4; --m3: #8c93a0; --m4: #f2f4f8; --m5: #565c68; --plate-in: radial-gradient(circle at 35% 30%, #2d3139 0%, #0a0b0f 100%); }
+    .emblem.mat-chrome { --m1: #9aa0ad; --m2: #2b2e37; --m3: #08090c; --m4: #7a8090; --m5: #14161b; --plate-in: radial-gradient(circle at 35% 30%, #1d1f26 0%, #040405 100%); }
+    .emblem.mat-rose { --m1: #ffe6de; --m2: #e8a798; --m3: #a8574a; --m4: #ffd3c6; --m5: #6b3128; --plate-in: radial-gradient(circle at 35% 30%, #2e1e1b 0%, #0d0807 100%); }
+    .em-plate { position: absolute; inset: 0; background: linear-gradient(135deg, var(--m1) 0%, var(--m2) 20%, var(--m3) 42%, var(--m4) 56%, var(--m5) 78%, var(--m2) 100%); box-shadow: 0 8px 18px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.7), inset 0 -2px 3px rgba(0,0,0,0.4); }
+    .em-coin .em-plate { border-radius: 50%; background: conic-gradient(from 215deg, var(--m1), var(--m2), var(--m3), var(--m4), var(--m5), var(--m2), var(--m1)); }
+    .em-tile .em-plate { border-radius: 22%; }
+    .em-plate::after { content: ''; position: absolute; inset: 7%; border-radius: inherit; background: var(--plate-in); box-shadow: inset 0 3px 9px rgba(0,0,0,0.85), 0 1px 0 rgba(255,255,255,0.28); }
+    .em-tile .em-plate::after { inset: 6%; border-radius: 17%; }
+    .em-engrave .em-plate { display: none; }
+    .em-art { position: absolute; inset: 24%; filter: drop-shadow(-0.5px -0.7px 0 rgba(255,255,255,0.7)) drop-shadow(0.7px 1.1px 0 rgba(0,0,0,0.7)) drop-shadow(0 3px 5px rgba(0,0,0,0.55)); }
+    .em-engrave .em-art { inset: 6%; filter: drop-shadow(0 1px 0 rgba(255,255,255,0.4)) drop-shadow(0 -1px 0 rgba(0,0,0,0.6)) brightness(0.86); }
+    .em-shape { position: absolute; inset: 0; -webkit-mask: var(--em-mask) center / contain no-repeat; mask: var(--em-mask) center / contain no-repeat; }
+    .em-metal { position: absolute; inset: 0; background: linear-gradient(135deg, var(--m1) 0%, var(--m2) 18%, var(--m3) 40%, var(--m4) 54%, var(--m5) 76%, var(--m2) 100%); }
+    .em-metal::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(255,255,255,0.42), rgba(255,255,255,0) 42%, rgba(0,0,0,0.36)); mix-blend-mode: overlay; }
+    .em-detail { position: absolute; inset: 0; background-position: center; background-size: contain; background-repeat: no-repeat; filter: grayscale(1) contrast(1.35); mix-blend-mode: soft-light; opacity: 0.75; }
+    .em-shine { position: absolute; inset: 0; background: linear-gradient(105deg, transparent 38%, rgba(255,255,255,0.95) 50%, transparent 62%); background-size: 260% 100%; background-position: 55% 0; mix-blend-mode: screen; opacity: 0.8; }
+    .mo-sweep .em-shine { animation: emSweep 3.6s ease-in-out infinite; }
+    .mo-none .em-shine, .mo-float .em-shine { opacity: 0.45; }
+    .mo-sparkle .em-shine { opacity: 0.35; }
+    @keyframes emSweep { 0% { background-position: 130% 0; } 55%, 100% { background-position: -30% 0; } }
+    .mo-float { animation: emFloat 5.5s ease-in-out infinite; }
+    @keyframes emFloat {
+      0%, 100% { transform: perspective(520px) rotateX(9deg) rotateY(-12deg) translateY(0); }
+      50% { transform: perspective(520px) rotateX(-7deg) rotateY(12deg) translateY(-3%); }
+    }
+    .em-sp { position: absolute; width: 15%; aspect-ratio: 1; background: #fff; clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%); filter: drop-shadow(0 0 3px rgba(255,255,255,0.9)); opacity: 0.9; animation: emTwinkle 2.4s ease-in-out infinite; pointer-events: none; }
+    .em-sp.s1 { top: 14%; left: 68%; }
+    .em-sp.s2 { top: 66%; left: 16%; animation-delay: 0.8s; width: 11%; }
+    .em-sp.s3 { top: 32%; left: 8%; animation-delay: 1.5s; width: 9%; }
+    @keyframes emTwinkle { 0%, 100% { transform: scale(0.2); opacity: 0; } 50% { transform: scale(1); opacity: 1; } }
+    .maker-embed .em-sp { transform: scale(0.8); opacity: 0.85; }
+
     /* 더보기 시트의 나머지 링크 */
     .more-links { width: 100%; margin-top: 14px; }
     .more-links[hidden] { display: none; }
@@ -1716,6 +1760,7 @@
             <!-- 앞면 레이어: 글자·로고 오버레이 (front.text) -->
             <div class="plate-text-overlay" id="plateTextOverlay" hidden>
               <img class="pt-logo" id="ptLogo" alt="" hidden>
+              <div class="pt-emblem" id="ptEmblem" hidden></div>
               <div class="pt-company" id="ptCompany"></div>
               <div class="pt-name" id="ptName"></div>
               <div class="pt-role" id="ptRole"></div>
@@ -1803,6 +1848,7 @@
                 <div class="back-flipper" id="backFlipper">
                   <div class="back-flipper-face back-flipper-logo" id="backFlipperLogoFace">
                     <div class="back-top-logo">
+                      <div class="back-emblem-host" id="backEmblem" hidden></div>
                       <img id="backLogoImg" src="/assets/logo_toomcard_hd.webp" alt="Logo" onerror="this.onerror=null; this.src='/assets/logo_toomcard.gif';">
                     </div>
                   </div>

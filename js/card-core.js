@@ -171,7 +171,16 @@
     };
   }
 
+  // 엠블럼 글자: 영문은 이니셜 2자, 한글·한자는 첫 글자 (뷰어와 메이커가 같이 쓴다)
+  function emblemAutoText(s) {
+    s = String(s || '').trim();
+    if (!s) return 'T';
+    if (/[A-Za-z]/.test(s)) return s.split(/[\s\-_.]+/).filter(Boolean).slice(0, 2).map(function (w) { return w[0]; }).join('').toUpperCase();
+    return Array.from(s)[0];
+  }
+
   var core = {
+    emblemAutoText: emblemAutoText,
     solidBg: solidBg,
     LOOK_FILTERS: LOOK_FILTERS,
     FRONT_FILTERS: FRONT_FILTERS,

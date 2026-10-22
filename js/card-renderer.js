@@ -502,6 +502,7 @@ function populateCard(data) {
   applyBackLayout(data);
   renderActionDocks(data);
   renderActionBar(data);
+  renderEmblems(data);
 
   // 소셜 모달 바인딩
   renderSocialModal(data);
@@ -769,6 +770,74 @@ function detectTone(img, cb) {
     cb('light');
   }
 }
+
+/* ---------- 로고 엠블럼 ---------- */
+const EMBLEM_OPTS = { material: ['gold', 'silver', 'chrome', 'rose'], shape: ['coin', 'tile', 'engrave'], motion: ['sweep', 'sparkle', 'float', 'none'] };
+const emblemMaskCache = {};
+
+// 이름·회사에서 엠블럼 글자를 뽑는다 (규칙은 card-core.js에 있다)
+function emblemAutoText(s) {
+  return (window.TCCore && TCCore.emblemAutoText) ? TCCore.emblemAutoText(s) : (Array.from(String(s || 'T').trim())[0] || 'T').toUpperCase();
+}
+
+function normalizeEmblem(data) {
+  const e = data.emblem;
+  if (!e || e.on === false) return null;   // 예전 카드(엠블럼 없음)는 기존 로고 그대로
+  const pick = (k, d) => (EMBLEM_OPTS[k].includes(e[k]) ? e[k] : d);
+  const source = (e.source === 'logo' && e.img) ? 'logo' : 'initials';
+  const base = data.kind === 'business' ? (data.company || data.name) : (data.name || data.company);
+  const text = Array.from((e.text || '').trim()).slice(0, 3).join('') || emblemAutoText(base);
+  return { source, text, img: e.img || '', material: pick('material', 'gold'), shape: pick('shape', 'coin'), motion: pick('motion', 'sweep') };
+}
+
+// 글자 → 마스크 PNG (불투명 흰 글자). 페이지에 로드된 웹폰트로 캔버스에 그린다
+function emblemTextMask(text) {
+  const key = text + '|' + (document.fonts ? document.fonts.status : '');
+  if (emblemMaskCache[key]) return emblemMaskCache[key];
+  const N = 256, cv = document.createElement('canvas');
+  cv.width = cv.height = N;
+  const ctx = cv.getContext('2d');
+  const n = Array.from(text).length;
+  let size = n === 1 ? 190 : (n === 2 ? 142 : 104);
+  const family = "Montserrat, Pretendard, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif";
+  ctx.fillStyle = '#fff'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.font = `900 ${size}px ${family}`;
+  const w = ctx.measureText(text).width;
+  if (w > 226) { size = Math.floor(size * 226 / w); ctx.font = `900 ${size}px ${family}`; }
+  ctx.fillText(text, N / 2, N / 2 + size * 0.05);
+  return (emblemMaskCache[key] = cv.toDataURL('image/png'));
+}
+
+function mountEmblem(host, em) {
+  const key = [em.source, em.text, em.img.length, em.material, em.shape, em.motion, document.fonts ? document.fonts.status : ''].join('|');
+  if (host.dataset.key === key && host.firstChild) return;
+  host.dataset.key = key;
+  const mask = em.source === 'logo' ? em.img : emblemTextMask(em.text);
+  const detail = em.source === 'logo' ? em.img : '';
+  host.innerHTML = `<div class="emblem em-${em.shape} mat-${em.material} mo-${em.motion}" style="--em-mask:url('${mask}')">
+    <div class="em-plate"></div>
+    <div class="em-art"><div class="em-shape"><div class="em-metal"></div>${detail ? `<div class="em-detail" style="background-image:url('${detail}')"></div>` : ''}<div class="em-shine"></div></div></div>
+    ${em.motion === 'sparkle' ? '<i class="em-sp s1"></i><i class="em-sp s2"></i><i class="em-sp s3"></i>' : ''}
+  </div>`;
+}
+
+function renderEmblems(data) {
+  const em = normalizeEmblem(data);
+  const scene = document.getElementById('cardScene');
+  if (scene) scene.classList.toggle('has-emblem', !!em);
+  const backHost = document.getElementById('backEmblem');
+  const backImg = document.getElementById('backLogoImg');
+  if (backHost) { backHost.hidden = !em; if (em) mountEmblem(backHost, em); else { backHost.innerHTML = ''; backHost.dataset.key = ''; } }
+  if (backImg) backImg.style.visibility = em ? 'hidden' : '';
+  // 앞면 글자 옆 로고도 엠블럼으로 (앞면에 로고 표시를 켠 경우)
+  const ptHost = document.getElementById('ptEmblem');
+  const ptLogo = document.getElementById('ptLogo');
+  const showFront = !!em && !!(data.front && data.front.text && data.front.text.showLogo);
+  if (ptHost) { ptHost.hidden = !showFront; if (showFront) mountEmblem(ptHost, em); }
+  if (ptLogo && showFront) ptLogo.hidden = true;
+}
+// 웹폰트가 늦게 도착하면 엠블럼 글자를 다시 그린다
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (typeof cardData !== 'undefined' && cardData) renderEmblems(cardData); });
 
 function setClassGroup(el, prefix, list, value) {
   list.forEach((v) => el.classList.remove(prefix + v));

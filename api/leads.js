@@ -55,6 +55,7 @@ module.exports = async (req, res) => {
         lead_type, 
         pod_id,
         gift_title,
+        memo,
         source 
       } = req.body || {};
 
@@ -84,6 +85,7 @@ module.exports = async (req, res) => {
           lead_type: lead_type || 'general',
           pod_id: pod_id || 'planner',
           gift_title: gift_title || null,
+          memo: typeof memo === 'string' ? memo.slice(0, 2000) : null,
           raw_contact: contact || null,
           collected_at: timestamp
         },
