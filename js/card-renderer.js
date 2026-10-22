@@ -851,7 +851,7 @@ function normalizeEmblem(data) {
   const source = (e.source === 'logo' && e.img) ? 'logo' : 'initials';
   const base = data.kind === 'business' ? (data.company || data.name) : (data.name || data.company);
   const text = Array.from((e.text || '').trim()).slice(0, 3).join('') || emblemAutoText(base);
-  return { source, text, img: e.img || '', material: pick('material', 'gold'), shape: pick('shape', 'coin'), motion: pick('motion', 'gold') };
+  return { source, text, img: e.img || '', material: pick('material', 'gold'), shape: pick('shape', 'coin'), motion: pick('motion', 'sweep') };
 }
 
 // 글자 → 마스크 PNG (불투명 흰 글자). 페이지에 로드된 웹폰트로 캔버스에 그린다
