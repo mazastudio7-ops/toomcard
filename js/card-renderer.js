@@ -723,6 +723,13 @@ function detectTone(img, cb) {
   }
 }
 
+function applyTint(color) {
+  const el = document.getElementById('plateTint');
+  if (!el) return;
+  el.hidden = !color;
+  el.style.background = color || '';
+}
+
 function renderFrontLayers(data) {
   const container = document.getElementById('plateArtworkContainer');
   const plateImg = document.getElementById('plateArtworkImg');
@@ -744,11 +751,13 @@ function renderFrontLayers(data) {
         plateImg.style.setProperty('transform', st.transform);
         plateImg.style.setProperty('transform-origin', st.transformOrigin);
         plateImg.style.setProperty('filter', st.filter, 'important');
+        applyTint(st.tint);
       }
     }
     container.style.background = '';
   } else {
     if (plateImg) plateImg.hidden = true;
+    applyTint('');
     container.style.background = bgCss(front.bg);
   }
 
@@ -831,6 +840,7 @@ window.addEventListener('message', (event) => {
       img.style.setProperty('transform', st.transform);
       img.style.setProperty('transform-origin', st.transformOrigin);
       img.style.setProperty('filter', st.filter, 'important');
+      applyTint(st.tint);
     }
     return;
   }

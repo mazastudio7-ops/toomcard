@@ -1268,6 +1268,8 @@
     }
     .plate-text-overlay[hidden] { display: none; }
     .plate-artwork-img[hidden] { display: none !important; }
+    .plate-tint { position: absolute; inset: 0; z-index: 1; pointer-events: none; mix-blend-mode: color; opacity: 0.9; border-radius: inherit; }
+    .plate-tint[hidden] { display: none; }
     .plate-text-overlay.pos-top-left { justify-content: flex-start; }
     .plate-text-overlay.pos-center { justify-content: center; align-items: center; text-align: center; }
     .plate-text-overlay.pos-bottom-center { align-items: center; text-align: center; }
@@ -1599,6 +1601,8 @@
           <!-- Pure Physical Card Plate Artwork (Layout Plate) -->
           <div class="plate-artwork-container" id="plateArtworkContainer" title="카드를 탭하면 뒤집힙니다">
             <img id="plateArtworkImg" src="/assets/toomcard_front_plate.jpg" alt="Metal Card Plate" class="plate-artwork-img" onerror="this.onerror=null; this.src='/assets/toomcard_front_plate.png';">
+            <!-- 색 입히기(front.bg.tint): 사진 밝기는 두고 색만 바꾼다 -->
+            <div class="plate-tint" id="plateTint" hidden></div>
             <div class="plate-specular-sheen"></div>
 
             <!-- 앞면 레이어: 글자·로고 오버레이 (front.text) -->

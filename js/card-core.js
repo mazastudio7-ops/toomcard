@@ -87,17 +87,21 @@
     dim:   'brightness(0.72) contrast(1.05)'
   };
 
-  // bg = { zoom: 1~2.5, x: 0~100, y: 0~100, filter: key, brightness: 0.6~1.4 }
+  // bg = { zoom: 1~2.5, x: 0~100, y: 0~100, filter: key, brightness: 0.6~1.4, blur: 0~12, tint: '#hex' | '' }
   function frontImageStyle(bg) {
     bg = bg || {};
-    var zoom = Math.min(3, Math.max(1, Number(bg.zoom) || 1));
+    var blur = Math.min(16, Math.max(0, Number(bg.blur) || 0));
+    // 흐리게 하면 가장자리가 비치므로 그만큼 살짝 더 키운다
+    var zoom = Math.min(3, Math.max(1, Number(bg.zoom) || 1)) * (1 + blur * 0.012);
     var x = bg.x == null ? 50 : Number(bg.x);
     var y = bg.y == null ? 50 : Number(bg.y);
     var parts = [];
     if (FRONT_FILTERS[bg.filter]) parts.push(FRONT_FILTERS[bg.filter]);
     var b = Number(bg.brightness);
     if (b && b !== 1) parts.push('brightness(' + b + ')');
+    if (blur) parts.push('blur(' + blur + 'px)');
     return {
+      tint: /^#[0-9a-f]{3,8}$/i.test(bg.tint || '') ? bg.tint : '',
       objectPosition: x + '% ' + y + '%',
       transform: zoom === 1 ? 'none' : 'scale(' + zoom + ')',
       transformOrigin: x + '% ' + y + '%',

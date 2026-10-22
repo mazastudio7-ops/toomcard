@@ -202,6 +202,10 @@
     .photo-off { font-size: 12px; color: var(--tc-text-subtle); }
     #photoAdjust[hidden] { display: none; }
     .filter-chips .chip { padding: 6px 10px; font-size: 11.5px; }
+    .tint-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .tint { width: 30px; height: 30px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.15); cursor: pointer; padding: 0; }
+    .tint.none { background: transparent; color: var(--tc-text-subtle); font: 700 14px var(--tc-font-body); }
+    .tint[aria-pressed="true"] { border-color: #fff; box-shadow: 0 0 0 2px var(--tc-accent); }
     .link-reset { align-self: flex-start; background: none; border: none; color: var(--tc-text-subtle); font: 700 11.5px var(--tc-font-body); cursor: pointer; text-decoration: underline; }
 
     .tabbar, .sheet-head { display: none; }
@@ -345,6 +349,20 @@
           <div class="slider-row"><span data-i18n="maker.adj_x">좌우</span><input type="range" id="adjX" min="0" max="100" step="1" value="50"><output id="outX">50</output></div>
           <div class="slider-row"><span data-i18n="maker.adj_y">상하</span><input type="range" id="adjY" min="0" max="100" step="1" value="50"><output id="outY">50</output></div>
           <div class="slider-row"><span data-i18n="maker.adj_bright">밝기</span><input type="range" id="adjBright" min="0.6" max="1.4" step="0.01" value="1"><output id="outBright">100%</output></div>
+          <div class="slider-row"><span data-i18n="maker.adj_blur">흐림</span><input type="range" id="adjBlur" min="0" max="12" step="0.5" value="0"><output id="outBlur">0</output></div>
+          <div class="field">
+            <label data-i18n="maker.tint">색 입히기</label>
+            <div class="tint-row" id="tintChips">
+              <button class="tint none" data-tint="" aria-pressed="true" title="none">×</button>
+              <button class="tint" data-tint="#e9c46a" style="background:#e9c46a"></button>
+              <button class="tint" data-tint="#d4a373" style="background:#d4a373"></button>
+              <button class="tint" data-tint="#e76f8e" style="background:#e76f8e"></button>
+              <button class="tint" data-tint="#9b5de5" style="background:#9b5de5"></button>
+              <button class="tint" data-tint="#3a86ff" style="background:#3a86ff"></button>
+              <button class="tint" data-tint="#2a9d8f" style="background:#2a9d8f"></button>
+              <button class="tint" data-tint="#8d99ae" style="background:#8d99ae"></button>
+            </div>
+          </div>
           <div class="chips filter-chips" id="filterChips">
             <button class="chip" data-filter="none" aria-pressed="true" data-i18n="maker.f_none">원본</button>
             <button class="chip" data-filter="vivid" data-i18n="maker.f_vivid">선명</button>
@@ -591,7 +609,7 @@
         const layout = bg.type === 'image' ? 'none' : 'bottom-left';
         card.front.text.layout = layout; pressOnly($('textChips'), 'layout', layout);
       }
-      card.front.bg = bg.type === 'image' ? { type: 'image', src: bg.src, zoom: 1, x: 50, y: 50, brightness: 1, filter: 'none' }
+      card.front.bg = bg.type === 'image' ? { type: 'image', src: bg.src, zoom: 1, x: 50, y: 50, brightness: 1, filter: 'none', blur: 0, tint: '' }
                     : bg.type === 'gradient' ? { type: 'gradient', from: bg.from, to: bg.to, angle: bg.angle }
                     : { type: 'color', color: bg.color };
       renderBgGrid(); syncAdjustUI(); render();
@@ -788,9 +806,15 @@
       $('outZoom').textContent = Math.round((b.zoom || 1) * 100) + '%';
       $('outX').textContent = b.x == null ? 50 : b.x; $('outY').textContent = b.y == null ? 50 : b.y;
       $('outBright').textContent = Math.round((b.brightness || 1) * 100) + '%';
+      $('adjBlur').value = b.blur || 0; $('outBlur').textContent = b.blur || 0;
+      document.querySelectorAll('#tintChips .tint').forEach((el) => el.setAttribute('aria-pressed', (el.dataset.tint || '') === (b.tint || '') ? 'true' : 'false'));
       pressOnly($('filterChips'), 'filter', b.filter || 'none');
     }
-    [['adjZoom', 'zoom'], ['adjX', 'x'], ['adjY', 'y'], ['adjBright', 'brightness']].forEach(([id, key]) => {
+    $('tintChips').addEventListener('click', (e) => {
+      const b = e.target.closest('.tint'); if (!b || !isImageBg()) return;
+      card.front.bg.tint = b.dataset.tint || ''; liveAdjust();
+    });
+    [['adjZoom', 'zoom'], ['adjX', 'x'], ['adjY', 'y'], ['adjBright', 'brightness'], ['adjBlur', 'blur']].forEach(([id, key]) => {
       $(id).addEventListener('input', (e) => { if (!isImageBg()) return; card.front.bg[key] = Number(e.target.value); liveAdjust(); });
     });
     $('filterChips').addEventListener('click', (e) => {
@@ -824,7 +848,7 @@
     }
     function resetAdjust() {
       if (!isImageBg()) return;
-      Object.assign(card.front.bg, { zoom: 1, x: 50, y: 50, brightness: 1, filter: 'none' }); syncAdjustUI(); render();
+      Object.assign(card.front.bg, { zoom: 1, x: 50, y: 50, brightness: 1, filter: 'none', blur: 0, tint: '' }); liveAdjust(); render();
     }
 
     /* ── 하단 탭 + 시트 (폰) ─────────────────────────── */
@@ -915,12 +939,15 @@
       if (bg.type === 'image') {
         const img = new Image(); img.crossOrigin = 'anonymous';
         img.onload = () => {
-          const zoom = bg.zoom || 1, px = (bg.x == null ? 50 : bg.x) / 100, py = (bg.y == null ? 50 : bg.y) / 100;
+          const zoom = (bg.zoom || 1) * (1 + (bg.blur || 0) * 0.012), px = (bg.x == null ? 50 : bg.x) / 100, py = (bg.y == null ? 50 : bg.y) / 100;
           const s = Math.max(W / img.width, H / img.height) * zoom;
           const w = img.width * s, h = img.height * s;
           if ('filter' in ctx && window.TCCore) { const f = TCCore.frontImageStyle(bg).filter; if (f && f !== 'none') ctx.filter = f; }
           ctx.drawImage(img, (W - w) * px, (H - h) * py, w, h);
-          ctx.filter = 'none'; drawText();
+          ctx.filter = 'none';
+          const tint = window.TCCore ? TCCore.frontImageStyle(bg).tint : '';
+          if (tint) { ctx.globalCompositeOperation = 'color'; ctx.globalAlpha = 0.9; ctx.fillStyle = tint; ctx.fillRect(0, 0, W, H); ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1; }
+          drawText();
         };
         img.onerror = () => { ctx.fillStyle = '#101018'; ctx.fillRect(0, 0, W, H); drawText(); };
         img.src = bg.src;
