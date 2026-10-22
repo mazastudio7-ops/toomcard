@@ -621,7 +621,7 @@
       return c;
     }
 
-    let renderTimer = null, renderSeq = 0, renderedWaiters = [];
+    let renderTimer = null, renderSeq = 0, renderedSeq = 0, renderedWaiters = [];
     function render(immediate) {
       clearTimeout(renderTimer);
       const send = () => {
@@ -634,6 +634,15 @@
     // 뷰어가 다 그렸다는 신호를 기다린다 (너무 오래 걸리면 그냥 진행)
     function waitRendered(ms) {
       return new Promise((resolve) => { renderedWaiters.push(resolve); setTimeout(resolve, ms); });
+    }
+    // 특정 번호의 그리기가 끝날 때까지 기다린다 (그 전 그림이 잠깐 보이는 잔상 방지)
+    function waitRenderedSeq(seq, ms) {
+      return new Promise((resolve) => {
+        if (renderedSeq >= seq) return resolve();
+        const timer = setTimeout(resolve, ms);
+        const check = () => { if (renderedSeq >= seq) { clearTimeout(timer); resolve(); } else renderedWaiters.push(check); };
+        renderedWaiters.push(check);
+      });
     }
     function flip(action) { const f = $('preview'); if (f && f.contentWindow) f.contentWindow.postMessage({ action }, '*'); }
 
@@ -659,8 +668,15 @@
       else grid.querySelector('.upload').setAttribute('aria-pressed', 'false');
     }
     let textTouched = false;
+    let photoBg = null;   // 내 사진 배경 + 조정값. 다른 디자인을 보고 돌아와도 그대로 쓴다
     function setBg(bg, id) {
       currentBgId = id || bg.id;
+      if (currentBgId === 'upload' && photoBg && photoBg.src === bg.src) {
+        if (!textTouched) { card.front.text.layout = 'none'; pressOnly($('textChips'), 'layout', 'none'); }
+        card.front.bg = photoBg;
+        renderBgGrid(); syncAdjustUI(); render();
+        return;
+      }
       // 사진(브랜드 플레이트 포함)에는 글자를 자동으로 얹지 않는다. 단색·그라데이션만 이름을 기본으로 보여준다.
       if (!textTouched) {
         const layout = bg.type === 'image' ? 'none' : 'bottom-left';
@@ -669,6 +685,7 @@
       card.front.bg = bg.type === 'image' ? { type: 'image', src: bg.src, zoom: 1, x: 50, y: 50, brightness: 1, filter: 'none', blur: 0, tint: '' }
                     : bg.type === 'gradient' ? { type: 'gradient', from: bg.from, to: bg.to, angle: bg.angle }
                     : { type: 'color', color: bg.color };
+      if (currentBgId === 'upload') photoBg = card.front.bg;
       renderBgGrid(); syncAdjustUI(); render();
     }
     function readImage(file, maxW, cb) {
@@ -689,7 +706,7 @@
     $('bgFile').addEventListener('change', (e) => {
       const f = e.target.files[0]; if (!f) return;
       readImage(f, 1440, (dataUrl) => {
-        uploadedPhoto = dataUrl;
+        uploadedPhoto = dataUrl; photoBg = null;
         setBg({ type: 'image', src: dataUrl }, 'upload');
         designIdx = 0; renderCarousel();
         if (isMobile()) { currentTab = ''; openTab('photo'); }
@@ -815,10 +832,12 @@
       stack.classList.add('animating');
       [...stack.children].forEach((el) => placeThumb(el, Number(el.dataset.off) - dir * steps));
       await new Promise((r) => setTimeout(r, 340));
-      // 3) 줄을 새 위치 기준으로 다시 깔고, 그려진 카드를 위에 띄운다
+      // 3) 줄을 새 위치 기준으로 다시 깔고, 새 디자인이 다 그려진 뒤에 카드를 위에 띄운다
       stack.classList.remove('animating');
       renderCarousel();
-      await waitRendered(80);
+      await waitRenderedSeq(renderSeq, 700);
+      // 다음 프레임에 그림이 올라간 뒤 보여준다 (화면이 가려져 rAF가 멈춰도 50ms 뒤엔 진행)
+      await new Promise((r) => { requestAnimationFrame(() => requestAnimationFrame(r)); setTimeout(r, 50); });
       ifr.style.transform = ''; ifr.style.opacity = '1';
       setTimeout(() => { sliding = false; }, 120);
     }
@@ -1042,7 +1061,7 @@
       currentBgId = card.front.bg.type === 'image' && !CURATED_BG.some((b) => b.src === card.front.bg.src) ? 'upload' : (CURATED_BG.find((b) => b.src === card.front.bg.src || (b.type === card.front.bg.type && b.from === card.front.bg.from)) || {}).id || 'toomcard';
       pressOnly($('textChips'), 'layout', card.front.text.layout); setLogo(card.front.text.showLogo);
       pressOnly($('finishChips'), 'finish', card.front.finish); $('qrSwitch').setAttribute('aria-checked', card.front.qr === 'subtle' ? 'true' : 'false');
-      if (currentBgId === 'upload') { uploadedPhoto = card.front.bg.src; designIdx = 0; }
+      if (currentBgId === 'upload') { uploadedPhoto = card.front.bg.src; photoBg = card.front.bg; designIdx = 0; }
       renderBgGrid(); renderThemeChips(); renderCarousel(); syncAdjustUI(); render();
     }
 
@@ -1070,7 +1089,7 @@
       if (e.data && e.data.action === 'pinch') { onPinch(e.data.ratio); return; }
       if (e.data && e.data.action === 'drag') { onDrag(e.data.dx); return; }
       if (e.data && e.data.action === 'drag_end') { onDragEnd(); return; }
-      if (e.data && e.data.action === 'rendered') { const w = renderedWaiters; renderedWaiters = []; w.forEach((fn) => fn()); return; }
+      if (e.data && e.data.action === 'rendered') { renderedSeq = Math.max(renderedSeq, e.data.seq || 0); const w = renderedWaiters; renderedWaiters = []; w.forEach((fn) => fn()); return; }
       if (!e.data || e.data.action !== 'card_ready') return;
       renderCarousel();
       const params = new URLSearchParams(location.search);

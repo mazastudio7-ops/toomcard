@@ -403,7 +403,8 @@ function populateCard(data) {
 
   // Plate 레이아웃 전용 실물 카드 아트워크 바인딩 (Base Path 및 캐시 무효화 적용)
   const plateImg = document.getElementById('plateArtworkImg');
-  if (plateImg) {
+  // 앞면 레이어(front)가 있는 카드는 renderFrontLayers가 사진을 맡는다. 여기서는 예전 카드만.
+  if (plateImg && !data.front) {
     let rawPath = '/assets/toomcard_front_plate.jpg';
     if (data.plateCardImage) {
       rawPath = data.plateCardImage;
@@ -418,12 +419,9 @@ function populateCard(data) {
       this.onerror = null;
       this.src = './assets/toomcard_front_plate.jpg';
     };
-    if (rawPath.startsWith('data:') || rawPath.startsWith('blob:')) {
-      plateImg.src = rawPath;
-    } else {
-      const cacheBuster = '?v=3dmaster_' + Date.now().toString(36);
-      plateImg.src = resolveAssetUrl(rawPath) + cacheBuster;
-    }
+    // 같은 사진이면 다시 받지 않는다 (매번 새로 받으면 카드가 깜빡였다)
+    const next = (rawPath.startsWith('data:') || rawPath.startsWith('blob:')) ? rawPath : resolveAssetUrl(rawPath);
+    if (plateImg.src !== new URL(next, location.href).href) plateImg.src = next;
   }
 
   // 앞면 레이어 (배경 · 글자 · 마감 · 옅은 QR)
@@ -763,7 +761,7 @@ function renderFrontLayers(data) {
     const src = front.bg.src || '/assets/toomcard_front_plate.jpg';
     if (plateImg) {
       plateImg.hidden = false;
-      if (plateImg.getAttribute('src') !== src) plateImg.src = src;
+      if (plateImg.src !== new URL(src, location.href).href) plateImg.src = src;
       // 사진 조정: 크기(zoom) · 위치(x, y) · 필터 · 밝기
       if (window.TCCore && TCCore.frontImageStyle) {
         const st = TCCore.frontImageStyle(front.bg);
