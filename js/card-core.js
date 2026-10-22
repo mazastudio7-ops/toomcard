@@ -72,7 +72,38 @@
     });
   }
 
+  // 앞면 사진 필터 프리셋 (뷰어 렌더 · 메이커 배경화면 저장이 같은 값을 쓴다)
+  var FRONT_FILTERS = {
+    none:  '',
+    vivid: 'saturate(1.35) contrast(1.08)',
+    mono:  'grayscale(1) contrast(1.1)',
+    warm:  'sepia(0.28) saturate(1.2) hue-rotate(-8deg)',
+    cool:  'saturate(1.05) hue-rotate(12deg) brightness(1.02)',
+    film:  'sepia(0.35) contrast(0.92) brightness(1.05) saturate(0.85)',
+    dim:   'brightness(0.72) contrast(1.05)'
+  };
+
+  // bg = { zoom: 1~2.5, x: 0~100, y: 0~100, filter: key, brightness: 0.6~1.4 }
+  function frontImageStyle(bg) {
+    bg = bg || {};
+    var zoom = Math.min(3, Math.max(1, Number(bg.zoom) || 1));
+    var x = bg.x == null ? 50 : Number(bg.x);
+    var y = bg.y == null ? 50 : Number(bg.y);
+    var parts = [];
+    if (FRONT_FILTERS[bg.filter]) parts.push(FRONT_FILTERS[bg.filter]);
+    var b = Number(bg.brightness);
+    if (b && b !== 1) parts.push('brightness(' + b + ')');
+    return {
+      objectPosition: x + '% ' + y + '%',
+      transform: zoom === 1 ? 'none' : 'scale(' + zoom + ')',
+      transformOrigin: x + '% ' + y + '%',
+      filter: parts.join(' ') || 'none'
+    };
+  }
+
   var core = {
+    FRONT_FILTERS: FRONT_FILTERS,
+    frontImageStyle: frontImageStyle,
     getBasePath: getBasePath,
     escapeHtml: escapeHtml,
     escapeAttr: escapeAttr,

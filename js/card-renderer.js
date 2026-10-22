@@ -605,11 +605,17 @@ function setupSwipe() {
     touchStartX = e.changedTouches[0].screenX;
   }, { passive: true });
 
+  // 메이커 미리보기(?maker=1)에서는 좌우 스와이프를 부모에게 넘겨 디자인을 바꾼다. 뒤집기는 탭으로.
+  const inMaker = window.self !== window.top && new URLSearchParams(location.search).get('maker') === '1';
   cardSceneEl.addEventListener('touchend', (e) => {
     touchEndX = e.changedTouches[0].screenX;
     const diffX = touchEndX - touchStartX;
     if (Math.abs(diffX) > 40) {
-      toggleCardFlip();
+      if (inMaker) {
+        try { window.parent.postMessage({ action: 'swipe', dir: diffX < 0 ? 'next' : 'prev' }, '*'); } catch (err) {}
+      } else {
+        toggleCardFlip();
+      }
     }
   }, { passive: true });
 }
@@ -698,6 +704,14 @@ function renderFrontLayers(data) {
     if (plateImg) {
       plateImg.hidden = false;
       if (plateImg.getAttribute('src') !== src) plateImg.src = src;
+      // 사진 조정: 크기(zoom) · 위치(x, y) · 필터 · 밝기
+      if (window.TCCore && TCCore.frontImageStyle) {
+        const st = TCCore.frontImageStyle(front.bg);
+        plateImg.style.setProperty('object-position', st.objectPosition, 'important');
+        plateImg.style.setProperty('transform', st.transform);
+        plateImg.style.setProperty('transform-origin', st.transformOrigin);
+        plateImg.style.setProperty('filter', st.filter, 'important');
+      }
     }
     container.style.background = '';
   } else {

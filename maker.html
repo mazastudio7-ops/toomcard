@@ -15,6 +15,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="/js/supabase.js"></script>
+  <script src="/js/card-core.js"></script>
   <script src="/js/i18n.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -166,19 +167,102 @@
     .toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%) translateY(20px); opacity: 0; padding: 11px 18px; border-radius: 99px; background: rgba(20,16,30,0.95); border: 1px solid var(--tc-border-strong); color: #fff; font: 700 13px var(--tc-font-body); z-index: 100; transition: all 0.25s; pointer-events: none; white-space: nowrap; }
     .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-    /* 모바일: 무대 위, 조작 아래 */
+    /* ── 팬 캐러셀 ─────────────────────────────────── */
+    .carousel { position: relative; width: 100%; display: flex; align-items: center; justify-content: center; }
+    .car-track { position: relative; height: min(700px, calc(100vh - 190px)); min-height: 480px; width: 100%; display: flex; align-items: center; justify-content: center; }
+    .car-track iframe { position: relative; z-index: 5; height: 100%; aspect-ratio: 0.64; width: auto; max-width: 100%; border: none; border-radius: 24px; background: transparent; }
+    .car-side {
+      position: absolute; top: 50%; left: 50%; z-index: 2;
+      height: 66%; aspect-ratio: 0.62; border-radius: 22px;
+      background-size: cover; background-position: center;
+      border: 1.5px solid rgba(255,255,255,0.18);
+      box-shadow: 0 18px 40px rgba(0,0,0,0.55);
+      cursor: pointer; transition: transform 0.35s cubic-bezier(.2,.8,.2,1), opacity 0.35s;
+    }
+    .car-side.l1 { transform: translate(-118%, -50%) rotate(-9deg) scale(0.86); opacity: 0.6; }
+    .car-side.r1 { transform: translate(18%, -50%) rotate(9deg) scale(0.86); opacity: 0.6; }
+    .car-side.l2 { transform: translate(-165%, -48%) rotate(-15deg) scale(0.74); opacity: 0.28; z-index: 1; }
+    .car-side.r2 { transform: translate(65%, -48%) rotate(15deg) scale(0.74); opacity: 0.28; z-index: 1; }
+    .car-side:hover { opacity: 0.85; }
+    .car-nav {
+      position: absolute; top: 50%; z-index: 6; transform: translateY(-50%);
+      width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--tc-border-strong);
+      background: rgba(10,8,18,0.7); color: #fff; font: 700 20px/1 var(--tc-font-body); cursor: pointer;
+      display: flex; align-items: center; justify-content: center; backdrop-filter: blur(10px);
+    }
+    .car-nav.prev { left: 8px; } .car-nav.next { right: 8px; }
+    .car-label { display: flex; align-items: center; gap: 10px; font: 800 14px var(--tc-font-display); letter-spacing: 0.04em; }
+    .car-label .idx { font: 600 11.5px var(--tc-font-body); color: var(--tc-text-subtle); letter-spacing: 0; }
+    .tool-btn.accent { color: #000; background: var(--tc-accent); border-color: var(--tc-accent); }
+
+    /* 사진 조정 슬라이더 */
+    .slider-row { display: grid; grid-template-columns: 44px 1fr 38px; align-items: center; gap: 10px; font-size: 12px; font-weight: 700; color: var(--tc-text-muted); }
+    .slider-row output { font: 600 11px ui-monospace, monospace; color: var(--tc-text-subtle); text-align: right; }
+    input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 4px; border-radius: 99px; background: rgba(255,255,255,0.14); outline: none; }
+    input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%; background: var(--tc-accent); box-shadow: 0 2px 8px rgba(0,0,0,0.5); cursor: pointer; }
+    input[type=range]::-moz-range-thumb { width: 20px; height: 20px; border: none; border-radius: 50%; background: var(--tc-accent); cursor: pointer; }
+    .photo-off { font-size: 12px; color: var(--tc-text-subtle); }
+    #photoAdjust[hidden] { display: none; }
+    .filter-chips .chip { padding: 6px 10px; font-size: 11.5px; }
+    .link-reset { align-self: flex-start; background: none; border: none; color: var(--tc-text-subtle); font: 700 11.5px var(--tc-font-body); cursor: pointer; text-decoration: underline; }
+
+    .tabbar, .sheet-head { display: none; }
+
+    /* ── 모바일: 큰 캐러셀 + 하단 탭 + 시트 ───────── */
     @media (max-width: 980px) {
+      :root { --tabbar-h: 62px; --sheet-h: calc(var(--app-h, 100dvh) * 0.5); }
+      body { overflow: hidden; }
       .studio-header { padding: 10px 14px; }
-      .brand .badge { display: none; }
-      .link-quiet { display: none; }
-      .studio { grid-template-columns: 1fr; min-height: auto; }
-      .panel { max-height: none; overflow: visible; }
-      .panel-left, .panel-right { border: none; }
-      .stage { order: -1; position: sticky; top: 53px; z-index: 10; padding: 8px 12px 10px; gap: 8px; box-shadow: 0 10px 24px rgba(0,0,0,0.5); }
-      .stage iframe { height: 36vh; min-height: 260px; max-height: 340px; width: 100%; border-radius: 16px; }
+      .brand .badge, .link-quiet { display: none; }
+      .studio { display: block; min-height: 0; }
+      .stage {
+        height: calc(var(--app-h, 100dvh) - 53px - var(--tabbar-h) - env(safe-area-inset-bottom));
+        padding: 10px 0 8px; gap: 8px; transition: height 0.3s ease;
+      }
+      body.sheet-open .stage { height: calc(var(--app-h, 100dvh) - 53px - var(--tabbar-h) - var(--sheet-h) - env(safe-area-inset-bottom)); }
+      .car-track { height: calc(100% - 78px); min-height: 0; }
+      body.sheet-open .car-track { height: calc(100% - 40px); }
+      body.sheet-open .car-label, body.sheet-open .car-nav { display: none; }
+      .car-track iframe { max-width: 74vw; border-radius: 18px; }
+      .car-nav { display: none; }
       .stage-tools .tool-btn { padding: 6px 12px; font-size: 11.5px; }
-      .panel-left { padding-top: 16px; }
-      .panel-right { padding-top: 0; }
+
+      .panel {
+        position: fixed; left: 0; right: 0; z-index: 30;
+        bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom));
+        height: var(--sheet-h); max-height: none; overflow-y: auto;
+        padding: 0 16px 24px; gap: 16px;
+        background: #0e0b17; border: none; border-top: 1px solid var(--tc-border-strong);
+        border-radius: 20px 20px 0 0; box-shadow: 0 -12px 30px rgba(0,0,0,0.5);
+        transform: translateY(calc(100% + var(--tabbar-h) + 40px)); transition: transform 0.3s cubic-bezier(.2,.8,.2,1);
+      }
+      body.sheet-open .panel.has-on { transform: none; }
+      .panel .section, .panel .divider { display: none; }
+      .panel .section.on { display: flex; }
+      .desk-only { display: none !important; }
+      .sheet-head {
+        display: flex; align-items: center; justify-content: space-between;
+        position: sticky; top: 0; z-index: 2; margin: 0 -16px; padding: 14px 16px 10px;
+        background: #0e0b17; font: 800 14px var(--tc-font-body);
+      }
+      .sheet-head button { background: var(--tc-accent); color: #000; border: none; border-radius: 99px; padding: 7px 16px; font: 800 12.5px var(--tc-font-body); cursor: pointer; }
+      .panel .section-title { display: none; }
+
+      .tabbar {
+        display: grid; grid-template-columns: repeat(5, 1fr);
+        position: fixed; left: 0; right: 0; bottom: 0; z-index: 40;
+        height: calc(var(--tabbar-h) + env(safe-area-inset-bottom)); padding-bottom: env(safe-area-inset-bottom);
+        background: rgba(7,5,13,0.96); border-top: 1px solid var(--tc-border); backdrop-filter: blur(14px);
+      }
+      .tabbar button {
+        appearance: none; background: none; border: none; color: var(--tc-text-subtle);
+        display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+        font: 700 11px var(--tc-font-body); cursor: pointer;
+      }
+      .tabbar button i { width: 20px; height: 20px; }
+      .tabbar button[aria-selected="true"] { color: var(--tc-accent); }
+      .tabbar button.publish { color: var(--tc-accent); }
+      .bg-grid { grid-template-columns: repeat(4, 1fr); }
     }
   </style>
 </head>
@@ -201,14 +285,16 @@
     <!-- ── 왼쪽: 조작 ───────────────────────────────── -->
     <aside class="panel panel-left">
 
-      <!-- 0. 시작점 -->
-      <section class="section">
+      <div class="sheet-head"><span class="sheet-title"></span><button type="button" onclick="closeSheet()" data-i18n="maker.done">완료</button></div>
+
+      <!-- 0. 시작점 (데스크톱 전용: 폰은 캐러셀이 대신한다) -->
+      <section class="section desk-only" id="secStart">
         <div class="section-title"><i data-lucide="sparkles"></i><span data-i18n="maker.start_points">시작점</span></div>
         <div class="chips" id="startChips"></div>
       </section>
 
       <!-- 1. 기본 정보 -->
-      <section class="section">
+      <section class="section" id="secInfo" data-tab="info">
         <div class="section-title"><i data-lucide="user"></i><span data-i18n="maker.sec_info">1. 기본 정보</span></div>
         <div class="row-2">
           <div class="field"><label><span data-i18n="maker.name">이름</span><span class="req">*</span></label><input class="input" id="fName" placeholder="홍길동" data-i18n-placeholder="maker.name_ph"></div>
@@ -241,18 +327,41 @@
         </div>
       </section>
 
-      <!-- 2. 앞면 배경 -->
-      <section class="section">
+      <!-- 2. 앞면 배경 (데스크톱 전용 썸네일) -->
+      <section class="section desk-only" id="secBg">
         <div class="section-title"><i data-lucide="image"></i><span data-i18n="maker.sec_bg">2. 앞면 배경</span></div>
         <p class="section-hint" data-i18n="maker.bg_hint">폰 배경화면 고르듯이. 내 사진이 제일 좋아요.</p>
         <div class="bg-grid" id="bgGrid">
           <label class="bg-thumb upload" for="bgFile"><i data-lucide="image-plus"></i><span data-i18n="maker.bg_upload">내 사진</span></label>
         </div>
+      </section>
+
+      <!-- 2-1. 사진 조정 -->
+      <section class="section" id="secPhoto" data-tab="photo">
+        <div class="section-title"><i data-lucide="sliders-horizontal"></i><span data-i18n="maker.sec_photo">사진 조정</span></div>
+        <button type="button" class="btn-secondary" onclick="pickPhoto()"><i data-lucide="image-plus"></i><span data-i18n="maker.pick_photo">내 사진 고르기</span></button>
+        <p class="photo-off" id="photoOff" data-i18n="maker.photo_only">사진 배경일 때 크기·위치·색을 바꿀 수 있어요.</p>
+        <div id="photoAdjust" class="section" style="gap:14px;" hidden>
+          <div class="slider-row"><span data-i18n="maker.adj_zoom">크기</span><input type="range" id="adjZoom" min="1" max="2.5" step="0.01" value="1"><output id="outZoom">100%</output></div>
+          <div class="slider-row"><span data-i18n="maker.adj_x">좌우</span><input type="range" id="adjX" min="0" max="100" step="1" value="50"><output id="outX">50</output></div>
+          <div class="slider-row"><span data-i18n="maker.adj_y">상하</span><input type="range" id="adjY" min="0" max="100" step="1" value="50"><output id="outY">50</output></div>
+          <div class="slider-row"><span data-i18n="maker.adj_bright">밝기</span><input type="range" id="adjBright" min="0.6" max="1.4" step="0.01" value="1"><output id="outBright">100%</output></div>
+          <div class="chips filter-chips" id="filterChips">
+            <button class="chip" data-filter="none" aria-pressed="true" data-i18n="maker.f_none">원본</button>
+            <button class="chip" data-filter="vivid" data-i18n="maker.f_vivid">선명</button>
+            <button class="chip" data-filter="mono" data-i18n="maker.f_mono">흑백</button>
+            <button class="chip" data-filter="warm" data-i18n="maker.f_warm">따뜻하게</button>
+            <button class="chip" data-filter="cool" data-i18n="maker.f_cool">차갑게</button>
+            <button class="chip" data-filter="film" data-i18n="maker.f_film">필름</button>
+            <button class="chip" data-filter="dim" data-i18n="maker.f_dim">어둡게</button>
+          </div>
+          <button type="button" class="link-reset" onclick="resetAdjust()" data-i18n="maker.adj_reset">조정 초기화</button>
+        </div>
         <input type="file" id="bgFile" accept="image/*" hidden>
       </section>
 
       <!-- 3. 글자·로고 -->
-      <section class="section">
+      <section class="section" id="secText" data-tab="text">
         <div class="section-title"><i data-lucide="type"></i><span data-i18n="maker.sec_text">3. 앞면 글자</span></div>
         <div class="chips" id="textChips">
           <button class="chip" data-layout="none" aria-pressed="true" data-i18n="maker.text_none">글자 없음</button>
@@ -266,7 +375,7 @@
       </section>
 
       <!-- 4. 마감 -->
-      <section class="section">
+      <section class="section" id="secFinish" data-tab="finish">
         <div class="section-title"><i data-lucide="gem"></i><span data-i18n="maker.sec_finish">4. 마감 &amp; 뒷면</span></div>
         <div class="chips" id="finishChips">
           <button class="chip" data-finish="metal" aria-pressed="true" data-i18n="maker.finish_metal">메탈</button>
@@ -283,16 +392,29 @@
 
     <!-- ── 가운데: 3D 무대 ──────────────────────────── -->
     <section class="stage">
-      <iframe id="preview" src="/card.html?embed=simulator&id=toomcard" title="Live preview"></iframe>
+      <div class="carousel">
+        <button type="button" class="car-nav prev" onclick="goDesign(designIdx - 1)" aria-label="Previous">‹</button>
+        <div class="car-track" id="carTrack">
+          <div class="car-side l2" data-off="-2"></div>
+          <div class="car-side l1" data-off="-1"></div>
+          <iframe id="preview" src="/card.html?embed=simulator&maker=1&id=toomcard" title="Live preview"></iframe>
+          <div class="car-side r1" data-off="1"></div>
+          <div class="car-side r2" data-off="2"></div>
+        </div>
+        <button type="button" class="car-nav next" onclick="goDesign(designIdx + 1)" aria-label="Next">›</button>
+      </div>
+      <div class="car-label"><span id="designName">TOOMCARD</span><span class="idx" id="designIdxLabel"></span></div>
       <div class="stage-tools">
         <button class="tool-btn" onclick="flip('show_front')"><i data-lucide="image"></i><span data-i18n="maker.front">앞면</span></button>
         <button class="tool-btn" onclick="flip('show_back')"><i data-lucide="file-text"></i><span data-i18n="maker.back">뒷면</span></button>
+        <button class="tool-btn accent" onclick="pickPhoto()"><i data-lucide="image-plus"></i><span data-i18n="maker.add_photo">내 사진</span></button>
       </div>
     </section>
 
     <!-- ── 오른쪽: 발행 ─────────────────────────────── -->
     <aside class="panel panel-right">
-      <section class="section">
+      <div class="sheet-head"><span class="sheet-title"></span><button type="button" onclick="closeSheet()" data-i18n="maker.done">완료</button></div>
+      <section class="section" id="secPublish" data-tab="publish">
         <div class="section-title"><i data-lucide="globe"></i><span data-i18n="maker.sec_publish">발행</span></div>
         <div class="field">
           <label><span data-i18n="maker.slug">명함 주소</span> <span style="font-weight:600;opacity:.6;" data-i18n="maker.slug_hint">비워두면 자동 생성</span></label>
@@ -310,7 +432,7 @@
 
       <div class="divider"></div>
 
-      <section class="section">
+      <section class="section" id="secExport" data-tab="publish">
         <div class="section-title"><i data-lucide="smartphone"></i><span data-i18n="maker.sec_export">내보내기</span></div>
         <button class="btn-secondary" onclick="saveWallpaper()"><i data-lucide="download"></i><span data-i18n="maker.wallpaper">앞면을 폰 배경화면으로 저장</span></button>
         <a class="btn-secondary" href="/#nfc"><i data-lucide="credit-card"></i><span data-i18n="maker.nfc_order">실물 NFC 카드 주문</span></a>
@@ -318,6 +440,14 @@
       </section>
     </aside>
   </main>
+
+  <nav class="tabbar" id="tabbar">
+    <button type="button" data-tab="info"><i data-lucide="user"></i><span data-i18n="maker.tab_info">정보</span></button>
+    <button type="button" data-tab="photo"><i data-lucide="sliders-horizontal"></i><span data-i18n="maker.tab_photo">사진</span></button>
+    <button type="button" data-tab="text"><i data-lucide="type"></i><span data-i18n="maker.tab_text">글자</span></button>
+    <button type="button" data-tab="finish"><i data-lucide="gem"></i><span data-i18n="maker.tab_finish">마감</span></button>
+    <button type="button" data-tab="publish" class="publish"><i data-lucide="rocket"></i><span data-i18n="maker.tab_publish">발행</span></button>
+  </nav>
 
   <div class="toast" id="toast"></div>
 
@@ -454,14 +584,15 @@
     let textTouched = false;
     function setBg(bg, id) {
       currentBgId = id || bg.id;
+      // 사진(브랜드 플레이트 포함)에는 글자를 자동으로 얹지 않는다. 단색·그라데이션만 이름을 기본으로 보여준다.
       if (!textTouched) {
-        const layout = bg.tag ? 'none' : 'bottom-left';  // tag 있는 4장은 글자가 그려진 브랜드 플레이트
+        const layout = bg.type === 'image' ? 'none' : 'bottom-left';
         card.front.text.layout = layout; pressOnly($('textChips'), 'layout', layout);
       }
-      card.front.bg = bg.type === 'image' ? { type: 'image', src: bg.src }
+      card.front.bg = bg.type === 'image' ? { type: 'image', src: bg.src, zoom: 1, x: 50, y: 50, brightness: 1, filter: 'none' }
                     : bg.type === 'gradient' ? { type: 'gradient', from: bg.from, to: bg.to, angle: bg.angle }
                     : { type: 'color', color: bg.color };
-      renderBgGrid(); render();
+      renderBgGrid(); syncAdjustUI(); render();
     }
     function readImage(file, maxW, cb) {
       const reader = new FileReader();
@@ -480,7 +611,14 @@
     }
     $('bgFile').addEventListener('change', (e) => {
       const f = e.target.files[0]; if (!f) return;
-      readImage(f, 1080, (dataUrl) => { setBg({ type: 'image', src: dataUrl }, 'upload'); toast(t('maker.bg_set')); });
+      readImage(f, 1440, (dataUrl) => {
+        uploadedPhoto = dataUrl;
+        setBg({ type: 'image', src: dataUrl }, 'upload');
+        designIdx = 0; renderCarousel();
+        if (isMobile()) openTab('photo');
+        toast(t('maker.bg_set'));
+      });
+      e.target.value = '';
     });
     $('logoFile').addEventListener('change', (e) => {
       const f = e.target.files[0]; if (!f) return;
@@ -531,16 +669,89 @@
       key = START_ALIAS[key] || key;
       const s = STARTS[key]; if (!s) return;
       const bg = CURATED_BG.find((b) => b.id === s.bg); if (bg) setBg(bg);
-      card.front.text.layout = s.text; pressOnly($('textChips'), 'layout', s.text);
+      if (!textTouched) { card.front.text.layout = s.text; pressOnly($('textChips'), 'layout', s.text); }
       card.front.finish = s.finish; pressOnly($('finishChips'), 'finish', s.finish);
       card.theme = s.theme; renderThemeChips();
       render();
     }
 
+    /* ── 팬 캐러셀 ───────────────────────────────────── */
+    let uploadedPhoto = '';
+    let designIdx = 0;
+    function designs() {
+      const list = Object.entries(STARTS).map(([key, s]) => ({ key, label: s.label, bg: CURATED_BG.find((b) => b.id === s.bg) }));
+      if (uploadedPhoto) list.unshift({ key: 'photo', label: t('maker.bg_upload'), bg: { type: 'image', src: uploadedPhoto } });
+      return list;
+    }
+    function renderCarousel() {
+      const list = designs(); const n = list.length;
+      designIdx = ((designIdx % n) + n) % n;
+      $('designName').textContent = list[designIdx].label;
+      $('designIdxLabel').textContent = `${designIdx + 1} / ${n}`;
+      document.querySelectorAll('.car-side').forEach((el) => {
+        const d = list[(designIdx + Number(el.dataset.off) + n * 2) % n];
+        el.setAttribute('style', d.bg ? thumbStyle(d.bg) : '');
+        el.onclick = () => goDesign(designIdx + Number(el.dataset.off));
+      });
+    }
+    function goDesign(i) {
+      const list = designs(); const n = list.length;
+      designIdx = ((i % n) + n) % n;
+      const d = list[designIdx];
+      if (d.key === 'photo') setBg(d.bg, 'upload'); else applyStart(d.key);
+      renderCarousel();
+    }
+    function pickPhoto() { $('bgFile').click(); }
+
+    /* ── 사진 조정 ───────────────────────────────────── */
+    function isImageBg() { return card.front.bg && card.front.bg.type === 'image'; }
+    function syncAdjustUI() {
+      const on = isImageBg();
+      $('photoAdjust').hidden = !on; $('photoOff').hidden = on;
+      if (!on) return;
+      const b = card.front.bg;
+      $('adjZoom').value = b.zoom || 1; $('adjX').value = b.x == null ? 50 : b.x; $('adjY').value = b.y == null ? 50 : b.y; $('adjBright').value = b.brightness || 1;
+      $('outZoom').textContent = Math.round((b.zoom || 1) * 100) + '%';
+      $('outX').textContent = b.x == null ? 50 : b.x; $('outY').textContent = b.y == null ? 50 : b.y;
+      $('outBright').textContent = Math.round((b.brightness || 1) * 100) + '%';
+      pressOnly($('filterChips'), 'filter', b.filter || 'none');
+    }
+    [['adjZoom', 'zoom'], ['adjX', 'x'], ['adjY', 'y'], ['adjBright', 'brightness']].forEach(([id, key]) => {
+      $(id).addEventListener('input', (e) => { if (!isImageBg()) return; card.front.bg[key] = Number(e.target.value); syncAdjustUI(); render(); });
+    });
+    $('filterChips').addEventListener('click', (e) => {
+      const b = e.target.closest('.chip'); if (!b || !isImageBg()) return;
+      card.front.bg.filter = b.dataset.filter; syncAdjustUI(); render();
+    });
+    function resetAdjust() {
+      if (!isImageBg()) return;
+      Object.assign(card.front.bg, { zoom: 1, x: 50, y: 50, brightness: 1, filter: 'none' }); syncAdjustUI(); render();
+    }
+
+    /* ── 하단 탭 + 시트 (폰) ─────────────────────────── */
+    const TAB_TITLES = { info: 'maker.tab_info', photo: 'maker.sec_photo', text: 'maker.sec_text', finish: 'maker.sec_finish', publish: 'maker.sec_publish' };
+    let currentTab = '';
+    function isMobile() { return window.matchMedia('(max-width: 980px)').matches; }
+    function openTab(name) {
+      if (currentTab === name && document.body.classList.contains('sheet-open')) { closeSheet(); return; }
+      currentTab = name;
+      document.querySelectorAll('.panel .section[data-tab]').forEach((s) => s.classList.toggle('on', s.dataset.tab === name));
+      document.querySelectorAll('.panel').forEach((p) => p.classList.toggle('has-on', !!p.querySelector(`.section.on`)));
+      document.querySelectorAll('.sheet-title').forEach((el) => { el.textContent = t(TAB_TITLES[name]); });
+      document.querySelectorAll('#tabbar button').forEach((b) => b.setAttribute('aria-selected', b.dataset.tab === name ? 'true' : 'false'));
+      document.body.classList.add('sheet-open');
+      document.querySelectorAll('.panel').forEach((p) => { p.scrollTop = 0; });
+    }
+    function closeSheet() {
+      document.body.classList.remove('sheet-open'); currentTab = '';
+      document.querySelectorAll('#tabbar button').forEach((b) => b.setAttribute('aria-selected', 'false'));
+    }
+    $('tabbar').addEventListener('click', (e) => { const b = e.target.closest('button[data-tab]'); if (b) openTab(b.dataset.tab); });
+
     /* ── 발행 ───────────────────────────────────────── */
     async function publish() {
       const c = collect();
-      if (!c.name || !c.company) { toast(t('maker.need_name')); $('fName').focus(); return; }
+      if (!c.name || !c.company) { toast(t('maker.need_name')); if (isMobile()) openTab('info'); $('fName').focus(); return; }
       const btn = $('btnPublish'); btn.disabled = true;
       const run = async () => {
         toast(t('maker.publishing'));
@@ -596,9 +807,12 @@
       if (bg.type === 'image') {
         const img = new Image(); img.crossOrigin = 'anonymous';
         img.onload = () => {
-          const s = Math.max(W / img.width, H / img.height);
+          const zoom = bg.zoom || 1, px = (bg.x == null ? 50 : bg.x) / 100, py = (bg.y == null ? 50 : bg.y) / 100;
+          const s = Math.max(W / img.width, H / img.height) * zoom;
           const w = img.width * s, h = img.height * s;
-          ctx.drawImage(img, (W - w) / 2, (H - h) / 2, w, h); drawText();
+          if ('filter' in ctx && window.TCCore) { const f = TCCore.frontImageStyle(bg).filter; if (f && f !== 'none') ctx.filter = f; }
+          ctx.drawImage(img, (W - w) * px, (H - h) * py, w, h);
+          ctx.filter = 'none'; drawText();
         };
         img.onerror = () => { ctx.fillStyle = '#101018'; ctx.fillRect(0, 0, W, H); drawText(); };
         img.src = bg.src;
@@ -627,7 +841,8 @@
       currentBgId = card.front.bg.type === 'image' && !CURATED_BG.some((b) => b.src === card.front.bg.src) ? 'upload' : (CURATED_BG.find((b) => b.src === card.front.bg.src || (b.type === card.front.bg.type && b.from === card.front.bg.from)) || {}).id || 'toomcard';
       pressOnly($('textChips'), 'layout', card.front.text.layout); setLogo(card.front.text.showLogo);
       pressOnly($('finishChips'), 'finish', card.front.finish); $('qrSwitch').setAttribute('aria-checked', card.front.qr === 'subtle' ? 'true' : 'false');
-      renderBgGrid(); renderThemeChips(); render();
+      if (currentBgId === 'upload') { uploadedPhoto = card.front.bg.src; designIdx = 0; }
+      renderBgGrid(); renderThemeChips(); renderCarousel(); syncAdjustUI(); render();
     }
 
     /* ── 유틸 ───────────────────────────────────────── */
@@ -635,17 +850,21 @@
     function toast(msg) { const el = $('toast'); el.textContent = msg; el.classList.add('show'); clearTimeout(toastTimer); toastTimer = setTimeout(() => el.classList.remove('show'), 2400); }
 
     /* ── 초기화 ─────────────────────────────────────── */
-    renderBgGrid(); renderThemeChips(); renderStartChips();
+    // 화면 높이: 폰 브라우저 주소창이 접혔다 펴질 때도 하단 탭과 무대가 맞도록 실제 높이를 쓴다
+    function syncAppHeight() { document.documentElement.style.setProperty('--app-h', window.innerHeight + 'px'); }
+    syncAppHeight(); window.addEventListener('resize', syncAppHeight);
+    renderBgGrid(); renderThemeChips(); renderStartChips(); renderCarousel(); syncAdjustUI();
     document.querySelectorAll('.panel-left .input, .panel-left .select, #fSlug').forEach((el) => el.addEventListener('input', render));
-    document.addEventListener('i18n:change', () => { renderThemeChips(); render(); });
+    document.addEventListener('i18n:change', () => { renderThemeChips(); renderCarousel(); if (currentTab) document.querySelectorAll('.sheet-title').forEach((el) => { el.textContent = t(TAB_TITLES[currentTab]); }); render(); });
     // 뷰어가 초기 렌더를 끝내면 card_ready를 보낸다. 그 뒤에 그려야 덮어써지지 않는다.
     window.addEventListener('message', (e) => {
+      if (e.data && e.data.action === 'swipe') { goDesign(designIdx + (e.data.dir === 'next' ? 1 : -1)); return; }
       if (!e.data || e.data.action !== 'card_ready') return;
       const params = new URLSearchParams(location.search);
       const edit = params.get('edit');
       const preset = params.get('preset') || params.get('template') || params.get('design');
       if (edit) loadForEdit(edit);
-      else if (preset && STARTS[START_ALIAS[preset] || preset]) applyStart(preset);
+      else if (preset && STARTS[START_ALIAS[preset] || preset]) { designIdx = Object.keys(STARTS).indexOf(START_ALIAS[preset] || preset); applyStart(preset); renderCarousel(); }
       else render();
     });
     lucide.createIcons();
