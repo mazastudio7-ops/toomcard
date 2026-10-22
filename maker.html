@@ -538,12 +538,15 @@
             </div></div>
           <div class="field"><label data-i18n="maker.emblem_motion">움직임</label>
             <div class="chips" id="emMotion">
-              <button class="chip" data-motion="sweep" aria-pressed="true" data-i18n="maker.motion_sweep">빛 쓸림</button>
+              <button class="chip" data-motion="gold" aria-pressed="true" data-i18n="maker.motion_gold">금빛 반짝</button>
+              <button class="chip" data-motion="sweep" data-i18n="maker.motion_sweep">빛 쓸림</button>
               <button class="chip" data-motion="sparkle" data-i18n="maker.motion_sparkle">반짝임</button>
               <button class="chip" data-motion="float" data-i18n="maker.motion_float">둥실</button>
               <button class="chip" data-motion="none" data-i18n="maker.motion_none">없음</button>
             </div></div>
         </div>
+        <button type="button" class="btn-secondary" id="gifBtn" style="margin-top:2px"><i data-lucide="download"></i><span data-i18n="maker.gif_save">로고를 GIF로 저장</span></button>
+        <p class="photo-off" data-i18n="maker.gif_note">카톡 프로필·인스타·유튜브에 올려 보세요. 움직이는 로고가 됩니다.</p>
         <div class="hr"></div>
         <div class="toggle"><span data-i18n="maker.show_logo">앞면에도 로고 표시</span><button class="switch" id="logoSwitch" role="switch" aria-checked="false"></button></div>
         <div class="field"><label data-i18n="maker.logo_upload">로고 / 프로필 사진 (선택)</label><input type="file" id="logoFile" accept="image/*" class="input" style="padding-top:8px;"></div>
@@ -699,7 +702,7 @@
       logo: { src: '/assets/logo_toomcard_hd.gif', alt: '' },
       primaryAction: { url: '', label: '', icon: 'globe' },
       socials: [], links: [], backLayout: 'default',
-      emblem: { on: true, source: 'initials', text: '', img: '', material: 'gold', shape: 'coin', motion: 'sweep' },
+      emblem: { on: true, source: 'initials', text: '', img: '', material: 'gold', shape: 'coin', motion: 'gold' },
       front: { bg: { type: 'image', src: '/assets/toomcard_front_plate.jpg' }, text: { layout: 'none', showLogo: false, tone: 'auto' }, finish: 'metal', qr: 'subtle', frame: 'full', frameTone: 'dark', look: 'clean' }
     };
     let card = JSON.parse(JSON.stringify(DEFAULT_CARD));
@@ -1114,6 +1117,87 @@
       renderCarousel();
     }
     $('fxChips').addEventListener('click', (e) => { const b = e.target.closest('.chip'); if (b) applyFx(b.dataset.fx); });
+
+    /* ── 로고 GIF 저장: 엠블럼을 캔버스로 다시 그려 한 프레임씩 GIF로 만든다 ── */
+    const GIF_PAL = {
+      gold:   { m: ['#fff6cf', '#f1cf6b', '#b5832a', '#ffe9a3', '#6e4a12'], a: '#2d2616', b: '#0c0a06' },
+      silver: { m: ['#ffffff', '#d9dde4', '#8c93a0', '#f2f4f8', '#565c68'], a: '#2d3139', b: '#0a0b0f' },
+      chrome: { m: ['#9aa0ad', '#2b2e37', '#08090c', '#7a8090', '#14161b'], a: '#1d1f26', b: '#040405' },
+      rose:   { m: ['#ffe6de', '#e8a798', '#a8574a', '#ffd3c6', '#6b3128'], a: '#2e1e1b', b: '#0d0807' }
+    };
+    function gifMaskCanvas(e, size) {
+      return new Promise((res) => {
+        const cv = document.createElement('canvas'); cv.width = cv.height = size; const c = cv.getContext('2d');
+        if (e.source === 'logo' && e.img) {
+          const im = new Image(); im.onload = () => { const s = Math.min(size / im.width, size / im.height); c.drawImage(im, (size - im.width * s) / 2, (size - im.height * s) / 2, im.width * s, im.height * s); res({ cv, detail: im }); }; im.src = e.img; return;
+        }
+        const text = e.text || 'T', n = Array.from(text).length;
+        let fs = (n === 1 ? 190 : n === 2 ? 142 : 104) * size / 256;
+        const fam = "Montserrat, Pretendard, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif";
+        c.fillStyle = '#fff'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.font = `900 ${fs}px ${fam}`;
+        const w = c.measureText(text).width; if (w > size * 0.88) { fs = Math.floor(fs * size * 0.88 / w); c.font = `900 ${fs}px ${fam}`; }
+        c.fillText(text, size / 2, size / 2 + fs * 0.05); res({ cv, detail: null });
+      });
+    }
+    function star(c, x, y, r, a) {
+      if (a <= 0.02) return; c.save(); c.globalAlpha = Math.min(1, a); c.translate(x, y); c.scale(Math.max(0.05, a), Math.max(0.05, a));
+      c.shadowColor = 'rgba(255,255,255,.95)'; c.shadowBlur = r * 0.8; c.fillStyle = '#fff';
+      c.beginPath(); const pts = [[0, -1], [.24, -.24], [1, 0], [.24, .24], [0, 1], [-.24, .24], [-1, 0], [-.24, -.24]];
+      pts.forEach(([px, py], i) => { i ? c.lineTo(px * r, py * r) : c.moveTo(px * r, py * r); }); c.closePath(); c.fill(); c.restore();
+    }
+    async function saveLogoGif() {
+      const btn = $('gifBtn'); if (btn.dataset.busy) return; btn.dataset.busy = '1';
+      const label = btn.querySelector('span'), orig = label.textContent; label.textContent = t('maker.gif_making');
+      try {
+        const e = Object.assign({}, card.emblem); if (!e.text) e.text = autoEmblemText();
+        const S = 360, N = 36, DUR = 100, pal = GIF_PAL[e.material] || GIF_PAL.gold;
+        const { GIFEncoder, quantize, applyPalette } = await import('https://cdn.jsdelivr.net/npm/gifenc@1.0.3/dist/gifenc.esm.js');
+        if (document.fonts && document.fonts.ready) await document.fonts.ready;
+        const P = S * 0.80, px0 = (S - P) / 2, engr = e.shape === 'engrave';
+        const artSize = engr ? P * 0.88 : P * 0.52, ax = (S - artSize) / 2;
+        const mk = await gifMaskCanvas(e, 256);
+        const gold = e.motion === 'gold', sweep = gold || e.motion === 'sweep', spark = gold || e.motion === 'sparkle';
+        const SP = [[.68, .14, .15, 0], [.16, .66, .11, .33], [.08, .32, .09, .66], [.74, .78, .10, .16], [.34, .06, .08, .5]].slice(0, gold ? 5 : 3);
+        const gif = GIFEncoder();
+        const cv = document.createElement('canvas'); cv.width = cv.height = S; const c = cv.getContext('2d', { willReadFrequently: true });
+        const art = document.createElement('canvas'); art.width = art.height = 256; const ac = art.getContext('2d');
+        const grad = (ctx, x0, y0, x1, y1, st) => { const g = ctx.createLinearGradient(x0, y0, x1, y1); st.forEach(([o, i]) => g.addColorStop(o, pal.m[i])); return g; };
+        for (let f = 0; f < N; f++) {
+          const t01 = f / N;
+          c.clearRect(0, 0, S, S);
+          let bg = c.createRadialGradient(S / 2, S * 0.35, S * 0.05, S / 2, S / 2, S * 0.75); bg.addColorStop(0, '#1a1624'); bg.addColorStop(1, '#050408'); c.fillStyle = bg; c.fillRect(0, 0, S, S);
+          if (gold) { const gl = 0.5 - 0.5 * Math.cos(t01 * Math.PI * 2); const g = c.createRadialGradient(S / 2, S / 2, P * 0.2, S / 2, S / 2, P * 0.75); g.addColorStop(0, `rgba(255,214,120,${0.10 + 0.22 * gl})`); g.addColorStop(1, 'rgba(255,214,120,0)'); c.fillStyle = g; c.fillRect(0, 0, S, S); }
+          if (!engr) {
+            c.save(); c.shadowColor = 'rgba(0,0,0,.6)'; c.shadowBlur = 24; c.shadowOffsetY = 10;
+            c.fillStyle = grad(c, px0, px0, px0 + P, px0 + P, [[0, 0], [.2, 1], [.42, 2], [.56, 3], [.78, 4], [1, 1]]);
+            c.beginPath(); if (e.shape === 'tile') c.roundRect(px0, px0, P, P, P * 0.22); else c.arc(S / 2, S / 2, P / 2, 0, 7); c.fill(); c.restore();
+            const ins = P * (e.shape === 'tile' ? 0.06 : 0.07), ip = P - ins * 2;
+            const ig = c.createRadialGradient(px0 + ins + ip * .35, px0 + ins + ip * .3, 4, px0 + ins + ip * .5, px0 + ins + ip * .5, ip * .7); ig.addColorStop(0, pal.a); ig.addColorStop(1, pal.b);
+            c.fillStyle = ig; c.beginPath(); if (e.shape === 'tile') c.roundRect(px0 + ins, px0 + ins, ip, ip, ip * 0.17); else c.arc(S / 2, S / 2, ip / 2, 0, 7); c.fill();
+          }
+          ac.clearRect(0, 0, 256, 256);
+          ac.fillStyle = grad(ac, 0, 0, 256, 256, [[0, 0], [.18, 1], [.4, 2], [.54, 3], [.76, 4], [1, 1]]); ac.fillRect(0, 0, 256, 256);
+          const hl = ac.createLinearGradient(0, 0, 0, 256); hl.addColorStop(0, 'rgba(255,255,255,.42)'); hl.addColorStop(.42, 'rgba(255,255,255,0)'); hl.addColorStop(1, 'rgba(0,0,0,.36)'); ac.fillStyle = hl; ac.fillRect(0, 0, 256, 256);
+          if (mk.detail) { ac.save(); ac.globalCompositeOperation = 'soft-light'; ac.filter = 'grayscale(1) contrast(1.35)'; const s = Math.min(256 / mk.detail.width, 256 / mk.detail.height); ac.drawImage(mk.detail, (256 - mk.detail.width * s) / 2, (256 - mk.detail.height * s) / 2, mk.detail.width * s, mk.detail.height * s); ac.restore(); }
+          if (sweep) { const k = Math.min(1, t01 / 0.55), cx = (1.3 - 1.6 * k) * 256, g = ac.createLinearGradient(cx - 90, 0, cx + 90, 0); g.addColorStop(0, 'rgba(255,255,255,0)'); g.addColorStop(.5, 'rgba(255,255,255,.95)'); g.addColorStop(1, 'rgba(255,255,255,0)'); ac.globalCompositeOperation = 'source-atop'; ac.fillStyle = g; ac.fillRect(0, 0, 256, 256); ac.globalCompositeOperation = 'source-over'; }
+          ac.globalCompositeOperation = 'destination-in'; ac.drawImage(mk.cv, 0, 0); ac.globalCompositeOperation = 'source-over';
+          c.save(); c.shadowColor = 'rgba(0,0,0,.55)'; c.shadowBlur = 10; c.shadowOffsetY = 4; c.drawImage(art, ax, ax, artSize, artSize); c.restore();
+          if (spark) SP.forEach(([sx, sy, sr, d]) => { const ph = (((t01 * 2 - d) % 1) + 1) % 1; star(c, px0 + sx * P, px0 + sy * P, P * sr * 0.75, Math.sin(ph * Math.PI)); });
+          const data = c.getImageData(0, 0, S, S).data;
+          const palette = quantize(data, 256, { format: 'rgb444' });
+          gif.writeFrame(applyPalette(data, palette, 'rgb444'), S, S, { palette, delay: DUR, repeat: 0 });
+          if (f % 6 === 5) await new Promise((r) => setTimeout(r, 0));
+        }
+        gif.finish();
+        const blob = new Blob([gif.bytes()], { type: 'image/gif' });
+        const file = new File([blob], 'toomcard-logo.gif', { type: 'image/gif' });
+        if (navigator.canShare && navigator.canShare({ files: [file] })) { try { await navigator.share({ files: [file] }); toast(t('maker.gif_done')); return; } catch (err) { if (err && err.name === 'AbortError') return; } }
+        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'toomcard-logo.gif'; document.body.appendChild(a); a.click(); a.remove();
+        toast(t('maker.gif_done'));
+      } catch (err) { console.warn(err); toast(t('maker.gif_fail')); }
+      finally { label.textContent = orig; delete btn.dataset.busy; }
+    }
+    $('gifBtn').addEventListener('click', saveLogoGif);
     $('logoFile').addEventListener('change', (e) => {
       const f = e.target.files[0]; if (!f) return;
       readImage(f, 400, (dataUrl) => { card.logo = { src: dataUrl, alt: card.company }; card.avatar = dataUrl; setLogo(true); render(); });

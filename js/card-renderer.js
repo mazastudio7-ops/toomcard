@@ -836,7 +836,7 @@ function detectTone(img, cb) {
 }
 
 /* ---------- 로고 엠블럼 ---------- */
-const EMBLEM_OPTS = { material: ['gold', 'silver', 'chrome', 'rose'], shape: ['coin', 'tile', 'engrave'], motion: ['sweep', 'sparkle', 'float', 'none'] };
+const EMBLEM_OPTS = { material: ['gold', 'silver', 'chrome', 'rose'], shape: ['coin', 'tile', 'engrave'], motion: ['gold', 'sweep', 'sparkle', 'float', 'none'] };
 const emblemMaskCache = {};
 
 // 이름·회사에서 엠블럼 글자를 뽑는다 (규칙은 card-core.js에 있다)
@@ -851,7 +851,7 @@ function normalizeEmblem(data) {
   const source = (e.source === 'logo' && e.img) ? 'logo' : 'initials';
   const base = data.kind === 'business' ? (data.company || data.name) : (data.name || data.company);
   const text = Array.from((e.text || '').trim()).slice(0, 3).join('') || emblemAutoText(base);
-  return { source, text, img: e.img || '', material: pick('material', 'gold'), shape: pick('shape', 'coin'), motion: pick('motion', 'sweep') };
+  return { source, text, img: e.img || '', material: pick('material', 'gold'), shape: pick('shape', 'coin'), motion: pick('motion', 'gold') };
 }
 
 // 글자 → 마스크 PNG (불투명 흰 글자). 페이지에 로드된 웹폰트로 캔버스에 그린다
@@ -881,7 +881,7 @@ function mountEmblem(host, em) {
   host.innerHTML = `<div class="emblem em-${em.shape} mat-${em.material} mo-${em.motion}" style="--em-mask:url('${mask}')">
     <div class="em-plate"></div>
     <div class="em-art"><div class="em-shape"><div class="em-metal"></div>${detail ? `<div class="em-detail" style="background-image:url('${detail}')"></div>` : ''}<div class="em-shine"></div></div></div>
-    ${em.motion === 'sparkle' ? '<i class="em-sp s1"></i><i class="em-sp s2"></i><i class="em-sp s3"></i>' : ''}
+    ${em.motion === 'sparkle' ? '<i class="em-sp s1"></i><i class="em-sp s2"></i><i class="em-sp s3"></i>' : ''}${em.motion === 'gold' ? '<i class="em-sp s1"></i><i class="em-sp s2"></i><i class="em-sp s3"></i><i class="em-sp s4"></i><i class="em-sp s5"></i>' : ''}
   </div>`;
 }
 
