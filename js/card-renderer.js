@@ -948,23 +948,15 @@ function renderFrontLayers(data) {
   // 옅은 QR. 켜져 있으면 하단 'QR코드' 알약은 중복이라 숨긴다
   container.classList.toggle('has-subtle-qr', front.qr === 'subtle');
   if (subtleQr) {
-    if (front.qr === 'subtle' && typeof QRCode !== 'undefined') {
+    if (front.qr === 'subtle') {
       subtleQr.hidden = false;
       const dark = !(overlay && overlay.classList.contains('tone-dark'));
-      const qrText = data.slug ? `${location.origin}/${data.slug}` : location.href;
-      const qrKey = qrText + '|' + dark;
-      if (!(subtleQr.dataset.qrKey === qrKey && subtleQr.childElementCount)) {
-      subtleQr.dataset.qrKey = qrKey;
-      subtleQr.innerHTML = '';
-      try {
-        new QRCode(subtleQr, {
-          text: qrText,
-          width: 72, height: 72,
-          colorDark: dark ? '#ffffff' : '#000000',
-          colorLight: 'rgba(0,0,0,0)',
-          correctLevel: QRCode.CorrectLevel.M
-        });
-      } catch (e) { subtleQr.hidden = true; }
+      const qrKey = 'icon|' + dark;
+      if (subtleQr.dataset.qrKey !== qrKey) {
+        // 빽빽한 진짜 QR 대신 또렷한 QR 모양 아이콘 하나만 둔다. 누르면 진짜 QR이 크게 뜬다.
+        subtleQr.dataset.qrKey = qrKey;
+        const c = dark ? '#fff' : '#000';
+        subtleQr.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M14 14h2.5v2.5H14zM18.5 14H21M14 19h2.5M18.5 18.5H21V21h-2.5z"/></svg>`;
       }
     } else {
       subtleQr.hidden = true;

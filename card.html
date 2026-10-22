@@ -1296,7 +1296,7 @@
     /* 틀 안의 글자: 사진 밑 띠 / 메탈 림은 테두리만큼 안쪽으로 */
     .plate-text-overlay.pos-band { top: var(--band-top, 76%); padding: 0 20px 76px; justify-content: flex-start; align-items: center; text-align: center; }
     .frame-rim .plate-text-overlay { padding: 38px 30px 88px; }
-    .frame-matte .plate-subtle-qr, .frame-arch .plate-subtle-qr, .frame-round .plate-subtle-qr { top: auto; bottom: 74px; right: 14px; width: 15%; }
+    .frame-matte .plate-subtle-qr, .frame-arch .plate-subtle-qr, .frame-round .plate-subtle-qr { top: auto; bottom: 74px; right: 14px; }
     .frame-rim .plate-subtle-qr { top: 6.5%; right: 8.5%; }
 
     /* ── 사진관 룩(look): 비네팅·빛·그레인 (색 보정은 JS가 사진 필터로) ── */
@@ -1334,13 +1334,13 @@
 
     .plate-subtle-qr {
       position: absolute; top: 5%; right: 6%; z-index: 4;
-      width: 19%; max-width: 72px; aspect-ratio: 1; opacity: 0.26; cursor: pointer;
+      width: 30px; height: 30px; padding: 5px; box-sizing: border-box; border-radius: 9px; background: rgba(0,0,0,0.18); opacity: 0.7; cursor: pointer;
       transition: opacity 0.2s ease;
     }
     .plate-subtle-qr[hidden] { display: none; }
     .has-subtle-qr .plate-qr-toggle-pill { display: none !important; }
-    .plate-subtle-qr:hover { opacity: 0.6; }
-    .plate-subtle-qr canvas, .plate-subtle-qr img { width: 100% !important; height: 100% !important; display: block; }
+    .plate-subtle-qr:hover { opacity: 1; }
+    .plate-subtle-qr svg { width: 100%; height: 100%; display: block; }
 
     /* ── 로고 엠블럼: 자동 3D 메탈 (재질 4 · 모양 3 · 움직임 4) ───────────────
        모양(마스크)은 글자나 로고에서 만들고, 금속 그라데이션·베벨·빛은 전부 CSS */
