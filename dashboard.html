@@ -722,6 +722,26 @@
       border-radius: 20px;
       grid-column: 1 / -1;
     }
+
+    /* ── 폰: 상단은 로고·언어·로그아웃만, 이동은 하단 탭으로 ── */
+    .mobile-tabs { display: none; }
+    @media (max-width: 640px) {
+      .navbar { height: 58px; }
+      .navbar-inner { padding: 0 14px; gap: 8px; flex-wrap: nowrap; }
+      .brand-link { font-size: 18px !important; white-space: nowrap; gap: 8px; min-width: 0; }
+      .brand-symbol { width: 32px !important; height: 32px !important; flex: none; }
+      .brand-badge, .btn-exit-home, #navTopNewCardBtn { display: none !important; }
+      .navbar-inner > div { gap: 8px !important; flex: none; }
+      #navTopAuthBtn { padding: 7px 11px !important; font-size: 12px !important; white-space: nowrap; }
+      .container { padding: 78px 16px calc(84px + env(safe-area-inset-bottom)) !important; }
+      .mobile-tabs {
+        display: grid; grid-template-columns: repeat(4, 1fr); position: fixed; left: 0; right: 0; bottom: 0; z-index: 1001;
+        padding: 6px 6px calc(6px + env(safe-area-inset-bottom)); background: rgba(8,6,14,0.94); backdrop-filter: blur(14px); border-top: 1px solid rgba(255,255,255,0.1);
+      }
+      .mobile-tabs a { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 7px 0; border-radius: 12px; color: rgba(255,255,255,0.6); font-size: 11px; font-weight: 700; text-decoration: none; }
+      .mobile-tabs a svg { width: 22px; height: 22px; }
+      .mobile-tabs a.on { color: #ffd978; background: rgba(255,217,120,0.1); }
+    }
   </style>
 </head>
 <body>
@@ -766,6 +786,12 @@
     </div>
   </header>
 
+  <nav class="mobile-tabs" aria-label="menu">
+    <a href="/dashboard" class="on"><i data-lucide="layout-grid"></i><span data-i18n="nav.tab_cards">내 카드</span></a>
+    <a href="/maker.html"><i data-lucide="plus-circle"></i><span data-i18n="nav.tab_make">만들기</span></a>
+    <a href="/templates.html"><i data-lucide="gallery-vertical"></i><span data-i18n="nav.tab_gallery">갤러리</span></a>
+    <a href="/"><i data-lucide="home"></i><span data-i18n="nav.tab_home">홈</span></a>
+  </nav>
   <div class="container">
     <div id="loginRequired">
       <i data-lucide="lock" style="width: 48px; height: 48px; color: rgba(255,255,255,0.2); margin-bottom: 20px;"></i>
