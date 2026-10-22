@@ -1,6 +1,11 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
+  <script>
+    // 메이커 미리보기(?maker=1)에서는 무거운 외부 스크립트·장식 애니메이션을 끈다
+    window.__MAKER = new URLSearchParams(location.search).get('maker') === '1';
+    if (window.__MAKER) document.documentElement.classList.add('maker-embed');
+  </script>
   <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-1KRR01VT4L"></script>
   <script>
@@ -42,14 +47,18 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,700;0,800;0,900;1,900&family=Pretendard:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
-  <!-- Lucide Icons & QRCode & Kakao SDK -->
-  <script src="https://unpkg.com/lucide@latest"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js" crossorigin="anonymous"></script>
+  <!-- 아이콘·QR은 그리기에 필요하지만 첫 화면을 막지 않게 defer (DOMContentLoaded 전에 실행된다) -->
+  <script defer src="https://unpkg.com/lucide@0.344.0"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
-  <!-- Supabase Client -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="/js/supabase.js"></script>
+  <!-- 카카오·클라우드는 실제 명함 페이지에서만. 메이커 미리보기는 로컬 데이터만 쓴다 -->
+  <script>
+    if (!window.__MAKER) {
+      document.write('<script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js" crossorigin="anonymous"><\/script>');
+      document.write('<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0"><\/script>');
+      document.write('<script src="/js/supabase.js"><\/script>');
+    }
+  </script>
 
   <link rel="stylesheet" href="/css/tokens.css">
   <!-- Default Theme Stylesheet (동적으로 교체됨) -->
@@ -1268,6 +1277,10 @@
     }
     .plate-text-overlay[hidden] { display: none; }
     .plate-artwork-img[hidden] { display: none !important; }
+    /* 메이커 미리보기: 반짝임·맥박·레이저 같은 무한 애니메이션과 배경 흐림을 끈다 (폰 버벅임 원인) */
+    .maker-embed *, .maker-embed *::before, .maker-embed *::after { animation: none !important; }
+    .maker-embed * { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
+    .maker-embed .container { opacity: 1 !important; transition: none !important; }
     .plate-tint { position: absolute; inset: 0; z-index: 1; pointer-events: none; mix-blend-mode: color; opacity: 0.9; border-radius: inherit; }
     .plate-tint[hidden] { display: none; }
     .plate-text-overlay.pos-top-left { justify-content: flex-start; }
@@ -1657,7 +1670,7 @@
             <!-- 로고 박스 (탭 시 QR 팝업) -->
             <div class="front-logo-container">
               <div class="front-logo-box" onclick="event.stopPropagation(); openShareModal();" title="로고를 탭하면 QR코드가 열립니다">
-                <img id="frontLogoImg" src="/assets/logo_toomcard_hd.gif" alt="Logo" onerror="this.onerror=null; this.src='/assets/logo_toomcard.gif';">
+                <img id="frontLogoImg" src="/assets/logo_toomcard_hd.webp" alt="Logo" onerror="this.onerror=null; this.src='/assets/logo_toomcard.gif';">
               </div>
             </div>
 
@@ -1695,7 +1708,7 @@
                 <div class="back-flipper" id="backFlipper">
                   <div class="back-flipper-face back-flipper-logo" id="backFlipperLogoFace">
                     <div class="back-top-logo">
-                      <img id="backLogoImg" src="/assets/logo_toomcard_hd.gif" alt="Logo" onerror="this.onerror=null; this.src='/assets/logo_toomcard.gif';">
+                      <img id="backLogoImg" src="/assets/logo_toomcard_hd.webp" alt="Logo" onerror="this.onerror=null; this.src='/assets/logo_toomcard.gif';">
                     </div>
                   </div>
                 </div>
@@ -2269,7 +2282,7 @@
   <script src="/js/i18n.js"></script>
   <script src="./js/card-renderer.js"></script>
   <script src="./js/toast.js"></script>
-  <script src="./js/maza-telemetry.js"></script>
+  <script>if (!window.__MAKER) document.write('<script src="./js/maza-telemetry.js"><\/script>');</script>
   <script>
     if (window.self !== window.top || new URLSearchParams(window.location.search).get('embed') === 'simulator') {
       document.body.classList.add('in-simulator');

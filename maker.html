@@ -11,10 +11,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&family=Pretendard:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/tokens.css">
-  <script src="https://unpkg.com/lucide@0.344.0"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="/js/supabase.js"></script>
+  <script defer src="https://unpkg.com/lucide@0.344.0"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <!-- 로그인·클라우드(약 220KB)는 발행하거나 편집할 때만 불러온다: ensureCloud() -->
   <script src="/js/card-core.js"></script>
   <script src="/js/i18n.js"></script>
   <style>
@@ -188,6 +187,7 @@
     }
     .car-stack.animating .car-thumb { transition: transform 0.34s cubic-bezier(.2,.8,.2,1), opacity 0.34s; }
     .car-track iframe { transition: opacity 0.12s ease; }
+    .car-track iframe.booting { opacity: 0; }
     .car-nav {
       position: absolute; top: 50%; z-index: 6; transform: translateY(-50%);
       width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--tc-border-strong);
@@ -278,6 +278,8 @@
       .tabbar button[aria-selected="true"] { color: var(--tc-accent); }
       .tabbar button.publish { color: var(--tc-accent); }
       .bg-grid { grid-template-columns: repeat(4, 1fr); }
+      .studio-header, .tabbar, .car-nav { -webkit-backdrop-filter: none; backdrop-filter: none; background: #07050d; }
+      .car-thumb { box-shadow: 0 8px 20px rgba(0,0,0,0.45); }
       .toast { bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom) + 14px); z-index: 60; }
     }
   </style>
@@ -286,7 +288,7 @@
 
   <header class="studio-header">
     <a href="/" class="brand">
-      <img src="/assets/logo_toomcard_hd.gif" alt="">
+      <img src="/assets/logo_toomcard_icon.webp" alt="">
       <span>TOOM<span class="accent">CARD</span></span>
       <span class="badge">STUDIO</span>
     </a>
@@ -449,7 +451,7 @@
         <button type="button" class="car-nav prev" onclick="goDesign(designIdx - 1, -1)" aria-label="Previous">‹</button>
         <div class="car-track" id="carTrack">
           <div class="car-stack" id="carStack"></div>
-          <iframe id="preview" src="/card.html?embed=simulator&maker=1&id=toomcard" title="Live preview"></iframe>
+          <iframe id="preview" class="booting" src="/card.html?embed=simulator&maker=1&id=toomcard" title="Live preview"></iframe>
         </div>
         <button type="button" class="car-nav next" onclick="goDesign(designIdx + 1, 1)" aria-label="Next">›</button>
       </div>
@@ -506,7 +508,6 @@
 
   <div class="toast" id="toast"></div>
 
-  <script src="/js/auth-modal.js"></script>
   <script>
     /* ──────────────────────────────────────────────────────────────
      * 상태: 카드 JSON 하나. 뷰어(card.html)가 그대로 그린다.
@@ -515,7 +516,7 @@
       layout: 'plate', theme: 'obsidian', edition: 'TITANIUM PRO',
       name: '', role: '', company: '', slogan: '', phone: '', email: '',
       moatTags: [],
-      logo: { src: '/assets/logo_toomcard_hd.gif', alt: '' },
+      logo: { src: '/assets/logo_toomcard_hd.webp', alt: '' },
       primaryAction: { url: '', label: '', icon: 'globe' },
       socials: [],
       front: { bg: { type: 'image', src: '/assets/toomcard_front_plate.jpg' }, text: { layout: 'none', showLogo: false, tone: 'auto' }, finish: 'metal', qr: 'subtle' }
@@ -622,14 +623,14 @@
     }
 
     let renderTimer = null, renderSeq = 0, renderedSeq = 0, renderedWaiters = [];
-    function render(immediate) {
+    function render(immediate, delay) {
       clearTimeout(renderTimer);
       const send = () => {
         const frame = $('preview');
         renderSeq += 1;
         if (frame && frame.contentWindow) frame.contentWindow.postMessage({ action: 'render', card: previewCard(), seq: renderSeq }, '*');
       };
-      if (immediate) send(); else renderTimer = setTimeout(send, 80);
+      if (immediate) send(); else renderTimer = setTimeout(send, delay || 80);
     }
     // 뷰어가 다 그렸다는 신호를 기다린다 (너무 오래 걸리면 그냥 진행)
     function waitRendered(ms) {
@@ -956,6 +957,21 @@
       openTab(b.dataset.tab);
     });
 
+    /* ── 클라우드(Supabase) · 로그인 모달 지연 로딩 ───── */
+    let cloudReady = null;
+    function loadScript(src) {
+      return new Promise((resolve, reject) => { const s = document.createElement('script'); s.src = src; s.onload = resolve; s.onerror = reject; document.head.appendChild(s); });
+    }
+    function ensureCloud() {
+      if (!cloudReady) {
+        cloudReady = loadScript('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0')
+          .then(() => loadScript('/js/supabase.js'))
+          .then(() => loadScript('/js/auth-modal.js'))
+          .catch((e) => { cloudReady = null; throw e; });
+      }
+      return cloudReady;
+    }
+
     /* ── 발행 ───────────────────────────────────────── */
     async function publish() {
       const c = collect();
@@ -966,6 +982,7 @@
       const missing = !c.name || (kind === 'business' && !c.company);
       if (missing) { toast(t(kind === 'business' ? 'maker.need_name' : 'maker.need_name_only')); if (isMobile()) openTab('info'); $('fName').focus(); return; }
       const btn = $('btnPublish'); btn.disabled = true;
+      try { await ensureCloud(); } catch (e) { btn.disabled = false; toast(t('maker.publish_fail')); return; }
       const run = async () => {
         toast(t('maker.publishing'));
         const consent = { ageConfirmed: true, lang: (window.i18n && i18n.lang) || 'ko', at: new Date().toISOString() };
@@ -1045,6 +1062,7 @@
 
     /* ── 편집 모드 (?edit=slug) ─────────────────────── */
     async function loadForEdit(slug) {
+      try { await ensureCloud(); } catch (e) { return; }
       if (typeof loadPodFromCloud !== 'function') return;
       const res = await loadPodFromCloud(slug); if (!res || !res.pod) return;
       const json = res.pod.components_json || {}; const c = json.card || json;
@@ -1076,11 +1094,12 @@
     $('kindSeg').addEventListener('click', (e) => { const b = e.target.closest('button[data-kind]'); if (b) setKind(b.dataset.kind); });
     setKind(new URLSearchParams(location.search).get('kind') || 'personal');
     renderBgGrid(); renderThemeChips(); renderStartChips(); renderCarousel(); syncAdjustUI();
-    (function preloadDesigns() {
+    function preloadDesigns() {
       THEMES.forEach(([key]) => { const l = document.createElement('link'); l.rel = 'preload'; l.as = 'style'; l.href = `/themes/${key}.css`; document.head.appendChild(l); });
       CURATED_BG.filter((b) => b.type === 'image').forEach((b) => { const img = new Image(); img.src = b.src; });
-    })();
-    document.querySelectorAll('.panel-left .input, .panel-left .select, #fSlug').forEach((el) => el.addEventListener('input', render));
+    }
+    // 글자를 칠 때는 조금 모았다가 한 번에 그린다 (키 하나마다 카드 전체를 다시 그리면 버벅인다)
+    document.querySelectorAll('.panel-left .input, .panel-left .select, #fSlug').forEach((el) => el.addEventListener('input', () => render(false, 260)));
     document.addEventListener('i18n:change', () => { setKind(kind); renderThemeChips(); renderCarousel(); if (currentTab) document.querySelectorAll('.sheet-title').forEach((el) => { el.textContent = t(TAB_TITLES[currentTab]); }); render(); });
     // 뷰어가 초기 렌더를 끝내면 card_ready를 보낸다. 그 뒤에 그려야 덮어써지지 않는다.
     window.addEventListener('message', (e) => {
@@ -1092,6 +1111,10 @@
       if (e.data && e.data.action === 'rendered') { renderedSeq = Math.max(renderedSeq, e.data.seq || 0); const w = renderedWaiters; renderedWaiters = []; w.forEach((fn) => fn()); return; }
       if (!e.data || e.data.action !== 'card_ready') return;
       renderCarousel();
+      // 첫 그림이 끝나면 실제 카드를 보여준다 (그 전엔 같은 크기의 썸네일이 대신 보인다)
+      waitRenderedSeq(renderSeq + 1, 900).then(() => $('preview').classList.remove('booting'));
+      // 첫 화면이 뜬 뒤 한가할 때 다른 디자인 파일을 미리 받아 둔다
+      setTimeout(preloadDesigns, 2000);
       const params = new URLSearchParams(location.search);
       const edit = params.get('edit');
       const preset = params.get('preset') || params.get('template') || params.get('design');
@@ -1099,7 +1122,8 @@
       else if (preset && STARTS[START_ALIAS[preset] || preset]) { designIdx = Object.keys(STARTS).indexOf(START_ALIAS[preset] || preset); applyStart(preset); renderCarousel(); }
       else render();
     });
-    lucide.createIcons();
+    // lucide는 defer로 받으므로 문서 준비 후에 아이콘을 그린다
+    document.addEventListener('DOMContentLoaded', () => { if (window.lucide) lucide.createIcons(); });
   </script>
 </body>
 </html>

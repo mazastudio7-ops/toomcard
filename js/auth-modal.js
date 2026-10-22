@@ -16,7 +16,7 @@
         </button>
         
         <div class="auth-modal-header">
-          <img src="/assets/logo_toomcard_hd.gif" alt="TOOMCARD" class="auth-modal-logo" style="width: 56px; height: 56px; border-radius: 16px; box-shadow: 0 0 20px rgba(168, 85, 247, 0.45); display: inline-block; margin-bottom: 16px; object-fit: cover;" onerror="this.onerror=null; this.src='/assets/logo_toomcard_hd.gif'">
+          <img src="/assets/logo_toomcard_still.webp" alt="TOOMCARD" class="auth-modal-logo" style="width: 56px; height: 56px; border-radius: 16px; box-shadow: 0 0 20px rgba(168, 85, 247, 0.45); display: inline-block; margin-bottom: 16px; object-fit: cover;" onerror="this.onerror=null; this.src='/assets/logo_toomcard_still.webp'">
           <h2 class="auth-modal-title">TOOMCARD 시작하기</h2>
           <p class="auth-modal-subtitle">제작하신 3D 명함을 영구 보존하고 toomcard.com 고유 링크를 생성하기 위해 3초 만에 로그인하세요.</p>
         </div>
@@ -167,8 +167,8 @@
     </style>
   `;
 
-  // 문서 로드 완료 시 모달 주입
-  document.addEventListener('DOMContentLoaded', () => {
+  // 문서 로드 완료 시 모달 주입 (메이커처럼 나중에 불러와도 바로 주입되게)
+  const initAuthModal = () => {
     document.body.insertAdjacentHTML('beforeend', modalHTML);
 
     const overlay = document.getElementById('authModalOverlay');
@@ -210,7 +210,9 @@
         alert("로그인 스크립트가 로드되지 않았습니다.");
       }
     });
-  });
+  };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initAuthModal);
+  else initAuthModal();
 
   // 전역 함수: 로그인 요구
   window.requireAuth = async function(callback) {

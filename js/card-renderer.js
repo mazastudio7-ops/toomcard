@@ -321,6 +321,8 @@ function populateCard(data) {
 
   // 로고 이미지 (Base Path 정규화 & 무한 onerror 루프 완전 차단)
   function resolveAssetUrl(url) {
+    // 2.4MB/11MB 움직이는 GIF 로고는 가벼운 WebP로. 메이커 미리보기에서는 정지 이미지.
+    if (/logo_toomcard(_hd)?\.gif$/.test(url || '')) url = window.__MAKER ? '/assets/logo_toomcard_still.webp' : '/assets/logo_toomcard_hd.webp';
     if (!url) return '';
     if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:') || url.startsWith('blob:')) {
       return url;
@@ -530,6 +532,9 @@ function initPlateMorphQR(data) {
     scanUrl = window.location.href + (window.location.href.includes('?') ? '&view=back' : '?view=back');
   }
 
+  // 같은 주소면 QR을 다시 만들지 않는다 (입력할 때마다 다시 그리면 버벅였다)
+  if (target.dataset.qrKey === scanUrl && target.childElementCount) return;
+  target.dataset.qrKey = scanUrl;
   target.innerHTML = "";
   if (typeof QRCode !== 'undefined') {
     try {
@@ -826,20 +831,25 @@ function renderFrontLayers(data) {
   if (subtleQr) {
     if (front.qr === 'subtle' && typeof QRCode !== 'undefined') {
       subtleQr.hidden = false;
-      subtleQr.innerHTML = '';
       const dark = !(overlay && overlay.classList.contains('tone-dark'));
+      const qrText = data.slug ? `${location.origin}/${data.slug}` : location.href;
+      const qrKey = qrText + '|' + dark;
+      if (!(subtleQr.dataset.qrKey === qrKey && subtleQr.childElementCount)) {
+      subtleQr.dataset.qrKey = qrKey;
+      subtleQr.innerHTML = '';
       try {
         new QRCode(subtleQr, {
-          text: (data.slug ? `${location.origin}/${data.slug}` : location.href),
+          text: qrText,
           width: 72, height: 72,
           colorDark: dark ? '#ffffff' : '#000000',
           colorLight: 'rgba(0,0,0,0)',
           correctLevel: QRCode.CorrectLevel.M
         });
       } catch (e) { subtleQr.hidden = true; }
+      }
     } else {
       subtleQr.hidden = true;
-      subtleQr.innerHTML = '';
+      subtleQr.innerHTML = ''; subtleQr.dataset.qrKey = '';
     }
   }
 }
