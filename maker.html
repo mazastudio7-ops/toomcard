@@ -1335,7 +1335,7 @@
     let cardK = 1;                      // 화면에 맞춘 축소·확대 비율
     function fitCard() {
       const tr = $('carTrack').getBoundingClientRect();
-      const k = Math.min(1.12, (tr.width * (isMobile() ? 0.74 : 0.62)) / CARD_W, (tr.height - 6) / CARD_H);
+      const k = Math.min(isMobile() ? 1.12 : 0.86, (tr.width * (isMobile() ? 0.74 : 0.62)) / CARD_W, (tr.height - 6) / CARD_H);
       cardK = Math.max(0.3, k);
       $('carCard').style.setProperty('--k', cardK);
     }
