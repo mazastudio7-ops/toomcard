@@ -720,39 +720,6 @@
       font-weight: 800;
     }
 
-    .theme-pro-locked {
-      position: relative;
-      opacity: 0.72;
-      border: 1px dashed rgba(255, 255, 255, 0.2);
-    }
-    .theme-pro-locked:hover {
-      opacity: 1;
-      border-color: #f59e0b;
-    }
-    .pro-badge {
-      font-size: 8.5px;
-      font-weight: 900;
-      color: #000;
-      background: linear-gradient(90deg, #f59e0b, #fbbf24);
-      padding: 1px 5px;
-      border-radius: 4px;
-      letter-spacing: 0.4px;
-      margin-left: auto;
-      flex-shrink: 0;
-      line-height: 1.3;
-    }
-    .theme-pro-locked.unlocked {
-      opacity: 1;
-      border: 1px solid rgba(255,255,255,0.12);
-    }
-    .theme-pro-locked.unlocked .pro-badge {
-      background: linear-gradient(90deg, #10b981, #34d399);
-      color: #fff;
-    }
-    .theme-pro-locked.unlocked .pro-badge::after {
-      content: ' ✓';
-    }
-
     /* 브랜드 로고 빠른 선택 칩 */
     .btn-logo-preset {
       display: flex;
@@ -781,27 +748,6 @@
       color: #fff;
       box-shadow: 0 0 14px rgba(168, 85, 247, 0.28);
     }
-
-    /* Payment Modal */
-    #paymentModal {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);
-      z-index: 10000; display: none; align-items: center; justify-content: center;
-    }
-    #paymentModal.active { display: flex; }
-    .payment-box {
-      background: #18181b; border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 24px; padding: 36px 32px; max-width: 400px; width: 90%;
-      text-align: center; position: relative;
-    }
-    .payment-box h2 { font-size: 22px; font-weight: 800; margin-bottom: 8px; }
-    .payment-box .price { font-size: 36px; font-weight: 900; background: linear-gradient(90deg, #f59e0b, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin: 16px 0; }
-    .payment-box .features { text-align: left; margin: 20px 0; }
-    .payment-box .features li { font-size: 14px; color: rgba(255,255,255,0.8); padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); list-style: none; }
-    .payment-box .features li::before { content: '✓ '; color: #10b981; font-weight: 700; }
-    .btn-pay { width: 100%; padding: 16px; border: none; border-radius: 14px; background: linear-gradient(90deg, #f59e0b, #ec4899); color: #000; font-size: 16px; font-weight: 800; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; }
-    .btn-pay:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(245,158,11,0.3); }
-    .btn-pay-cancel { background: none; border: none; color: rgba(255,255,255,0.5); font-size: 14px; margin-top: 16px; cursor: pointer; }
 
     /* 파일 업로드 래퍼 */
     .file-upload-box {
@@ -2428,27 +2374,87 @@
 
       <div id="panelSingle" style="display:flex;flex-direction:column;gap:28px;">
 
-      <!-- 1. 비즈프린트 스타일 완성형 3D 디자인 템플릿 갤러리 -->
+      <!-- 1. 카드 앞면(Front) 3D 디자인 템플릿 선택 -->
       <div id="designs" class="design-catalog-section" style="scroll-margin-top: 90px;">
         <div class="section-title-wrap" style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
           <div style="display:flex; align-items:flex-start; gap:10px;">
             <div class="section-icon-box" style="background: rgba(255, 217, 120, 0.15); border: 1px solid rgba(255, 217, 120, 0.35);"><i data-lucide="palette" style="width:16px;height:16px;color:#ffd978;"></i></div>
             <div>
               <div style="display:flex; align-items:center; gap:8px;">
-                <h2 class="section-title" style="font-size:16.5px; font-weight:800; color:#ffffff; margin:0;">1. 3D 디자인 템플릿 선택</h2>
-                <span class="catalog-badge-pulse">DESIGN FIRST</span>
+                <h2 class="section-title" style="font-size:16.5px; font-weight:800; color:#ffffff; margin:0;">1. 카드 앞면(Front) 3D 디자인 선택</h2>
+                <span class="catalog-badge-pulse" style="background:rgba(255,217,120,0.18); border-color:#ffd978; color:#ffd978;">FRONT LOCK 🔒</span>
               </div>
               <p style="font-size:12.5px; color:rgba(255,255,255,0.7); margin:4px 0 0 0; line-height:1.45;">
-                원하는 디자인을 클릭하면 <strong style="color:#ffd978;">우측 3D 카드에 즉시 장착되어 실시간으로 미리보기</strong>할 수 있습니다. 마음에 드는 디자인을 자유롭게 둘러보신 후 [이 디자인으로 정보 입력하기]를 눌러주세요.
+                원하는 앞면 디자인을 클릭하면 <strong style="color:#ffd978;">앞면 디자인이 안전하게 잠금(🔒)</strong>되며, 카드가 자동으로 뒷면으로 회전합니다. <span style="color:#38bdf8;">뒷면에서 어떤 작업을 하셔도 앞면은 절대 변하지 않습니다.</span>
               </p>
             </div>
           </div>
         </div>
 
-        <!-- 8대 완성형 템플릿 그리드 (실시간 3D 미리보기 연동) -->
+        <!-- 3D 앞면 디자인 카탈로그 그리드 -->
         <div class="design-preset-grid">
+          <!-- 0. TOOMUS Titanium Gold 3D Plate (시그니처) -->
+          <div class="design-preset-card active" data-preset="toomus" onclick="selectDesignPreset('toomus', true)">
+            <div class="preset-mockup" style="background: radial-gradient(circle, #2d1f47 0%, #0d0a17 100%); border: 1.5px solid #ffd978; overflow:hidden; position:relative; display:flex; align-items:center; justify-content:center;">
+              <img src="/assets/toomus_front_plate.jpg" alt="TOOMUS" style="width:100%; height:100%; object-fit:cover; display:block;">
+              <div class="mockup-chip gold" style="position:absolute; top:6px; left:6px; z-index:2; font-size:9px;">TOOMUS 👑</div>
+            </div>
+            <div class="preset-info">
+              <div class="preset-header-row">
+                <span class="preset-badge badge-best" style="background:linear-gradient(135deg, #ffd978, #f59e0b); color:#000;">SIGNATURE 👑</span>
+                <span class="preset-type">3D Metal Plate</span>
+              </div>
+              <div class="preset-name">TOOMUS 티타늄 골드 3D 엠블럼</div>
+              <div class="preset-desc">글로벌 리더십 · 입체 메탈 엠블럼과 샴페인 골드 각인 플레이트</div>
+            </div>
+            <div class="preset-action">
+              <span class="preset-action-text" style="color:#ffd978; font-weight:800;"><i data-lucide="check" style="width:12px;height:12px;margin-right:4px;"></i>앞면 장착 &amp; 고정 🔒</span>
+              <i data-lucide="sparkles" class="preset-arrow" style="color:#ffd978;"></i>
+            </div>
+          </div>
+
+          <!-- 0-2. SETUPOD Cyber Violet Plate -->
+          <div class="design-preset-card" data-preset="setupod" onclick="selectDesignPreset('setupod', true)">
+            <div class="preset-mockup" style="background: radial-gradient(circle, #2a1145 0%, #090312 100%); border: 1.5px solid #c084fc; overflow:hidden; position:relative; display:flex; align-items:center; justify-content:center;">
+              <img src="/assets/setupod_front_plate.jpg" alt="SETUPOD" style="width:100%; height:100%; object-fit:cover; display:block;">
+              <div class="mockup-chip neon" style="position:absolute; top:6px; left:6px; z-index:2; font-size:9px;">SETUPOD ⚡</div>
+            </div>
+            <div class="preset-info">
+              <div class="preset-header-row">
+                <span class="preset-badge" style="background:linear-gradient(135deg, #c084fc, #9333ea); color:#fff;">TECH VIP ⚡</span>
+                <span class="preset-type">3D Cyber Plate</span>
+              </div>
+              <div class="preset-name">SETUPOD 사이버 바이올렛 3D 엠블럼</div>
+              <div class="preset-desc">차세대 테크 플랫폼 · 네온 퍼플 헤어라인 메탈 플레이트</div>
+            </div>
+            <div class="preset-action">
+              <span class="preset-action-text"><i data-lucide="eye" style="width:12px;height:12px;margin-right:4px;"></i>앞면 장착</span>
+              <i data-lucide="arrow-right" class="preset-arrow"></i>
+            </div>
+          </div>
+
+          <!-- 0-3. MAZA Digital Asset Luxury Plate -->
+          <div class="design-preset-card" data-preset="maza" onclick="selectDesignPreset('maza', true)">
+            <div class="preset-mockup" style="background: radial-gradient(circle, #1a162b 0%, #080612 100%); border: 1.5px solid #a855f7; overflow:hidden; position:relative; display:flex; align-items:center; justify-content:center;">
+              <img src="/assets/maza_front_plate.jpg" alt="MAZA" style="width:100%; height:100%; object-fit:cover; display:block;">
+              <div class="mockup-chip" style="position:absolute; top:6px; left:6px; z-index:2; font-size:9px; background:#a855f7; color:#fff;">MAZA 💎</div>
+            </div>
+            <div class="preset-info">
+              <div class="preset-header-row">
+                <span class="preset-badge" style="background:linear-gradient(135deg, #a855f7, #6366f1); color:#fff;">LUXURY 💎</span>
+                <span class="preset-type">Digital Asset</span>
+              </div>
+              <div class="preset-name">MAZA 사이버 럭셔리 메탈 플레이트</div>
+              <div class="preset-desc">자산운용 &amp; 벤처 · 딥 퍼플 사이버 엠보싱 메탈 플레이트</div>
+            </div>
+            <div class="preset-action">
+              <span class="preset-action-text"><i data-lucide="eye" style="width:12px;height:12px;margin-right:4px;"></i>앞면 장착</span>
+              <i data-lucide="arrow-right" class="preset-arrow"></i>
+            </div>
+          </div>
+
           <!-- 1. Obsidian Titanium (Plate) -->
-          <div class="design-preset-card active" data-preset="obsidian" onclick="selectDesignPreset('obsidian')">
+          <div class="design-preset-card" data-preset="obsidian" onclick="selectDesignPreset('obsidian', true)">
             <div class="preset-mockup mockup-obsidian">
               <div class="mockup-chip">PLATE</div>
               <div class="mockup-hairline"></div>
@@ -2644,139 +2650,92 @@
           </button>
         </div>
 
-        <!-- 세부 커스텀 (레이아웃 & 컬러 개별 조합) 아코디언 -->
-        <details class="advanced-style-details" style="margin-top: 14px; background: rgba(255,255,255,0.02); border: 1px dashed rgba(255,255,255,0.12); border-radius: 12px; padding: 12px 14px;">
-          <summary style="font-size: 12.5px; font-weight: 700; color: rgba(255,255,255,0.7); cursor: pointer; display: flex; align-items: center; justify-content: space-between; user-select: none;">
-            <span style="display:flex; align-items:center; gap:6px;">
-              <i data-lucide="sliders" style="width:14px;height:14px;color:rgba(255,255,255,0.5);"></i>
-              세부 옵션 커스텀 (레이아웃 칩 &amp; 컬러 개별 변경 / 예시 불러오기)
-            </span>
-            <span style="font-size: 11px; color: rgba(255,255,255,0.4);">직접 조합하기 ▼</span>
-          </summary>
-          <div style="margin-top: 16px; display: flex; flex-direction: column; gap: 20px;">
-            <!-- 0. 예시 템플릿 로드 -->
-            <div>
-              <div class="section-title-wrap">
-                <div class="section-icon-box"><i data-lucide="sparkles" style="width:14px;height:14px;color:#a855f7;"></i></div>
-                <h4 style="font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.9); margin: 0;">미리 채워진 예시 데이터 로드</h4>
-              </div>
-              <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top: 8px;">
-                <button type="button" class="btn-nav btn-nav-ghost" style="height:32px; padding:0 12px; font-size:11.5px;" onclick="loadPreset('toomcard')">TOOMCARD (기본)</button>
-                <button type="button" class="btn-nav btn-nav-ghost" style="height:32px; padding:0 12px; font-size:11.5px;" onclick="loadPreset('toomus')">TOOMUS (플래티넘 플레이트)</button>
-                <button type="button" class="btn-nav btn-nav-ghost" style="height:32px; padding:0 12px; font-size:11.5px;" onclick="loadPreset('nexus')">NEXUS 글로벌</button>
-                <button type="button" class="btn-nav btn-nav-ghost" style="height:32px; padding:0 12px; font-size:11.5px; border-color: rgba(56, 189, 248, 0.4); color: #38bdf8;" onclick="loadPreset('boutique')">감성 부티크 (Editorial)</button>
-              </div>
-            </div>
-
-            <!-- 1. 레이아웃 칩 -->
-            <div>
-              <div class="section-title-wrap">
-                <div class="section-icon-box"><i data-lucide="layout" style="width:14px;height:14px;"></i></div>
-                <h4 style="font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.9); margin: 0;">3D 구조 레이아웃 선택</h4>
-              </div>
-              <div class="theme-selector" style="margin-top: 8px;">
-                <div class="theme-card layout-selector-card" data-layout="classic" onclick="selectLayout('classic', this)">
-                  <div class="theme-color-dot" style="background: #1e293b; border-radius:4px;"></div>
-                  <span class="theme-name">Classic Glass</span>
-                </div>
-                <div class="theme-card layout-selector-card" data-layout="metal" onclick="selectLayout('metal', this)">
-                  <div class="theme-color-dot" style="background: linear-gradient(135deg, #94a3b8, #334155); border-radius:4px;"></div>
-                  <span class="theme-name">Executive Metal</span>
-                </div>
-                <div class="theme-card layout-selector-card" data-layout="visual" onclick="selectLayout('visual', this)">
-                  <div class="theme-color-dot" style="background: url(../assets/cover.jpg) center/cover; border-radius:4px;"></div>
-                  <span class="theme-name">Visual Hero</span>
-                </div>
-                <div class="theme-card layout-selector-card" data-layout="editorial" onclick="selectLayout('editorial', this)">
-                  <div class="theme-color-dot" style="background: linear-gradient(135deg, #f8fafc, #94a3b8); border:1px solid #cbd5e1; border-radius:4px;"></div>
-                  <span class="theme-name">Editorial</span>
-                </div>
-                <div class="theme-card layout-selector-card active" data-layout="plate" onclick="selectLayout('plate', this)">
-                  <div class="theme-color-dot" style="background: linear-gradient(135deg, #090a0f, #232733); border: 1.5px solid #ffd978; border-radius:4px;"></div>
-                  <span class="theme-name">Minimal Plate</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- 2. 컬러 테마 칩 -->
-            <div>
-              <div class="section-title-wrap">
-                <div class="section-icon-box"><i data-lucide="palette" style="width:14px;height:14px;"></i></div>
-                <h4 style="font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.9); margin: 0;">컬러 &amp; 재질 테마 선택</h4>
-              </div>
-              <div class="theme-selector" style="margin-top: 8px;">
-                <div class="theme-card theme-selector-card" data-theme="white-minimal" onclick="selectTheme('white-minimal', this)">
-                  <div class="theme-color-dot" style="background: linear-gradient(135deg, #ffffff, #e2e8f0); border: 2px solid #cbd5e1;"></div>
-                  <span class="theme-name">White Minimal</span>
-                </div>
-                <div class="theme-card theme-selector-card" data-theme="navy-gold" onclick="selectTheme('navy-gold', this)">
-                  <div class="theme-color-dot" style="background: linear-gradient(135deg, #0e1a3d, #ffd54f); border: 2px solid #ffd54f;"></div>
-                  <span class="theme-name">Navy Gold</span>
-                </div>
-                <div class="theme-card theme-selector-card" data-theme="frosted-acrylic" onclick="selectTheme('frosted-acrylic', this)">
-                  <div class="theme-color-dot" style="background: linear-gradient(135deg, rgba(255,255,255,0.8), #38bdf8); border: 2px solid #7dd3fc;"></div>
-                  <span class="theme-name">Frosted PET</span>
-                </div>
-                <div class="theme-card theme-selector-card" data-theme="warm-sand" onclick="selectTheme('warm-sand', this)">
-                  <div class="theme-color-dot" style="background: linear-gradient(135deg, #faf6f0, #d6c6b4); border: 2px solid #b45309;"></div>
-                  <span class="theme-name">Warm Sand</span>
-                </div>
-                <div class="theme-card theme-selector-card" data-theme="violet" onclick="selectTheme('violet', this)">
-                  <div class="theme-color-dot" style="background: linear-gradient(135deg, #a855f7, #6b21a8);"></div>
-                  <span class="theme-name">Violet Luxury</span>
-                </div>
-                <div class="theme-card theme-selector-card active" data-theme="obsidian" onclick="selectTheme('obsidian', this)">
-                  <div class="theme-color-dot" style="background: linear-gradient(135deg, #475569, #0f172a);"></div>
-                  <span class="theme-name">Obsidian Dark</span>
-                </div>
-                <div class="theme-card theme-selector-card" data-theme="emerald" onclick="selectTheme('emerald', this)">
-                  <div class="theme-color-dot" style="background: linear-gradient(135deg, #10b981, #064e3b);"></div>
-                  <span class="theme-name">Emerald Tech</span>
-                </div>
-                <div class="theme-card theme-selector-card theme-pro-locked" data-theme="rosegold" onclick="handleProThemeClick('rosegold', this)">
-                  <div class="theme-color-dot" style="background: linear-gradient(135deg, #f59e0b, #ec4899);"></div>
-                  <span class="theme-name">Rose Gold</span>
-                  <span class="pro-badge">PRO</span>
-                </div>
-                <div class="theme-card theme-selector-card theme-pro-locked" data-theme="executive" onclick="handleProThemeClick('executive', this)">
-                  <div class="theme-color-dot" style="background: linear-gradient(135deg, #c0c0c0, #2d2d2d);"></div>
-                  <span class="theme-name">Executive Metal</span>
-                  <span class="pro-badge">PRO</span>
-                </div>
-                <div class="theme-card theme-selector-card theme-pro-locked" data-theme="glass" onclick="handleProThemeClick('glass', this)">
-                  <div class="theme-color-dot" style="background: linear-gradient(135deg, rgba(255,255,255,0.3), rgba(100,100,255,0.2));border:1px solid rgba(255,255,255,0.2);"></div>
-                  <span class="theme-name">Glassmorphism</span>
-                  <span class="pro-badge">PRO</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </details>
+        <!-- 템플릿 갤러리 이동 & 나만의 앞면 업로드 안내 바 -->
+        <div style="margin-top: 14px; display:flex; gap:10px; flex-wrap:wrap;">
+          <a href="/templates" target="_blank" style="flex:1; min-width:200px; display:flex; align-items:center; justify-content:center; gap:8px; padding:12px 16px; border-radius:12px; background:rgba(255,217,120,0.1); border:1px solid rgba(255,217,120,0.35); color:#ffd978; font-size:12.5px; font-weight:800; text-decoration:none; transition:all 0.2s;">
+            <i data-lucide="sparkles" style="width:15px;height:15px;"></i>
+            <span>3D 템플릿 갤러리(templates.html)에서 더 보기 ↗</span>
+          </a>
+          <button type="button" onclick="document.getElementById('plateFileInput').click()" style="flex:1; min-width:200px; display:flex; align-items:center; justify-content:center; gap:8px; padding:12px 16px; border-radius:12px; background:rgba(168,85,247,0.12); border:1px solid rgba(168,85,247,0.35); color:#d8b4fe; font-size:12.5px; font-weight:800; cursor:pointer; transition:all 0.2s;">
+            <i data-lucide="upload" style="width:15px;height:15px;"></i>
+            <span>나만의 특별한 앞면 디자인 이미지 올리기 📁</span>
+          </button>
+          <input type="file" id="plateFileInput" accept="image/*" style="display:none" onchange="handlePlateUpload(event)">
+        </div>
       </div>
 
-      <!-- 2. 기본 인적사항 & 회사 (Quick-Fill Form) -->
+      <!-- 2. 카드 뒷면(Back) 스타일 & 정보 입력 -->
       <div id="quickFillSection" style="scroll-margin-top: 80px;">
-        <!-- 선택된 디자인 확인 배너 -->
-        <div id="selectedDesignBanner" class="selected-design-banner" style="display:flex; align-items:center; justify-content:space-between; background: linear-gradient(135deg, rgba(255, 217, 120, 0.12), rgba(168, 85, 247, 0.08)); border: 1px solid rgba(255, 217, 120, 0.35); border-radius: 12px; padding: 10px 14px; margin-bottom: 16px;">
-          <div style="display:flex; align-items:center; gap:10px;">
-            <span style="font-size:16px;">✨</span>
+        <!-- 앞면 디자인 확정 고정 배너 -->
+        <div id="selectedDesignBanner" class="selected-design-banner" style="display:flex; align-items:center; justify-content:space-between; background: linear-gradient(135deg, rgba(255, 217, 120, 0.15), rgba(168, 85, 247, 0.12)); border: 1.5px solid rgba(255, 217, 120, 0.4); border-radius: 12px; padding: 12px 16px; margin-bottom: 16px; box-shadow: 0 4px 16px rgba(0,0,0,0.3);">
+          <div style="display:flex; align-items:center; gap:12px;">
+            <div style="width:36px; height:36px; border-radius:10px; background:rgba(255,217,120,0.25); border:1px solid #ffd978; display:flex; align-items:center; justify-content:center; font-size:18px;">🔒</div>
             <div>
-              <span style="font-size:11px; font-weight:800; color:#ffd978; text-transform:uppercase; letter-spacing:0.5px;">BEST 🔥 선택됨</span>
-              <div style="font-size:13.5px; font-weight:800; color:#ffffff;">스위스 옵시디언 티타늄 (Minimal Plate)</div>
+              <div style="display:flex; align-items:center; gap:6px;">
+                <span style="font-size:11px; font-weight:800; color:#ffd978; text-transform:uppercase; letter-spacing:0.5px;" id="lockBadgeTitle">앞면 디자인 잠금됨 (FRONT LOCKED 🔒)</span>
+                <span style="font-size:10px; padding:2px 6px; border-radius:4px; background:rgba(56,189,248,0.2); border:1px solid #38bdf8; color:#38bdf8; font-weight:700;">앞면 불변 보호 중</span>
+              </div>
+              <div style="font-size:14px; font-weight:900; color:#ffffff; margin-top:2px;" id="lockDesignName">TOOMUS 티타늄 골드 3D 엠블럼</div>
+              <div style="font-size:11.5px; color:rgba(255,255,255,0.7); margin-top:2px;">뒷면에서 어떤 스타일이나 정보를 바꿔도 앞면은 절대 변하지 않습니다.</div>
             </div>
           </div>
-          <a href="#designs" style="font-size:11.5px; font-weight:700; color:rgba(255,255,255,0.8); text-decoration:none; padding:5px 10px; border-radius:7px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); transition:all 0.2s;" onmouseover="this.style.color='#fff';this.style.background='rgba(255,255,255,0.18)';" onmouseout="this.style.color='rgba(255,255,255,0.8)';this.style.background='rgba(255,255,255,0.08)';">
-            디자인 변경 ↑
+          <a href="#designs" style="font-size:12px; font-weight:800; color:#ffd978; text-decoration:none; padding:7px 12px; border-radius:8px; background:rgba(255,217,120,0.12); border:1px solid rgba(255,217,120,0.4); transition:all 0.2s; white-space:nowrap; display:flex; align-items:center; gap:4px;">
+            <span>앞면 변경 ↺</span>
           </a>
+        </div>
+
+        <!-- 뒷면 전용 테마 & 컬러 칩 (앞면은 1도 안 변하고 뒷면만 변경!) -->
+        <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1); border-radius:14px; padding:14px; margin-bottom:18px;">
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <div class="section-icon-box" style="background:rgba(168,85,247,0.2); border:1px solid #a855f7;"><i data-lucide="palette" style="width:14px;height:14px;color:#c084fc;"></i></div>
+              <h3 style="font-size:13.5px; font-weight:800; color:#ffffff; margin:0;">카드 뒷면(Back) 컬러 &amp; 재질 테마</h3>
+            </div>
+            <span style="font-size:11px; color:#ffd978; font-weight:700;">앞면 유지 · 뒷면만 즉시 변경</span>
+          </div>
+          <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:8px;" id="backThemeSelector">
+            <button type="button" class="back-theme-chip active" onclick="selectBackTheme('navy-gold', this)" style="display:flex; align-items:center; gap:6px; padding:7px 10px; border-radius:8px; background:rgba(14,26,61,0.6); border:1.5px solid #ffd54f; color:#ffd54f; font-size:11.5px; font-weight:800; cursor:pointer;">
+              <span style="width:10px; height:10px; border-radius:50%; background:#ffd54f;"></span>
+              <span>골드 럭셔리</span>
+            </button>
+            <button type="button" class="back-theme-chip" onclick="selectBackTheme('obsidian', this)" style="display:flex; align-items:center; gap:6px; padding:7px 10px; border-radius:8px; background:rgba(15,23,42,0.6); border:1px solid rgba(255,255,255,0.2); color:#e2e8f0; font-size:11.5px; font-weight:700; cursor:pointer;">
+              <span style="width:10px; height:10px; border-radius:50%; background:#475569;"></span>
+              <span>옵시디언 다크</span>
+            </button>
+            <button type="button" class="back-theme-chip" onclick="selectBackTheme('violet', this)" style="display:flex; align-items:center; gap:6px; padding:7px 10px; border-radius:8px; background:rgba(88,28,135,0.4); border:1px solid rgba(168,85,247,0.4); color:#d8b4fe; font-size:11.5px; font-weight:700; cursor:pointer;">
+              <span style="width:10px; height:10px; border-radius:50%; background:#a855f7;"></span>
+              <span>바이올렛 네온</span>
+            </button>
+            <button type="button" class="back-theme-chip" onclick="selectBackTheme('white-minimal', this)" style="display:flex; align-items:center; gap:6px; padding:7px 10px; border-radius:8px; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.3); color:#ffffff; font-size:11.5px; font-weight:700; cursor:pointer;">
+              <span style="width:10px; height:10px; border-radius:50%; background:#ffffff;"></span>
+              <span>미니멀 화이트</span>
+            </button>
+            <button type="button" class="back-theme-chip" onclick="selectBackTheme('emerald', this)" style="display:flex; align-items:center; gap:6px; padding:7px 10px; border-radius:8px; background:rgba(6,78,59,0.4); border:1px solid rgba(16,185,129,0.4); color:#6ee7b7; font-size:11.5px; font-weight:700; cursor:pointer;">
+              <span style="width:10px; height:10px; border-radius:50%; background:#10b981;"></span>
+              <span>딥 에메랄드</span>
+            </button>
+            <button type="button" class="back-theme-chip" onclick="selectBackTheme('frosted-acrylic', this)" style="display:flex; align-items:center; gap:6px; padding:7px 10px; border-radius:8px; background:rgba(56,189,248,0.15); border:1px solid rgba(56,189,248,0.4); color:#7dd3fc; font-size:11.5px; font-weight:700; cursor:pointer;">
+              <span style="width:10px; height:10px; border-radius:50%; background:#38bdf8;"></span>
+              <span>프로스티드 매트</span>
+            </button>
+            <button type="button" class="back-theme-chip" onclick="selectBackTheme('warm-sand', this)" style="display:flex; align-items:center; gap:6px; padding:7px 10px; border-radius:8px; background:rgba(180,83,9,0.2); border:1px solid rgba(217,119,6,0.4); color:#fde68a; font-size:11.5px; font-weight:700; cursor:pointer;">
+              <span style="width:10px; height:10px; border-radius:50%; background:#d6c6b4;"></span>
+              <span>웜샌드 아틀리에</span>
+            </button>
+            <button type="button" class="back-theme-chip" onclick="selectBackTheme('rosegold', this)" style="display:flex; align-items:center; gap:6px; padding:7px 10px; border-radius:8px; background:rgba(236,72,153,0.2); border:1px solid rgba(236,72,153,0.4); color:#fbcfe8; font-size:11.5px; font-weight:700; cursor:pointer;">
+              <span style="width:10px; height:10px; border-radius:50%; background:#ec4899;"></span>
+              <span>로즈골드 VIP</span>
+            </button>
+          </div>
         </div>
 
         <div class="section-title-wrap" style="display:flex; justify-content:space-between; align-items:center;">
           <div style="display:flex; align-items:center; gap:8px;">
             <div class="section-icon-box"><i data-lucide="user" style="width:16px;height:16px;"></i></div>
-            <h2 class="section-title">2. 기본 정보 및 브랜드</h2>
+            <h2 class="section-title">2. 카드 뒷면 프로필 &amp; 인적사항 입력</h2>
           </div>
           
-          <!-- AI Scanner Button moved here -->
+          <!-- AI Scanner Button -->
           <button class="btn-ai-import" onclick="document.getElementById('aiScannerInput').click()" style="background: rgba(168, 85, 247, 0.15); border: 1px solid rgba(168, 85, 247, 0.4); color: #d8b4fe; border-radius: 8px; padding: 6px 12px; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s;">
             <i data-lucide="scan-line" style="width: 14px; height: 14px;"></i>
             내 종이 명함 찍기 (AI)
@@ -2793,227 +2752,112 @@
           </div>
           <div class="form-group">
             <label class="form-label">이름 (영문/한글) <span class="sub">필수</span></label>
-            <input type="text" id="inputName" class="form-input" value="David Miller" placeholder="예: David Miller, Alex Rivera" oninput="liveUpdate()" onfocus="forceCardBack()">
+            <input type="text" id="inputName" class="form-input" value="Andrew K" placeholder="예: Andrew K, Alex Rivera" oninput="liveUpdate()">
           </div>
           <div class="form-group">
             <label class="form-label">직함 / 포지션 <span class="sub">필수</span></label>
-            <input type="text" id="inputRole" class="form-input" value="대표 (Founder & CEO)" placeholder="예: 대표이사, Founder, 디렉터" oninput="liveUpdate()" onfocus="forceCardBack()">
+            <input type="text" id="inputRole" class="form-input" value="대표 / Founder" placeholder="예: 대표이사, Founder, 디렉터" oninput="liveUpdate()">
           </div>
           <div class="form-group">
             <label class="form-label">회사 / 브랜드명 <span class="sub">필수</span></label>
-            <input type="text" id="inputCompany" class="form-input" value="TOOMCARD" placeholder="예: TOOMCARD, TOOMUS" oninput="liveUpdate()" onfocus="forceCardFront()">
+            <input type="text" id="inputCompany" class="form-input" value="TOOMUS" placeholder="예: TOOMCARD, TOOMUS" oninput="liveUpdate()">
           </div>
           <div class="form-group">
             <label class="form-label">배경 워터마크 영문 <span class="sub">대문자 권장</span></label>
-            <input type="text" id="inputWatermark" class="form-input" value="TOOMCARD" placeholder="예: TOOMCARD, TOOMUS" oninput="liveUpdate()" onfocus="forceCardFront()">
+            <input type="text" id="inputWatermark" class="form-input" value="TOOMUS" placeholder="예: TOOMCARD, TOOMUS" oninput="liveUpdate()">
           </div>
           <div class="form-group full-width">
-            <label class="form-label">슬로건 / 비전 한 줄 <span class="sub">앞·뒷면 강조</span></label>
-            <input type="text" id="inputSlogan" class="form-input" value="종이 명함의 시대를 끝내는 살아 움직이는 3D 명함" placeholder="회사의 핵심 가치" oninput="liveUpdate()" onfocus="forceCardFront()">
+            <label class="form-label">슬로건 / 비전 한 줄 <span class="sub">뒷면 콕핏 강조</span></label>
+            <input type="text" id="inputSlogan" class="form-input" value="CONNECTING ENDLESS POTENTIAL" placeholder="회사의 핵심 가치" oninput="liveUpdate()">
           </div>
           <div class="form-group full-width">
             <label class="form-label">영문 각인 태그라인 <span class="sub">상단 미니 럭셔리</span></label>
-            <input type="text" id="inputTagline" class="form-input" value="LIFE · CONNECTED" placeholder="예: LIFE · CONNECTED" oninput="liveUpdate()" onfocus="forceCardFront()">
+            <input type="text" id="inputTagline" class="form-input" value="CONNECTING ENDLESS POTENTIAL" placeholder="예: LIFE · CONNECTED" oninput="liveUpdate()">
           </div>
         </div>
       </div>
 
       <!-- 3. 카드 앞면 디자인 (전면 풀커버 / 프로필 사진 / 로고) -->
-      <div>
-        <div class="section-title-wrap">
-          <div class="section-icon-box"><i data-lucide="sparkles" style="width:16px;height:16px;color:#ffd978;"></i></div>
-          <h2 class="section-title">3. 카드 앞면 디자인 (전면 풀커버 / 프로필 / 로고)</h2>
-        </div>
+      <!-- 3. 앞면 고급 커스텀 (직접 사진/로고/모션 교체 시에만 펼치기) -->
+      <details style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:14px;">
+        <summary style="font-size:13px; font-weight:800; color:rgba(255,255,255,0.7); cursor:pointer; display:flex; align-items:center; justify-content:space-between; user-select:none;">
+          <span style="display:flex; align-items:center; gap:8px;">
+            <i data-lucide="image" style="width:15px;height:15px;color:#a855f7;"></i>
+            <span>고급: 앞면 사진/로고 파일 직접 교체하기 (선택 사항)</span>
+          </span>
+          <span style="font-size:11px; color:#ffd978;">펼치기 ▼</span>
+        </summary>
 
-        <!-- 3대 모드 탭 전환: 전면 풀커버 vs 프로필 사진 vs 브랜드 로고 -->
-        <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:6px; margin-bottom:12px; background:rgba(255,255,255,0.05); padding:4px; border-radius:12px; border:1px solid rgba(255,255,255,0.1);">
-          <button type="button" id="tabPlateActive" onclick="switchVisualTab('plate')" style="padding:8px 6px; border-radius:9px; border:none; font-size:11.5px; font-weight:800; cursor:pointer; background:linear-gradient(135deg, #ffd978, #f59e0b); color:#000; display:flex; align-items:center; justify-content:center; gap:4px; transition:all 0.2s;">
-            <i data-lucide="layers" style="width:13px;height:13px;"></i>
-            <span>전면 풀커버</span>
-          </button>
-          <button type="button" id="tabPhotoActive" onclick="switchVisualTab('photo')" style="padding:8px 6px; border-radius:9px; border:none; font-size:11.5px; font-weight:800; cursor:pointer; background:transparent; color:rgba(255,255,255,0.7); display:flex; align-items:center; justify-content:center; gap:4px; transition:all 0.2s;">
-            <i data-lucide="user" style="width:13px;height:13px;"></i>
-            <span>프로필 사진</span>
-          </button>
-          <button type="button" id="tabLogoActive" onclick="switchVisualTab('logo')" style="padding:8px 6px; border-radius:9px; border:none; font-size:11.5px; font-weight:800; cursor:pointer; background:transparent; color:rgba(255,255,255,0.7); display:flex; align-items:center; justify-content:center; gap:4px; transition:all 0.2s;">
-            <i data-lucide="image" style="width:13px;height:13px;"></i>
-            <span>브랜드 로고</span>
-          </button>
-        </div>
-
-        <!-- 1) 전면 풀커버 플레이트 디자인 업로드 영역 -->
-        <div id="plateUploadSection">
-          <div class="file-upload-box" onclick="document.getElementById('plateFileInput').click()" style="background:rgba(255,217,120,0.08); border:2px dashed rgba(255,217,120,0.5); border-radius:16px; padding:20px; text-align:center; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:6px; transition:all 0.2s;">
-            <i data-lucide="layers" style="width:28px;height:28px;color:#ffd978;"></i>
-            <span style="font-size:13.5px;font-weight:900;color:#ffffff;">카드 앞면 전체를 채울 나만의 3D 아트워크 업로드</span>
-            <span style="font-size:11.5px;color:rgba(255,255,255,0.7);">앞면 디자인이 불변 고정되며, 뒷면 콕핏에 내 프로필이 입력되는 전면 100% 풀커버 플레이트</span>
-            <input type="file" id="plateFileInput" accept="image/*" style="display:none" onchange="handlePlateUpload(event)">
+        <div style="margin-top:16px;">
+          <!-- 3대 모드 탭 전환: 전면 풀커버 vs 프로필 사진 vs 브랜드 로고 -->
+          <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:6px; margin-bottom:12px; background:rgba(255,255,255,0.05); padding:4px; border-radius:12px; border:1px solid rgba(255,255,255,0.1);">
+            <button type="button" id="tabPlateActive" onclick="switchVisualTab('plate')" style="padding:8px 6px; border-radius:9px; border:none; font-size:11.5px; font-weight:800; cursor:pointer; background:linear-gradient(135deg, #ffd978, #f59e0b); color:#000; display:flex; align-items:center; justify-content:center; gap:4px; transition:all 0.2s;">
+              <i data-lucide="layers" style="width:13px;height:13px;"></i>
+              <span>전면 풀커버</span>
+            </button>
+            <button type="button" id="tabPhotoActive" onclick="switchVisualTab('photo')" style="padding:8px 6px; border-radius:9px; border:none; font-size:11.5px; font-weight:800; cursor:pointer; background:transparent; color:rgba(255,255,255,0.7); display:flex; align-items:center; justify-content:center; gap:4px; transition:all 0.2s;">
+              <i data-lucide="user" style="width:13px;height:13px;"></i>
+              <span>프로필 사진</span>
+            </button>
+            <button type="button" id="tabLogoActive" onclick="switchVisualTab('logo')" style="padding:8px 6px; border-radius:9px; border:none; font-size:11.5px; font-weight:800; cursor:pointer; background:transparent; color:rgba(255,255,255,0.7); display:flex; align-items:center; justify-content:center; gap:4px; transition:all 0.2s;">
+              <i data-lucide="image" style="width:13px;height:13px;"></i>
+              <span>브랜드 로고</span>
+            </button>
           </div>
 
-          <!-- 추천 3D 브랜드 완성형 플레이트 (앞면 디자인 불변 원클릭 장착) -->
-          <div style="margin-top:12px;">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-              <span style="font-size:12px;font-weight:800;color:#ffd978;display:flex;align-items:center;gap:6px;">
-                <i data-lucide="sparkles" style="width:14px;height:14px;"></i> 3D 완성형 브랜드 플레이트 (앞면 불변 고정)
-              </span>
-              <span style="font-size:10.5px;color:rgba(255,255,255,0.5);">탭하면 앞면 100% 장착</span>
-            </div>
-            <div style="display:grid;grid-template-columns:repeat(4, 1fr);gap:8px;">
-              <button type="button" class="btn-logo-preset" style="padding:8px 4px; flex-direction:column; gap:6px; height:auto; text-align:center; background:rgba(255,255,255,0.05); border:1px solid rgba(192,132,252,0.4); border-radius:12px;" onclick="selectDesignPreset('setupod')">
-                <img src="/assets/setupod_front_plate.jpg" style="width:48px;height:72px;border-radius:6px;object-fit:cover;border:1px solid #c084fc;box-shadow:0 0 10px rgba(192,132,252,0.35);">
-                <span style="font-size:10.5px;font-weight:800;color:#ffffff;">SETUPOD ⚡</span>
-              </button>
-              <button type="button" class="btn-logo-preset" style="padding:8px 4px; flex-direction:column; gap:6px; height:auto; text-align:center; background:rgba(255,255,255,0.05); border:1px solid rgba(255,217,120,0.4); border-radius:12px;" onclick="selectDesignPreset('toomus')">
-                <img src="/assets/toomus_front_plate.jpg" style="width:48px;height:72px;border-radius:6px;object-fit:cover;border:1px solid #ffd978;box-shadow:0 0 10px rgba(255,217,120,0.35);">
-                <span style="font-size:10.5px;font-weight:800;color:#ffffff;">TOOMUS 👑</span>
-              </button>
-              <button type="button" class="btn-logo-preset" style="padding:8px 4px; flex-direction:column; gap:6px; height:auto; text-align:center; background:rgba(255,255,255,0.05); border:1px solid rgba(168,85,247,0.4); border-radius:12px;" onclick="selectDesignPreset('maza')">
-                <img src="/assets/maza_front_plate.jpg" style="width:48px;height:72px;border-radius:6px;object-fit:cover;border:1px solid #a855f7;box-shadow:0 0 10px rgba(168,85,247,0.35);">
-                <span style="font-size:10.5px;font-weight:800;color:#ffffff;">MAZA 💎</span>
-              </button>
-              <button type="button" class="btn-logo-preset" style="padding:8px 4px; flex-direction:column; gap:6px; height:auto; text-align:center; background:rgba(255,255,255,0.05); border:1px solid rgba(255,217,120,0.3); border-radius:12px;" onclick="selectDesignPreset('toomcard-plate')">
-                <img src="/assets/toomcard_front_plate.jpg" style="width:48px;height:72px;border-radius:6px;object-fit:cover;border:1px solid #cbd5e1;box-shadow:0 4px 10px rgba(0,0,0,0.6);">
-                <span style="font-size:10.5px;font-weight:800;color:#ffffff;">TOOMCARD 🔥</span>
-              </button>
+          <!-- 1) 전면 풀커버 플레이트 디자인 업로드 영역 -->
+          <div id="plateUploadSection">
+            <div class="file-upload-box" onclick="document.getElementById('plateFileInput').click()" style="background:rgba(255,217,120,0.08); border:2px dashed rgba(255,217,120,0.5); border-radius:16px; padding:20px; text-align:center; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:6px; transition:all 0.2s;">
+              <i data-lucide="layers" style="width:28px;height:28px;color:#ffd978;"></i>
+              <span style="font-size:13.5px;font-weight:900;color:#ffffff;">카드 앞면 전체를 채울 나만의 3D 아트워크 업로드</span>
+              <span style="font-size:11.5px;color:rgba(255,255,255,0.7);">앞면 디자인이 불변 고정되며, 뒷면 콕핏에 내 프로필이 입력되는 전면 100% 풀커버 플레이트</span>
             </div>
           </div>
-        </div>
 
-        <!-- 2) 프로필 사진 업로드 영역 -->
-        <div id="photoUploadSection" style="display:none;">
-          <div class="file-upload-box" onclick="document.getElementById('logoFileInput').click()" style="background:rgba(255,217,120,0.05); border:1.5px dashed rgba(255,217,120,0.4); border-radius:16px; padding:20px; text-align:center; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:6px; transition:all 0.2s;">
-            <i data-lucide="camera" style="width:28px;height:28px;color:#ffd978;"></i>
-            <span style="font-size:13.5px;font-weight:800;color:#ffffff;">내 사진 / 프로필 사진 등록하기 (탭하여 선택)</span>
-            <span style="font-size:11.5px;color:rgba(255,255,255,0.65);">증명사진, 인물 프로필, 스튜디오 컷 등 모든 사진 지원 (자동 3D 엠보싱 최적화)</span>
-            <input type="file" id="logoFileInput" accept="image/*" style="display:none" onchange="handleLogoUpload(event)">
+          <!-- 2) 프로필 사진 업로드 영역 -->
+          <div id="photoUploadSection" style="display:none;">
+            <div class="file-upload-box" onclick="document.getElementById('logoFileInput').click()" style="background:rgba(255,217,120,0.05); border:1.5px dashed rgba(255,217,120,0.4); border-radius:16px; padding:20px; text-align:center; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:6px; transition:all 0.2s;">
+              <i data-lucide="camera" style="width:28px;height:28px;color:#ffd978;"></i>
+              <span style="font-size:13.5px;font-weight:800;color:#ffffff;">내 사진 / 프로필 사진 등록하기 (탭하여 선택)</span>
+              <span style="font-size:11.5px;color:rgba(255,255,255,0.65);">증명사진, 인물 프로필, 스튜디오 컷 등 모든 사진 지원</span>
+              <input type="file" id="logoFileInput" accept="image/*" style="display:none" onchange="handleLogoUpload(event)">
+            </div>
           </div>
 
-          <!-- 인기 프로필 샘플 원클릭 적용 -->
-          <div style="margin-top:12px;">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-              <span style="font-size:12px;font-weight:800;color:#ffd978;display:flex;align-items:center;gap:6px;">
-                <i data-lucide="users" style="width:14px;height:14px;"></i> 추천 프로필 사진 샘플 (원클릭 테스트)
-              </span>
-              <span style="font-size:10.5px;color:rgba(255,255,255,0.5);">탭하면 즉시 반영</span>
-            </div>
-            <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:8px;">
-              <button type="button" class="btn-logo-preset" style="padding:10px 6px; flex-direction:column; gap:6px; height:auto; text-align:center; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.12); border-radius:12px;" onclick="selectBrandLogo('/assets/sample_profile_ceo.jpg', 'CEO 비즈니스', this)">
-                <img src="/assets/sample_profile_ceo.jpg" style="width:40px;height:40px;border-radius:50%;object-fit:cover;border:2px solid #ffd978;box-shadow:0 0 10px rgba(255,217,120,0.4);">
-                <span style="font-size:11px;font-weight:800;color:#ffffff;">CEO 비즈니스</span>
+          <!-- 3) 브랜드 로고 영역 -->
+          <div id="logoUploadSection" style="display:none; margin-top:10px;">
+            <div style="display:grid;grid-template-columns:repeat(2, 1fr);gap:8px;" id="logoPresetGroup">
+              <button type="button" class="btn-logo-preset active" data-logo-src="/assets/logo_toomcard_hd.gif" onclick="selectBrandLogo('/assets/logo_toomcard_hd.gif', 'TOOMCARD 3D 모션 HD', this)">
+                <img src="/assets/logo_toomcard_hd.gif" style="width:20px;height:20px;border-radius:5px;object-fit:cover;flex-shrink:0;">
+                <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">TOOMCARD 모션 HD</span>
               </button>
-              <button type="button" class="btn-logo-preset" style="padding:10px 6px; flex-direction:column; gap:6px; height:auto; text-align:center; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.12); border-radius:12px;" onclick="selectBrandLogo('/assets/sample_profile_creator.jpg', '크리에이터', this)">
-                <img src="/assets/sample_profile_creator.jpg" style="width:40px;height:40px;border-radius:10px;object-fit:cover;border:2px solid #fff;box-shadow:0 4px 10px rgba(0,0,0,0.5);">
-                <span style="font-size:11px;font-weight:800;color:#ffffff;">크리에이터</span>
-              </button>
-              <button type="button" class="btn-logo-preset" style="padding:10px 6px; flex-direction:column; gap:6px; height:auto; text-align:center; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.12); border-radius:12px;" onclick="selectBrandLogo('/assets/sample_profile_tech.jpg', '스타트업 리더', this)">
-                <img src="/assets/sample_profile_tech.jpg" style="width:40px;height:40px;border-radius:50%;object-fit:cover;border:2px solid #c084fc;box-shadow:0 0 10px rgba(192,132,252,0.5);">
-                <span style="font-size:11px;font-weight:800;color:#ffffff;">스타트업 리더</span>
+              <button type="button" class="btn-logo-preset" data-logo-src="/assets/toomus_front.jpg" onclick="selectBrandLogo('/assets/toomus_front.jpg', 'TOOMUS 공식 3D 엠블럼', this)">
+                <img src="/assets/toomus_front.jpg" style="width:20px;height:20px;border-radius:5px;object-fit:cover;flex-shrink:0;">
+                <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">TOOMUS 공식 3D</span>
               </button>
             </div>
           </div>
         </div>
+      </details>
 
-        <!-- 3) 브랜드 로고 영역 (기존 로고 선택) -->
-        <div id="logoUploadSection" style="display:none; margin-top:10px;">
-          <div style="display:grid;grid-template-columns:repeat(2, 1fr);gap:8px;" id="logoPresetGroup">
-            <button type="button" class="btn-logo-preset active" data-logo-src="/assets/logo_toomcard_hd.gif" onclick="selectBrandLogo('/assets/logo_toomcard_hd.gif', 'TOOMCARD 3D 모션 HD', this)">
-              <img src="/assets/logo_toomcard_hd.gif" style="width:20px;height:20px;border-radius:5px;object-fit:cover;flex-shrink:0;">
-              <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">TOOMCARD 모션 HD</span>
-            </button>
-            <button type="button" class="btn-logo-preset" data-logo-src="/assets/toomus_front.jpg" onclick="selectBrandLogo('/assets/toomus_front.jpg', 'TOOMUS 공식 3D 엠블럼', this)">
-              <img src="/assets/toomus_front.jpg" style="width:20px;height:20px;border-radius:5px;object-fit:cover;flex-shrink:0;">
-              <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">TOOMUS 공식 3D</span>
-            </button>
-            <button type="button" class="btn-logo-preset" data-logo-src="/assets/logo_toomus.gif" onclick="selectBrandLogo('/assets/logo_toomus.gif', 'TOOMUS 3D 모션 회전', this)">
-              <img src="/assets/logo_toomus.gif" style="width:20px;height:20px;border-radius:5px;object-fit:cover;flex-shrink:0;">
-              <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">TOOMUS 모션 GIF</span>
-            </button>
-            <button type="button" class="btn-logo-preset" data-logo-src="/assets/logo_setupod.gif" onclick="selectBrandLogo('/assets/logo_setupod.gif', 'SETUPOD 공식 3D', this)">
-              <img src="/assets/logo_setupod.gif" style="width:20px;height:20px;border-radius:5px;object-fit:cover;flex-shrink:0;">
-              <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">SETUPOD 공식 3D</span>
-            </button>
-          </div>
-        </div>
-
-        <div style="margin-top:8px;">
-          <a href="https://open.kakao.com/o/sySmTxKi" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:6px;padding:11px 14px;border-radius:12px;background:linear-gradient(135deg,rgba(244,114,182,0.18),rgba(168,85,247,0.18));border:1px solid rgba(244,114,182,0.4);color:#fbcfe8;font-size:12.5px;font-weight:800;text-decoration:none;transition:all 0.2s;box-shadow:0 0 15px rgba(244,114,182,0.1);">
-            <i data-lucide="zap" style="width:15px;height:15px;color:#f472b6;"></i>
-            <span>🔥 3D 모션 GIF 아바타 맞춤 제작 의뢰하기 (카카오톡 1:1)</span>
-          </a>
-        </div>
-
-        <!-- GIF 샘플 갤러리 (레퍼런스) -->
-        <div style="margin-top:14px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:14px;padding:12px;">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-            <span style="font-size:12px;font-weight:800;color:#e2e8f0;display:flex;align-items:center;gap:5px;">
-              <i data-lucide="image-play" style="width:14px;height:14px;color:#f472b6;"></i> GIF 모션 레퍼런스 샘플 (탭하면 적용)
-            </span>
-          </div>
-          <div style="display:flex;gap:12px;overflow-x:auto;padding-bottom:8px;">
-            <div style="min-width:140px;height:80px;border-radius:10px;background:#000;overflow:hidden;border:1px solid rgba(255,255,255,0.1);flex-shrink:0;cursor:pointer;" onclick="selectBrandLogo('/assets/logo_toomcard_hd.gif', 'TOOMCARD 공식 3D 모션 (GIF)')">
-              <img src="/assets/logo_toomcard_hd.gif" style="width:100%;height:100%;object-fit:cover;">
-            </div>
-            <div style="min-width:140px;height:80px;border-radius:10px;background:#000;overflow:hidden;border:1px solid rgba(255,255,255,0.1);flex-shrink:0;cursor:pointer;" onclick="selectBrandLogo('/assets/logo_toomcard_hd.gif', 'TOOMCARD 3D 모션 HD')">
-              <img src="/assets/logo_toomcard_hd.gif" style="width:100%;height:100%;object-fit:cover;">
-            </div>
-            <div style="min-width:140px;height:80px;border-radius:10px;background:#000;overflow:hidden;border:1px solid rgba(255,255,255,0.1);flex-shrink:0;cursor:pointer;" onclick="selectBrandLogo('/assets/toomus_front.jpg', 'TOOMUS 공식 3D')">
-              <img src="/assets/toomus_front.jpg" style="width:100%;height:100%;object-fit:cover;">
-            </div>
-            <div style="min-width:140px;height:80px;border-radius:10px;background:#000;overflow:hidden;border:1px solid rgba(255,255,255,0.1);flex-shrink:0;cursor:pointer;" onclick="selectBrandLogo('/assets/logo_toomus.gif', 'TOOMUS 3D 모션 GIF')">
-              <img src="/assets/logo_toomus.gif" style="width:100%;height:100%;object-fit:cover;">
-            </div>
-          </div>
-          <p style="font-size:10px;color:rgba(255,255,255,0.4);margin-top:6px;line-height:1.4;word-break:keep-all;">
-            * 맞춤 제작 의뢰 시, 위와 같은 고품질 모션 로고를 제작해 드립니다. 원하는 레퍼런스를 캡처하여 문의해주세요.
-          </p>
-        </div>
-
-        <!-- 홀로그램 & GIF 모션 선택 -->
-        <div style="margin-top:14px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:14px;padding:12px;">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-            <span style="font-size:12px;font-weight:800;color:#e2e8f0;display:flex;align-items:center;gap:5px;">
-              <i data-lucide="zap" style="width:14px;height:14px;color:#38bdf8;"></i> 3D 홀로그램 & GIF 모션 연출
-            </span>
-            <span style="font-size:10.5px;color:#a78bfa;font-weight:700;">실시간 3D 연동</span>
-          </div>
-          <div style="display:grid;grid-template-columns:repeat(2, 1fr);gap:6px;" id="motionButtonGroup">
-            <button type="button" class="btn-motion-choice active" onclick="setCardMotion('pulse')" id="btnMotionChoicePulse" style="padding:8px;background:rgba(139,92,246,0.15);border:1px solid #8b5cf6;border-radius:8px;color:#fff;font-size:11.5px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px;">
-              🌟 홀로그램 펄스
-            </button>
-            <button type="button" class="btn-motion-choice" onclick="setCardMotion('shimmer')" id="btnMotionChoiceShimmer" style="padding:8px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:8px;color:rgba(255,255,255,0.7);font-size:11.5px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px;">
-              ⚡️ 사이버 시머
-            </button>
-            <button type="button" class="btn-motion-choice" onclick="setCardMotion('float')" id="btnMotionChoiceFloat" style="padding:8px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:8px;color:rgba(255,255,255,0.7);font-size:11.5px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px;">
-              🌀 3D 무중력 부유
-            </button>
-            <button type="button" class="btn-motion-choice" onclick="setCardMotion('gold')" id="btnMotionChoiceGold" style="padding:8px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:8px;color:rgba(255,255,255,0.7);font-size:11.5px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px;">
-              💎 골드 럭셔리
-            </button>
-            <button type="button" class="btn-motion-choice" onclick="setCardMotion('none')" id="btnMotionChoiceNone" style="grid-column:span 2;padding:6px;background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:8px;color:rgba(255,255,255,0.5);font-size:11px;font-weight:700;cursor:pointer;">
-              ⚪️ 정적 모드 (효과 끄기)
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- 4. 핵심 해자 태그 (3개) -->
+      <!-- 3. 핵심 비즈니스 키워드 (해자 태그 3개) -->
       <div>
         <div class="section-title-wrap">
           <div class="section-icon-box"><i data-lucide="award" style="width:16px;height:16px;"></i></div>
-          <h2 class="section-title">4. 핵심 비즈니스 키워드 (해자 태그 3개)</h2>
+          <h2 class="section-title">3. 핵심 비즈니스 키워드 (해자 태그 3개)</h2>
         </div>
         <div class="form-grid">
           <div class="form-group">
             <label class="form-label">태그 1</label>
-            <input type="text" id="inputTag1" class="form-input" value="3D 인터랙티브" oninput="liveUpdate()" onfocus="forceCardFront()">
+            <input type="text" id="inputTag1" class="form-input" value="3D 인터랙티브" oninput="liveUpdate()">
           </div>
           <div class="form-group">
             <label class="form-label">태그 2</label>
-            <input type="text" id="inputTag2" class="form-input" value="vCard 주소록 저장" oninput="liveUpdate()" onfocus="forceCardFront()">
+            <input type="text" id="inputTag2" class="form-input" value="vCard 주소록 저장" oninput="liveUpdate()">
           </div>
           <div class="form-group full-width">
             <label class="form-label">태그 3</label>
-            <input type="text" id="inputTag3" class="form-input" value="올인원 멀티링크" oninput="liveUpdate()" onfocus="forceCardFront()">
+            <input type="text" id="inputTag3" class="form-input" value="올인원 멀티링크" oninput="liveUpdate()">
           </div>
         </div>
       </div>
@@ -3035,27 +2879,27 @@
           </div>
           <div class="form-group">
             <label class="form-label">공식 웹사이트 URL</label>
-            <input type="url" id="inputWebsiteUrl" class="form-input" value="https://toomcard.com" oninput="liveUpdate()" onfocus="forceCardFront()">
+            <input type="url" id="inputWebsiteUrl" class="form-input" value="https://toomcard.com" oninput="liveUpdate()">
           </div>
           <div class="form-group">
             <label class="form-label">웹사이트 버튼 텍스트</label>
-            <input type="text" id="inputWebsiteLabel" class="form-input" value="공식 웹사이트" oninput="liveUpdate()" onfocus="forceCardFront()">
+            <input type="text" id="inputWebsiteLabel" class="form-input" value="공식 웹사이트" oninput="liveUpdate()">
           </div>
           <div class="form-group">
             <label class="form-label">카카오톡 오픈채팅 / ID 링크</label>
-            <input type="text" id="inputKakaoUrl" class="form-input" value="" placeholder="예: https://open.kakao.com/o/..." oninput="liveUpdate()" onfocus="forceCardFront()">
+            <input type="text" id="inputKakaoUrl" class="form-input" value="" placeholder="예: https://open.kakao.com/o/..." oninput="liveUpdate()">
           </div>
           <div class="form-group">
             <label class="form-label">카카오 버튼 표시 텍스트</label>
-            <input type="text" id="inputKakaoLabel" class="form-input" value="카카오톡 상담" oninput="liveUpdate()" onfocus="forceCardFront()">
+            <input type="text" id="inputKakaoLabel" class="form-input" value="카카오톡 상담" oninput="liveUpdate()">
           </div>
           <div class="form-group">
             <label class="form-label">인스타그램 URL</label>
-            <input type="text" id="inputInstaUrl" class="form-input" value="https://instagram.com" oninput="liveUpdate()" onfocus="forceCardFront()">
+            <input type="text" id="inputInstaUrl" class="form-input" value="https://instagram.com" oninput="liveUpdate()">
           </div>
           <div class="form-group">
             <label class="form-label">인스타 버튼 표시 텍스트</label>
-            <input type="text" id="inputInstaLabel" class="form-input" value="인스타그램" oninput="liveUpdate()" onfocus="forceCardFront()">
+            <input type="text" id="inputInstaLabel" class="form-input" value="인스타그램" oninput="liveUpdate()">
           </div>
         </div>
       </div>
@@ -3510,15 +3354,22 @@
 
     <!-- 우측 라이브 3D 프리뷰 컬럼 -->
     <div class="preview-column">
-      <div class="preview-header-bar">
+      <div class="preview-header-bar" style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
         <div class="live-badge">
           <div class="live-dot"></div>
-          <span>실시간 3D 라이브 뷰</span>
+          <span id="previewSideLabel">실시간 3D 뷰 (뒷면 편집 중)</span>
         </div>
-        <button class="btn-preview-flip" onclick="toggleCardFlip()">
-          <i data-lucide="refresh-cw" style="width:12px;height:12px;"></i>
-          <span>앞뒤 뒤집기</span>
-        </button>
+        <div style="display:flex; align-items:center; gap:6px;">
+          <button type="button" class="btn-preview-flip" id="btnPreviewFront" onclick="forceCardFront(); updateSideToggleUI('front');" style="padding:4px 8px; font-size:11px; font-weight:700;" title="앞면 3D 디자인 보기">
+            <span>🔒 앞면</span>
+          </button>
+          <button type="button" class="btn-preview-flip active" id="btnPreviewBack" onclick="forceCardBack(); updateSideToggleUI('back');" style="padding:4px 8px; font-size:11px; font-weight:700; background:rgba(255,217,120,0.2); border-color:#ffd978; color:#ffd978;" title="뒷면 정보 콕핏 보기">
+            <span>✏️ 뒷면</span>
+          </button>
+          <button type="button" class="btn-preview-flip" onclick="toggleCardFlip();" style="padding:4px 8px; font-size:11px;">
+            <i data-lucide="refresh-cw" style="width:11px;height:11px;"></i>
+          </button>
+        </div>
       </div>
 
       <div class="card-preview-wrap">
@@ -3714,6 +3565,38 @@
   </style>
 
   <script>
+    // 보안 및 XSS 방어 유틸리티
+    function escapeHtml(str) {
+      if (str === null || str === undefined) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function escapeAttr(str) {
+      if (str === null || str === undefined) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+    }
+
+    // 테마 스타일시트 안전 적용 및 브라우저 캐시 보존
+    function setThemeStylesheet(themeName) {
+      const el = document.getElementById('themeStylesheet');
+      if (!el || !themeName) return;
+      const cleanTheme = String(themeName).trim().toLowerCase().replace(/[^a-z0-9_-]/g, '') || 'obsidian';
+      const targetHref = `/themes/${cleanTheme}.css`;
+      if (el.getAttribute('href') !== targetHref) {
+        el.setAttribute('href', targetHref);
+      }
+    }
+
     let currentLayout = 'plate';
     let currentTheme = 'obsidian';
     let currentLogoSrc = '/assets/logo_toomcard_hd.gif';
@@ -3810,16 +3693,28 @@
       if (morphWrap) morphWrap.classList.remove('active');
 
       const scene = document.getElementById('cardScene');
-      if (scene) scene.classList.toggle('flipped');
+      if (scene) {
+        const isFlipped = scene.classList.toggle('flipped');
+        if (typeof updateSideToggleUI === 'function') {
+          updateSideToggleUI(isFlipped ? 'back' : 'front');
+        }
+      }
     }
     
     function forceCardFront() {
       const scene = document.getElementById('cardScene');
       if (scene) scene.classList.remove('flipped');
+      if (typeof updateSideToggleUI === 'function') {
+        updateSideToggleUI('front');
+      }
     }
     
     function forceCardBack() {
-      document.getElementById('cardScene').classList.add('flipped');
+      const scene = document.getElementById('cardScene');
+      if (scene) scene.classList.add('flipped');
+      if (typeof updateSideToggleUI === 'function') {
+        updateSideToggleUI('back');
+      }
     }
 
     function toggleBackLogoQr(event) {
@@ -4083,14 +3978,100 @@
       }
     };
 
-    let currentPreset = 'obsidian';
+    // ==========================================
+    // 앞면 불변 잠금 (FRONT DESIGN LOCK) 시스템
+    // ==========================================
+    let frontDesignLock = {
+      isLocked: true,
+      presetKey: 'toomus',
+      plateCardImage: '/assets/toomus_front_plate.jpg',
+      layout: 'plate',
+      logo: '/assets/logo_toomus.gif',
+      name: 'TOOMUS 티타늄 골드 3D 엠블럼',
+      badge: 'TOOMUS 👑'
+    };
+
+    let currentPreset = 'toomus';
+
+    function updateSideToggleUI(side) {
+      const btnFront = document.getElementById('btnPreviewFront');
+      const btnBack = document.getElementById('btnPreviewBack');
+      const label = document.getElementById('previewSideLabel');
+
+      if (side === 'front') {
+        if (btnFront) {
+          btnFront.style.background = 'rgba(255,217,120,0.2)';
+          btnFront.style.borderColor = '#ffd978';
+          btnFront.style.color = '#ffd978';
+        }
+        if (btnBack) {
+          btnBack.style.background = '';
+          btnBack.style.borderColor = '';
+          btnBack.style.color = '';
+        }
+        if (label) label.innerText = '실시간 3D 뷰 (앞면 디자인 🔒)';
+      } else {
+        if (btnBack) {
+          btnBack.style.background = 'rgba(255,217,120,0.2)';
+          btnBack.style.borderColor = '#ffd978';
+          btnBack.style.color = '#ffd978';
+        }
+        if (btnFront) {
+          btnFront.style.background = '';
+          btnFront.style.borderColor = '';
+          btnFront.style.color = '';
+        }
+        if (label) label.innerText = '실시간 3D 뷰 (뒷면 편집 중 ✏️)';
+      }
+    }
+
+    // 뒷면 전용 테마 변경 (앞면 플레이트는 1도 안 변하고 뒷면만 변경!)
+    function selectBackTheme(themeName, btnElem) {
+      currentTheme = themeName;
+      document.querySelectorAll('.back-theme-chip').forEach(c => c.classList.remove('active'));
+      if (btnElem) btnElem.classList.add('active');
+
+      // 앞면 플레이트 이미지는 절대 건드리지 않고 철저히 보존!
+      if (frontDesignLock.plateCardImage) {
+        currentPlateCardImage = frontDesignLock.plateCardImage;
+        const plateImg = document.getElementById('plateArtworkImg');
+        if (plateImg) plateImg.src = currentPlateCardImage;
+      }
+
+      setThemeStylesheet(themeName);
+      
+      // 카드는 뒷면을 편하게 볼 수 있도록 유지
+      forceCardBack();
+      updateSideToggleUI('back');
+      liveUpdate();
+
+      showToast(`✨ 앞면은 그대로 유지되고, 뒷면이 [${themeName.toUpperCase()}] 테마로 변경되었습니다!`);
+    }
+
+    function updateLockBanner() {
+      const lockBadgeTitle = document.getElementById('lockBadgeTitle');
+      const lockDesignName = document.getElementById('lockDesignName');
+      if (lockBadgeTitle) lockBadgeTitle.innerText = `${frontDesignLock.badge} 앞면 잠금됨 (FRONT LOCKED 🔒)`;
+      if (lockDesignName) lockDesignName.innerText = `${frontDesignLock.name}`;
+    }
 
     function selectDesignPreset(key, shouldScroll = false, applyData = true) {
       const p = DESIGN_PRESETS[key];
       if (!p) return;
       currentPreset = key;
 
-      // 1. 카탈로그 그리드 내 활성화 배지 및 하단 버튼 텍스트 업데이트 (개인 모드)
+      // 1. 앞면 디자인 잠금(Lock) 상태 등록
+      frontDesignLock = {
+        isLocked: true,
+        presetKey: key,
+        plateCardImage: p.plateCardImage || '',
+        layout: p.plateCardImage ? 'plate' : (p.layout || 'metal'),
+        logo: p.logo || '/assets/logo_toomcard_hd.gif',
+        name: p.name,
+        badge: p.badge
+      };
+
+      // 2. 카탈로그 그리드 내 활성화 배지 업데이트
       document.querySelectorAll('#panelSingle .design-preset-card').forEach(c => {
         const isMatch = c.getAttribute('data-preset') === key;
         c.classList.toggle('active', isMatch);
@@ -4098,15 +4079,15 @@
         const arrow = c.querySelector('.preset-arrow');
         if (actionText) {
           if (isMatch) {
-            actionText.innerHTML = '<i data-lucide="check" style="width:12px;height:12px;margin-right:4px;"></i>현재 장착됨';
+            actionText.innerHTML = '<i data-lucide="check" style="width:12px;height:12px;margin-right:4px;"></i>앞면 장착 &amp; 고정 🔒';
             actionText.style.color = '#ffd978';
             actionText.style.fontWeight = '800';
             if (arrow) {
-              arrow.setAttribute('data-lucide', 'sparkles');
+              arrow.setAttribute('data-lucide', 'lock');
               arrow.style.color = '#ffd978';
             }
           } else {
-            actionText.innerHTML = '<i data-lucide="eye" style="width:12px;height:12px;margin-right:4px;"></i>3D 미리보기 장착';
+            actionText.innerHTML = '<i data-lucide="eye" style="width:12px;height:12px;margin-right:4px;"></i>이 앞면 선택';
             actionText.style.color = '';
             actionText.style.fontWeight = '';
             if (arrow) {
@@ -4117,7 +4098,26 @@
         }
       });
 
-      // 2. 템플릿 실물 데이터(회사명, 이름, 직함, 슬로건, 태그, 연락처, 로고) 자동 입력 (갤러리 디자인 즉시 사용 가능)
+      // 3. 앞면 비주얼 세팅
+      if (p.plateCardImage) {
+        currentPlateCardImage = p.plateCardImage;
+        const plateImg = document.getElementById('plateArtworkImg');
+        if (plateImg) plateImg.src = currentPlateCardImage;
+        selectLayout('plate');
+        if (typeof switchVisualTab === 'function') switchVisualTab('plate');
+      } else {
+        currentPlateCardImage = '';
+        selectLayout(p.layout || 'metal');
+      }
+
+      if (p.logo) {
+        selectBrandLogo(p.logo, p.company, null);
+      }
+
+      // 4. 뒷면 기본 테마 세팅
+      selectTheme(p.theme);
+
+      // 5. 템플릿 기본 데이터 동기화
       if (applyData) {
         if (p.company && document.getElementById('inputCompany')) document.getElementById('inputCompany').value = p.company;
         if (p.namePerson && document.getElementById('inputName')) document.getElementById('inputName').value = p.namePerson;
@@ -4132,64 +4132,34 @@
           if (document.getElementById('inputTag2')) document.getElementById('inputTag2').value = p.tags[1] || '';
           if (document.getElementById('inputTag3')) document.getElementById('inputTag3').value = p.tags[2] || '';
         }
-        if (p.logo) {
-          selectBrandLogo(p.logo, p.company, null);
-        }
-        if (p.plateCardImage) {
-          selectPlateArtwork(p.plateCardImage, p.name, null);
-          switchVisualTab('plate');
-        }
       }
 
-      // 3. 레이아웃 & 테마 DOM 동기화
-      const layoutEl = document.querySelector(`.layout-selector-card[data-layout="${p.layout}"]`);
-      selectLayout(p.layout, layoutEl);
-
-      const themeEl = document.querySelector(`.theme-selector-card[data-theme="${p.theme}"]`);
-      selectTheme(p.theme, themeEl);
-
-      // 4. 실시간 렌더링 호출
+      // 6. 실시간 렌더링 호출
       liveUpdate();
 
-      // 5. 우측 3D 카드를 앞면(Front)으로 회전하여 템플릿 실물 디자인을 바로 보여줌
+      // 7. 앞면을 1.2초간 보여주며 반짝임 애니메이션 부여 -> 이후 자동으로 뒷면으로 3D 회전!
       forceCardFront();
-
-      // 6. 우측 3D 카드에 실시간 장착 하이라이트 애니메이션 부여
+      updateSideToggleUI('front');
       const scene = document.getElementById('cardScene');
       if (scene) {
         scene.classList.remove('preview-pulse');
-        void scene.offsetWidth; // trigger reflow
+        void scene.offsetWidth;
         scene.classList.add('preview-pulse');
       }
 
-      // 7. 실시간 진행 확인 바 및 퀵필 상단 배너 갱신
-      const confirmBadge = document.getElementById('confirmBadge');
-      const confirmName = document.getElementById('confirmName');
-      if (confirmBadge) confirmBadge.innerText = `${p.badge} 장착됨`;
-      if (confirmName) confirmName.innerText = `${p.name} (${p.typeLabel})`;
+      updateLockBanner();
 
-      const banner = document.getElementById('selectedDesignBanner');
-      if (banner) {
-        banner.innerHTML = `
-          <div style="display:flex; align-items:center; gap:10px;">
-            <span style="font-size:16px;">✨</span>
-            <div>
-              <span style="font-size:11px; font-weight:800; color:#ffd978; text-transform:uppercase; letter-spacing:0.5px;">${p.badge} 디자인 세팅됨</span>
-              <div style="font-size:13.5px; font-weight:800; color:#ffffff;">${p.name} (${p.typeLabel}) · 아래 폼에서 내 정보로 수정하세요!</div>
-            </div>
-          </div>
-          <a href="#designs" style="font-size:11.5px; font-weight:700; color:rgba(255,255,255,0.8); text-decoration:none; padding:5px 10px; border-radius:7px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); transition:all 0.2s;" onmouseover="this.style.color='#fff';this.style.background='rgba(255,255,255,0.18)';" onmouseout="this.style.color='rgba(255,255,255,0.8)';this.style.background='rgba(255,255,255,0.08)';">
-            다른 디자인 선택 ↑
-          </a>
-        `;
-      }
+      setTimeout(() => {
+        forceCardBack();
+        updateSideToggleUI('back');
+        showToast(`🔒 [${p.name}] 앞면이 확정되었습니다! 이제 뒷면을 편하게 꾸며보세요.`);
+      }, 1200);
 
-      showToast(`✨ [${p.name}] 디자인이 세팅되었습니다. 이름/연락처만 수정하면 바로 완성됩니다!`);
       if (window.lucide) lucide.createIcons();
 
-      // 8. 명시적 요청이 있을 때만 스크롤
+      // 8. 2단계로 부드럽게 스크롤
       if (shouldScroll) {
-        scrollToQuickFill();
+        setTimeout(scrollToQuickFill, 700);
       }
     }
 
@@ -4238,7 +4208,7 @@
 
       // 3. 레이아웃 & 테마 DOM 적용
       applyLayoutToDom(p.layout);
-      document.getElementById('themeStylesheet').href = `/themes/${p.theme}.css?v=${Date.now()}`;
+      setThemeStylesheet(p.theme);
 
       // 4. 3D 카드 앞면 강제 회전 & 펄스 하이라이트 애니메이션
       forceCardFront();
@@ -4349,7 +4319,7 @@
       document.querySelectorAll('.theme-selector-card').forEach(c => c.classList.remove('active'));
       if (element) element.classList.add('active');
 
-      document.getElementById('themeStylesheet').href = `/themes/${themeName}.css?v=${Date.now()}`;
+      setThemeStylesheet(themeName);
       showToast(`${themeName.toUpperCase()} 테마가 적용되었습니다.`);
       liveUpdate();
     }
@@ -4622,12 +4592,14 @@
 
       const plateArtworkImg = document.getElementById('plateArtworkImg');
       if (plateArtworkImg) {
-        if (currentPlateCardImage) {
+        if (frontDesignLock && frontDesignLock.plateCardImage) {
+          plateArtworkImg.src = frontDesignLock.plateCardImage;
+        } else if (currentPlateCardImage) {
           plateArtworkImg.src = currentPlateCardImage;
         } else if (company.toUpperCase().includes('TOOMUS')) {
-          plateArtworkImg.src = '/assets/toomus_front_plate.png';
+          plateArtworkImg.src = '/assets/toomus_front_plate.jpg';
         } else {
-          plateArtworkImg.src = '/assets/toomcard_front_plate.png';
+          plateArtworkImg.src = '/assets/toomcard_front_plate.jpg';
         }
       }
 
@@ -5018,7 +4990,7 @@
         tabTeam.classList.remove('active');
         panelSingle.style.display = 'flex';
         panelTeam.style.display = 'none';
-        document.getElementById('themeStylesheet').href = `/themes/${currentTheme}.css?v=${Date.now()}`;
+        setThemeStylesheet(currentTheme);
         applyLayoutToDom(currentLayout);
         liveUpdate();
       } else {
@@ -5026,7 +4998,7 @@
         tabTeam.classList.add('active');
         panelSingle.style.display = 'none';
         panelTeam.style.display = 'flex';
-        document.getElementById('themeStylesheet').href = `/themes/${currentTeamTheme}.css?v=${Date.now()}`;
+        setThemeStylesheet(currentTeamTheme);
         applyLayoutToDom(currentTeamLayout);
         renderTeamRoster();
         if (typeof syncTeamPresetBanner === 'function') syncTeamPresetBanner();
@@ -5039,7 +5011,7 @@
       currentTeamTheme = themeName;
       document.querySelectorAll('[data-team-theme]').forEach(c => c.classList.remove('active'));
       if (el) el.classList.add('active');
-      document.getElementById('themeStylesheet').href = `/themes/${themeName}.css?v=${Date.now()}`;
+      setThemeStylesheet(themeName);
       if (typeof syncTeamPresetBanner === 'function') syncTeamPresetBanner();
       liveUpdateTeam();
       showToast(`기업 공통 테마가 ${themeName.toUpperCase()}로 변경되었습니다.`);
@@ -5050,11 +5022,13 @@
       const countEl = document.getElementById('teamMemberCount');
       if (countEl) countEl.innerText = teamMembers.length;
 
-      const compSlug = (document.getElementById('teamCompanySlug')?.value || 'toomcard').trim().toLowerCase();
+      const rawCompSlug = (document.getElementById('teamCompanySlug')?.value || 'toomcard').trim().toLowerCase();
+      const compSlug = rawCompSlug.replace(/[^a-z0-9_-]/g, '') || 'toomcard';
 
       let html = '';
       teamMembers.forEach((m, idx) => {
         const isAct = (idx === activeTeamPreviewIndex);
+        const memberSlug = String(m.slug || 'id').replace(/[^a-z0-9_-]/gi, '') || 'id';
         html += `
           <div class="team-member-item ${isAct ? 'active-preview' : ''}" id="teamMemberRow_${idx}">
             <div class="team-member-top">
@@ -5062,7 +5036,7 @@
                 <span style="font-size:12px;font-weight:700;color:#c084fc;">#${idx + 1}</span>
                 <span class="team-member-slug-badge">
                   <i data-lucide="link" style="width:12px;height:12px;"></i>
-                  /${compSlug}/${m.slug || 'id'}
+                  /${escapeHtml(compSlug)}/${escapeHtml(memberSlug)}
                 </span>
               </div>
               <div style="display:flex;align-items:center;gap:6px;">
@@ -5078,25 +5052,25 @@
             <div class="team-member-inputs">
               <div class="form-group">
                 <label class="form-label" style="font-size:11px;">영문 식별 ID (슬러그)</label>
-                <input type="text" class="form-input" style="padding:8px 10px;font-size:12px;" value="${m.slug}" placeholder="예: alex" oninput="updateMemberField(${idx}, 'slug', this.value)">
+                <input type="text" class="form-input" style="padding:8px 10px;font-size:12px;" value="${escapeAttr(m.slug || '')}" placeholder="예: alex" oninput="updateMemberField(${idx}, 'slug', this.value)">
               </div>
               <div class="form-group">
                 <label class="form-label" style="font-size:11px;">이름</label>
-                <input type="text" class="form-input" style="padding:8px 10px;font-size:12px;" value="${m.name}" placeholder="예: Alex Rivera" oninput="updateMemberField(${idx}, 'name', this.value)">
+                <input type="text" class="form-input" style="padding:8px 10px;font-size:12px;" value="${escapeAttr(m.name || '')}" placeholder="예: Alex Rivera" oninput="updateMemberField(${idx}, 'name', this.value)">
               </div>
               <div class="form-group">
                 <label class="form-label" style="font-size:11px;">직함 / 포지션</label>
-                <input type="text" class="form-input" style="padding:8px 10px;font-size:12px;" value="${m.role}" placeholder="예: 대표이사, 팀장" oninput="updateMemberField(${idx}, 'role', this.value)">
+                <input type="text" class="form-input" style="padding:8px 10px;font-size:12px;" value="${escapeAttr(m.role || '')}" placeholder="예: 대표이사, 팀장" oninput="updateMemberField(${idx}, 'role', this.value)">
               </div>
             </div>
             <div class="team-member-contacts">
               <div class="form-group">
                 <label class="form-label" style="font-size:11px;">전화번호</label>
-                <input type="tel" class="form-input" style="padding:8px 10px;font-size:12px;" value="${m.phone}" placeholder="010-0000-0000" oninput="updateMemberField(${idx}, 'phone', this.value)">
+                <input type="tel" class="form-input" style="padding:8px 10px;font-size:12px;" value="${escapeAttr(m.phone || '')}" placeholder="010-0000-0000" oninput="updateMemberField(${idx}, 'phone', this.value)">
               </div>
               <div class="form-group">
                 <label class="form-label" style="font-size:11px;">이메일</label>
-                <input type="email" class="form-input" style="padding:8px 10px;font-size:12px;" value="${m.email}" placeholder="member@company.com" oninput="updateMemberField(${idx}, 'email', this.value)">
+                <input type="email" class="form-input" style="padding:8px 10px;font-size:12px;" value="${escapeAttr(m.email || '')}" placeholder="member@company.com" oninput="updateMemberField(${idx}, 'email', this.value)">
               </div>
             </div>
           </div>
@@ -5157,32 +5131,67 @@
       const container = document.getElementById('teamPublishedUrlsList');
       if (!container) return;
 
-      const compSlug = (document.getElementById('teamCompanySlug')?.value || 'toomcard').trim().toLowerCase();
+      const rawCompSlug = (document.getElementById('teamCompanySlug')?.value || 'toomcard').trim().toLowerCase();
+      const compSlug = rawCompSlug.replace(/[^a-z0-9_-]/g, '') || 'toomcard';
 
-      let html = '';
+      container.innerHTML = '';
+      const fragment = document.createDocumentFragment();
+
       teamMembers.forEach((m) => {
-        const fullSlug = `${compSlug}/${m.slug || 'id'}`;
-        const url = `https://toomcard.com/${fullSlug}`;
-        html += `
-          <div class="url-item-row">
-            <div class="url-info-left">
-              <span class="url-member-name">${m.name || '팀원'} (${m.role || '팀원'})</span>
-              <span class="url-text">${url}</span>
-            </div>
-            <div class="url-actions">
-              <button class="btn-icon-sm" onclick="copyUrlToClipboard('${url}')" title="URL 복사">
-                <i data-lucide="copy" style="width:14px;height:14px;"></i>
-              </button>
-              <a href="/${fullSlug}" target="_blank" class="btn-icon-sm" title="새 창에서 명함 열기">
-                <i data-lucide="external-link" style="width:14px;height:14px;"></i>
-              </a>
-            </div>
-          </div>
-        `;
+        const memberSlug = String(m.slug || 'id').trim().replace(/[^a-z0-9_-]/gi, '') || 'id';
+        const fullSlug = `${compSlug}/${memberSlug}`;
+        const cardUrl = `https://toomcard.com/${fullSlug}`;
+
+        const row = document.createElement('div');
+        row.className = 'url-item-row';
+
+        const infoLeft = document.createElement('div');
+        infoLeft.className = 'url-info-left';
+
+        const nameSpan = document.createElement('span');
+        nameSpan.className = 'url-member-name';
+        nameSpan.textContent = `${m.name || '팀원'} (${m.role || '팀원'})`;
+
+        const urlSpan = document.createElement('span');
+        urlSpan.className = 'url-text';
+        urlSpan.textContent = cardUrl;
+
+        infoLeft.appendChild(nameSpan);
+        infoLeft.appendChild(urlSpan);
+
+        const actions = document.createElement('div');
+        actions.className = 'url-actions';
+
+        const copyBtn = document.createElement('button');
+        copyBtn.className = 'btn-icon-sm';
+        copyBtn.title = 'URL 복사';
+        copyBtn.innerHTML = '<i data-lucide="copy" style="width:14px;height:14px;"></i>';
+        copyBtn.addEventListener('click', () => {
+          if (typeof copyUrlToClipboard === 'function') {
+            copyUrlToClipboard(cardUrl);
+          }
+        });
+
+        const openLink = document.createElement('a');
+        openLink.href = `/${fullSlug}`;
+        openLink.target = '_blank';
+        openLink.rel = 'noopener noreferrer';
+        openLink.className = 'btn-icon-sm';
+        openLink.title = '새 창에서 명함 열기';
+        openLink.innerHTML = '<i data-lucide="external-link" style="width:14px;height:14px;"></i>';
+
+        actions.appendChild(copyBtn);
+        actions.appendChild(openLink);
+
+        row.appendChild(infoLeft);
+        row.appendChild(actions);
+        fragment.appendChild(row);
       });
 
-      container.innerHTML = html;
-      lucide.createIcons();
+      container.appendChild(fragment);
+      if (window.lucide && typeof lucide.createIcons === 'function') {
+        lucide.createIcons();
+      }
     }
 
     function liveUpdateTeam() {
@@ -5683,8 +5692,6 @@
     </div>
   </div>
 
-  <script src="../js/pro_modal.js"></script>
-
   <script>
 function toggleMobileMenu() {
       const overlay = document.getElementById('mobileMenuOverlay');
@@ -5736,114 +5743,6 @@ function toggleMobileMenu() {
     </p>
     <p style="font-size: 12px; color: rgba(255,255,255,0.4);">© 2026 TOOMCARD. Powered by TOOMUS Ecosystem. All rights reserved.</p>
   </footer>
-
-  <!-- PRO Payment Modal -->
-  <div id="paymentModal" onclick="if(event.target===this) closePaymentModal();">
-    <div class="payment-box">
-      <h2>✨ PRO 업그레이드</h2>
-      <p style="color: rgba(255,255,255,0.6); font-size: 14px;">프리미엄 테마와 기능을 잠금 해제하세요</p>
-      <div class="price">₩9,900</div>
-      <p style="font-size: 12px; color: rgba(255,255,255,0.4); margin-bottom: 16px;">1회 결제 · 영구 소장</p>
-      <ul class="features">
-        <li>Rose Gold / Executive Metal / Glassmorphism 테마</li>
-        <li>커스텀 도메인 연결 (예정)</li>
-        <li>방문자 통계 상세 리포트 (예정)</li>
-        <li>PRO 전용 뱃지 표시</li>
-      </ul>
-      <button class="btn-pay" onclick="processPayment()">PRO 결제하기</button>
-      <br>
-      <button class="btn-pay-cancel" onclick="closePaymentModal()">나중에 할게요</button>
-    </div>
-  </div>
-
-  <script>
-    // PRO 상태 관리
-    let isProUser = false;
-    let pendingProTheme = null;
-    
-    // 페이지 로드 시 PRO 상태 체크
-    (async function checkProStatus() {
-      const proFlag = localStorage.getItem('setupod_pro');
-      if (proFlag === 'true') {
-        isProUser = true;
-        unlockAllProThemes();
-      }
-    })();
-    
-    function unlockAllProThemes() {
-      document.querySelectorAll('.theme-pro-locked').forEach(el => {
-        el.classList.add('unlocked');
-        const theme = el.getAttribute('data-theme');
-        el.setAttribute('onclick', `selectTheme('${theme}', this)`);
-      });
-    }
-    
-    function handleProThemeClick(theme, el) {
-      if (isProUser) {
-        selectTheme(theme, el);
-        return;
-      }
-      pendingProTheme = { theme, el };
-      document.getElementById('paymentModal').classList.add('active');
-    }
-    
-    function closePaymentModal() {
-      document.getElementById('paymentModal').classList.remove('active');
-      pendingProTheme = null;
-    }
-    
-    async function processPayment() {
-      const payBtn = document.querySelector('.btn-pay');
-      payBtn.textContent = '결제 창 여는 중...';
-      payBtn.disabled = true;
-      
-      try {
-        const clientKey = 'test_ck_D5GePWvyJnrK0W0k6q8gLzN97Eoq';
-        const tossPayments = TossPayments(clientKey);
-        
-        // Return URL for success/fail handling
-        const currentUrl = window.location.origin + window.location.pathname;
-        
-        await tossPayments.requestPayment('카드', {
-          amount: 9900,
-          orderId: 'toomcard_pro_' + new Date().getTime(),
-          orderName: 'TOOMCARD PRO 영구 소장',
-          customerName: 'TOOMCARD 유저',
-          successUrl: currentUrl + '?payment=success',
-          failUrl: currentUrl + '?payment=fail',
-        });
-      } catch(e) {
-        console.error('Payment error:', e);
-        if (e.code !== 'USER_CANCEL') {
-          if (typeof showToast === 'function') showToast('결제 모듈을 불러오는 중 오류가 발생했습니다.');
-        }
-        payBtn.textContent = 'PRO 결제하기';
-        payBtn.disabled = false;
-      }
-    }
-
-    // URL 파라미터로 결제 성공/실패 처리
-    window.addEventListener('DOMContentLoaded', async () => {
-      const urlParams = new URLSearchParams(window.location.search);
-      const paymentStatus = urlParams.get('payment');
-      
-      if (paymentStatus === 'success') {
-        if (typeof showToast === 'function') showToast('🎉 결제가 완료되었습니다! PRO 혜택이 적용됩니다.');
-        isProUser = true;
-        localStorage.setItem('setupod_pro', 'true');
-        if (typeof upgradeToPro === 'function') await upgradeToPro();
-        unlockAllProThemes();
-        
-        // URL 클린업
-        window.history.replaceState({}, document.title, window.location.pathname);
-      } else if (paymentStatus === 'fail') {
-        if (typeof showToast === 'function') showToast('결제가 취소되었거나 실패했습니다.');
-        // URL 클린업
-        window.history.replaceState({}, document.title, window.location.pathname);
-      }
-    });
-  </script>
-  <script src="https://js.tosspayments.com/v1"></script>
 
   <!-- Publish Success Modal -->
   <div id="publishSuccessModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); backdrop-filter:blur(12px); z-index:99999; align-items:center; justify-content:center; padding:20px;">
