@@ -306,6 +306,9 @@
       .car-thumb { box-shadow: 0 8px 20px rgba(0,0,0,0.45); }
       .toast { bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom) + 14px); z-index: 60; }
     }
+    @media (min-width: 981px) {
+      #secPhoto > .btn-secondary, #secPhoto .photo-off { display: none; }
+    }
   </style>
 </head>
 <body>
@@ -330,13 +333,13 @@
       <div class="sheet-head"><span class="sheet-title"></span><button type="button" onclick="closeSheet()" data-i18n="maker.done">완료</button></div>
 
       <!-- 0. 시작점 (데스크톱 전용: 폰은 캐러셀이 대신한다) -->
-      <section class="section desk-only" id="secStart">
+      <section class="section" id="secStart" style="display:none !important">
         <div class="section-title"><i data-lucide="sparkles"></i><span data-i18n="maker.start_points">시작점</span></div>
         <div class="chips" id="startChips"></div>
       </section>
 
       <!-- 1. 기본 정보 -->
-      <section class="section" id="secInfo" data-tab="info">
+      <section class="section" id="secInfo" data-tab="info" data-side="back">
         <div class="section-title"><i data-lucide="user"></i><span data-i18n="maker.sec_info">1. 기본 정보</span></div>
         <div class="seg" id="kindSeg">
           <button type="button" data-kind="personal" aria-pressed="true" data-i18n="maker.kind_personal">일반</button>
@@ -397,7 +400,7 @@
       </section>
 
       <!-- 2. 앞면 배경 (데스크톱 전용 썸네일) -->
-      <section class="section desk-only" id="secBg">
+      <section class="section desk-only" id="secBg" data-side="front">
         <div class="section-title"><i data-lucide="image"></i><span data-i18n="maker.sec_bg">2. 앞면 배경</span></div>
         <p class="section-hint" data-i18n="maker.bg_hint">폰 배경화면 고르듯이. 내 사진이 제일 좋아요.</p>
         <div class="bg-grid" id="bgGrid">
@@ -406,7 +409,7 @@
       </section>
 
       <!-- 2-1. 사진 조정 -->
-      <section class="section" id="secPhoto" data-tab="photo">
+      <section class="section" id="secPhoto" data-tab="photo" data-side="front">
         <div class="section-title"><i data-lucide="sliders-horizontal"></i><span data-i18n="maker.sec_photo">사진 조정</span></div>
         <button type="button" class="btn-secondary" onclick="pickPhoto()"><i data-lucide="image-plus"></i><span data-i18n="maker.pick_photo">내 사진 고르기</span></button>
         <div class="field">
@@ -455,7 +458,7 @@
       </section>
 
       <!-- 3. 글자·로고 -->
-      <section class="section" id="secText" data-tab="text">
+      <section class="section" id="secText" data-tab="text" data-side="front">
         <div class="section-title"><i data-lucide="type"></i><span data-i18n="maker.sec_text">3. 앞면 글자</span></div>
         <div class="chips" id="textChips">
           <button class="chip" data-layout="none" aria-pressed="true" data-i18n="maker.text_none">글자 없음</button>
@@ -467,7 +470,7 @@
       </section>
 
       <!-- 3-1. 로고 엠블럼 -->
-      <section class="section" id="secLogo" data-tab="logo">
+      <section class="section" id="secLogo" data-tab="logo" data-side="back">
         <div class="section-title"><i data-lucide="badge-check"></i><span data-i18n="maker.sec_logo">로고 엠블럼</span></div>
         <p class="section-hint" data-i18n="maker.emblem_hint">이름이나 로고를 진짜 금속 엠블럼처럼 만들어 뒷면에 달아요.</p>
         <div class="toggle"><span data-i18n="maker.emblem_on">엠블럼 쓰기</span><button class="switch" id="emblemSwitch" role="switch" aria-checked="true"></button></div>
@@ -519,7 +522,7 @@
       </section>
 
       <!-- 4. 마감 -->
-      <section class="section" id="secFinish" data-tab="finish">
+      <section class="section" id="secFinish" data-tab="finish" data-side="back">
         <div class="section-title"><i data-lucide="gem"></i><span data-i18n="maker.sec_finish">틀 · 마감 · 뒷면</span></div>
         <div class="field">
           <label data-i18n="maker.frame">틀</label>
@@ -579,8 +582,7 @@
       <div class="stage-tools">
         <button class="tool-btn" onclick="flip('show_front')"><i data-lucide="image"></i><span data-i18n="maker.front">앞면</span></button>
         <button class="tool-btn" onclick="flip('show_back')"><i data-lucide="file-text"></i><span data-i18n="maker.back">뒷면</span></button>
-        <button class="tool-btn accent desk-only" onclick="pickPhoto()"><i data-lucide="image-plus"></i><span data-i18n="maker.add_photo">내 사진</span></button>
-      </div>
+              </div>
     </section>
 
     <!-- ── 오른쪽: 발행 ─────────────────────────────── -->
@@ -689,6 +691,7 @@
       { id: 'toomcard', type: 'image', src: '/assets/toomcard_front_plate.jpg', tag: 'METAL' },
       { id: 'toomus',   type: 'image', src: '/assets/toomus_front_plate.jpg',   tag: 'GOLD' },
       { id: 'setupod',  type: 'image', src: '/assets/setupod_front_plate.jpg',  tag: 'NEON' },
+      { id: 'maza',     type: 'image', src: '/assets/maza_front_plate.jpg',     tag: 'VIOLET' },
       { id: 'solid',    type: 'color', color: DEFAULT_SOLID, shade: 0, soft: true, tag: 'SOLID' },
     ];
     const THEMES = [
@@ -702,6 +705,7 @@
       { key: 'toomcard', label: 'TOOMCARD', bgId: 'toomcard', text: 'none', finish: 'metal', theme: 'obsidian' },
       { key: 'toomus',   label: 'TOOMUS',   bgId: 'toomus',   text: 'none', finish: 'metal', theme: 'navy-gold' },
       { key: 'setupod',  label: 'SETUPOD',  bgId: 'setupod',  text: 'none', finish: 'glass', theme: 'violet' },
+      { key: 'maza',     label: 'MAZA',     bgId: 'maza',     text: 'none', finish: 'metal', theme: 'violet' },
       { key: 'solid',    labelKey: 'maker.solid', bgId: 'solid', text: 'bottom-left', finish: 'metal', theme: 'obsidian' },
     ];
     // 예전 주소(?preset=...)와 templates.html 링크 호환: 단색 + 마감 + 뒷면 색으로 바꿔 연다
@@ -714,7 +718,6 @@
       rosegold:          { color: '#831843', text: 'bottom-center', finish: 'glass', theme: 'rosegold' },
       'warm-sand':       { color: '#c9b79c', text: 'bottom-left',   finish: 'matte', theme: 'warm-sand' },
       'frosted-acrylic': { color: '#8d99ae', text: 'center',        finish: 'glass', theme: 'frosted-acrylic' },
-      maza:              { color: '#3b1a6e', text: 'bottom-left',   finish: 'metal', theme: 'violet' },
     };
     const $ = (id) => document.getElementById(id);
     const t = (k) => (window.i18n ? i18n.t(k) : k);
@@ -1307,6 +1310,21 @@
     const TAB_TITLES = { info: 'maker.tab_info', photo: 'maker.sec_photo', text: 'maker.sec_text', logo: 'maker.sec_logo', finish: 'maker.sec_finish', publish: 'maker.sec_publish' };
     let currentTab = '';
     function isMobile() { return window.matchMedia('(max-width: 980px)').matches; }
+    // 데스크톱: 만지는 섹션에 맞는 면(앞/뒤)을 자동으로 보여준다 (폰은 탭이 대신한다)
+    (function () {
+      const left = document.querySelector('.panel-left');
+      let side = '';
+      function follow(e) {
+        if (innerWidth <= 980) return;
+        const sec = e.target.closest && e.target.closest('[data-side]');
+        if (!sec || sec.dataset.side === side) return;
+        side = sec.dataset.side;
+        flip(side === 'back' ? 'show_back' : 'show_front');
+      }
+      left.addEventListener('focusin', follow);
+      left.addEventListener('click', follow);
+    })();
+
     function openTab(name) {
       if (currentTab === name && document.body.classList.contains('sheet-open')) { closeSheet(); return; }
       currentTab = name;
