@@ -740,8 +740,8 @@ function normalizeFront(data) {
     finish: ['metal', 'glass', 'matte', 'studio', 'holo'].includes(f.finish) ? f.finish : 'metal',
     qr: f.qr || 'off',
     // 틀은 사진이 있을 때만. 단색 배경은 항상 풀 블리드
-    frame: (bg.type === 'image' && ['rim', 'matte', 'arch', 'round'].includes(f.frame)) ? f.frame : 'full',
-    frameTone: f.frameTone === 'light' ? 'light' : 'dark',
+    frame: (bg.type === 'image' && ['rim', 'matte', 'arch', 'round', 'polaroid', 'film', 'magazine'].includes(f.frame)) ? f.frame : 'full',
+    frameTone: (f.frameTone === 'light' && f.frame !== 'film') ? 'light' : 'dark',
     look: ['studio', 'editorial', 'film'].includes(f.look) ? f.look : 'clean'
   };
 }
@@ -874,10 +874,10 @@ function renderFrontLayers(data) {
   const front = normalizeFront(data);
   const soft = document.getElementById('plateSoftImg');
   window.__look = front.look;
-  setClassGroup(container, 'frame-', ['full', 'rim', 'matte', 'arch', 'round'], front.frame);
+  setClassGroup(container, 'frame-', ['full', 'rim', 'matte', 'arch', 'round', 'polaroid', 'film', 'magazine'], front.frame);
   setClassGroup(container, 'fb-', ['dark', 'light'], front.frameTone);
   setClassGroup(container, 'look-', ['clean', 'studio', 'editorial', 'film'], front.look);
-  const bandFrame = ['matte', 'arch', 'round'].includes(front.frame);
+  const bandFrame = ['matte', 'arch', 'round', 'polaroid', 'film'].includes(front.frame);
 
   // 배경
   if (front.bg.type === 'image') {

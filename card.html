@@ -1298,6 +1298,30 @@
     .frame-rim .plate-text-overlay { padding: 38px 30px 88px; }
     .frame-matte .plate-subtle-qr, .frame-arch .plate-subtle-qr, .frame-round .plate-subtle-qr { top: auto; bottom: 74px; right: 14px; }
     .frame-rim .plate-subtle-qr { top: 6.5%; right: 8.5%; }
+    /* 새 틀: 폴라로이드 · 필름 · 잡지 표지 */
+    .frame-polaroid.fb-dark { background: linear-gradient(160deg, #26262c, #0c0c10); }
+    .frame-polaroid.fb-light { background: linear-gradient(160deg, #fbf9f3, #e9e4d8); }
+    .frame-polaroid { --band-top: 76%; }
+    .frame-polaroid .plate-photo { inset: auto; left: 7%; right: 7%; top: 5%; height: 68%; border-radius: 3px; box-shadow: 0 10px 26px rgba(0,0,0,0.38); }
+    .frame-film, .frame-film.fb-dark, .frame-film.fb-light { background: #0b0b0e; --band-top: 76%; }
+    .frame-film .plate-photo { inset: auto; left: 15%; right: 15%; top: 4.5%; height: 69%; border-radius: 4px; }
+    .frame-film::before, .frame-film::after {
+      content: ""; position: absolute; top: 0; bottom: 0; width: 6%; z-index: 2; pointer-events: none;
+      background: repeating-linear-gradient(180deg, transparent 0 11px, #e8e2d2 11px 25px, transparent 25px 36px);
+      -webkit-mask: linear-gradient(90deg, transparent 0, #000 0, #000 100%); opacity: .9; border-radius: 3px;
+    }
+    .frame-film::before { left: 5%; } .frame-film::after { right: 5%; }
+    .frame-magazine::before {
+      content: "TOOMCARD"; position: absolute; left: 0; right: 0; top: 4.5%; z-index: 2; text-align: center; pointer-events: none;
+      font: 900 44px/1 'Montserrat', sans-serif; letter-spacing: .04em; color: #fff; text-shadow: 0 2px 14px rgba(0,0,0,0.45);
+    }
+    .frame-magazine::after {
+      content: "THE DIGITAL ISSUE  ·  NO. 01"; position: absolute; left: 0; right: 0; top: 14.2%; z-index: 2; text-align: center; pointer-events: none;
+      font: 700 9.5px 'Montserrat', sans-serif; letter-spacing: .28em; color: rgba(255,255,255,0.85); text-shadow: 0 1px 8px rgba(0,0,0,0.5);
+    }
+    .frame-polaroid .plate-subtle-qr { top: auto; bottom: 74px; right: 14px; }
+    .frame-film .plate-subtle-qr { top: auto; bottom: 74px; right: 19%; }
+    .frame-magazine .plate-subtle-qr { top: auto; bottom: 78px; right: 14px; }
 
     /* ── 사진관 룩(look): 비네팅·빛·그레인 (색 보정은 JS가 사진 필터로) ── */
     .plate-photo::before, .plate-photo::after { content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 2; }

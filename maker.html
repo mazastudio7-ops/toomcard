@@ -227,6 +227,10 @@
     .ft-rim { inset: 3%; border-radius: 10% / 6%; }
     .ft-matte { left: 5%; right: 5%; top: 3.2%; height: 70%; border-radius: 3px; box-shadow: 0 4px 10px rgba(0,0,0,0.35); }
     .ft-arch { left: 11%; right: 11%; top: 6%; height: 64%; border-radius: 999px 999px 8px 8px; }
+    .ft-polaroid { left: 7%; right: 7%; top: 5%; height: 68%; border-radius: 2px; box-shadow: 0 4px 10px rgba(0,0,0,0.35); }
+    .ft-film { left: 15%; right: 15%; top: 4.5%; height: 69%; border-radius: 3px; }
+    .ft-film-holes { position: absolute; top: 0; bottom: 0; width: 6%; background: repeating-linear-gradient(180deg, transparent 0 6px, #e8e2d2 6px 13px, transparent 13px 19px); }
+    .ft-mast { position: absolute; left: 0; right: 0; top: 5%; text-align: center; font: 900 15px 'Montserrat', sans-serif; letter-spacing: .04em; color: #fff; text-shadow: 0 1px 6px rgba(0,0,0,.5); }
     .ft-round { left: 50%; top: 7%; height: 44%; aspect-ratio: 1; transform: translateX(-50%); border-radius: 50%; }
     .tint-row { display: flex; gap: 10px; flex-wrap: wrap; }
     .tint { width: 30px; height: 30px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.15); cursor: pointer; padding: 0; }
@@ -547,6 +551,9 @@
             <button class="chip" data-frame="matte" data-i18n="maker.frame_matte">매트 프레임</button>
             <button class="chip" data-frame="arch" data-i18n="maker.frame_arch">아치 창</button>
             <button class="chip" data-frame="round" data-i18n="maker.frame_round">원형 초상</button>
+            <button class="chip" data-frame="polaroid" data-i18n="maker.frame_polaroid">폴라로이드</button>
+            <button class="chip" data-frame="film" data-i18n="maker.frame_film">필름</button>
+            <button class="chip" data-frame="magazine" data-i18n="maker.frame_magazine">잡지 표지</button>
           </div>
           <p class="photo-off" id="frameHint" data-i18n="maker.frame_hint">내 사진을 올리면 틀을 고를 수 있어요.</p>
           <div id="toneRow" hidden>
@@ -1095,7 +1102,7 @@
         c.setAttribute('aria-pressed', enabled && c.dataset.frame === card.front.frame ? 'true' : 'false');
       });
       $('frameHint').hidden = enabled;
-      $('toneRow').hidden = !(enabled && BAND_FRAMES.includes(card.front.frame));
+      $('toneRow').hidden = !(enabled && BAND_FRAMES.includes(card.front.frame) && card.front.frame !== 'film');
       pressOnly($('toneChips'), 'ft', card.front.frameTone || 'dark');
       pressOnly($('lookChips'), 'look', card.front.look || 'clean');
     }
@@ -1119,8 +1126,8 @@
     /* ── 팬 캐러셀 ───────────────────────────────────── */
     let uploadedPhoto = '';
     let designIdx = 0;
-    const FRAMES = ['full', 'rim', 'matte', 'arch', 'round'];
-    const BAND_FRAMES = ['matte', 'arch', 'round'];   // 사진 밑에 이름 띠가 생기는 틀
+    const FRAMES = ['full', 'rim', 'matte', 'arch', 'round', 'polaroid', 'film', 'magazine'];
+    const BAND_FRAMES = ['matte', 'arch', 'round', 'polaroid', 'film'];   // 사진 밑에 이름 띠가 생기는 틀
     function designs() {
       const list = DESIGNS.map((d) => ({
         key: d.key, label: d.labelKey ? t(d.labelKey) : d.label,
@@ -1165,11 +1172,13 @@
     function paintThumb(el, d) {
       el.innerHTML = '';
       if (!d.frame || d.frame === 'full') { el.setAttribute('style', d.bg ? thumbStyle(d.bg) : ''); return; }
-      const back = d.frame === 'rim' ? THUMB_RIM : (card.front.frameTone === 'light' ? THUMB_LIGHT : THUMB_DARK);
+      if (d.frame === 'magazine') { el.setAttribute('style', thumbStyle(d.bg)); const mm = document.createElement('div'); mm.className = 'ft-mast'; mm.textContent = 'TOOMCARD'; el.appendChild(mm); return; }
+      const back = d.frame === 'film' ? '#0b0b0e' : d.frame === 'rim' ? THUMB_RIM : (card.front.frameTone === 'light' ? THUMB_LIGHT : THUMB_DARK);
       el.setAttribute('style', `background:${back}`);
       const p = document.createElement('div');
       p.className = 'ft-photo ft-' + d.frame; p.style.backgroundImage = `url('${d.bg.src}')`;
       el.appendChild(p);
+      if (d.frame === 'film') ['left', 'right'].forEach((side) => { const h = document.createElement('div'); h.className = 'ft-film-holes'; h.style[side] = '5%'; el.appendChild(h); });
     }
     function renderCarousel() {
       const list = designs(); const n = list.length;
