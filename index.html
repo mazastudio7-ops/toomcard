@@ -86,9 +86,24 @@
           <i data-lucide="sparkles" style="width: 15px; height: 15px;"></i>
           <span data-i18n="nav.maker">무료 만들기</span>
         </a>
+        <button type="button" class="nav-burger" id="navBurger" aria-label="menu" aria-expanded="false"><i data-lucide="menu"></i></button>
       </div>
     </div>
   </header>
+
+  <div class="nav-drawer-veil" id="navVeil"></div>
+  <aside class="nav-drawer" id="navDrawer" aria-hidden="true">
+    <div class="nav-drawer-head"><span>MENU</span><button type="button" id="navClose" aria-label="close"><i data-lucide="x"></i></button></div>
+    <a href="/maker.html" class="nd-main" data-i18n="nav.maker">무료 만들기</a>
+    <a href="/templates.html" data-i18n="nav.templates">디자인 템플릿</a>
+    <a href="/dashboard" data-i18n="nav.dashboard">내 명함 관리</a>
+    <a href="#features" data-i18n="nav.features">핵심 기능</a>
+    <a href="#showcase" data-i18n="nav.showcase">3D 쇼룸</a>
+    <a href="#nfc" data-i18n="nav.nfc">스마트 NFC</a>
+    <a href="#pricing" data-i18n="nav.pricing">요금제</a>
+    <a href="#faq" data-i18n="nav.faq">FAQ</a>
+    <a href="#enterprise" data-i18n="nav.enterprise">기업 B2B</a>
+  </aside>
 
   <!-- Hero Section -->
   <section class="hero-section">
@@ -898,6 +913,16 @@
       submitBtn.disabled = false;
     }
 
+  </script>
+  <script>
+    (function () {
+      const d = document.getElementById('navDrawer'), v = document.getElementById('navVeil'), b = document.getElementById('navBurger');
+      function set(open) { d.classList.toggle('open', open); v.classList.toggle('open', open); b.setAttribute('aria-expanded', String(open)); d.setAttribute('aria-hidden', String(!open)); document.body.style.overflow = open ? 'hidden' : ''; }
+      b.addEventListener('click', () => set(true));
+      document.getElementById('navClose').addEventListener('click', () => set(false));
+      v.addEventListener('click', () => set(false));
+      d.addEventListener('click', (e) => { if (e.target.closest('a')) set(false); });
+    })();
   </script>
 </body>
 </html>
