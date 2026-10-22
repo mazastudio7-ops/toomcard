@@ -171,19 +171,16 @@
     .carousel { position: relative; width: 100%; display: flex; align-items: center; justify-content: center; }
     .car-track { position: relative; height: min(700px, calc(100vh - 190px)); min-height: 480px; width: 100%; display: flex; align-items: center; justify-content: center; }
     .car-track iframe { position: relative; z-index: 5; height: 100%; aspect-ratio: 0.64; width: auto; max-width: 100%; border: none; border-radius: 24px; background: transparent; }
-    .car-side {
-      position: absolute; top: 50%; left: 50%; z-index: 2;
-      height: 66%; aspect-ratio: 0.62; border-radius: 22px;
-      background-size: cover; background-position: center;
-      border: 1.5px solid rgba(255,255,255,0.18);
+    .car-stack { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
+    .car-thumb {
+      position: absolute; top: 50%; left: 50%;
+      border-radius: 26px; background-size: cover; background-position: center;
+      border: 1.5px solid rgba(255,255,255,0.2);
       box-shadow: 0 18px 40px rgba(0,0,0,0.55);
-      cursor: pointer; transition: transform 0.35s cubic-bezier(.2,.8,.2,1), opacity 0.35s;
+      pointer-events: auto; cursor: pointer; will-change: transform, opacity;
     }
-    .car-side.l1 { transform: translate(-118%, -50%) rotate(-9deg) scale(0.86); opacity: 0.6; }
-    .car-side.r1 { transform: translate(18%, -50%) rotate(9deg) scale(0.86); opacity: 0.6; }
-    .car-side.l2 { transform: translate(-165%, -48%) rotate(-15deg) scale(0.74); opacity: 0.28; z-index: 1; }
-    .car-side.r2 { transform: translate(65%, -48%) rotate(15deg) scale(0.74); opacity: 0.28; z-index: 1; }
-    .car-side:hover { opacity: 0.85; }
+    .car-stack.animating .car-thumb { transition: transform 0.34s cubic-bezier(.2,.8,.2,1), opacity 0.34s; }
+    .car-track iframe { transition: opacity 0.12s ease; }
     .car-nav {
       position: absolute; top: 50%; z-index: 6; transform: translateY(-50%);
       width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--tc-border-strong);
@@ -395,11 +392,8 @@
       <div class="carousel">
         <button type="button" class="car-nav prev" onclick="goDesign(designIdx - 1, -1)" aria-label="Previous">‹</button>
         <div class="car-track" id="carTrack">
-          <div class="car-side l2" data-off="-2"></div>
-          <div class="car-side l1" data-off="-1"></div>
+          <div class="car-stack" id="carStack"></div>
           <iframe id="preview" src="/card.html?embed=simulator&maker=1&id=toomcard" title="Live preview"></iframe>
-          <div class="car-side r1" data-off="1"></div>
-          <div class="car-side r2" data-off="2"></div>
         </div>
         <button type="button" class="car-nav next" onclick="goDesign(designIdx + 1, 1)" aria-label="Next">›</button>
       </div>
@@ -689,63 +683,96 @@
       if (uploadedPhoto) list.unshift({ key: 'photo', label: t('maker.bg_upload'), bg: { type: 'image', src: uploadedPhoto } });
       return list;
     }
+    // 카드 썸네일 7장(-3..3)을 한 줄로 두고, 넘길 때 전체가 한 칸씩 움직인다.
+    // 가운데(0) 썸네일은 iframe 카드 바로 뒤에 같은 크기로 깔려, 넘기는 동안 카드 역할을 한다.
+    const OFFSETS = [-3, -2, -1, 0, 1, 2, 3];
+    function cardBox() {
+      const r = $('preview').getBoundingClientRect();
+      const w = Math.min(330, r.width - 24, (r.height - 24) / 1.6036);
+      return { w, h: w * 1.6036 };
+    }
+    function slotTransform(off) {
+      const a = Math.abs(off), sgn = Math.sign(off);
+      if (a === 0) return { t: 'translate(-50%, -50%)', o: 1, z: 4 };
+      if (a === 1) return { t: `translate(calc(-50% + ${sgn * 70}%), -50%) rotate(${sgn * 9}deg) scale(0.86)`, o: 0.6, z: 3 };
+      if (a === 2) return { t: `translate(calc(-50% + ${sgn * 122}%), -48%) rotate(${sgn * 15}deg) scale(0.74)`, o: 0.28, z: 2 };
+      return { t: `translate(calc(-50% + ${sgn * 170}%), -46%) rotate(${sgn * 20}deg) scale(0.64)`, o: 0, z: 1 };
+    }
+    function placeThumb(el, off, extraX) {
+      const st = slotTransform(off);
+      el.style.transform = extraX ? `translateX(${extraX}px) ${st.t}` : st.t;
+      el.style.opacity = st.o; el.style.zIndex = st.z;
+    }
     function renderCarousel() {
       const list = designs(); const n = list.length;
       designIdx = ((designIdx % n) + n) % n;
       $('designName').textContent = list[designIdx].label;
       $('designIdxLabel').textContent = `${designIdx + 1} / ${n}`;
-      document.querySelectorAll('.car-side').forEach((el) => {
-        const d = list[(designIdx + Number(el.dataset.off) + n * 2) % n];
+      const stack = $('carStack'); const box = cardBox();
+      if (stack.children.length !== OFFSETS.length) {
+        stack.innerHTML = '';
+        OFFSETS.forEach((off) => { const el = document.createElement('div'); el.className = 'car-thumb'; el.dataset.off = off; stack.appendChild(el); });
+      }
+      [...stack.children].forEach((el) => {
+        const off = Number(el.dataset.off);
+        const d = list[(designIdx + off + n * 4) % n];
         el.setAttribute('style', d.bg ? thumbStyle(d.bg) : '');
-        el.onclick = () => goDesign(designIdx + Number(el.dataset.off), Math.sign(Number(el.dataset.off)));
+        el.style.width = box.w + 'px'; el.style.height = box.h + 'px';
+        placeThumb(el, off);
+        el.onclick = off === 0 ? null : () => goDesign(designIdx + off, Math.sign(off));
       });
     }
-    function applyDesign(i) {
+
+    let sliding = false;
+    async function goDesign(i, dirHint) {
+      if (sliding) return;
+      const dir = dirHint || (i > designIdx ? 1 : -1);   // 1 = 다음: 오른쪽 카드가 가운데로 들어온다
+      const steps = Math.abs(i - designIdx) || 1;
+      const ifr = $('preview'); const stack = $('carStack');
+      sliding = true;
+      // 1) 다음 디자인을 지금 바로 그리기 시작 (카드가 가려져 있는 동안 완성된다)
+      applyDesignSilently(i);
+      clearTimeout(renderTimer); render(true);
+      // 2) 실제 카드는 살짝 감추고, 썸네일 줄 전체가 한 칸(또는 여러 칸) 이동
+      ifr.style.transition = 'opacity 0.12s ease'; ifr.style.transform = ''; ifr.style.opacity = '0';
+      stack.classList.add('animating');
+      [...stack.children].forEach((el) => placeThumb(el, Number(el.dataset.off) - dir * steps));
+      await new Promise((r) => setTimeout(r, 340));
+      // 3) 줄을 새 위치 기준으로 다시 깔고, 그려진 카드를 위에 띄운다
+      stack.classList.remove('animating');
+      renderCarousel();
+      await waitRendered(80);
+      ifr.style.transform = ''; ifr.style.opacity = '1';
+      setTimeout(() => { sliding = false; }, 120);
+    }
+    function applyDesignSilently(i) {
       const list = designs(); const n = list.length;
       designIdx = ((i % n) + n) % n;
       const d = list[designIdx];
       if (d.key === 'photo') setBg(d.bg, 'upload'); else applyStart(d.key);
-      renderCarousel();
+      $('designName').textContent = d.label;
+      $('designIdxLabel').textContent = `${designIdx + 1} / ${n}`;
     }
+    function applyDesign(i) { applyDesignSilently(i); renderCarousel(); }
 
-    // 넘기기: 지금 카드는 옆으로 기울며 빠지고, 새 카드가 반대편에서 들어온다
-    let sliding = false;
-    const EASE_OUT = 'transform 0.16s cubic-bezier(.4,0,1,1), opacity 0.14s';
-    const EASE_IN = 'transform 0.3s cubic-bezier(.2,.8,.2,1), opacity 0.2s';
-    function sideTransform(dir) { return `translateX(${dir * 78}%) rotate(${dir * 11}deg) scale(0.84)`; }
-    async function goDesign(i, dirHint) {
-      if (sliding) return;
-      const dir = dirHint || (i > designIdx ? 1 : -1);   // 1 = 다음(왼쪽으로 빠짐)
-      const ifr = $('preview');
-      sliding = true;
-      ifr.style.transition = EASE_OUT;
-      ifr.style.transform = sideTransform(-dir);
-      ifr.style.opacity = '0';
-      applyDesign(i);
-      clearTimeout(renderTimer); render(true);
-      // 나가는 동안 그리기 시작하고, 나가기가 끝나면 거의 바로 들어온다 (최대 60ms만 더 기다림)
-      await new Promise((r) => setTimeout(r, 150));
-      await waitRendered(60);
-      ifr.style.transition = 'none';
-      ifr.style.transform = sideTransform(dir);
-      void ifr.offsetWidth;
-      ifr.style.transition = EASE_IN;
-      ifr.style.transform = '';
-      ifr.style.opacity = '1';
-      setTimeout(() => { sliding = false; }, 180);
-    }
+    // 손가락을 따라 카드와 썸네일 줄이 함께 움직인다
     function onDrag(dx) {
       if (sliding) return;
       const ifr = $('preview');
       ifr.style.transition = 'none';
-      ifr.style.transform = `translateX(${dx}px) rotate(${dx / 30}deg)`;
-      ifr.style.opacity = String(Math.max(0.55, 1 - Math.abs(dx) / 500));
+      ifr.style.transform = `translateX(${dx}px) rotate(${dx / 40}deg)`;
+      [...$('carStack').children].forEach((el) => { if (el.dataset.off !== '0') placeThumb(el, Number(el.dataset.off), dx * 0.5); });
     }
     function onDragEnd() {
       const ifr = $('preview');
-      ifr.style.transition = EASE_IN;
-      ifr.style.transform = ''; ifr.style.opacity = '1';
+      ifr.style.transition = 'transform 0.3s cubic-bezier(.2,.8,.2,1), opacity 0.12s';
+      ifr.style.transform = '';
+      const stack = $('carStack'); stack.classList.add('animating');
+      [...stack.children].forEach((el) => placeThumb(el, Number(el.dataset.off)));
+      setTimeout(() => stack.classList.remove('animating'), 340);
     }
+    window.addEventListener('resize', () => { if (!sliding) renderCarousel(); });
+
     function pickPhoto() { $('bgFile').click(); }
 
     /* ── 사진 조정 ───────────────────────────────────── */
@@ -786,9 +813,11 @@
       document.querySelectorAll('#tabbar button').forEach((b) => b.setAttribute('aria-selected', b.dataset.tab === name ? 'true' : 'false'));
       document.body.classList.add('sheet-open');
       document.querySelectorAll('.panel').forEach((p) => { p.scrollTop = 0; });
+      setTimeout(renderCarousel, 320);   // 카드가 작아진 크기에 썸네일 맞추기
     }
     function closeSheet() {
       document.body.classList.remove('sheet-open'); currentTab = '';
+      setTimeout(renderCarousel, 320);
       document.querySelectorAll('#tabbar button').forEach((b) => b.setAttribute('aria-selected', 'false'));
     }
     $('tabbar').addEventListener('click', (e) => { const b = e.target.closest('button[data-tab]'); if (b) openTab(b.dataset.tab); });
@@ -912,6 +941,7 @@
       if (e.data && e.data.action === 'drag_end') { onDragEnd(); return; }
       if (e.data && e.data.action === 'rendered') { const w = renderedWaiters; renderedWaiters = []; w.forEach((fn) => fn()); return; }
       if (!e.data || e.data.action !== 'card_ready') return;
+      renderCarousel();
       const params = new URLSearchParams(location.search);
       const edit = params.get('edit');
       const preset = params.get('preset') || params.get('template') || params.get('design');
