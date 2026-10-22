@@ -16,6 +16,10 @@
       "destination": "/index.html"
     },
     {
+      "source": "/index-legacy",
+      "destination": "/index-legacy.html"
+    },
+    {
       "source": "/maker",
       "destination": "/maker.html"
     },
@@ -25,11 +29,11 @@
     },
     {
       "source": "/templates",
-      "destination": "/templates.html"
+      "destination": "/index.html"
     },
     {
       "source": "/designs",
-      "destination": "/templates.html"
+      "destination": "/index.html"
     },
     {
       "source": "/dashboard",
