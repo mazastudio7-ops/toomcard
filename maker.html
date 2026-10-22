@@ -156,6 +156,12 @@
     .url-preview { display: flex; align-items: center; height: 38px; padding: 0 11px; border-radius: var(--tc-radius-sm); background: rgba(255,255,255,0.04); border: 1px solid var(--tc-border); font: 600 12.5px ui-monospace, monospace; color: var(--tc-text-muted); overflow: hidden; }
     .url-preview span { color: var(--tc-text-subtle); }
     .url-preview input { flex: 1; min-width: 0; background: transparent; border: none; outline: none; color: var(--tc-text); font: inherit; }
+    .age-check { display: flex; align-items: flex-start; gap: 10px; padding: 11px 12px; border-radius: var(--tc-radius-sm); background: rgba(255,255,255,0.04); border: 1px solid var(--tc-border); cursor: pointer; }
+    .age-check input { width: 18px; height: 18px; margin-top: 1px; accent-color: var(--tc-accent); flex-shrink: 0; cursor: pointer; }
+    .age-check span { font-size: 12.5px; font-weight: 700; color: var(--tc-text); line-height: 1.4; }
+    .age-check small { display: block; font-size: 11px; font-weight: 500; color: var(--tc-text-subtle); margin-top: 3px; }
+    .age-check.shake { animation: ageShake 0.35s; border-color: var(--tc-accent); }
+    @keyframes ageShake { 0%,100% { transform: none; } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
     .result { display: none; flex-direction: column; gap: 10px; padding: 14px; border-radius: var(--tc-radius); background: var(--tc-accent-soft); border: 1px solid var(--tc-accent-border); }
     .result.show { display: flex; }
     .result .title { font-size: 13px; font-weight: 800; color: var(--tc-accent); }
@@ -272,6 +278,7 @@
       .tabbar button[aria-selected="true"] { color: var(--tc-accent); }
       .tabbar button.publish { color: var(--tc-accent); }
       .bg-grid { grid-template-columns: repeat(4, 1fr); }
+      .toast { bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom) + 14px); z-index: 60; }
     }
   </style>
 </head>
@@ -463,6 +470,11 @@
           <label><span data-i18n="maker.slug">명함 주소</span> <span style="font-weight:600;opacity:.6;" data-i18n="maker.slug_hint">비워두면 자동 생성</span></label>
           <div class="url-preview"><span>toomcard.com/</span><input id="fSlug" placeholder="alex" data-i18n-placeholder="maker.slug_ph"></div>
         </div>
+        <!-- 발행(서버 저장 · 공개 링크)에만 연령 확인. 만들기와 배경화면 저장은 누구나 -->
+        <label class="age-check" id="ageCheck">
+          <input type="checkbox" id="fAge">
+          <span><span data-i18n="maker.age_confirm">만 14세 이상입니다</span><small data-i18n="maker.age_note">만 14세 미만은 카드 꾸미기와 배경화면 저장만 할 수 있어요.</small></span>
+        </label>
         <button class="btn-primary" id="btnPublish" onclick="publish()"><i data-lucide="rocket" style="width:16px;height:16px;"></i><span data-i18n="maker.publish">명함 만들기</span></button>
         <div class="result" id="result">
           <div class="title" data-i18n="maker.published_title">3D 명함이 발행되었습니다!</div>
@@ -928,12 +940,17 @@
     /* ── 발행 ───────────────────────────────────────── */
     async function publish() {
       const c = collect();
+      if (!$('fAge').checked) {
+        const box = $('ageCheck'); box.classList.remove('shake'); void box.offsetWidth; box.classList.add('shake');
+        toast(t('maker.age_required')); return;
+      }
       const missing = !c.name || (kind === 'business' && !c.company);
       if (missing) { toast(t(kind === 'business' ? 'maker.need_name' : 'maker.need_name_only')); if (isMobile()) openTab('info'); $('fName').focus(); return; }
       const btn = $('btnPublish'); btn.disabled = true;
       const run = async () => {
         toast(t('maker.publishing'));
-        const res = await syncPodToCloud(c.slug, { name: c.name, handle: c.role, bio: c.company, theme: c.theme }, { ...c, card: c });
+        const consent = { ageConfirmed: true, lang: (window.i18n && i18n.lang) || 'ko', at: new Date().toISOString() };
+        const res = await syncPodToCloud(c.slug, { name: c.name, handle: c.role, bio: c.company, theme: c.theme }, { ...c, card: c, consent });
         btn.disabled = false;
         if (res && res.error) { toast(t('maker.publish_fail') + ' ' + res.error); return; }
         publishedUrl = `${location.origin}/${c.slug}`;
