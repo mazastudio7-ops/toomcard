@@ -102,7 +102,10 @@ function getSocialIconSvg(type) {
       <line x1="17.5" x2="17.51" y1="6.5" y2="6.5"></line>
     </svg>`;
   }
-  return `<i data-lucide="globe" style="width:14px;height:14px;color:#38bdf8;"></i>`;
+  const icons = { youtube: ['youtube', '#ff4d4d'], linkedin: ['linkedin', '#60a5fa'], x: ['twitter', '#e5e7eb'], threads: ['at-sign', '#e5e7eb'],
+                  tiktok: ['music-2', '#f0abfc'], discord: ['message-circle', '#a5b4fc'], whatsapp: ['message-circle', '#4ade80'] };
+  const [name, color] = icons[type] || ['globe', '#38bdf8'];
+  return `<i data-lucide="${name}" style="width:14px;height:14px;color:${color};"></i>`;
 }
 
 // 내부 고전환 액션 버튼 바인딩 (setupod.com/ceo 2x2 럭셔리 그리드)
@@ -111,7 +114,9 @@ function renderActionDocks(data) {
   const dockBack = document.getElementById('insideActionDockBack');
 
   const links = [];
-  if (data.primaryAction && data.primaryAction.url) {
+  const personal = data.kind === 'personal';
+  const socialLinks = [];
+  if (data.primaryAction && data.primaryAction.url && !personal) {
     const p = data.primaryAction;
     links.push(`
       <a href="${p.url}" target="_blank" rel="noopener noreferrer" class="btn-action btn-glass" onclick="event.stopPropagation()" title="${p.label || ''}">
@@ -122,14 +127,14 @@ function renderActionDocks(data) {
   }
   (data.socials || []).slice(0, 2).forEach((social) => {
     if (social.type === 'social_modal') {
-      links.push(`
+      socialLinks.push(`
         <button class="btn-action btn-glass" onclick="event.stopPropagation(); openSocialModal();" title="${social.label}">
           <i data-lucide="${social.icon || 'globe'}" style="width: 14px; height: 14px; color: #38bdf8;"></i>
           <span>${social.label}</span>
         </button>
       `);
     } else if (social.url) {
-      links.push(`
+      socialLinks.push(`
         <a href="${social.url}" target="_blank" rel="noopener noreferrer" class="btn-action btn-glass" onclick="event.stopPropagation()" title="${social.label}">
           ${getSocialIconSvg(social.type)}
           <span>${social.label}</span>
@@ -138,6 +143,17 @@ function renderActionDocks(data) {
     }
   });
 
+  links.push(...socialLinks);
+  // 일반 카드는 SNS를 먼저, 웹사이트는 그 뒤에
+  if (personal && data.primaryAction && data.primaryAction.url) {
+    const p = data.primaryAction;
+    links.push(`
+      <a href="${p.url}" target="_blank" rel="noopener noreferrer" class="btn-action btn-glass" onclick="event.stopPropagation()" title="${p.label || ''}">
+        <i data-lucide="${p.icon || 'globe'}" style="width: 14px; height: 14px; color: #38bdf8;"></i>
+        <span>${p.label || t('common.website')}</span>
+      </a>
+    `);
+  }
   // 최대 2개, 한 줄. 나머지는 더보기 시트
   const html = links.length ? `<div class="inside-action-row">${links.slice(0, 2).join('')}</div>` : '';
   if (dockFront) dockFront.innerHTML = html;
@@ -189,6 +205,10 @@ function renderActionBar(data) {
   if (lang === 'ko') target = kk || sms || wa;
   else if (lang === 'de') target = wa || sms || kk;
   else target = sms || wa || kk;
+  if (!target) {
+    const s = (data.socials || []).find((x) => x.url && x.type !== 'social_modal');
+    if (s) target = { href: s.url, label: s.label || t('common.message') };
+  }
 
   if (target) {
     msgBtn.href = target.href;

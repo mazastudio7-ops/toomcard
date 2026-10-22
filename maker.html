@@ -210,6 +210,13 @@
 
     .tabbar, .sheet-head { display: none; }
 
+    /* 비즈니스 / 일반 */
+    .seg { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; border-radius: 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--tc-border); }
+    .seg button { appearance: none; border: none; border-radius: 9px; padding: 9px 0; background: transparent; color: var(--tc-text-muted); font: 800 13px var(--tc-font-body); cursor: pointer; }
+    .seg button[aria-pressed="true"] { background: var(--tc-accent); color: #000; }
+    .seg-hint { font-size: 11.5px; color: var(--tc-text-subtle); margin-top: -2px; }
+    body.kind-personal .biz-only, body.kind-business .per-only { display: none; }
+
     /* ── 모바일: 큰 캐러셀 + 하단 탭 + 시트 ───────── */
     @media (max-width: 980px) {
       :root { --tabbar-h: 62px; --sheet-h: calc(var(--app-h, 100dvh) * 0.5); }
@@ -298,11 +305,16 @@
       <!-- 1. 기본 정보 -->
       <section class="section" id="secInfo" data-tab="info">
         <div class="section-title"><i data-lucide="user"></i><span data-i18n="maker.sec_info">1. 기본 정보</span></div>
-        <div class="row-2">
-          <div class="field"><label><span data-i18n="maker.name">이름</span><span class="req">*</span></label><input class="input" id="fName" placeholder="홍길동" data-i18n-placeholder="maker.name_ph"></div>
-          <div class="field"><label data-i18n="maker.role">직함</label><input class="input" id="fRole" placeholder="대표" data-i18n-placeholder="maker.role_ph"></div>
+        <div class="seg" id="kindSeg">
+          <button type="button" data-kind="personal" aria-pressed="true" data-i18n="maker.kind_personal">일반</button>
+          <button type="button" data-kind="business" data-i18n="maker.kind_business">비즈니스</button>
         </div>
-        <div class="field"><label><span data-i18n="maker.company">회사 / 브랜드</span><span class="req">*</span></label><input class="input" id="fCompany" placeholder="TOOMCARD" data-i18n-placeholder="maker.company_ph"></div>
+        <p class="seg-hint"><span class="per-only" data-i18n="maker.kind_personal_hint">학생, 크리에이터, 누구나. 회사 없이 나를 소개해요.</span><span class="biz-only" data-i18n="maker.kind_business_hint">회사·직함이 들어가는 업무용 명함이에요.</span></p>
+        <div class="row-2">
+          <div class="field"><label><span data-i18n="maker.name">이름</span><span class="req">*</span></label><input class="input" id="fName" placeholder="홍길동"></div>
+          <div class="field"><label><span class="biz-only" data-i18n="maker.role">직함</span><span class="per-only" data-i18n="maker.intro">한 줄 소개</span></label><input class="input" id="fRole" placeholder="대표"></div>
+        </div>
+        <div class="field"><label><span class="biz-only"><span data-i18n="maker.company">회사 / 브랜드</span><span class="req">*</span></span><span class="per-only"><span data-i18n="maker.affiliation">소속</span> <span style="font-weight:600;opacity:.6;" data-i18n="common.optional">선택</span></span></label><input class="input" id="fCompany" placeholder="TOOMCARD"></div>
         <div class="field"><label data-i18n="maker.slogan">슬로건 한 줄</label><input class="input" id="fSlogan" placeholder="오늘의 만남을 내일의 비즈니스로"></div>
         <div class="row-2">
           <div class="field"><label data-i18n="maker.phone">전화번호</label><input class="input" id="fPhone" type="tel" placeholder="+82 10-1234-5678"></div>
@@ -310,7 +322,7 @@
         </div>
         <div class="field"><label data-i18n="maker.website">웹사이트</label><input class="input" id="fWebsite" type="url" placeholder="https://"></div>
         <div class="field">
-          <label data-i18n="maker.social">소셜 채널 1개</label>
+          <label data-i18n="maker.social">소셜 채널 (최대 2개)</label>
           <div class="row-social">
             <select class="select" id="fSocialType">
               <option value="kakao">KakaoTalk</option>
@@ -319,8 +331,25 @@
               <option value="linkedin">LinkedIn</option>
               <option value="threads">Threads</option>
               <option value="youtube">YouTube</option>
+              <option value="tiktok">TikTok</option>
+              <option value="x">X</option>
+              <option value="discord">Discord</option>
             </select>
             <input class="input" id="fSocialUrl" type="url" placeholder="https://">
+          </div>
+          <div class="row-social" style="margin-top:8px;">
+            <select class="select" id="fSocial2Type">
+              <option value="instagram">Instagram</option>
+              <option value="youtube">YouTube</option>
+              <option value="tiktok">TikTok</option>
+              <option value="kakao">KakaoTalk</option>
+              <option value="whatsapp">WhatsApp</option>
+              <option value="linkedin">LinkedIn</option>
+              <option value="threads">Threads</option>
+              <option value="x">X</option>
+              <option value="discord">Discord</option>
+            </select>
+            <input class="input" id="fSocial2Url" type="url" placeholder="https://">
           </div>
         </div>
         <div class="field">
@@ -480,6 +509,20 @@
       front: { bg: { type: 'image', src: '/assets/toomcard_front_plate.jpg' }, text: { layout: 'none', showLogo: false, tone: 'auto' }, finish: 'metal', qr: 'subtle' }
     };
     let card = JSON.parse(JSON.stringify(DEFAULT_CARD));
+    // 일반(personal) / 비즈니스(business): 입력칸 이름·필수 항목·뒷면 구성이 달라진다
+    let kind = 'personal';
+    const KIND_PH = {
+      personal: { fName: 'maker.p_name_ph', fRole: 'maker.p_intro_ph', fCompany: 'maker.p_aff_ph', fSlogan: 'maker.p_slogan_ph', fTags: 'maker.p_tags_ph' },
+      business: { fName: 'maker.name_ph', fRole: 'maker.role_ph', fCompany: 'maker.company_ph', fSlogan: 'maker.b_slogan_ph', fTags: 'maker.b_tags_ph' }
+    };
+    function setKind(k) {
+      kind = k === 'business' ? 'business' : 'personal';
+      document.body.classList.toggle('kind-business', kind === 'business');
+      document.body.classList.toggle('kind-personal', kind === 'personal');
+      document.querySelectorAll('#kindSeg button').forEach((b) => b.setAttribute('aria-pressed', b.dataset.kind === kind ? 'true' : 'false'));
+      Object.entries(KIND_PH[kind]).forEach(([id, key]) => { const el = document.getElementById(id); if (el) el.placeholder = t(key); });
+      if (typeof render === 'function') render();
+    }
     let publishedUrl = '';
 
     const CURATED_BG = [
@@ -525,7 +568,9 @@
       card.name = $('fName').value.trim();
       card.role = $('fRole').value.trim();
       card.company = $('fCompany').value.trim();
-      card.companyWatermark = card.company;
+      card.kind = kind;
+      // 워터마크: 비즈니스는 회사명, 일반은 소속이 있으면 소속, 없으면 이름
+      card.companyWatermark = kind === 'business' ? card.company : (card.company || card.name);
       card.slogan = $('fSlogan').value.trim();
       card.phone = $('fPhone').value.trim();
       card.email = $('fEmail').value.trim();
@@ -533,9 +578,9 @@
       card.moatTags = $('fTags').value.split(',').map((s) => s.trim()).filter(Boolean).slice(0, 3);
       const web = $('fWebsite').value.trim();
       card.primaryAction = web ? { url: web, label: t('common.website'), icon: 'globe' } : null;
-      const su = $('fSocialUrl').value.trim();
-      const st = $('fSocialType').value;
-      card.socials = su ? [{ type: st, url: su, label: $('fSocialType').selectedOptions[0].text }] : [];
+      card.socials = [['fSocialType', 'fSocialUrl'], ['fSocial2Type', 'fSocial2Url']]
+        .map(([ty, u]) => ({ type: $(ty).value, url: $(u).value.trim(), label: $(ty).selectedOptions[0].text }))
+        .filter((s) => s.url);
       card.logo.alt = card.company;
       card.vcard = {
         firstName: card.name, lastName: '', formattedName: card.name, org: card.company,
@@ -555,7 +600,7 @@
       const c = JSON.parse(JSON.stringify(collect()));
       if (!c.name) c.name = sample('fName');
       if (!c.role) c.role = sample('fRole');
-      if (!c.company) { c.company = sample('fCompany'); c.companyWatermark = c.company; }
+      if (!c.company) { c.company = sample('fCompany'); c.companyWatermark = kind === 'business' ? c.company : (c.company || c.name); }
       if (!c.slogan) c.slogan = sample('fSlogan');
       if (!c.phone) c.phone = sample('fPhone');
       if (!c.email) c.email = sample('fEmail');
@@ -883,7 +928,8 @@
     /* ── 발행 ───────────────────────────────────────── */
     async function publish() {
       const c = collect();
-      if (!c.name || !c.company) { toast(t('maker.need_name')); if (isMobile()) openTab('info'); $('fName').focus(); return; }
+      const missing = !c.name || (kind === 'business' && !c.company);
+      if (missing) { toast(t(kind === 'business' ? 'maker.need_name' : 'maker.need_name_only')); if (isMobile()) openTab('info'); $('fName').focus(); return; }
       const btn = $('btnPublish'); btn.disabled = true;
       const run = async () => {
         toast(t('maker.publishing'));
@@ -971,7 +1017,10 @@
       $('fName').value = c.name || ''; $('fRole').value = c.role || ''; $('fCompany').value = c.company || '';
       $('fSlogan').value = c.slogan || ''; $('fPhone').value = c.phone || ''; $('fEmail').value = c.email || '';
       $('fWebsite').value = (c.primaryAction && c.primaryAction.url) || '';
-      const s0 = (c.socials || []).find((s) => s.url); if (s0) { $('fSocialType').value = s0.type; $('fSocialUrl').value = s0.url; }
+      const ss = (c.socials || []).filter((s) => s.url);
+      if (ss[0]) { $('fSocialType').value = ss[0].type; $('fSocialUrl').value = ss[0].url; }
+      if (ss[1]) { $('fSocial2Type').value = ss[1].type; $('fSocial2Url').value = ss[1].url; }
+      setKind(c.kind || 'business');   // 예전 카드는 모두 비즈니스
       $('fTags').value = (c.moatTags || []).join(', '); $('fSlug').value = slug;
       currentBgId = card.front.bg.type === 'image' && !CURATED_BG.some((b) => b.src === card.front.bg.src) ? 'upload' : (CURATED_BG.find((b) => b.src === card.front.bg.src || (b.type === card.front.bg.type && b.from === card.front.bg.from)) || {}).id || 'toomcard';
       pressOnly($('textChips'), 'layout', card.front.text.layout); setLogo(card.front.text.showLogo);
@@ -988,13 +1037,15 @@
     // 화면 높이: 폰 브라우저 주소창이 접혔다 펴질 때도 하단 탭과 무대가 맞도록 실제 높이를 쓴다
     function syncAppHeight() { document.documentElement.style.setProperty('--app-h', window.innerHeight + 'px'); }
     syncAppHeight(); window.addEventListener('resize', syncAppHeight);
+    $('kindSeg').addEventListener('click', (e) => { const b = e.target.closest('button[data-kind]'); if (b) setKind(b.dataset.kind); });
+    setKind(new URLSearchParams(location.search).get('kind') || 'personal');
     renderBgGrid(); renderThemeChips(); renderStartChips(); renderCarousel(); syncAdjustUI();
     (function preloadDesigns() {
       THEMES.forEach(([key]) => { const l = document.createElement('link'); l.rel = 'preload'; l.as = 'style'; l.href = `/themes/${key}.css`; document.head.appendChild(l); });
       CURATED_BG.filter((b) => b.type === 'image').forEach((b) => { const img = new Image(); img.src = b.src; });
     })();
     document.querySelectorAll('.panel-left .input, .panel-left .select, #fSlug').forEach((el) => el.addEventListener('input', render));
-    document.addEventListener('i18n:change', () => { renderThemeChips(); renderCarousel(); if (currentTab) document.querySelectorAll('.sheet-title').forEach((el) => { el.textContent = t(TAB_TITLES[currentTab]); }); render(); });
+    document.addEventListener('i18n:change', () => { setKind(kind); renderThemeChips(); renderCarousel(); if (currentTab) document.querySelectorAll('.sheet-title').forEach((el) => { el.textContent = t(TAB_TITLES[currentTab]); }); render(); });
     // 뷰어가 초기 렌더를 끝내면 card_ready를 보낸다. 그 뒤에 그려야 덮어써지지 않는다.
     window.addEventListener('message', (e) => {
       if (e.data && e.data.action === 'swipe') { const d = e.data.dir === 'next' ? 1 : -1; goDesign(designIdx + d, d); return; }
