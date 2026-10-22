@@ -710,8 +710,8 @@
 
     // 넘기기: 지금 카드는 옆으로 기울며 빠지고, 새 카드가 반대편에서 들어온다
     let sliding = false;
-    const EASE_OUT = 'transform 0.24s cubic-bezier(.4,0,1,1), opacity 0.2s';
-    const EASE_IN = 'transform 0.38s cubic-bezier(.2,.8,.2,1), opacity 0.28s';
+    const EASE_OUT = 'transform 0.16s cubic-bezier(.4,0,1,1), opacity 0.14s';
+    const EASE_IN = 'transform 0.3s cubic-bezier(.2,.8,.2,1), opacity 0.2s';
     function sideTransform(dir) { return `translateX(${dir * 78}%) rotate(${dir * 11}deg) scale(0.84)`; }
     async function goDesign(i, dirHint) {
       if (sliding) return;
@@ -721,17 +721,18 @@
       ifr.style.transition = EASE_OUT;
       ifr.style.transform = sideTransform(-dir);
       ifr.style.opacity = '0';
-      await new Promise((r) => setTimeout(r, 200));
       applyDesign(i);
       clearTimeout(renderTimer); render(true);
-      await waitRendered(450);
+      // 나가는 동안 그리기 시작하고, 나가기가 끝나면 거의 바로 들어온다 (최대 60ms만 더 기다림)
+      await new Promise((r) => setTimeout(r, 150));
+      await waitRendered(60);
       ifr.style.transition = 'none';
       ifr.style.transform = sideTransform(dir);
       void ifr.offsetWidth;
       ifr.style.transition = EASE_IN;
       ifr.style.transform = '';
       ifr.style.opacity = '1';
-      setTimeout(() => { sliding = false; }, 300);
+      setTimeout(() => { sliding = false; }, 180);
     }
     function onDrag(dx) {
       if (sliding) return;
@@ -898,6 +899,10 @@
     function syncAppHeight() { document.documentElement.style.setProperty('--app-h', window.innerHeight + 'px'); }
     syncAppHeight(); window.addEventListener('resize', syncAppHeight);
     renderBgGrid(); renderThemeChips(); renderStartChips(); renderCarousel(); syncAdjustUI();
+    (function preloadDesigns() {
+      THEMES.forEach(([key]) => { const l = document.createElement('link'); l.rel = 'preload'; l.as = 'style'; l.href = `/themes/${key}.css`; document.head.appendChild(l); });
+      CURATED_BG.filter((b) => b.type === 'image').forEach((b) => { const img = new Image(); img.src = b.src; });
+    })();
     document.querySelectorAll('.panel-left .input, .panel-left .select, #fSlug').forEach((el) => el.addEventListener('input', render));
     document.addEventListener('i18n:change', () => { renderThemeChips(); renderCarousel(); if (currentTab) document.querySelectorAll('.sheet-title').forEach((el) => { el.textContent = t(TAB_TITLES[currentTab]); }); render(); });
     // 뷰어가 초기 렌더를 끝내면 card_ready를 보낸다. 그 뒤에 그려야 덮어써지지 않는다.
