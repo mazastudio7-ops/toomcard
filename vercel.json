@@ -20,10 +20,6 @@
       "destination": "/index-legacy.html"
     },
     {
-      "source": "/maker-shell",
-      "destination": "/maker-shell.html"
-    },
-    {
       "source": "/maker",
       "destination": "/maker.html"
     },
