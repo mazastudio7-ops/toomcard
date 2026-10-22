@@ -177,7 +177,7 @@
     .stage { overflow: hidden; }
     .car-track { position: relative; height: min(700px, calc(100vh - 190px)); min-height: 480px; width: 100%; display: flex; align-items: center; justify-content: center; }
     /* 미리보기는 항상 실제 폰 크기(카드 330×529)로 그린 뒤 transform으로 맞춘다 → 글자 줄바꿈까지 실제 명함과 같다 */
-    .car-card { position: absolute; left: 50%; top: 50%; width: 354px; height: 553px; margin: -276.5px 0 0 -177px; transform: scale(var(--k, 1)); transform-origin: 50% 50%; z-index: 5; }
+    .car-card { position: absolute; left: 50%; top: 50%; width: 354px; height: 553px; margin: -276.5px 0 0 -177px; zoom: var(--k, 1); z-index: 5; }
     .car-card iframe { display: block; width: 100%; height: 100%; border: none; border-radius: 24px; background: transparent; }
     .car-stack { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
     .car-thumb {
@@ -309,6 +309,16 @@
     @media (min-width: 981px) {
       #secPhoto > .btn-secondary, #secPhoto .photo-off { display: none; }
     }
+    .side-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; position: sticky; top: -20px; z-index: 5; padding: 4px 0 6px; margin-top: -4px; background: var(--tc-bg, #0b0814); }
+    .side-tabs button { appearance: none; display: flex; align-items: center; gap: 9px; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--tc-border); background: rgba(255,255,255,0.04); color: var(--tc-text-muted); cursor: pointer; text-align: left; font-family: var(--tc-font-body); }
+    .side-tabs button i { width: 18px; height: 18px; flex: none; }
+    .side-tabs button span { display: flex; flex-direction: column; gap: 1px; }
+    .side-tabs b { font-size: 14px; font-weight: 800; }
+    .side-tabs small { font-size: 10.5px; opacity: 0.7; }
+    .side-tabs button[aria-pressed="true"] { background: var(--tc-accent); border-color: var(--tc-accent); color: #000; }
+    @media (min-width: 981px) {
+      .panel-left[data-side="front"] .section[data-side="back"], .panel-left[data-side="back"] .section[data-side="front"] { display: none; }
+    }
   </style>
 </head>
 <body>
@@ -328,9 +338,14 @@
   <main class="studio">
 
     <!-- ── 왼쪽: 조작 ───────────────────────────────── -->
-    <aside class="panel panel-left">
+    <aside class="panel panel-left" data-side="front">
 
       <div class="sheet-head"><span class="sheet-title"></span><button type="button" onclick="closeSheet()" data-i18n="maker.done">완료</button></div>
+
+      <div class="side-tabs desk-only" id="sideTabs" role="tablist">
+        <button type="button" data-side="front" aria-pressed="true"><i data-lucide="image"></i><span><b data-i18n="maker.front">앞면</b><small data-i18n="maker.side_front_sub">배경 · 사진 · 글자</small></span></button>
+        <button type="button" data-side="back" aria-pressed="false"><i data-lucide="file-text"></i><span><b data-i18n="maker.back">뒷면</b><small data-i18n="maker.side_back_sub">정보 · 로고 · 마감</small></span></button>
+      </div>
 
       <!-- 0. 시작점 (데스크톱 전용: 폰은 캐러셀이 대신한다) -->
       <section class="section" id="secStart" style="display:none !important">
@@ -925,7 +940,7 @@
         renderedWaiters.push(check);
       });
     }
-    function flip(action) { const f = $('preview'); if (f && f.contentWindow) f.contentWindow.postMessage({ action }, '*'); }
+    function flip(action) { if (typeof setSide === 'function' && innerWidth > 980 && (action === 'show_back' || action === 'show_front')) setSide(action === 'show_back' ? 'back' : 'front', true); const f = $('preview'); if (f && f.contentWindow) f.contentWindow.postMessage({ action }, '*'); }
 
     /* ── 배경 ───────────────────────────────────────── */
     let currentBgId = 'toomcard';
@@ -1310,20 +1325,13 @@
     const TAB_TITLES = { info: 'maker.tab_info', photo: 'maker.sec_photo', text: 'maker.sec_text', logo: 'maker.sec_logo', finish: 'maker.sec_finish', publish: 'maker.sec_publish' };
     let currentTab = '';
     function isMobile() { return window.matchMedia('(max-width: 980px)').matches; }
-    // 데스크톱: 만지는 섹션에 맞는 면(앞/뒤)을 자동으로 보여준다 (폰은 탭이 대신한다)
-    (function () {
-      const left = document.querySelector('.panel-left');
-      let side = '';
-      function follow(e) {
-        if (innerWidth <= 980) return;
-        const sec = e.target.closest && e.target.closest('[data-side]');
-        if (!sec || sec.dataset.side === side) return;
-        side = sec.dataset.side;
-        flip(side === 'back' ? 'show_back' : 'show_front');
-      }
-      left.addEventListener('focusin', follow);
-      left.addEventListener('click', follow);
-    })();
+    // 데스크톱: 왼쪽 패널을 앞면/뒷면 탭으로 나누고 미리보기 면과 항상 같이 움직인다 (폰은 하단 탭이 대신한다)
+    function setSide(side, noFlip) {
+      document.querySelector('.panel-left').dataset.side = side;
+      document.querySelectorAll('#sideTabs button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.side === side)));
+      if (!noFlip) flip(side === 'back' ? 'show_back' : 'show_front');
+    }
+    document.querySelectorAll('#sideTabs button').forEach((b) => b.addEventListener('click', () => setSide(b.dataset.side)));
 
     function openTab(name) {
       if (currentTab === name && document.body.classList.contains('sheet-open')) { closeSheet(); return; }
