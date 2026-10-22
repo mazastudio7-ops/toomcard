@@ -73,6 +73,21 @@
     .grid { columns: 2; column-gap: 12px; }
     @media (min-width: 760px) { .grid { columns: 4; column-gap: 16px; } }
     .tile { position: relative; display: block; width: 100%; aspect-ratio: 330 / 529; margin-bottom: 12px; border-radius: 22px; overflow: hidden; background-size: cover; background-position: center; break-inside: avoid; border: 1px solid rgba(255,255,255,0.12); box-shadow: 0 14px 34px rgba(0,0,0,0.5); opacity: 0; transform: translateY(34px) scale(.96); transition: opacity .7s ease, transform .7s cubic-bezier(.2,.8,.2,1), box-shadow .3s ease; transition-delay: var(--d, 0s); }
+    .tile[class*="fr-"]:not(.fr-magazine) { background-color: #14141b; background-image: radial-gradient(120% 90% at 50% 0%, #22222c 0%, #0b0b10 100%); }
+    .tile .ph { position: absolute; background-size: cover; background-position: center top; }
+    .fr-arch .ph { left: 11%; right: 11%; top: 6%; height: 64%; border-radius: 999px 999px 16px 16px; box-shadow: 0 10px 24px rgba(0,0,0,.4); }
+    .fr-polaroid { background-image: linear-gradient(160deg, #fbf9f3, #e9e4d8) !important; }
+    .fr-polaroid .ph { left: 7%; right: 7%; top: 5%; height: 68%; border-radius: 3px; box-shadow: 0 8px 20px rgba(0,0,0,.3); }
+    .fr-polaroid .nm { color: #2b2418; text-shadow: none; text-align: center; left: 0; right: 0; bottom: 10%; }
+    .fr-arch .nm { text-align: center; left: 0; right: 0; bottom: 9%; }
+    .fr-film { background: #0b0b0e !important; }
+    .fr-film .ph { left: 15%; right: 15%; top: 4.5%; height: 69%; border-radius: 4px; }
+    .fr-film::before, .fr-film::after { content: ""; position: absolute; top: 0; bottom: 0; width: 6%; background: repeating-linear-gradient(180deg, transparent 0 11px, #e8e2d2 11px 25px, transparent 25px 36px); opacity: .9; }
+    .fr-film::before { left: 5%; } .fr-film::after { right: 5%; }
+    .fr-film .nm { text-align: center; left: 0; right: 0; bottom: 8%; }
+    .fr-magazine { background-image: var(--ph) ; }
+    .fr-magazine .mast { position: absolute; left: 0; right: 0; top: 5%; text-align: center; font: 900 21px 'Montserrat', sans-serif; letter-spacing: .03em; text-shadow: 0 2px 10px rgba(0,0,0,.45); }
+    .fr-magazine .nm { text-align: center; left: 0; right: 0; }
     .tile:nth-child(3n+2) { aspect-ratio: 330 / 590; }
     .tile.in { opacity: 1; transform: none; }
     .tile.in.tilt { transition: transform .12s ease-out, box-shadow .3s ease; transition-delay: 0s; }
@@ -130,15 +145,16 @@
     </div>
     <div class="grid" id="grid">
       <a class="tile" data-cat="brand" href="/maker.html?preset=toomcard" style="background-image:url(/assets/toomcard_front_plate.jpg)"><i class="go">→</i></a>
-      <a class="tile" data-cat="photo" href="/maker.html" style="background-image:url(/assets/sample_profile_creator.jpg)"><span class="nm">김하늘</span><i class="go">→</i></a>
+      <a class="tile fr-arch" data-cat="photo" href="/maker?sample=creator"><span class="ph" style="background-image:url(/assets/sample_profile_creator.jpg)"></span><span class="nm">김하늘</span><i class="go">→</i></a>
       <a class="tile" data-cat="brand" href="/maker.html?preset=setupod" style="background-image:url(/assets/setupod_front_plate.jpg)"><i class="go">→</i></a>
       <a class="tile" data-cat="color" href="/maker.html?preset=obsidian" style="background:linear-gradient(160deg,#1c1c22,color-mix(in srgb,#1c1c22 55%,#000))"><b class="ini">A</b><span class="nm">Alex Rivera</span><i class="go">→</i></a>
       <a class="tile" data-cat="brand" href="/maker.html?preset=maza" style="background-image:url(/assets/maza_front_plate.jpg)"><i class="go">→</i></a>
-      <a class="tile" data-cat="photo" href="/maker.html" style="background-image:url(/assets/sample_profile_ceo.jpg)"><span class="nm">Daniel Park</span><i class="go">→</i></a>
+      <a class="tile fr-polaroid" data-cat="photo" href="/maker?sample=ceo"><span class="ph" style="background-image:url(/assets/sample_profile_ceo.jpg)"></span><span class="nm">Daniel Park</span><i class="go">→</i></a>
       <a class="tile" data-cat="brand" href="/maker.html?preset=toomus" style="background-image:url(/assets/toomus_front_plate.jpg)"><i class="go">→</i></a>
       <a class="tile" data-cat="color" href="/maker.html?preset=violet" style="background:linear-gradient(160deg,#3b1a6e,color-mix(in srgb,#3b1a6e 55%,#000))"><b class="ini">M</b><span class="nm">Mina Choi</span><i class="go">→</i></a>
-      <a class="tile" data-cat="photo" href="/maker.html" style="background-image:url(/assets/sample_profile_tech.jpg)"><span class="nm">Jisoo Han</span><i class="go">→</i></a>
+      <a class="tile fr-magazine" data-cat="photo" href="/maker?sample=tech" style="background-image:url(/assets/sample_profile_tech.jpg)"><b class="mast">TOOMCARD</b><span class="nm">Jisoo Han</span><i class="go">→</i></a>
       <a class="tile" data-cat="color" href="/maker.html?preset=navy-gold" style="background:linear-gradient(160deg,#0e1a3d,color-mix(in srgb,#0e1a3d 55%,#000))"><b class="ini">L</b><span class="nm">Lukas Weber</span><i class="go">→</i></a>
+      <a class="tile fr-film" data-cat="photo" href="/maker?sample=film"><span class="ph" style="background-image:url(/assets/sample_profile_tech.jpg)"></span><span class="nm">Minho Lee</span><i class="go">→</i></a>
       <a class="tile" data-cat="color" href="/maker.html?preset=emerald" style="background:linear-gradient(160deg,#064e3b,color-mix(in srgb,#064e3b 55%,#000))"><b class="ini">S</b><span class="nm">Sora Kim</span><i class="go">→</i></a>
       <a class="tile light" data-cat="color" href="/maker.html?preset=warm-sand" style="background:linear-gradient(160deg,#c9b79c,color-mix(in srgb,#c9b79c 55%,#000))"><b class="ini">E</b><span class="nm">Emma Hoffmann</span><i class="go">→</i></a>
     </div>

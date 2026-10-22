@@ -451,6 +451,7 @@
         <div class="section-title"><i data-lucide="sliders-horizontal"></i><span data-i18n="maker.sec_photo">사진 조정</span></div>
         <div class="photo-cta" id="photoCta">
           <button type="button" class="btn-primary-lg" onclick="pickPhoto()"><i data-lucide="image-plus"></i><span data-i18n="maker.cta_photo">내 사진 넣기</span></button>
+          <button type="button" class="btn-secondary" onclick="document.getElementById('vgBtn').click()"><i data-lucide="film"></i><span data-i18n="maker.vg_open">동영상으로 짤 만들기</span></button>
           <ul class="photo-perks"><li data-i18n="maker.perk1">사람만 오려서 배경 바꾸기</li><li data-i18n="maker.perk2">틀 8가지 (폴라로이드·필름·잡지 표지…)</li><li data-i18n="maker.perk3">크기·위치·색감 조절</li></ul>
         </div>
         <button type="button" class="btn-secondary" id="photoRe" onclick="pickPhoto()" hidden><i data-lucide="image-plus"></i><span data-i18n="maker.pick_photo">내 사진 고르기</span></button>
@@ -508,7 +509,7 @@
           <div class="toggle"><span data-i18n="maker.solid_soft">부드러운 그라데이션</span><button class="switch" id="softSwitch" role="switch" aria-checked="true"></button></div>
           <button type="button" class="link-reset" onclick="resetSolid()" data-i18n="maker.adj_reset">조정 초기화</button>
         </div>
-        <input type="file" id="bgFile" accept="image/*" hidden>
+        <input type="file" id="bgFile" accept="image/*,video/*" hidden>
       </section>
 
       <!-- 3. 글자·로고 -->
@@ -1052,6 +1053,7 @@
     }
     $('bgFile').addEventListener('change', (e) => {
       const f = e.target.files[0]; if (!f) return;
+      if (f.type && f.type.startsWith('video/')) { e.target.value = ''; if (window.vgOpenWith) window.vgOpenWith(f); return; }
       readImage(f, 1440, (dataUrl) => {
         uploadedPhoto = dataUrl; photoBg = null; photoOrig = dataUrl; photoMask = null; setFx('orig');
         setBg({ type: 'image', src: dataUrl }, 'upload');
@@ -1237,8 +1239,9 @@
       $v('vgClose').addEventListener('click', close);
       veil.addEventListener('click', (e) => { if (e.target === veil) close(); });
       $v('vgPickBtn').addEventListener('click', () => $v('vgFile').click());
-      $v('vgFile').addEventListener('change', (e) => {
-        const f = e.target.files[0]; if (!f) return; e.target.value = '';
+      $v('vgFile').addEventListener('change', (e) => { const f = e.target.files[0]; e.target.value = ''; if (f) handleFile(f); });
+      window.vgOpenWith = (f) => { open(); handleFile(f); };
+      function handleFile(f) {
         if (url) URL.revokeObjectURL(url);
         url = URL.createObjectURL(f); video.src = url;
         video.onloadedmetadata = () => {
@@ -1249,7 +1252,7 @@
           show('vgEdit');
         };
         video.onerror = () => { toast(t('maker.vg_fail')); reset(); };
-      });
+      }
       function syncLen() { document.querySelectorAll('#vgLen .chip').forEach((c) => { const L = Number(c.dataset.len); c.disabled = L > Math.max(1, Math.floor(dur)); c.setAttribute('aria-pressed', String(L === len)); }); }
       function setStart(v) { const s = Math.min(Math.max(0, dur - len), v / 10); $v('vgStartLbl').textContent = s.toFixed(1) + 's'; try { video.currentTime = s; } catch (err) {} }
       $v('vgStart').addEventListener('input', (e) => setStart(Number(e.target.value)));
@@ -1828,7 +1831,18 @@
       const params = new URLSearchParams(location.search);
       const edit = params.get('edit');
       const preset = params.get('preset') || params.get('template') || params.get('design');
+      const sample = params.get('sample');
+      const SAMPLES = { creator: { src: '/assets/sample_profile_creator.jpg', frame: 'arch' }, ceo: { src: '/assets/sample_profile_ceo.jpg', frame: 'polaroid', tone: 'light' }, tech: { src: '/assets/sample_profile_tech.jpg', frame: 'magazine' }, film: { src: '/assets/sample_profile_tech.jpg', frame: 'film' } };
       if (edit) loadForEdit(edit);
+      else if (sample && SAMPLES[sample]) {
+        const sp = SAMPLES[sample];
+        uploadedPhoto = sp.src; photoOrig = sp.src; photoMask = null; photoBg = null;
+        setBg({ type: 'image', src: sp.src }, 'upload');
+        if (sp.tone) card.front.frameTone = sp.tone;
+        setFrame(sp.frame);
+        designIdx = Math.max(0, designs().findIndex((d) => d.key === 'frame:' + sp.frame));
+        renderCarousel();
+      }
       else if (preset && (DESIGNS.some((d) => d.key === (START_ALIAS[preset] || preset)) || LEGACY_PRESETS[START_ALIAS[preset] || preset])) {
         const pk = START_ALIAS[preset] || preset;
         applyStart(pk);
