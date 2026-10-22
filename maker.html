@@ -339,6 +339,8 @@
     #vgVideo, #vgImg { width: 100%; max-height: 42dvh; border-radius: 14px; background: #000; object-fit: contain; }
     .field em { font-style: normal; color: var(--tc-accent); margin-left: 6px; }
     #vgStart { width: 100%; accent-color: #ffd978; }
+    .vg-tip { font-size: 12.5px; line-height: 1.5; color: var(--tc-accent); background: rgba(255,217,120,.08); border: 1px solid rgba(255,217,120,.25); border-radius: 12px; padding: 10px 12px; margin: 0; }
+    #vgImg { -webkit-touch-callout: default; -webkit-user-select: auto; user-select: auto; }
     .vg-bar { height: 8px; border-radius: 99px; background: rgba(255,255,255,.1); overflow: hidden; }
     .vg-bar[hidden] { display: none; }
     .vg-bar i { display: block; height: 100%; width: 0; background: var(--tc-accent); transition: width .15s; }
@@ -1291,6 +1293,37 @@
         if (navigator.canShare && navigator.canShare({ files: [file] })) { try { await navigator.share({ files: [file] }); return; } catch (err) { if (err && err.name === 'AbortError') return; } }
         const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'toomcard.gif'; document.body.appendChild(a); a.click(); a.remove(); toast(t('maker.gif_done'));
       });
+      // 영상(MP4/WebM)으로 저장: 고른 구간을 캔버스에 그리며 녹화한다. 폰 앨범에 영상으로 저장되어 움직임이 그대로 남는다.
+      $v('vgSaveVid').addEventListener('click', async () => {
+        if (busy) return;
+        if (!window.MediaRecorder) { toast(t('maker.vg_fail')); return; }
+        busy = true; const b = $v('vgSaveVid'), lab = b.querySelector('span'), orig = lab.textContent; lab.textContent = t('maker.gif_making');
+        try {
+          const start = Math.min(Math.max(0, dur - len), Number($v('vgStart').value) / 10);
+          const vw = video.videoWidth || 640, vh = video.videoHeight || 360, W = Math.min(width * 1.5, vw) & ~1, H = Math.max(2, Math.round(W * vh / vw)) & ~1;
+          const cv = document.createElement('canvas'); cv.width = W; cv.height = H; const c = cv.getContext('2d');
+          const types = ['video/mp4', 'video/webm;codecs=vp9', 'video/webm'];
+          const mime = types.find((x) => MediaRecorder.isTypeSupported(x)) || '';
+          const rec = new MediaRecorder(cv.captureStream(30), mime ? { mimeType: mime, videoBitsPerSecond: 3000000 } : undefined);
+          const chunks = []; rec.ondataavailable = (e) => { if (e.data && e.data.size) chunks.push(e.data); };
+          await new Promise((res) => { const d = () => { video.removeEventListener('seeked', d); res(); }; video.addEventListener('seeked', d); video.currentTime = start; setTimeout(d, 1500); });
+          video.muted = true; rec.start(250);
+          await video.play();
+          await new Promise((res) => {
+            let fin = false; const end = () => { if (!fin) { fin = true; res(); } };
+            setTimeout(end, len * 1000 + 400);   // 화면이 가려져 프레임 콜백이 멈춰도 반드시 끝낸다
+            const tick = () => { if (fin) return; c.drawImage(video, 0, 0, W, H); if (video.currentTime >= start + len || video.ended || video.paused) end(); else if (video.requestVideoFrameCallback) video.requestVideoFrameCallback(tick); else requestAnimationFrame(tick); };
+            tick();
+          });
+          video.pause();
+          await new Promise((res) => { rec.onstop = res; rec.stop(); });
+          const type = rec.mimeType || mime || 'video/webm', ext = type.includes('mp4') ? 'mp4' : 'webm';
+          const vb = new Blob(chunks, { type }), file = new File([vb], 'toomcard.' + ext, { type });
+          if (navigator.canShare && navigator.canShare({ files: [file] })) { try { await navigator.share({ files: [file] }); return; } catch (err) { if (err && err.name === 'AbortError') return; } }
+          const a = document.createElement('a'); a.href = URL.createObjectURL(vb); a.download = 'toomcard.' + ext; document.body.appendChild(a); a.click(); a.remove(); toast(t('maker.gif_done'));
+        } catch (err) { console.warn(err); toast(t('maker.vg_fail')); }
+        finally { busy = false; lab.textContent = orig; }
+      });
       $v('vgAgain').addEventListener('click', () => { video.src = url; show('vgEdit'); });
     });
     $('logoFile').addEventListener('change', (e) => {
@@ -1873,7 +1906,9 @@
       <div id="vgDone" hidden>
         <img id="vgImg" alt="GIF">
         <p class="photo-off" id="vgInfo"></p>
-        <button type="button" class="btn-primary-lg" id="vgSave"><i data-lucide="download"></i><span data-i18n="maker.vg_save">저장 · 공유</span></button>
+        <p class="vg-tip" data-i18n="maker.vg_tip">움직이는 채로 저장하려면 위 GIF를 길게 눌러 "사진에 추가"를 누르세요. (공유 창으로 저장하면 정지 이미지가 될 수 있어요)</p>
+        <button type="button" class="btn-primary-lg" id="vgSaveVid"><i data-lucide="film"></i><span data-i18n="maker.vg_save_vid">영상으로 저장 (움직임 그대로)</span></button>
+        <button type="button" class="btn-secondary" id="vgSave"><i data-lucide="share-2"></i><span data-i18n="maker.vg_save">GIF 공유</span></button>
         <button type="button" class="btn-secondary" id="vgAgain" data-i18n="maker.vg_again">다시 만들기</button>
       </div>
     </div>
