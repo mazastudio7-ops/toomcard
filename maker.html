@@ -431,6 +431,18 @@
       <section class="section" id="secPhoto" data-tab="photo" data-side="front">
         <div class="section-title"><i data-lucide="sliders-horizontal"></i><span data-i18n="maker.sec_photo">사진 조정</span></div>
         <button type="button" class="btn-secondary" onclick="pickPhoto()"><i data-lucide="image-plus"></i><span data-i18n="maker.pick_photo">내 사진 고르기</span></button>
+        <div class="field" id="fxField">
+          <label data-i18n="maker.fx">사진 배경</label>
+          <div class="chips" id="fxChips">
+            <button class="chip" data-fx="orig" aria-pressed="true" data-i18n="maker.fx_orig">원본</button>
+            <button class="chip" data-fx="studio" data-i18n="maker.fx_studio">스튜디오</button>
+            <button class="chip" data-fx="black" data-i18n="maker.fx_black">블랙</button>
+            <button class="chip" data-fx="violet" data-i18n="maker.fx_violet">바이올렛</button>
+            <button class="chip" data-fx="gold" data-i18n="maker.fx_gold">골드</button>
+            <button class="chip" data-fx="blur" data-i18n="maker.fx_blur">흐리게</button>
+          </div>
+          <p class="photo-off" id="fxNote" data-i18n="maker.fx_note">사람만 오려서 배경을 바꿔요. 처음에는 몇 초 걸려요.</p>
+        </div>
         <div class="field">
           <label data-i18n="maker.look">룩</label>
           <div class="chips" id="lookChips">
@@ -1013,7 +1025,7 @@
     $('bgFile').addEventListener('change', (e) => {
       const f = e.target.files[0]; if (!f) return;
       readImage(f, 1440, (dataUrl) => {
-        uploadedPhoto = dataUrl; photoBg = null;
+        uploadedPhoto = dataUrl; photoBg = null; photoOrig = dataUrl; photoMask = null; setFx('orig');
         setBg({ type: 'image', src: dataUrl }, 'upload');
         setFrame('full'); designIdx = 0; renderCarousel();
         if (isMobile()) { currentTab = ''; openTab('photo'); }
@@ -1021,6 +1033,87 @@
       });
       e.target.value = '';
     });
+
+    /* ── 사람 오려내기 + 배경 바꾸기 (브라우저 안에서 처리, 사진은 서버로 가지 않는다) ── */
+    let photoOrig = '', photoMask = null, fxBusy = false;
+    function setFx(v) { document.querySelectorAll('#fxChips .chip').forEach((c) => c.setAttribute('aria-pressed', String(c.dataset.fx === v))); }
+    let segPromise = null;
+    function getSegmenter() {
+      if (!segPromise) segPromise = (async () => {
+        const V = 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14';
+        const mod = await import(V + '/vision_bundle.mjs');
+        const fileset = await mod.FilesetResolver.forVisionTasks(V + '/wasm');
+        return mod.ImageSegmenter.createFromOptions(fileset, {
+          baseOptions: { modelAssetPath: 'https://storage.googleapis.com/mediapipe-models/image_segmenter/selfie_segmenter/float16/latest/selfie_segmenter.tflite' },
+          runningMode: 'IMAGE', outputConfidenceMasks: true, outputCategoryMask: false
+        });
+      })().catch((e) => { segPromise = null; throw e; });
+      return segPromise;
+    }
+    function loadImg(src) { return new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = src; }); }
+    async function buildMask(img) {
+      const seg = await getSegmenter();
+      const r = seg.segment(img);
+      const mk = r.confidenceMasks[0];
+      const w = mk.width, h = mk.height, d = mk.getAsFloat32Array();
+      // 어느 쪽이 사람인지: 가운데가 가장자리보다 높으면 그대로, 아니면 뒤집는다
+      let c = 0, e = 0, cn = 0, en = 0;
+      for (let y = 0; y < h; y += 4) for (let x = 0; x < w; x += 4) {
+        const v = d[y * w + x], inC = x > w * .3 && x < w * .7 && y > h * .3 && y < h * .8;
+        if (inC) { c += v; cn++; } else if (x < w * .12 || x > w * .88) { e += v; en++; }
+      }
+      const flip = (c / Math.max(1, cn)) < (e / Math.max(1, en));
+      const mc = document.createElement('canvas'); mc.width = w; mc.height = h;
+      const mctx = mc.getContext('2d'), id = mctx.createImageData(w, h);
+      for (let i = 0; i < w * h; i++) {
+        let p = flip ? 1 - d[i] : d[i];
+        p = Math.max(0, Math.min(1, (p - 0.4) / 0.3));
+        id.data[i * 4 + 3] = Math.round(p * 255);
+      }
+      mctx.putImageData(id, 0, 0);
+      r.close();
+      return mc;
+    }
+    const FX_BACK = {
+      studio: [['#d9dce2', 0], ['#7b8190', 1]],
+      black:  [['#24242c', 0], ['#050507', 1]],
+      violet: [['#7a45ff', 0], ['#190a3a', 1]],
+      gold:   [['#f0cf7c', 0], ['#6e4f18', 1]]
+    };
+    async function applyFx(mode) {
+      if (fxBusy || !photoOrig) return;
+      setFx(mode);
+      if (mode === 'orig') { commitFx(photoOrig); return; }
+      fxBusy = true; toast(t('maker.fx_wait'));
+      try {
+        const img = await loadImg(photoOrig);
+        if (!photoMask || photoMask.__src !== photoOrig) { photoMask = await buildMask(img); photoMask.__src = photoOrig; }
+        const W = img.naturalWidth, H = img.naturalHeight;
+        const cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+        const ctx = cv.getContext('2d');
+        if (mode === 'blur') { ctx.filter = 'blur(22px) brightness(.8)'; ctx.drawImage(img, -W * .04, -H * .04, W * 1.08, H * 1.08); ctx.filter = 'none'; }
+        else {
+          const g = ctx.createRadialGradient(W / 2, H * .32, W * .05, W / 2, H * .45, Math.max(W, H) * .75);
+          FX_BACK[mode].forEach(([col, s]) => g.addColorStop(s, col));
+          ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+        }
+        const pc = document.createElement('canvas'); pc.width = W; pc.height = H;
+        const pctx = pc.getContext('2d'); pctx.drawImage(img, 0, 0, W, H);
+        pctx.globalCompositeOperation = 'destination-in'; pctx.filter = 'blur(1.2px)';
+        pctx.drawImage(photoMask, 0, 0, W, H);
+        ctx.drawImage(pc, 0, 0);
+        commitFx(cv.toDataURL('image/jpeg', 0.9));
+      } catch (err) { console.warn(err); setFx('orig'); toast(t('maker.fx_fail')); }
+      finally { fxBusy = false; }
+    }
+    function commitFx(src) {
+      uploadedPhoto = src;
+      const prev = card.front.bg;
+      photoBg = null;
+      setBg(Object.assign({}, prev, { src }), 'upload');
+      renderCarousel();
+    }
+    $('fxChips').addEventListener('click', (e) => { const b = e.target.closest('.chip'); if (b) applyFx(b.dataset.fx); });
     $('logoFile').addEventListener('change', (e) => {
       const f = e.target.files[0]; if (!f) return;
       readImage(f, 400, (dataUrl) => { card.logo = { src: dataUrl, alt: card.company }; card.avatar = dataUrl; setLogo(true); render(); });
