@@ -176,7 +176,9 @@
     .carousel { position: relative; width: 100%; display: flex; align-items: center; justify-content: center; overflow: hidden; }
     .stage { overflow: hidden; }
     .car-track { position: relative; height: min(700px, calc(100vh - 190px)); min-height: 480px; width: 100%; display: flex; align-items: center; justify-content: center; }
-    .car-track iframe { position: relative; z-index: 5; height: 100%; aspect-ratio: 0.64; width: auto; max-width: 100%; border: none; border-radius: 24px; background: transparent; }
+    /* 미리보기는 항상 실제 폰 크기(카드 330×529)로 그린 뒤 transform으로 맞춘다 → 글자 줄바꿈까지 실제 명함과 같다 */
+    .car-card { position: absolute; left: 50%; top: 50%; width: 354px; height: 553px; margin: -276.5px 0 0 -177px; transform: scale(var(--k, 1)); transform-origin: 50% 50%; z-index: 5; }
+    .car-card iframe { display: block; width: 100%; height: 100%; border: none; border-radius: 24px; background: transparent; }
     .car-stack { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
     .car-thumb {
       position: absolute; top: 50%; left: 50%;
@@ -211,6 +213,11 @@
     .tint-row { display: flex; gap: 10px; flex-wrap: wrap; }
     .tint { width: 30px; height: 30px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.15); cursor: pointer; padding: 0; }
     .tint.none { background: transparent; color: var(--tc-text-subtle); font: 700 14px var(--tc-font-body); }
+    .tint.custom { position: relative; overflow: hidden; background: conic-gradient(#ff4d4d, #ffd24d, #4dff88, #4dd2ff, #7a4dff, #ff4dd2, #ff4d4d); }
+    .tint.custom input { position: absolute; inset: -8px; width: 50px; height: 50px; opacity: 0; cursor: pointer; }
+    .extra-row { display: grid; grid-template-columns: 92px 1fr 34px; gap: 8px; margin-bottom: 8px; }
+    .x-del { background: none; border: 1px solid var(--tc-border); border-radius: 8px; color: var(--tc-text-subtle); font-size: 16px; cursor: pointer; }
+    #addLinkBtn[hidden] { display: none; }
     .tint[aria-pressed="true"] { border-color: #fff; box-shadow: 0 0 0 2px var(--tc-accent); }
     .link-reset { align-self: flex-start; background: none; border: none; color: var(--tc-text-subtle); font: 700 11.5px var(--tc-font-body); cursor: pointer; text-decoration: underline; }
 
@@ -235,10 +242,9 @@
         padding: 10px 0 8px; gap: 8px; transition: height 0.3s ease;
       }
       body.sheet-open .stage { height: calc(var(--app-h, 100dvh) - 53px - var(--tabbar-h) - var(--sheet-h) - env(safe-area-inset-bottom)); }
-      .car-track { height: calc(100% - 78px); min-height: 0; }
-      body.sheet-open .car-track { height: calc(100% - 40px); }
+      .carousel { flex: 1 1 0; min-height: 0; }
+      .car-track { height: 100%; min-height: 0; }
       body.sheet-open .car-label, body.sheet-open .car-nav { display: none; }
-      .car-track iframe { max-width: 74vw; border-radius: 18px; }
       .car-nav { display: none; }
       .stage-tools .tool-btn { padding: 6px 12px; font-size: 11.5px; }
 
@@ -362,6 +368,11 @@
           </div>
         </div>
         <div class="field">
+          <label data-i18n="maker.more_links">추가 링크</label>
+          <div id="extraLinks"></div>
+          <button type="button" class="btn-secondary" id="addLinkBtn" onclick="addExtraLink()"><i data-lucide="plus"></i><span data-i18n="maker.add_link">링크 추가</span></button>
+        </div>
+        <div class="field">
           <label data-i18n="maker.tags">키워드 태그 (쉼표로 구분, 최대 3)</label>
           <input class="input" id="fTags" placeholder="브랜딩, 디자인, 컨설팅">
         </div>
@@ -412,6 +423,16 @@
           </div>
           <button type="button" class="link-reset" onclick="resetAdjust()" data-i18n="maker.adj_reset">조정 초기화</button>
         </div>
+        <div id="solidAdjust" style="display:flex; flex-direction:column; gap:14px;" hidden>
+          <div class="field">
+            <label data-i18n="maker.solid_color">색상</label>
+            <div class="tint-row" id="solidChips"></div>
+            <div class="tint-row" style="margin-top:2px;"><label class="tint custom" title="custom"><input type="color" id="solidPicker" value="#3b1a6e"></label><span class="photo-off" style="align-self:center;" data-i18n="maker.solid_custom">직접 고르기</span></div>
+          </div>
+          <div class="slider-row"><span data-i18n="maker.solid_shade">밝기</span><input type="range" id="solidShade" min="-45" max="45" step="1" value="0"><output id="outShade">0</output></div>
+          <div class="toggle"><span data-i18n="maker.solid_soft">부드러운 그라데이션</span><button class="switch" id="softSwitch" role="switch" aria-checked="true"></button></div>
+          <button type="button" class="link-reset" onclick="resetSolid()" data-i18n="maker.adj_reset">조정 초기화</button>
+        </div>
         <input type="file" id="bgFile" accept="image/*" hidden>
       </section>
 
@@ -439,6 +460,14 @@
         </div>
         <div class="toggle"><span data-i18n="maker.qr_subtle">앞면에 옅은 QR 깔기</span><button class="switch" id="qrSwitch" role="switch" aria-checked="true"></button></div>
         <div class="field">
+          <label data-i18n="maker.back_layout">뒷면 모양</label>
+          <div class="chips" id="backLayoutChips">
+            <button class="chip" data-bl="default" aria-pressed="true" data-i18n="maker.bl_default">기본</button>
+            <button class="chip" data-bl="big" data-i18n="maker.bl_big">큰 로고</button>
+            <button class="chip" data-bl="links" data-i18n="maker.bl_links">링크 모음</button>
+          </div>
+        </div>
+        <div class="field">
           <label data-i18n="maker.back_color">뒷면 색상</label>
           <div class="chips" id="themeChips"></div>
         </div>
@@ -451,7 +480,7 @@
         <button type="button" class="car-nav prev" onclick="goDesign(designIdx - 1, -1)" aria-label="Previous">‹</button>
         <div class="car-track" id="carTrack">
           <div class="car-stack" id="carStack"></div>
-          <iframe id="preview" class="booting" src="/card.html?embed=simulator&maker=1&id=toomcard" title="Live preview"></iframe>
+          <div class="car-card" id="carCard"><iframe id="preview" class="booting" src="/card.html?embed=simulator&maker=1&id=toomcard" title="Live preview"></iframe></div>
         </div>
         <button type="button" class="car-nav next" onclick="goDesign(designIdx + 1, 1)" aria-label="Next">›</button>
       </div>
@@ -518,7 +547,7 @@
       moatTags: [],
       logo: { src: '/assets/logo_toomcard_hd.webp', alt: '' },
       primaryAction: { url: '', label: '', icon: 'globe' },
-      socials: [],
+      socials: [], links: [], backLayout: 'default',
       front: { bg: { type: 'image', src: '/assets/toomcard_front_plate.jpg' }, text: { layout: 'none', showLogo: false, tone: 'auto' }, finish: 'metal', qr: 'subtle' }
     };
     let card = JSON.parse(JSON.stringify(DEFAULT_CARD));
@@ -538,44 +567,69 @@
     }
     let publishedUrl = '';
 
+    const DEFAULT_SOLID = '#3b1a6e';
+    const SOLID_COLORS = ['#1c1c22', '#0e1a3d', '#3b1a6e', '#064e3b', '#831843', '#c9b79c', '#f4f4f6', '#e9c46a', '#d4a373', '#e76f8e', '#3a86ff', '#2a9d8f', '#8d99ae'];
     const CURATED_BG = [
       { id: 'toomcard', type: 'image', src: '/assets/toomcard_front_plate.jpg', tag: 'METAL' },
       { id: 'toomus',   type: 'image', src: '/assets/toomus_front_plate.jpg',   tag: 'GOLD' },
       { id: 'setupod',  type: 'image', src: '/assets/setupod_front_plate.jpg',  tag: 'NEON' },
-      { id: 'maza',     type: 'image', src: '/assets/maza_front_plate.jpg',     tag: 'VIOLET' },
-      { id: 'g-ink',    type: 'gradient', from: '#1c1c22', to: '#050507', angle: 160 },
-      { id: 'g-navy',   type: 'gradient', from: '#0e1a3d', to: '#05070f', angle: 160 },
-      { id: 'g-violet', type: 'gradient', from: '#3b1a6e', to: '#0b0612', angle: 160 },
-      { id: 'g-emerald',type: 'gradient', from: '#064e3b', to: '#04120d', angle: 160 },
-      { id: 'g-rose',   type: 'gradient', from: '#831843', to: '#1a0810', angle: 160 },
-      { id: 'g-sand',   type: 'gradient', from: '#e7ded3', to: '#b9a58c', angle: 160 },
-      { id: 'g-white',  type: 'color', color: '#f4f4f6' },
+      { id: 'solid',    type: 'color', color: DEFAULT_SOLID, shade: 0, soft: true, tag: 'SOLID' },
     ];
     const THEMES = [
       ['obsidian', '옵시디언', '#475569'], ['navy-gold', '골드 네이비', '#ffd54f'], ['violet', '바이올렛', '#a855f7'],
       ['white-minimal', '화이트', '#ffffff'], ['emerald', '에메랄드', '#10b981'], ['frosted-acrylic', '프로스티드', '#38bdf8'],
       ['warm-sand', '웜샌드', '#d6c6b4'], ['rosegold', '로즈골드', '#ec4899']
     ];
-    // 시작점: 배경 + 글자 위치 + 마감 + 뒷면 색을 한 번에
-    const STARTS = {
-      toomcard: { label: 'TOOMCARD', bg: 'toomcard', text: 'none', finish: 'metal', theme: 'obsidian' },
-      toomus:   { label: 'TOOMUS Gold', bg: 'toomus', text: 'none', finish: 'metal', theme: 'navy-gold' },
-      setupod:  { label: 'SETUPOD Neon', bg: 'setupod', text: 'none', finish: 'glass', theme: 'violet' },
-      maza:     { label: 'MAZA', bg: 'maza', text: 'none', finish: 'metal', theme: 'violet' },
-      obsidian: { label: 'Obsidian', bg: 'g-ink', text: 'bottom-left', finish: 'metal', theme: 'obsidian' },
-      'navy-gold': { label: 'Navy Gold', bg: 'g-navy', text: 'bottom-left', finish: 'metal', theme: 'navy-gold' },
-      'white-minimal': { label: 'White', bg: 'g-white', text: 'bottom-left', finish: 'matte', theme: 'white-minimal' },
-      violet:   { label: 'Violet', bg: 'g-violet', text: 'center', finish: 'glass', theme: 'violet' },
-      emerald:  { label: 'Emerald', bg: 'g-emerald', text: 'bottom-left', finish: 'metal', theme: 'emerald' },
-      rosegold: { label: 'Rose Gold', bg: 'g-rose', text: 'bottom-center', finish: 'glass', theme: 'rosegold' },
-      'warm-sand': { label: 'Warm Sand', bg: 'g-sand', text: 'bottom-left', finish: 'matte', theme: 'warm-sand' },
-      'frosted-acrylic': { label: 'Frosted', bg: 'g-ink', text: 'center', finish: 'glass', theme: 'frosted-acrylic' },
+    // 디자인(캐러셀·시작점): 배경 + 글자 위치 + 마감 + 뒷면 색을 한 번에.
+    // 브랜드 플레이트 3장은 샘플이고, 단색은 색·밝기를 마음대로 바꾼다.
+    const DESIGNS = [
+      { key: 'toomcard', label: 'TOOMCARD', bgId: 'toomcard', text: 'none', finish: 'metal', theme: 'obsidian' },
+      { key: 'toomus',   label: 'TOOMUS',   bgId: 'toomus',   text: 'none', finish: 'metal', theme: 'navy-gold' },
+      { key: 'setupod',  label: 'SETUPOD',  bgId: 'setupod',  text: 'none', finish: 'glass', theme: 'violet' },
+      { key: 'solid',    labelKey: 'maker.solid', bgId: 'solid', text: 'bottom-left', finish: 'metal', theme: 'obsidian' },
+    ];
+    // 예전 주소(?preset=...)와 templates.html 링크 호환: 단색 + 마감 + 뒷면 색으로 바꿔 연다
+    const LEGACY_PRESETS = {
+      obsidian:          { color: '#1c1c22', text: 'bottom-left',   finish: 'metal', theme: 'obsidian' },
+      'navy-gold':       { color: '#0e1a3d', text: 'bottom-left',   finish: 'metal', theme: 'navy-gold' },
+      'white-minimal':   { color: '#f4f4f6', text: 'bottom-left',   finish: 'matte', theme: 'white-minimal' },
+      violet:            { color: '#3b1a6e', text: 'center',        finish: 'glass', theme: 'violet' },
+      emerald:           { color: '#064e3b', text: 'bottom-left',   finish: 'metal', theme: 'emerald' },
+      rosegold:          { color: '#831843', text: 'bottom-center', finish: 'glass', theme: 'rosegold' },
+      'warm-sand':       { color: '#c9b79c', text: 'bottom-left',   finish: 'matte', theme: 'warm-sand' },
+      'frosted-acrylic': { color: '#8d99ae', text: 'center',        finish: 'glass', theme: 'frosted-acrylic' },
+      maza:              { color: '#3b1a6e', text: 'bottom-left',   finish: 'metal', theme: 'violet' },
     };
     const $ = (id) => document.getElementById(id);
     const t = (k) => (window.i18n ? i18n.t(k) : k);
 
     /* ── 렌더 ───────────────────────────────────────── */
     function slugify(v) { return (v || '').toLowerCase().replace(/[^a-z0-9가-힣_-]/g, '').slice(0, 40); }
+
+    /* ── 추가 링크 (최대 3개) ───────────────────────── */
+    const MAX_EXTRA = 3;
+    function addExtraLink(label, url) {
+      const box = $('extraLinks'); if (box.children.length >= MAX_EXTRA) return;
+      const row = document.createElement('div'); row.className = 'extra-row';
+      const l = document.createElement('input'); l.className = 'input x-label'; l.placeholder = t('maker.link_label'); l.value = label || '';
+      const u = document.createElement('input'); u.className = 'input x-url'; u.type = 'url'; u.placeholder = 'https://'; u.value = url || '';
+      const x = document.createElement('button'); x.type = 'button'; x.className = 'x-del'; x.textContent = '×'; x.setAttribute('aria-label', 'remove');
+      [l, u].forEach((el) => el.addEventListener('input', () => render(false, 260)));
+      x.addEventListener('click', () => { row.remove(); syncAddLinkBtn(); render(); });
+      row.append(l, u, x); box.appendChild(row); syncAddLinkBtn();
+    }
+    function syncAddLinkBtn() { $('addLinkBtn').hidden = $('extraLinks').children.length >= MAX_EXTRA; }
+    function setExtraLinks(list) {
+      $('extraLinks').innerHTML = '';
+      (list || []).slice(0, MAX_EXTRA).forEach((l) => addExtraLink(l.label, l.url));
+      syncAddLinkBtn();
+    }
+
+    /* ── 뒷면 모양 ──────────────────────────────────── */
+    function setBackLayout(v) {
+      card.backLayout = ['big', 'links'].includes(v) ? v : 'default';
+      pressOnly($('backLayoutChips'), 'bl', card.backLayout);
+    }
 
     function collect() {
       card.name = $('fName').value.trim();
@@ -594,6 +648,9 @@
       card.socials = [['fSocialType', 'fSocialUrl'], ['fSocial2Type', 'fSocial2Url']]
         .map(([ty, u]) => ({ type: $(ty).value, url: $(u).value.trim(), label: $(ty).selectedOptions[0].text }))
         .filter((s) => s.url);
+      card.links = [...document.querySelectorAll('#extraLinks .extra-row')]
+        .map((r) => ({ label: r.querySelector('.x-label').value.trim(), url: r.querySelector('.x-url').value.trim() }))
+        .filter((l) => l.url).slice(0, MAX_EXTRA);
       card.logo.alt = card.company;
       card.vcard = {
         firstName: card.name, lastName: '', formattedName: card.name, org: card.company,
@@ -619,6 +676,12 @@
       if (!c.email) c.email = sample('fEmail');
       if (!c.primaryAction) c.primaryAction = { url: '#', label: t('common.website'), icon: 'globe' };
       if (!c.moatTags.length) c.moatTags = sample('fTags').split(',').map((s) => s.trim()).filter(Boolean).slice(0, 3);
+      // 링크 모음 미리보기: 비어 있으면 예시 링크로 모양을 보여준다 (발행 데이터에는 들어가지 않음)
+      if (c.backLayout === 'links') {
+        const have = (c.primaryAction ? 1 : 0) + c.socials.length + c.links.length;
+        const samples = [{ label: 'Portfolio', url: '#' }, { label: 'Blog', url: '#' }, { label: 'Shop', url: '#' }];
+        c.links = c.links.concat(samples.slice(0, Math.max(0, Math.min(3 - c.links.length, 4 - have))));
+      }
       return c;
     }
 
@@ -652,12 +715,15 @@
     function thumbStyle(bg) {
       if (bg.type === 'image') return `background-image:url('${bg.src}')`;
       if (bg.type === 'gradient') return `background:linear-gradient(${bg.angle}deg, ${bg.from}, ${bg.to})`;
-      return `background:${bg.color}`;
+      return `background:${TCCore.solidBg(bg).css}`;
     }
+    let solidMemory = null;   // 단색의 색·밝기. 다른 디자인을 보고 돌아와도 그대로
+    function makeSolid(color) { return { type: 'color', color: color || DEFAULT_SOLID, shade: 0, soft: true }; }
     function renderBgGrid() {
       const grid = $('bgGrid');
       grid.querySelectorAll('.bg-thumb:not(.upload)').forEach((n) => n.remove());
-      CURATED_BG.forEach((bg) => {
+      CURATED_BG.forEach((item) => {
+        const bg = item.id === 'solid' ? Object.assign({ id: 'solid', tag: 'SOLID' }, solidMemory || makeSolid(DEFAULT_SOLID)) : item;
         const d = document.createElement('div');
         d.className = 'bg-thumb'; d.setAttribute('style', thumbStyle(bg)); d.dataset.id = bg.id;
         d.setAttribute('aria-pressed', bg.id === currentBgId ? 'true' : 'false');
@@ -684,9 +750,9 @@
         card.front.text.layout = layout; pressOnly($('textChips'), 'layout', layout);
       }
       card.front.bg = bg.type === 'image' ? { type: 'image', src: bg.src, zoom: 1, x: 50, y: 50, brightness: 1, filter: 'none', blur: 0, tint: '' }
-                    : bg.type === 'gradient' ? { type: 'gradient', from: bg.from, to: bg.to, angle: bg.angle }
-                    : { type: 'color', color: bg.color };
+                    : { type: 'color', color: bg.color || DEFAULT_SOLID, shade: bg.shade || 0, soft: bg.soft !== false };
       if (currentBgId === 'upload') photoBg = card.front.bg;
+      if (currentBgId === 'solid') solidMemory = card.front.bg;
       renderBgGrid(); syncAdjustUI(); render();
     }
     function readImage(file, maxW, cb) {
@@ -752,18 +818,22 @@
     }
     function renderStartChips() {
       const box = $('startChips'); box.innerHTML = '';
-      Object.entries(STARTS).forEach(([key, s]) => {
+      designs().forEach((d, i) => {
         const b = document.createElement('button');
-        b.className = 'chip'; b.textContent = s.label;
-        b.onclick = () => applyStart(key);
+        b.className = 'chip'; b.textContent = d.label;
+        b.onclick = () => goDesign(i);
         box.appendChild(b);
       });
     }
     const START_ALIAS = { 'toomcard-plate': 'toomcard', editorial: 'white-minimal' };
     function applyStart(key) {
       key = START_ALIAS[key] || key;
-      const s = STARTS[key]; if (!s) return;
-      const bg = CURATED_BG.find((b) => b.id === s.bg); if (bg) setBg(bg);
+      const d = DESIGNS.find((x) => x.key === key);
+      const legacy = LEGACY_PRESETS[key];
+      const s = d || legacy; if (!s) return;
+      if (d && d.key === 'solid') setBg(solidMemory || makeSolid(DEFAULT_SOLID), 'solid');
+      else if (d) setBg(CURATED_BG.find((b) => b.id === d.bgId));
+      else setBg(makeSolid(legacy.color), 'solid');      // 예전 프리셋은 항상 그 색으로 시작
       if (!textTouched) { card.front.text.layout = s.text; pressOnly($('textChips'), 'layout', s.text); }
       card.front.finish = s.finish; pressOnly($('finishChips'), 'finish', s.finish);
       card.theme = s.theme; renderThemeChips();
@@ -774,18 +844,26 @@
     let uploadedPhoto = '';
     let designIdx = 0;
     function designs() {
-      const list = Object.entries(STARTS).map(([key, s]) => ({ key, label: s.label, bg: CURATED_BG.find((b) => b.id === s.bg) }));
+      const list = DESIGNS.map((d) => ({
+        key: d.key, label: d.labelKey ? t(d.labelKey) : d.label,
+        bg: d.key === 'solid' ? (solidMemory || makeSolid(DEFAULT_SOLID)) : CURATED_BG.find((b) => b.id === d.bgId)
+      }));
       if (uploadedPhoto) list.unshift({ key: 'photo', label: t('maker.bg_upload'), bg: { type: 'image', src: uploadedPhoto } });
       return list;
     }
     // 카드 썸네일 7장(-3..3)을 한 줄로 두고, 넘길 때 전체가 한 칸씩 움직인다.
     // 가운데(0) 썸네일은 iframe 카드 바로 뒤에 같은 크기로 깔려, 넘기는 동안 카드 역할을 한다.
     const OFFSETS = [-3, -2, -1, 0, 1, 2, 3];
-    function cardBox() {
-      const r = $('preview').getBoundingClientRect();
-      const w = Math.min(330, r.width - 24, (r.height - 24) / 1.6036);
-      return { w, h: w * 1.6036 };
+    let visLimit = 3;   // 디자인이 적으면 양옆에 보이는 카드 수도 줄인다 (같은 카드가 겹쳐 보이지 않게)
+    const CARD_W = 330, CARD_H = 529;   // 뷰어 안 카드의 실제 크기(px)
+    let cardK = 1;                      // 화면에 맞춘 축소·확대 비율
+    function fitCard() {
+      const tr = $('carTrack').getBoundingClientRect();
+      const k = Math.min(1.12, (tr.width * (isMobile() ? 0.74 : 0.62)) / CARD_W, (tr.height - 6) / CARD_H);
+      cardK = Math.max(0.3, k);
+      $('carCard').style.setProperty('--k', cardK);
     }
+    function cardBox() { return { w: CARD_W * cardK, h: CARD_H * cardK }; }
     function slotTransform(off) {
       const a = Math.abs(off), sgn = Math.sign(off);
       if (a === 0) return { t: 'translate(-50%, -50%)', o: 1, z: 4 };
@@ -795,14 +873,18 @@
     }
     function placeThumb(el, off, extraX) {
       const st = slotTransform(off);
+      const hidden = Math.abs(off) > visLimit;
       el.style.transform = extraX ? `translateX(${extraX}px) ${st.t}` : st.t;
-      el.style.opacity = st.o; el.style.zIndex = st.z;
+      el.style.opacity = hidden ? 0 : st.o; el.style.zIndex = st.z;
+      el.style.pointerEvents = (hidden || off === 0) ? 'none' : 'auto';
     }
     function renderCarousel() {
       const list = designs(); const n = list.length;
       designIdx = ((designIdx % n) + n) % n;
+      visLimit = Math.max(1, Math.min(3, Math.floor((n - 1) / 2)));
       $('designName').textContent = list[designIdx].label;
       $('designIdxLabel').textContent = `${designIdx + 1} / ${n}`;
+      fitCard();
       const stack = $('carStack'); const box = cardBox();
       if (stack.children.length !== OFFSETS.length) {
         stack.innerHTML = '';
@@ -857,7 +939,7 @@
       if (sliding) return;
       const ifr = $('preview');
       ifr.style.transition = 'none';
-      ifr.style.transform = `translateX(${dx}px) rotate(${dx / 40}deg)`;
+      ifr.style.transform = `translateX(${dx / cardK}px) rotate(${dx / 40}deg)`;   // 확대·축소된 안쪽 좌표라서 비율로 나눈다
       [...$('carStack').children].forEach((el) => { if (el.dataset.off !== '0') placeThumb(el, Number(el.dataset.off), dx * 0.5); });
     }
     function onDragEnd() {
@@ -874,10 +956,18 @@
 
     /* ── 사진 조정 ───────────────────────────────────── */
     function isImageBg() { return card.front.bg && card.front.bg.type === 'image'; }
+    function isSolidBg() { return card.front.bg && card.front.bg.type === 'color'; }
     function syncAdjustUI() {
-      const on = isImageBg();
-      $('photoAdjust').hidden = !on; $('photoOff').hidden = on;
-      if (!on) return;
+      const img = isImageBg(), sol = isSolidBg();
+      $('photoAdjust').hidden = !img; $('solidAdjust').hidden = !sol; $('photoOff').hidden = img || sol;
+      if (sol) {
+        const b = card.front.bg, c = String(b.color || '').toLowerCase();
+        document.querySelectorAll('#solidChips .tint[data-color]').forEach((el) => el.setAttribute('aria-pressed', el.dataset.color === c ? 'true' : 'false'));
+        $('solidPicker').value = /^#[0-9a-f]{6}$/.test(c) ? c : DEFAULT_SOLID;
+        $('solidShade').value = b.shade || 0; $('outShade').textContent = b.shade || 0;
+        $('softSwitch').setAttribute('aria-checked', b.soft !== false ? 'true' : 'false');
+      }
+      if (!img) return;
       const b = card.front.bg;
       $('adjZoom').value = b.zoom || 1; $('adjX').value = b.x == null ? 50 : b.x; $('adjY').value = b.y == null ? 50 : b.y; $('adjBright').value = b.brightness || 1;
       $('outZoom').textContent = Math.round((b.zoom || 1) * 100) + '%';
@@ -887,6 +977,20 @@
       document.querySelectorAll('#tintChips .tint').forEach((el) => el.setAttribute('aria-pressed', (el.dataset.tint || '') === (b.tint || '') ? 'true' : 'false'));
       pressOnly($('filterChips'), 'filter', b.filter || 'none');
     }
+    // 단색: 색 고르기 · 밝기 · 부드러운 그라데이션
+    (function buildSolidChips() {
+      const box = $('solidChips');
+      SOLID_COLORS.forEach((c) => {
+        const b = document.createElement('button');
+        b.className = 'tint'; b.type = 'button'; b.dataset.color = c; b.style.background = c; b.setAttribute('aria-pressed', 'false');
+        b.addEventListener('click', () => { if (isSolidBg()) { card.front.bg.color = c; liveAdjust(); } });
+        box.appendChild(b);
+      });
+    })();
+    $('solidPicker').addEventListener('input', (e) => { if (isSolidBg()) { card.front.bg.color = e.target.value; liveAdjust(); } });
+    $('solidShade').addEventListener('input', (e) => { if (isSolidBg()) { card.front.bg.shade = Number(e.target.value); liveAdjust(); } });
+    $('softSwitch').addEventListener('click', () => { if (isSolidBg()) { card.front.bg.soft = card.front.bg.soft === false; liveAdjust(); } });
+    function resetSolid() { if (isSolidBg()) { Object.assign(card.front.bg, { shade: 0, soft: true }); liveAdjust(); } }
     $('tintChips').addEventListener('click', (e) => {
       const b = e.target.closest('.tint'); if (!b || !isImageBg()) return;
       card.front.bg.tint = b.dataset.tint || ''; liveAdjust();
@@ -906,7 +1010,7 @@
     }
     function onPan(dx, dy) {
       if (!photoMode || !isImageBg()) return;
-      const b = card.front.bg, box = cardBox(), z = b.zoom || 1;
+      const b = card.front.bg, box = { w: CARD_W, h: CARD_H }, z = b.zoom || 1;   // 손가락 이동은 미리보기 안쪽 좌표(px)
       // 오른쪽으로 끌면 사진도 오른쪽으로: 보이는 기준점(x%)은 반대로 줄어든다
       b.x = Math.max(0, Math.min(100, (b.x == null ? 50 : b.x) - (dx / box.w) * 100 / z * 1.4));
       b.y = Math.max(0, Math.min(100, (b.y == null ? 50 : b.y) - (dy / box.h) * 100 / z * 1.4));
@@ -921,6 +1025,10 @@
     // 손으로 조정하는 동안은 사진 스타일만 즉시 보내고, 전체 다시 그리기는 손을 뗀 뒤 한 번
     function liveAdjust() {
       const f = $('preview'); if (f && f.contentWindow) f.contentWindow.postMessage({ action: 'adjust', bg: card.front.bg }, '*');
+      if (isSolidBg()) {
+        solidMemory = card.front.bg;
+        const th = document.querySelector('.car-thumb[data-off="0"]'); if (th) th.style.background = TCCore.solidBg(card.front.bg).css;
+      }
       syncAdjustUI(); render();
     }
     function resetAdjust() {
@@ -1020,7 +1128,7 @@
       const drawText = () => {
         const tx = c.front.text || {};
         if (tx.layout && tx.layout !== 'none' && c.name) {
-          const light = !(c.front.bg.type === 'color' && isLight(c.front.bg.color)) && !(c.front.bg.type === 'gradient' && isLight(c.front.bg.from));
+          const light = !(c.front.bg.type === 'color' && TCCore.solidBg(c.front.bg).isLight);
           ctx.fillStyle = light ? '#ffffff' : '#0b0a10';
           ctx.shadowColor = light ? 'rgba(0,0,0,0.45)' : 'rgba(255,255,255,0.35)'; ctx.shadowBlur = 24;
           const center = tx.layout === 'center' || tx.layout === 'bottom-center';
@@ -1050,10 +1158,12 @@
         };
         img.onerror = () => { ctx.fillStyle = '#101018'; ctx.fillRect(0, 0, W, H); drawText(); };
         img.src = bg.src;
-      } else if (bg.type === 'gradient') {
-        const g = ctx.createLinearGradient(0, 0, W * 0.4, H); g.addColorStop(0, bg.from); g.addColorStop(1, bg.to);
-        ctx.fillStyle = g; ctx.fillRect(0, 0, W, H); drawText();
-      } else { ctx.fillStyle = bg.color || '#101018'; ctx.fillRect(0, 0, W, H); drawText(); }
+      } else {
+        const s = TCCore.solidBg(bg);
+        if (s.soft) { const g = ctx.createLinearGradient(0, 0, W * 0.4, H); g.addColorStop(0, s.from); g.addColorStop(1, s.to); ctx.fillStyle = g; }
+        else ctx.fillStyle = s.base;
+        ctx.fillRect(0, 0, W, H); drawText();
+      }
     }
     function isLight(hex) {
       const h = (hex || '#000').replace('#', ''); const n = parseInt(h.length === 3 ? h.split('').map((c) => c + c).join('') : h, 16);
@@ -1076,11 +1186,17 @@
       if (ss[1]) { $('fSocial2Type').value = ss[1].type; $('fSocial2Url').value = ss[1].url; }
       setKind(c.kind || 'business');   // 예전 카드는 모두 비즈니스
       $('fTags').value = (c.moatTags || []).join(', '); $('fSlug').value = slug;
-      currentBgId = card.front.bg.type === 'image' && !CURATED_BG.some((b) => b.src === card.front.bg.src) ? 'upload' : (CURATED_BG.find((b) => b.src === card.front.bg.src || (b.type === card.front.bg.type && b.from === card.front.bg.from)) || {}).id || 'toomcard';
+      // 예전 그라데이션 카드는 단색(부드러운 그라데이션)으로 읽는다
+      if (card.front.bg.type === 'gradient') card.front.bg = { type: 'color', color: card.front.bg.from || DEFAULT_SOLID, shade: 0, soft: true };
+      const knownPlate = CURATED_BG.find((b) => b.type === 'image' && b.src === card.front.bg.src);
+      currentBgId = card.front.bg.type === 'color' ? 'solid' : (knownPlate ? knownPlate.id : 'upload');
+      if (currentBgId === 'solid') solidMemory = card.front.bg;
+      setBackLayout(c.backLayout); setExtraLinks(c.links);
       pressOnly($('textChips'), 'layout', card.front.text.layout); setLogo(card.front.text.showLogo);
       pressOnly($('finishChips'), 'finish', card.front.finish); $('qrSwitch').setAttribute('aria-checked', card.front.qr === 'subtle' ? 'true' : 'false');
-      if (currentBgId === 'upload') { uploadedPhoto = card.front.bg.src; photoBg = card.front.bg; designIdx = 0; }
-      renderBgGrid(); renderThemeChips(); renderCarousel(); syncAdjustUI(); render();
+      if (currentBgId === 'upload') { uploadedPhoto = card.front.bg.src; photoBg = card.front.bg; }
+      designIdx = Math.max(0, designs().findIndex((d) => d.key === (currentBgId === 'upload' ? 'photo' : currentBgId)));
+      renderBgGrid(); renderThemeChips(); renderStartChips(); renderCarousel(); syncAdjustUI(); render();
     }
 
     /* ── 유틸 ───────────────────────────────────────── */
@@ -1091,6 +1207,11 @@
     // 화면 높이: 폰 브라우저 주소창이 접혔다 펴질 때도 하단 탭과 무대가 맞도록 실제 높이를 쓴다
     function syncAppHeight() { document.documentElement.style.setProperty('--app-h', window.innerHeight + 'px'); }
     syncAppHeight(); window.addEventListener('resize', syncAppHeight);
+    $('backLayoutChips').addEventListener('click', (e) => {
+      const b = e.target.closest('.chip'); if (!b) return;
+      setBackLayout(b.dataset.bl); render(true);
+      setTimeout(() => flip('show_back'), 450);   // 바꾼 뒷면을 바로 보여준다
+    });
     $('kindSeg').addEventListener('click', (e) => { const b = e.target.closest('button[data-kind]'); if (b) setKind(b.dataset.kind); });
     setKind(new URLSearchParams(location.search).get('kind') || 'personal');
     renderBgGrid(); renderThemeChips(); renderStartChips(); renderCarousel(); syncAdjustUI();
@@ -1098,9 +1219,10 @@
       THEMES.forEach(([key]) => { const l = document.createElement('link'); l.rel = 'preload'; l.as = 'style'; l.href = `/themes/${key}.css`; document.head.appendChild(l); });
       CURATED_BG.filter((b) => b.type === 'image').forEach((b) => { const img = new Image(); img.src = b.src; });
     }
+    syncAddLinkBtn();
     // 글자를 칠 때는 조금 모았다가 한 번에 그린다 (키 하나마다 카드 전체를 다시 그리면 버벅인다)
     document.querySelectorAll('.panel-left .input, .panel-left .select, #fSlug').forEach((el) => el.addEventListener('input', () => render(false, 260)));
-    document.addEventListener('i18n:change', () => { setKind(kind); renderThemeChips(); renderCarousel(); if (currentTab) document.querySelectorAll('.sheet-title').forEach((el) => { el.textContent = t(TAB_TITLES[currentTab]); }); render(); });
+    document.addEventListener('i18n:change', () => { setKind(kind); renderThemeChips(); renderStartChips(); renderCarousel(); if (currentTab) document.querySelectorAll('.sheet-title').forEach((el) => { el.textContent = t(TAB_TITLES[currentTab]); }); render(); });
     // 뷰어가 초기 렌더를 끝내면 card_ready를 보낸다. 그 뒤에 그려야 덮어써지지 않는다.
     window.addEventListener('message', (e) => {
       if (e.data && e.data.action === 'swipe') { const d = e.data.dir === 'next' ? 1 : -1; goDesign(designIdx + d, d); return; }
@@ -1119,7 +1241,12 @@
       const edit = params.get('edit');
       const preset = params.get('preset') || params.get('template') || params.get('design');
       if (edit) loadForEdit(edit);
-      else if (preset && STARTS[START_ALIAS[preset] || preset]) { designIdx = Object.keys(STARTS).indexOf(START_ALIAS[preset] || preset); applyStart(preset); renderCarousel(); }
+      else if (preset && (DESIGNS.some((d) => d.key === (START_ALIAS[preset] || preset)) || LEGACY_PRESETS[START_ALIAS[preset] || preset])) {
+        const pk = START_ALIAS[preset] || preset;
+        applyStart(pk);
+        designIdx = Math.max(0, designs().findIndex((d) => d.key === (DESIGNS.some((x) => x.key === pk) ? pk : 'solid')));
+        renderCarousel();
+      }
       else render();
     });
     // lucide는 defer로 받으므로 문서 준비 후에 아이콘을 그린다

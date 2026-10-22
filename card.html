@@ -1314,6 +1314,37 @@
     .plate-subtle-qr:hover { opacity: 0.6; }
     .plate-subtle-qr canvas, .plate-subtle-qr img { width: 100% !important; height: 100% !important; display: block; }
 
+    /* 더보기 시트의 나머지 링크 */
+    .more-links { width: 100%; margin-top: 14px; }
+    .more-links[hidden] { display: none; }
+    .more-links-title { font-size: 11px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.5); margin-bottom: 8px; }
+    .more-links-list { display: flex; flex-direction: column; gap: 6px; }
+    .more-links-list .btn-action { width: 100%; flex: none; }
+
+    /* 뒷면 모양 ---------------------------------------------------- */
+    /* 큰 로고: 로고가 주인공. 태그는 접는다 */
+    .card-scene.layout-plate.back-big .back-top-logo-container { min-height: 200px !important; }
+    .card-scene.layout-plate.back-big .back-flipper { width: 190px !important; height: 190px !important; border-radius: 36px !important; }
+    .card-scene.layout-plate.back-big .back-flipper-face { border-radius: 36px !important; padding: 12px !important; }
+    .card-scene.layout-plate.back-big .back-top-logo img { border-radius: 24px !important; }
+    .card-scene.layout-plate.back-big .moat-tags { display: none !important; }
+    .card-scene.layout-plate.back-big .back-company-name { font-size: 24px !important; }
+
+    /* 링크 모음: 작은 로고 + 이름 + 링크 6개를 한 줄씩 */
+    .card-scene.layout-plate.back-links .back-wrapper { justify-content: flex-start !important; gap: 10px !important; }
+    .card-scene.layout-plate.back-links .back-top-logo-container { flex: 0 0 auto !important; min-height: 0 !important; padding: 6px 0 4px !important; }
+    .card-scene.layout-plate.back-links .back-flipper { width: 84px !important; height: 84px !important; border-radius: 20px !important; }
+    .card-scene.layout-plate.back-links .back-flipper-face { border-radius: 20px !important; padding: 6px !important; }
+    .card-scene.layout-plate.back-links .back-top-logo img { border-radius: 14px !important; }
+    .card-scene.layout-plate.back-links .back-info-container { margin-top: 0 !important; }
+    .card-scene.layout-plate.back-links .back-company-slogan,
+    .card-scene.layout-plate.back-links .contact-line,
+    .card-scene.layout-plate.back-links .moat-tags { display: none !important; }
+    .card-scene.layout-plate.back-links .back-company-name { font-size: 15px !important; margin-bottom: 4px !important; }
+    .card-scene.layout-plate.back-links .profile-row { margin: 4px 0 10px !important; }
+    .card-scene.layout-plate.back-links .inside-action-dock { gap: 7px !important; }
+    .card-scene.layout-plate.back-links .btn-action { height: 41px !important; font-size: 13px !important; }
+
     /* 뒷면 연락처 한 줄 */
     .contact-line {
       display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px;
@@ -1391,6 +1422,8 @@
     }
 
     .modal-box {
+      max-height: 92dvh;
+      overflow-y: auto;
       background: #140d24;
       border: 1px solid var(--border-accent);
       border-radius: 24px;
@@ -1823,6 +1856,11 @@
           <i data-lucide="share-2" style="width: 15px; height: 15px;"></i>
           <span data-i18n="common.share_other">다른 앱 공유</span>
         </button>
+      </div>
+
+      <div class="more-links" id="moreLinks" hidden>
+        <div class="more-links-title" data-i18n="card.more_links">링크</div>
+        <div class="more-links-list" id="moreLinksList"></div>
       </div>
 
       <div style="display: flex; gap: 8px; margin-top: 8px; width: 100%;">

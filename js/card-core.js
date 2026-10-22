@@ -109,7 +109,57 @@
     };
   }
 
+  // ---- 단색 배경: bg = { type:'color', color:'#hex', shade:-45~45(밝기), soft:true(부드러운 그라데이션) } ----
+  function hexToRgb(hex) {
+    hex = String(hex || '').replace('#', '');
+    if (hex.length === 3) hex = hex.split('').map(function (ch) { return ch + ch; }).join('');
+    var n = parseInt(hex, 16);
+    if (isNaN(n) || hex.length < 6) return [16, 16, 24];
+    return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+  }
+  function rgbToHsl(r, g, b) {
+    r /= 255; g /= 255; b /= 255;
+    var max = Math.max(r, g, b), min = Math.min(r, g, b), h = 0, s = 0, l = (max + min) / 2;
+    if (max !== min) {
+      var d = max - min;
+      s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+      if (max === r) h = (g - b) / d + (g < b ? 6 : 0);
+      else if (max === g) h = (b - r) / d + 2;
+      else h = (r - g) / d + 4;
+      h /= 6;
+    }
+    return [h * 360, s * 100, l * 100];
+  }
+  function hslToHex(h, s, l) {
+    s /= 100; l /= 100;
+    var a = s * Math.min(l, 1 - l);
+    function f(n) {
+      var k = (n + h / 30) % 12;
+      var v = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+      return ('0' + Math.round(255 * v).toString(16)).slice(-2);
+    }
+    return '#' + f(0) + f(8) + f(4);
+  }
+  function solidBg(bg) {
+    bg = bg || {};
+    var rgb = hexToRgb(bg.color || '#1c1c22');
+    var hsl = rgbToHsl(rgb[0], rgb[1], rgb[2]);
+    var shade = Math.max(-45, Math.min(45, Number(bg.shade) || 0));
+    var L = Math.max(3, Math.min(96, hsl[2] + shade));
+    var base = hslToHex(hsl[0], hsl[1], L);
+    var from = hslToHex(hsl[0], hsl[1], Math.min(98, L + 8));
+    var to = hslToHex(hsl[0], hsl[1], Math.max(2, L - 14));
+    var soft = bg.soft !== false;
+    var br = hexToRgb(base);
+    var lum = 0.2126 * br[0] + 0.7152 * br[1] + 0.0722 * br[2];
+    return {
+      base: base, from: from, to: to, soft: soft, lum: lum, isLight: lum > 150,
+      css: soft ? 'linear-gradient(160deg, ' + from + ' 0%, ' + to + ' 100%)' : base
+    };
+  }
+
   var core = {
+    solidBg: solidBg,
     FRONT_FILTERS: FRONT_FILTERS,
     frontImageStyle: frontImageStyle,
     getBasePath: getBasePath,

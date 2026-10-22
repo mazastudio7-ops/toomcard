@@ -109,55 +109,74 @@ function getSocialIconSvg(type) {
 }
 
 // 내부 고전환 액션 버튼 바인딩 (setupod.com/ceo 2x2 럭셔리 그리드)
+// 카드에 걸 수 있는 링크를 한 줄 목록으로 모은다: 웹사이트 + SNS(최대 2) + 추가 링크
+// 일반 카드는 SNS가 먼저, 비즈니스 카드는 웹사이트가 먼저
+function collectLinks(data) {
+  const items = [];
+  const personal = data.kind === 'personal';
+  const site = (data.primaryAction && data.primaryAction.url && data.primaryAction.url !== '#')
+    ? { kind: 'web', url: data.primaryAction.url, label: data.primaryAction.label || t('common.website'), icon: data.primaryAction.icon || 'globe' }
+    : (data.primaryAction && data.primaryAction.url === '#' ? { kind: 'web', url: '#', label: data.primaryAction.label || t('common.website'), icon: 'globe' } : null);
+  const socials = (data.socials || []).slice(0, 2).filter((s) => s.type === 'social_modal' || s.url)
+    .map((s) => ({ kind: 'social', type: s.type, url: s.url, label: s.label, icon: s.icon }));
+  const extras = (data.links || []).slice(0, 4).filter((l) => l && l.url)
+    .map((l) => ({ kind: 'link', url: l.url, label: l.label || l.url.replace(/^https?:\/\//, '').slice(0, 24), icon: 'link' }));
+  if (personal) { items.push(...socials); if (site) items.push(site); }
+  else { if (site) items.push(site); items.push(...socials); }
+  items.push(...extras);
+  return items;
+}
+
+function linkButtonHtml(item) {
+  if (item.kind === 'social' && item.type === 'social_modal') {
+    return `
+      <button class="btn-action btn-glass" onclick="event.stopPropagation(); openSocialModal();" title="${item.label}">
+        <i data-lucide="${item.icon || 'globe'}" style="width: 14px; height: 14px; color: #38bdf8;"></i>
+        <span>${item.label}</span>
+      </button>`;
+  }
+  const icon = item.kind === 'social' ? getSocialIconSvg(item.type)
+    : `<i data-lucide="${item.icon || 'globe'}" style="width: 14px; height: 14px; color: #38bdf8;"></i>`;
+  return `
+      <a href="${item.url}" target="_blank" rel="noopener noreferrer" class="btn-action btn-glass" onclick="event.stopPropagation()" title="${item.label || ''}">
+        ${icon}
+        <span>${item.label || ''}</span>
+      </a>`;
+}
+
+// 뒷면 모양: default(기본) / big(큰 로고) / links(링크 모음)
+function applyBackLayout(data) {
+  const scene = document.getElementById('cardScene');
+  if (!scene) return;
+  const mode = ['big', 'links'].includes(data.backLayout) ? data.backLayout : 'default';
+  scene.classList.remove('back-big', 'back-links');
+  if (mode !== 'default') scene.classList.add(`back-${mode}`);
+}
+
 function renderActionDocks(data) {
   const dockFront = document.getElementById('insideActionDockFront');
   const dockBack = document.getElementById('insideActionDockBack');
+  const moreBox = document.getElementById('moreLinks');
+  const moreList = document.getElementById('moreLinksList');
 
-  const links = [];
-  const personal = data.kind === 'personal';
-  const socialLinks = [];
-  if (data.primaryAction && data.primaryAction.url && !personal) {
-    const p = data.primaryAction;
-    links.push(`
-      <a href="${p.url}" target="_blank" rel="noopener noreferrer" class="btn-action btn-glass" onclick="event.stopPropagation()" title="${p.label || ''}">
-        <i data-lucide="${p.icon || 'globe'}" style="width: 14px; height: 14px; color: #38bdf8;"></i>
-        <span>${p.label || t('common.website')}</span>
-      </a>
-    `);
+  const items = collectLinks(data);
+  const mode = data.backLayout === 'links' ? 'links' : 'default';
+  let html = '';
+  let rest = [];
+  if (mode === 'links') {
+    // 링크 모음: 한 줄에 하나씩 최대 6개
+    html = items.slice(0, 6).map((it) => `<div class="inside-action-row">${linkButtonHtml(it)}</div>`).join('');
+  } else {
+    // 기본·큰 로고: 카드에는 2개, 나머지는 더보기 시트
+    html = items.length ? `<div class="inside-action-row">${items.slice(0, 2).map(linkButtonHtml).join('')}</div>` : '';
+    rest = items.slice(2);
   }
-  (data.socials || []).slice(0, 2).forEach((social) => {
-    if (social.type === 'social_modal') {
-      socialLinks.push(`
-        <button class="btn-action btn-glass" onclick="event.stopPropagation(); openSocialModal();" title="${social.label}">
-          <i data-lucide="${social.icon || 'globe'}" style="width: 14px; height: 14px; color: #38bdf8;"></i>
-          <span>${social.label}</span>
-        </button>
-      `);
-    } else if (social.url) {
-      socialLinks.push(`
-        <a href="${social.url}" target="_blank" rel="noopener noreferrer" class="btn-action btn-glass" onclick="event.stopPropagation()" title="${social.label}">
-          ${getSocialIconSvg(social.type)}
-          <span>${social.label}</span>
-        </a>
-      `);
-    }
-  });
-
-  links.push(...socialLinks);
-  // 일반 카드는 SNS를 먼저, 웹사이트는 그 뒤에
-  if (personal && data.primaryAction && data.primaryAction.url) {
-    const p = data.primaryAction;
-    links.push(`
-      <a href="${p.url}" target="_blank" rel="noopener noreferrer" class="btn-action btn-glass" onclick="event.stopPropagation()" title="${p.label || ''}">
-        <i data-lucide="${p.icon || 'globe'}" style="width: 14px; height: 14px; color: #38bdf8;"></i>
-        <span>${p.label || t('common.website')}</span>
-      </a>
-    `);
-  }
-  // 최대 2개, 한 줄. 나머지는 더보기 시트
-  const html = links.length ? `<div class="inside-action-row">${links.slice(0, 2).join('')}</div>` : '';
   if (dockFront) dockFront.innerHTML = html;
   if (dockBack) dockBack.innerHTML = html;
+  if (moreBox && moreList) {
+    moreList.innerHTML = rest.map(linkButtonHtml).join('');
+    moreBox.hidden = rest.length === 0;
+  }
 }
 
 // i18n 미로드 시 안전한 번역 헬퍼
@@ -479,7 +498,8 @@ function populateCard(data) {
   // 앞면 모핑 QR 코드 생성 (자동 팝업은 하지 않는다 — 카드를 가리므로. QR 알약으로 수동 열기)
   initPlateMorphQR(data);
 
-  // 카드 안 링크 독 + 하단 고정 액션 바
+  // 뒷면 모양 + 카드 안 링크 독 + 하단 고정 액션 바
+  applyBackLayout(data);
   renderActionDocks(data);
   renderActionBar(data);
 
@@ -725,7 +745,7 @@ function normalizeFront(data) {
 
 function bgCss(bg) {
   if (!bg) return '';
-  if (bg.type === 'color') return bg.color || '#101018';
+  if (bg.type === 'color') return (window.TCCore && TCCore.solidBg) ? TCCore.solidBg(bg).css : (bg.color || '#101018');
   if (bg.type === 'gradient') return `linear-gradient(${bg.angle || 160}deg, ${bg.from || '#1a1530'} 0%, ${bg.to || '#07050d'} 100%)`;
   return '';
 }
@@ -816,10 +836,8 @@ function renderFrontLayers(data) {
         probe.onload = () => detectTone(probe, applyTone);
         probe.src = plateImg.src;
       } else if (front.bg.type === 'color') {
-        const hex = (front.bg.color || '#101018').replace('#', '');
-        const n = parseInt(hex.length === 3 ? hex.split('').map((c) => c + c).join('') : hex, 16);
-        const lum = 0.2126 * ((n >> 16) & 255) + 0.7152 * ((n >> 8) & 255) + 0.0722 * (n & 255);
-        applyTone(lum > 150 ? 'dark' : 'light');
+        const s = (window.TCCore && TCCore.solidBg) ? TCCore.solidBg(front.bg) : { isLight: false };
+        applyTone(s.isLight ? 'dark' : 'light');
       } else {
         applyTone('light');
       }
@@ -859,6 +877,19 @@ window.addEventListener('message', (event) => {
   const scene = document.getElementById('cardScene');
   if (!scene) return;
   const action = typeof event.data === 'string' ? event.data : event.data.action;
+  if (action === 'adjust' && event.data.bg && event.data.bg.type === 'color') {
+    // 단색: 색·밝기를 바꾸는 동안 배경과 글자 톤만 바로 갱신
+    const box = document.getElementById('plateArtworkContainer');
+    if (box && window.TCCore) {
+      box.style.background = bgCss(event.data.bg);
+      const ov = document.getElementById('plateTextOverlay');
+      if (ov && !ov.hidden && ov.className.indexOf('tone-') >= 0) {
+        const light = TCCore.solidBg(event.data.bg).isLight;
+        ov.classList.remove('tone-light', 'tone-dark'); ov.classList.add(light ? 'tone-dark' : 'tone-light');
+      }
+    }
+    return;
+  }
   if (action === 'adjust' && event.data.bg) {
     // 메이커에서 사진을 끌거나 벌리는 동안: 전체를 다시 그리지 않고 사진 스타일만 바꾼다
     const img = document.getElementById('plateArtworkImg');
