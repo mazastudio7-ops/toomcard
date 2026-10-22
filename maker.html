@@ -19,7 +19,7 @@
   <script src="/js/i18n.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body { height: 100%; }
+    html, body { height: 100%; overflow-x: hidden; max-width: 100%; }
     body {
       font-family: var(--tc-font-body);
       background: var(--tc-bg);
@@ -168,7 +168,8 @@
     .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
     /* ── 팬 캐러셀 ─────────────────────────────────── */
-    .carousel { position: relative; width: 100%; display: flex; align-items: center; justify-content: center; }
+    .carousel { position: relative; width: 100%; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+    .stage { overflow: hidden; }
     .car-track { position: relative; height: min(700px, calc(100vh - 190px)); min-height: 480px; width: 100%; display: flex; align-items: center; justify-content: center; }
     .car-track iframe { position: relative; z-index: 5; height: 100%; aspect-ratio: 0.64; width: auto; max-width: 100%; border: none; border-radius: 24px; background: transparent; }
     .car-stack { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
@@ -338,7 +339,8 @@
         <div class="section-title"><i data-lucide="sliders-horizontal"></i><span data-i18n="maker.sec_photo">사진 조정</span></div>
         <button type="button" class="btn-secondary" onclick="pickPhoto()"><i data-lucide="image-plus"></i><span data-i18n="maker.pick_photo">내 사진 고르기</span></button>
         <p class="photo-off" id="photoOff" data-i18n="maker.photo_only">사진 배경일 때 크기·위치·색을 바꿀 수 있어요.</p>
-        <div id="photoAdjust" class="section" style="gap:14px;" hidden>
+        <div id="photoAdjust" style="display:flex; flex-direction:column; gap:14px;" hidden>
+          <p class="photo-off" data-i18n="maker.adj_gesture">카드 위에서 끌면 위치, 두 손가락으로 벌리면 크기가 바뀌어요.</p>
           <div class="slider-row"><span data-i18n="maker.adj_zoom">크기</span><input type="range" id="adjZoom" min="1" max="2.5" step="0.01" value="1"><output id="outZoom">100%</output></div>
           <div class="slider-row"><span data-i18n="maker.adj_x">좌우</span><input type="range" id="adjX" min="0" max="100" step="1" value="50"><output id="outX">50</output></div>
           <div class="slider-row"><span data-i18n="maker.adj_y">상하</span><input type="range" id="adjY" min="0" max="100" step="1" value="50"><output id="outY">50</output></div>
@@ -401,7 +403,7 @@
       <div class="stage-tools">
         <button class="tool-btn" onclick="flip('show_front')"><i data-lucide="image"></i><span data-i18n="maker.front">앞면</span></button>
         <button class="tool-btn" onclick="flip('show_back')"><i data-lucide="file-text"></i><span data-i18n="maker.back">뒷면</span></button>
-        <button class="tool-btn accent" onclick="pickPhoto()"><i data-lucide="image-plus"></i><span data-i18n="maker.add_photo">내 사진</span></button>
+        <button class="tool-btn accent desk-only" onclick="pickPhoto()"><i data-lucide="image-plus"></i><span data-i18n="maker.add_photo">내 사진</span></button>
       </div>
     </section>
 
@@ -615,7 +617,7 @@
         uploadedPhoto = dataUrl;
         setBg({ type: 'image', src: dataUrl }, 'upload');
         designIdx = 0; renderCarousel();
-        if (isMobile()) openTab('photo');
+        if (isMobile()) { currentTab = ''; openTab('photo'); }
         toast(t('maker.bg_set'));
       });
       e.target.value = '';
@@ -789,12 +791,37 @@
       pressOnly($('filterChips'), 'filter', b.filter || 'none');
     }
     [['adjZoom', 'zoom'], ['adjX', 'x'], ['adjY', 'y'], ['adjBright', 'brightness']].forEach(([id, key]) => {
-      $(id).addEventListener('input', (e) => { if (!isImageBg()) return; card.front.bg[key] = Number(e.target.value); syncAdjustUI(); render(); });
+      $(id).addEventListener('input', (e) => { if (!isImageBg()) return; card.front.bg[key] = Number(e.target.value); liveAdjust(); });
     });
     $('filterChips').addEventListener('click', (e) => {
       const b = e.target.closest('.chip'); if (!b || !isImageBg()) return;
       card.front.bg.filter = b.dataset.filter; syncAdjustUI(); render();
     });
+    // 사진 탭이 열려 있는 동안 뷰어는 스와이프 대신 이동(pan)·확대(pinch)를 보내온다
+    let photoMode = false;
+    function setPhotoMode(on) {
+      photoMode = !!on && isImageBg();
+      const f = $('preview'); if (f && f.contentWindow) f.contentWindow.postMessage({ action: 'photo_mode', on: photoMode }, '*');
+    }
+    function onPan(dx, dy) {
+      if (!photoMode || !isImageBg()) return;
+      const b = card.front.bg, box = cardBox(), z = b.zoom || 1;
+      // 오른쪽으로 끌면 사진도 오른쪽으로: 보이는 기준점(x%)은 반대로 줄어든다
+      b.x = Math.max(0, Math.min(100, (b.x == null ? 50 : b.x) - (dx / box.w) * 100 / z * 1.4));
+      b.y = Math.max(0, Math.min(100, (b.y == null ? 50 : b.y) - (dy / box.h) * 100 / z * 1.4));
+      liveAdjust();
+    }
+    function onPinch(ratio) {
+      if (!photoMode || !isImageBg()) return;
+      const b = card.front.bg;
+      b.zoom = Math.max(1, Math.min(2.5, (b.zoom || 1) * ratio));
+      liveAdjust();
+    }
+    // 손으로 조정하는 동안은 사진 스타일만 즉시 보내고, 전체 다시 그리기는 손을 뗀 뒤 한 번
+    function liveAdjust() {
+      const f = $('preview'); if (f && f.contentWindow) f.contentWindow.postMessage({ action: 'adjust', bg: card.front.bg }, '*');
+      syncAdjustUI(); render();
+    }
     function resetAdjust() {
       if (!isImageBg()) return;
       Object.assign(card.front.bg, { zoom: 1, x: 50, y: 50, brightness: 1, filter: 'none' }); syncAdjustUI(); render();
@@ -813,14 +840,21 @@
       document.querySelectorAll('#tabbar button').forEach((b) => b.setAttribute('aria-selected', b.dataset.tab === name ? 'true' : 'false'));
       document.body.classList.add('sheet-open');
       document.querySelectorAll('.panel').forEach((p) => { p.scrollTop = 0; });
+      setPhotoMode(name === 'photo');
       setTimeout(renderCarousel, 320);   // 카드가 작아진 크기에 썸네일 맞추기
     }
     function closeSheet() {
       document.body.classList.remove('sheet-open'); currentTab = '';
+      setPhotoMode(false);
       setTimeout(renderCarousel, 320);
       document.querySelectorAll('#tabbar button').forEach((b) => b.setAttribute('aria-selected', 'false'));
     }
-    $('tabbar').addEventListener('click', (e) => { const b = e.target.closest('button[data-tab]'); if (b) openTab(b.dataset.tab); });
+    $('tabbar').addEventListener('click', (e) => {
+      const b = e.target.closest('button[data-tab]'); if (!b) return;
+      // 사진 탭: 아직 사진이 없으면 바로 사진 고르기 (탭 동작 안에서 열어야 폰이 허용한다)
+      if (b.dataset.tab === 'photo' && !isImageBg()) pickPhoto();
+      openTab(b.dataset.tab);
+    });
 
     /* ── 발행 ───────────────────────────────────────── */
     async function publish() {
@@ -937,6 +971,8 @@
     // 뷰어가 초기 렌더를 끝내면 card_ready를 보낸다. 그 뒤에 그려야 덮어써지지 않는다.
     window.addEventListener('message', (e) => {
       if (e.data && e.data.action === 'swipe') { const d = e.data.dir === 'next' ? 1 : -1; goDesign(designIdx + d, d); return; }
+      if (e.data && e.data.action === 'pan') { onPan(e.data.dx, e.data.dy); return; }
+      if (e.data && e.data.action === 'pinch') { onPinch(e.data.ratio); return; }
       if (e.data && e.data.action === 'drag') { onDrag(e.data.dx); return; }
       if (e.data && e.data.action === 'drag_end') { onDragEnd(); return; }
       if (e.data && e.data.action === 'rendered') { const w = renderedWaiters; renderedWaiters = []; w.forEach((fn) => fn()); return; }
