@@ -393,7 +393,7 @@
     <!-- ── 가운데: 3D 무대 ──────────────────────────── -->
     <section class="stage">
       <div class="carousel">
-        <button type="button" class="car-nav prev" onclick="goDesign(designIdx - 1)" aria-label="Previous">‹</button>
+        <button type="button" class="car-nav prev" onclick="goDesign(designIdx - 1, -1)" aria-label="Previous">‹</button>
         <div class="car-track" id="carTrack">
           <div class="car-side l2" data-off="-2"></div>
           <div class="car-side l1" data-off="-1"></div>
@@ -401,7 +401,7 @@
           <div class="car-side r1" data-off="1"></div>
           <div class="car-side r2" data-off="2"></div>
         </div>
-        <button type="button" class="car-nav next" onclick="goDesign(designIdx + 1)" aria-label="Next">›</button>
+        <button type="button" class="car-nav next" onclick="goDesign(designIdx + 1, 1)" aria-label="Next">›</button>
       </div>
       <div class="car-label"><span id="designName">TOOMCARD</span><span class="idx" id="designIdxLabel"></span></div>
       <div class="stage-tools">
@@ -550,13 +550,19 @@
       return c;
     }
 
-    let renderTimer = null;
-    function render() {
+    let renderTimer = null, renderSeq = 0, renderedWaiters = [];
+    function render(immediate) {
       clearTimeout(renderTimer);
-      renderTimer = setTimeout(() => {
+      const send = () => {
         const frame = $('preview');
-        if (frame && frame.contentWindow) frame.contentWindow.postMessage({ action: 'render', card: previewCard() }, '*');
-      }, 80);
+        renderSeq += 1;
+        if (frame && frame.contentWindow) frame.contentWindow.postMessage({ action: 'render', card: previewCard(), seq: renderSeq }, '*');
+      };
+      if (immediate) send(); else renderTimer = setTimeout(send, 80);
+    }
+    // 뷰어가 다 그렸다는 신호를 기다린다 (너무 오래 걸리면 그냥 진행)
+    function waitRendered(ms) {
+      return new Promise((resolve) => { renderedWaiters.push(resolve); setTimeout(resolve, ms); });
     }
     function flip(action) { const f = $('preview'); if (f && f.contentWindow) f.contentWindow.postMessage({ action }, '*'); }
 
@@ -691,15 +697,53 @@
       document.querySelectorAll('.car-side').forEach((el) => {
         const d = list[(designIdx + Number(el.dataset.off) + n * 2) % n];
         el.setAttribute('style', d.bg ? thumbStyle(d.bg) : '');
-        el.onclick = () => goDesign(designIdx + Number(el.dataset.off));
+        el.onclick = () => goDesign(designIdx + Number(el.dataset.off), Math.sign(Number(el.dataset.off)));
       });
     }
-    function goDesign(i) {
+    function applyDesign(i) {
       const list = designs(); const n = list.length;
       designIdx = ((i % n) + n) % n;
       const d = list[designIdx];
       if (d.key === 'photo') setBg(d.bg, 'upload'); else applyStart(d.key);
       renderCarousel();
+    }
+
+    // 넘기기: 지금 카드는 옆으로 기울며 빠지고, 새 카드가 반대편에서 들어온다
+    let sliding = false;
+    const EASE_OUT = 'transform 0.24s cubic-bezier(.4,0,1,1), opacity 0.2s';
+    const EASE_IN = 'transform 0.38s cubic-bezier(.2,.8,.2,1), opacity 0.28s';
+    function sideTransform(dir) { return `translateX(${dir * 78}%) rotate(${dir * 11}deg) scale(0.84)`; }
+    async function goDesign(i, dirHint) {
+      if (sliding) return;
+      const dir = dirHint || (i > designIdx ? 1 : -1);   // 1 = 다음(왼쪽으로 빠짐)
+      const ifr = $('preview');
+      sliding = true;
+      ifr.style.transition = EASE_OUT;
+      ifr.style.transform = sideTransform(-dir);
+      ifr.style.opacity = '0';
+      await new Promise((r) => setTimeout(r, 200));
+      applyDesign(i);
+      clearTimeout(renderTimer); render(true);
+      await waitRendered(450);
+      ifr.style.transition = 'none';
+      ifr.style.transform = sideTransform(dir);
+      void ifr.offsetWidth;
+      ifr.style.transition = EASE_IN;
+      ifr.style.transform = '';
+      ifr.style.opacity = '1';
+      setTimeout(() => { sliding = false; }, 300);
+    }
+    function onDrag(dx) {
+      if (sliding) return;
+      const ifr = $('preview');
+      ifr.style.transition = 'none';
+      ifr.style.transform = `translateX(${dx}px) rotate(${dx / 30}deg)`;
+      ifr.style.opacity = String(Math.max(0.55, 1 - Math.abs(dx) / 500));
+    }
+    function onDragEnd() {
+      const ifr = $('preview');
+      ifr.style.transition = EASE_IN;
+      ifr.style.transform = ''; ifr.style.opacity = '1';
     }
     function pickPhoto() { $('bgFile').click(); }
 
@@ -858,7 +902,10 @@
     document.addEventListener('i18n:change', () => { renderThemeChips(); renderCarousel(); if (currentTab) document.querySelectorAll('.sheet-title').forEach((el) => { el.textContent = t(TAB_TITLES[currentTab]); }); render(); });
     // 뷰어가 초기 렌더를 끝내면 card_ready를 보낸다. 그 뒤에 그려야 덮어써지지 않는다.
     window.addEventListener('message', (e) => {
-      if (e.data && e.data.action === 'swipe') { goDesign(designIdx + (e.data.dir === 'next' ? 1 : -1)); return; }
+      if (e.data && e.data.action === 'swipe') { const d = e.data.dir === 'next' ? 1 : -1; goDesign(designIdx + d, d); return; }
+      if (e.data && e.data.action === 'drag') { onDrag(e.data.dx); return; }
+      if (e.data && e.data.action === 'drag_end') { onDragEnd(); return; }
+      if (e.data && e.data.action === 'rendered') { const w = renderedWaiters; renderedWaiters = []; w.forEach((fn) => fn()); return; }
       if (!e.data || e.data.action !== 'card_ready') return;
       const params = new URLSearchParams(location.search);
       const edit = params.get('edit');

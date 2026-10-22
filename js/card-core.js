@@ -25,18 +25,22 @@
   // 속성값용. 결과는 escapeHtml과 같다 (호환을 위해 이름만 유지).
   var escapeAttr = escapeHtml;
 
-  // 테마 스타일시트 교체. <link id="themeStylesheet">가 없으면 만든다.
+  // 테마 스타일시트 교체. 새 시트가 다 받아진 뒤에 옛 시트를 지운다
+  // (href만 바꾸면 그 사이 스타일이 빠져 카드가 아래로 무너졌다가 다시 그려진다).
   function setThemeStylesheet(themeName) {
     var clean = String(themeName || '').trim().toLowerCase().replace(/[^a-z0-9_-]/g, '') || 'obsidian';
     var href = getBasePath() + '/themes/' + clean + '.css';
     var el = document.getElementById('themeStylesheet');
-    if (!el) {
-      el = document.createElement('link');
-      el.id = 'themeStylesheet';
-      el.rel = 'stylesheet';
-      document.head.appendChild(el);
-    }
-    if (el.getAttribute('href') !== href) el.setAttribute('href', href);
+    if (el && el.getAttribute('href') === href) return;
+    var next = document.createElement('link');
+    next.rel = 'stylesheet';
+    next.href = href;
+    next.onload = next.onerror = function () {
+      if (el && el.parentNode) el.parentNode.removeChild(el);
+      next.id = 'themeStylesheet';
+    };
+    if (el && el.parentNode) el.parentNode.insertBefore(next, el.nextSibling);
+    else { next.id = 'themeStylesheet'; document.head.appendChild(next); }
   }
 
   // 글자 수에 따라 세로 워터마크 크기를 정한다.

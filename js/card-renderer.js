@@ -607,16 +607,28 @@ function setupSwipe() {
 
   // 메이커 미리보기(?maker=1)에서는 좌우 스와이프를 부모에게 넘겨 디자인을 바꾼다. 뒤집기는 탭으로.
   const inMaker = window.self !== window.top && new URLSearchParams(location.search).get('maker') === '1';
+  const toParent = (msg) => { try { window.parent.postMessage(msg, '*'); } catch (err) {} };
+
+  // 메이커에서는 손가락을 따라 카드가 움직이도록 드래그 거리를 실시간으로 넘긴다
+  let dragFrame = 0;
+  if (inMaker) {
+    cardSceneEl.addEventListener('touchmove', (e) => {
+      const dx = e.changedTouches[0].screenX - touchStartX;
+      if (dragFrame) return;
+      dragFrame = requestAnimationFrame(() => { dragFrame = 0; toParent({ action: 'drag', dx }); });
+    }, { passive: true });
+  }
+
   cardSceneEl.addEventListener('touchend', (e) => {
     touchEndX = e.changedTouches[0].screenX;
     const diffX = touchEndX - touchStartX;
-    if (Math.abs(diffX) > 40) {
-      if (inMaker) {
-        try { window.parent.postMessage({ action: 'swipe', dir: diffX < 0 ? 'next' : 'prev' }, '*'); } catch (err) {}
-      } else {
-        toggleCardFlip();
-      }
+    if (dragFrame) { cancelAnimationFrame(dragFrame); dragFrame = 0; }
+    if (inMaker) {
+      if (Math.abs(diffX) > 50) toParent({ action: 'swipe', dir: diffX < 0 ? 'next' : 'prev' });
+      else toParent({ action: 'drag_end' });
+      return;
     }
+    if (Math.abs(diffX) > 40) toggleCardFlip();
   }, { passive: true });
 }
 
@@ -790,8 +802,10 @@ window.addEventListener('message', (event) => {
   if (!scene) return;
   const action = typeof event.data === 'string' ? event.data : event.data.action;
   if (action === 'render' && event.data.card) {
-    // 메이커 미리보기: 카드 데이터를 통째로 다시 그린다
-    populateCard(event.data.card);
+    // 메이커 미리보기: 카드 데이터를 통째로 다시 그리고, 다 그렸다고 알린다 (전환 애니메이션 타이밍용)
+    Promise.resolve(populateCard(event.data.card)).then(() => {
+      try { window.parent.postMessage({ action: 'rendered', seq: event.data.seq }, '*'); } catch (err) {}
+    });
     return;
   }
   if (action === 'show_back') {
