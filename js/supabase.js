@@ -505,3 +505,99 @@ async function checkProStatus() {
     .single();
   return data && data.tier === 'PRO';
 }
+
+// 14. 스타(자랑 피드) — docs/STAR.md, supabase/migrations/20261023_star.sql
+// 좋아요·신고는 로그인 없이 기기 단위로 센다. 기기 값은 무작위 문자열이라 개인정보가 아니다.
+function starDeviceId() {
+  try {
+    let id = localStorage.getItem('tc_device');
+    if (!id) {
+      id = (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random().toString(16).slice(2)).replace(/-/g, '').slice(0, 32);
+      localStorage.setItem('tc_device', id);
+    }
+    return id;
+  } catch (e) { return 'nostore' + Math.random().toString(16).slice(2, 12); }
+}
+
+async function starLike(slug) {
+  if (!supabaseClient || !slug) return false;
+  const { error } = await supabaseClient.from('star_likes').insert({ slug, device_id: starDeviceId() });
+  return !error || error.code === '23505';   // 이미 누른 경우도 성공으로 본다
+}
+
+async function starLikeCount(slug) {
+  if (!supabaseClient || !slug) return 0;
+  const { data, error } = await supabaseClient.rpc('star_like_count', { p_slug: slug });
+  return error ? 0 : Number(data || 0);
+}
+
+async function starLiked(slug) {
+  if (!supabaseClient || !slug) return false;
+  const { data, error } = await supabaseClient.rpc('star_liked', { p_slug: slug, p_device: starDeviceId() });
+  return !error && !!data;
+}
+
+async function starFeed({ tag = null, sort = 'hot', limit = 40, offset = 0 } = {}) {
+  if (!supabaseClient) return [];
+  const { data, error } = await supabaseClient.rpc('star_feed', { p_tag: tag, p_sort: sort, p_limit: limit, p_offset: offset });
+  if (error) { console.warn('star_feed', error); return []; }
+  return data || [];
+}
+
+async function starWeekly(limit = 3) {
+  if (!supabaseClient) return [];
+  const { data, error } = await supabaseClient.rpc('star_weekly', { p_limit: limit });
+  return error ? [] : (data || []);
+}
+
+async function recordLinkClick(slug, kind, source = 'card') {
+  if (!supabaseClient || !slug || !kind) return false;
+  const { error } = await supabaseClient.from('link_clicks').insert({ slug, kind: String(kind).slice(0, 32), source });
+  return !error;
+}
+
+async function reportStarCard(slug, reason) {
+  if (!supabaseClient || !slug) return false;
+  const { error } = await supabaseClient.from('star_reports').insert({ slug, reason, device_id: starDeviceId() });
+  return !error || error.code === '23505';
+}
+
+async function getMyStarStats(slug) {
+  if (!supabaseClient || !slug) return null;
+  const { data, error } = await supabaseClient.rpc('my_star_stats', { p_slug: slug });
+  return error ? null : data;
+}
+
+// 비공개 항목(전화·이메일 등)은 pods 와 따로 저장한다. 명함 링크 키가 맞을 때만 내려온다.
+async function savePrivateCard(slug, data) {
+  const user = await getCurrentUser();
+  if (!user || !slug) return false;
+  const { error } = await supabaseClient.from('pod_private').upsert({ slug, user_id: user.id, data, updated_at: new Date().toISOString() }, { onConflict: 'slug' });
+  return !error;
+}
+
+async function getMyShareKey(slug) {
+  if (!supabaseClient || !slug) return null;
+  const { data } = await supabaseClient.from('pod_private').select('share_key').eq('slug', slug).maybeSingle();
+  return data ? data.share_key : null;
+}
+
+async function getPrivateCard(slug, key) {
+  if (!supabaseClient || !slug || !key) return null;
+  const { data, error } = await supabaseClient.rpc('get_private_card', { p_slug: slug, p_key: key });
+  return error ? null : data;
+}
+
+// 관리자 검토 화면
+async function adminStarQueue() {
+  if (!supabaseClient) return [];
+  const { data, error } = await supabaseClient.rpc('admin_star_queue');
+  if (error) { console.warn('admin_star_queue', error); return null; }
+  return data || [];
+}
+
+async function adminStarDecide(slug, status, reason = null) {
+  if (!supabaseClient) return false;
+  const { error } = await supabaseClient.rpc('admin_star_decide', { p_slug: slug, p_status: status, p_reason: reason });
+  return !error;
+}
