@@ -179,7 +179,6 @@
       <div class="acts">
         <button class="btn" id="shareBtn" type="button" data-k="share">링크 보내기</button>
         <a class="btn ghost" id="editBtn" href="#" data-k="edit">수정하기</a>
-        <a class="btn ghost" id="snsBtn" href="#" data-k="snsAdd">SNS·링크 추가</a>
         <button class="btn ghost" id="installBtn" type="button" data-k="install">📲 홈 화면에 추가</button>
         <a class="btn ghost" id="starBtn" href="/#stars" data-k="seeStar">이젠스타 보기</a>
       </div>
@@ -306,7 +305,6 @@
       $('mName').textContent = c.name || T('noname');
       $('mRole').textContent = [c.role, c.company].filter(Boolean).join(' · ');
       $('editBtn').href = `/maker?edit=${encodeURIComponent(slug)}`;
-      $('snsBtn').href = `/maker?edit=${encodeURIComponent(slug)}&tab=info`;
       renderTodos();
       const row = $('cardsRow');
       row.innerHTML = pods.map((p) => {
