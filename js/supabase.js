@@ -309,6 +309,31 @@ async function getMyLeads() {
   return leads;
 }
 
+// 9-1b. 한 카드의 문의를 한 쪽(기본 30건)씩만 불러온다 (문의가 많아도 한 번에 전부 내려받지 않는다)
+async function getLeadsPage(slugs, from = 0, size = 30) {
+  const list = Array.isArray(slugs) ? slugs : [slugs];
+  const { data, count, error } = await supabaseClient
+    .from('leads')
+    .select('id,target_slug,phone,metadata,created_at', { count: 'exact' })
+    .in('target_slug', list)
+    .order('created_at', { ascending: false })
+    .range(from, from + size - 1);
+  if (error) { console.error('getLeadsPage', error); return null; }
+  return { rows: data || [], total: count || 0 };
+}
+
+// 9-1c. CSV 용: 여러 쪽(1000건씩)을 이어서 모두 가져온다 (눌렀을 때만 실행)
+async function getAllLeadsFor(slugs, max = 20000) {
+  let all = [], from = 0;
+  while (all.length < max) {
+    const r = await getLeadsPage(slugs, from, 1000);
+    if (!r || !r.rows.length) break;
+    all = all.concat(r.rows); from += 1000;
+    if (all.length >= r.total) break;
+  }
+  return all;
+}
+
 // 9-2. 명함 조회수(Analytics) 기록하기 (정밀 채널 및 세션 스토리지 중복 방지)
 async function recordPageView(slug) {
   if (!supabaseClient) return false;
