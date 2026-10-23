@@ -141,6 +141,7 @@
 
     <!-- 내 카드 -->
     <section id="vMine" hidden style="display:flex;flex-direction:column;gap:22px">
+      <div class="tabs" id="tabsRow" hidden style="justify-content:center;margin:0"></div>
       <a class="adminbar" id="adminBar" href="/admin/star" hidden><span>이젠스타 검토하러 가기</span><b id="adminCnt"></b></a>
       <div class="stage-w"><a class="pcard" id="cardLink" href="#" aria-label="open"><span class="pc-bg" id="pcBg"></span><span class="pc-tx" id="pcTx"><b id="pcName"></b><small id="pcRole"></small></span></a></div>
       <div class="who"><b id="mName"></b><span id="mRole"></span></div>
@@ -166,7 +167,6 @@
       </div>
 
       <div>
-        <div class="tabs" id="tabsRow" hidden></div>
         <div class="row-h"><span data-k="mycards">내 카드</span></div>
         <div class="row" id="cardsRow" style="margin-top:10px"></div>
         <div class="manage" id="manage"><button type="button" id="renBtn" data-k="rn">주소 바꾸기</button><button type="button" id="delBtn" data-k="del">카드 삭제</button></div>
@@ -257,7 +257,7 @@
       const hasPersonal = allPods.some((p) => !coOf(p));
       if (!cos.length) { box.hidden = true; return; }
       box.hidden = false;
-      box.innerHTML = (hasPersonal ? `<button type="button" data-tab="personal" class="${tab === 'personal' ? 'on' : ''}">${T('tabP')}</button>` : '')
+      box.innerHTML = (hasPersonal ? `<button type="button" data-tab="personal" class="${tab === 'personal' ? 'on' : ''}">${T('tabP')}</button>` : `<a href="/maker">${T('tabP')} +</a>`)
         + cos.map((c) => `<button type="button" data-tab="${c.k}" class="${tab === c.k ? 'on' : ''}">${c.n}</button>`).join('')
         + (tab !== 'personal' ? `<a href="/team">${T('tabTeam')}</a>` : '');
       box.querySelectorAll('button').forEach((b) => b.addEventListener('click', () => setTab(b.dataset.tab)));
