@@ -56,7 +56,7 @@
   <script>
     const $ = (id) => document.getElementById(id);
     const esc = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
-    const ERR = { not_allowed: '권한이 없어요', not_admin: '투머스 관리자만 할 수 있어요', slug_taken: '이미 사용 중인 주소예요', bad_email: '이메일 형식을 확인해 주세요', bad_slug: '주소는 영문 소문자·숫자·하이픈(2~31자)만 쓸 수 있어요', name_required: '이름을 입력해 주세요', no_company: '회사를 찾지 못했어요' };
+    const ERR = { not_allowed: '권한이 없어요', not_admin: '투머스 관리자만 할 수 있어요', slug_taken: '이미 사용 중인 주소예요', bad_email: '이메일 형식을 확인해 주세요', bad_slug: '주소는 영문 소문자·숫자·하이픈(2~31자)만 쓸 수 있어요', bad_url: '이미지 주소는 /assets/… 또는 https://… 형식이어야 해요', name_required: '이름을 입력해 주세요', no_company: '회사를 찾지 못했어요' };
     let user = null, companies = [], cur = null, members = [];
     function toast(m) { const t = $('toast'); t.textContent = m; t.classList.add('on'); clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove('on'), 2400); }
     function errText(e) { const m = String((e && e.message) || e || ''); for (const k in ERR) if (m.includes(k)) return ERR[k]; return '잠시 후 다시 해 주세요'; }
@@ -86,7 +86,11 @@
               <div class="chips"><span class="chip ${m.claimed ? 'ok' : 'wait'}">${m.claimed ? '카드 연결됨' : '초대됨 · 로그인하면 연결'}</span><span class="chip">조회 ${Number(m.views || 0)}</span>${m.has_photo ? '<span class="chip">사진 있음</span>' : ''}</div></div>
             <div class="macts"><a class="btn ghost sm" href="${cardUrl(m)}" target="_blank" rel="noopener">카드 열기</a><button class="btn ghost sm" data-copy="${i}" type="button">링크 복사</button><button class="btn danger sm" data-del="${i}" type="button">삭제</button></div></div>`).join('') : '<div class="msg" style="padding:20px 0">아직 구성원이 없어요. 위에서 추가해 보세요.</div>') + `</div></div>`;
         html += `<div class="panel"><h2>구성원에게 보낼 안내문</h2><p class="note">아래 글을 복사해서 보내세요.</p><button class="btn ghost sm" id="copyInvite" type="button" style="align-self:flex-start">안내문 복사</button></div>`;
-        html += `<div class="panel"><h2>회사 설정</h2><div class="row"><input type="text" id="cName" value="${esc(cur.name)}"><input type="color" id="cColor" value="${esc(cur.brand_color || '#3b1a6e')}" title="브랜드 색"><button class="btn" id="cSave" type="button">저장</button></div><p class="note">브랜드 색은 새로 추가하는 구성원 카드의 앞면 색으로 들어가요.</p>
+        html += `<div class="panel"><h2>회사 설정</h2><div class="row"><input type="text" id="cName" value="${esc(cur.name)}"><input type="color" id="cColor" value="${esc(cur.brand_color || '#3b1a6e')}" title="브랜드 색"></div>
+          <div class="row"><input type="text" id="cLogo" value="${esc(cur.logo_url || '')}" placeholder="회사 로고 주소 (예: /assets/logo_maza_mark.webp)" autocapitalize="off">${cur.logo_url ? `<img src="${esc(cur.logo_url)}" alt="" style="width:44px;height:44px;border-radius:50%;border:2px solid #d9b25f;object-fit:cover">` : ''}</div>
+          <div class="row"><input type="text" id="cPlate" value="${esc(cur.plate_url || '')}" placeholder="카드 앞면 이미지 주소 (예: /assets/maza_front_plate.jpg)" autocapitalize="off">${cur.plate_url ? `<img src="${esc(cur.plate_url)}" alt="" style="width:34px;height:54px;border-radius:6px;object-fit:cover">` : ''}</div>
+          <div class="row"><button class="btn" id="cSave" type="button">저장</button></div>
+          <p class="note">로고·앞면 이미지·브랜드 색은 <b>새로 추가하는</b> 구성원 카드에 자동으로 들어가요. 이미 만든 카드는 그대로예요. 이미지는 지금은 투머스에 올려 둔 파일 주소를 적어 주세요.</p>
           <div class="row"><input type="email" id="aEmail" placeholder="회사 관리자 추가 (이메일)" autocapitalize="off"><button class="btn ghost" id="aAdd" type="button">관리자 추가</button></div></div>`;
       } else {
         html += `<div><h1>팀 카드 관리</h1><p class="sub">${isAdmin ? '아직 만든 회사가 없어요. 아래에서 첫 회사를 만들어 보세요.' : '연결된 회사가 없어요. 로그인한 이메일이 회사 관리자로 등록되어 있어야 해요. 담당자에게 문의해 주세요.'}</p></div>`;
@@ -111,7 +115,7 @@
         toast(`${ok}명 추가${fail.length ? ' · 실패 ' + fail.length + '명 (' + fail[0] + ')' : ''}`); await refresh();
       });
       on('copyInvite', () => navigator.clipboard.writeText(`[${cur.name}] 디지털 명함이 만들어졌어요.\n1) toomcard.com/dashboard 에서 회사 이메일(구글 계정)로 로그인해 주세요.\n2) 내 카드가 보이면 '꾸미기'에서 사진·소개·링크를 넣어 완성하세요.\n3) 완성한 카드는 QR이나 링크로 바로 공유할 수 있어요.`).then(() => toast('안내문을 복사했어요'), () => toast('복사하지 못했어요')));
-      on('cSave', async () => { try { await rpc('tc_company_update', { p_company: cur.slug, p_name: $('cName').value, p_color: $('cColor').value }); toast('저장했어요'); await loadCompanies(); cur = companies.find((c) => c.slug === cur.slug); view(); } catch (e) { toast(errText(e)); } });
+      on('cSave', async () => { try { await rpc('tc_company_update', { p_company: cur.slug, p_name: $('cName').value, p_color: $('cColor').value, p_logo: $('cLogo').value.trim(), p_plate: $('cPlate').value.trim() }); toast('저장했어요'); await loadCompanies(); cur = companies.find((c) => c.slug === cur.slug); view(); } catch (e) { toast(errText(e)); } });
       on('aAdd', async () => { try { await rpc('tc_company_add_admin', { p_company: cur.slug, p_email: $('aEmail').value }); toast('관리자를 추가했어요'); $('aEmail').value = ''; } catch (e) { toast(errText(e)); } });
       on('xMake', async () => { try { const s = await rpc('tc_company_create', { p_slug: $('xSlug').value, p_name: $('xName').value, p_admin_email: $('xAdmin').value, p_color: $('xColor').value }); toast('회사를 만들었어요'); await loadCompanies(); cur = companies.find((c) => c.slug === s) || companies[0]; await refresh(); } catch (e) { toast(errText(e)); } });
       document.querySelectorAll('[data-copy]').forEach((b) => b.onclick = () => navigator.clipboard.writeText(cardUrl(members[+b.dataset.copy])).then(() => toast('링크를 복사했어요'), () => toast('복사하지 못했어요')));

@@ -2,7 +2,7 @@
   "slug": "yongsu",
   "company": "MAZA STUDIO",
   "companySlug": "maza",
-  "layout": "classic",
+  "layout": "plate",
   "theme": "maza",
   "companyWatermark": "MAZA",
   "slogan": "플립마켓에서 달러자산 플랫폼으로",
@@ -19,8 +19,8 @@
     "수익형 플랫폼 빌드"
   ],
   "logo": {
-    "src": "/assets/sample_gif_1.gif",
-    "fallback": "/assets/sample_gif_1.gif",
+    "src": "/assets/logo_maza_mark.webp",
+    "fallback": "/assets/logo_maza.gif",
     "alt": "MAZA STUDIO Logo"
   },
   "primaryAction": {
@@ -66,6 +66,6 @@
     "ogDescription": "플립마켓에서 달러자산 플랫폼으로 | MAZA STUDIO 공식 3D 명함",
     "ogImage": "https://toomcard.com/assets/toomcard_card_hybrid.jpg"
   },
-  "avatar": "/assets/sample_gif_1.gif",
-  "plateCardImage": "/assets/toomcard_front_plate.png"
+  "avatar": "/assets/logo_maza_mark.webp",
+  "plateCardImage": "/assets/maza_front_plate.jpg"
 }
