@@ -1285,6 +1285,16 @@
     .maker-embed .card-face::after { display: none; }
     @media (prefers-reduced-motion: reduce) { .card-scene { transform: none; animation: none; } .card-face::after { display: none; } }
 
+    .star-row { display: flex; align-items: center; justify-content: center; gap: 14px; margin: 8px 0 2px; }
+    .like-btn { appearance: none; display: inline-flex; align-items: center; gap: 7px; padding: 9px 16px; border-radius: 99px; border: 1px solid rgba(255,217,120,.45); background: rgba(255,217,120,.08); color: #ffd978; font: 800 14px 'Pretendard', sans-serif; cursor: pointer; transition: transform .15s; }
+    .like-btn .heart { font-size: 16px; line-height: 1; transition: transform .25s cubic-bezier(.3,1.6,.5,1); }
+    .like-btn.on { background: #ffd978; color: #000; border-color: #ffd978; }
+    .like-btn.pop .heart { transform: scale(1.5); }
+    .like-btn:active { transform: scale(.96); }
+    .report-btn { appearance: none; border: 0; background: transparent; color: rgba(255,255,255,.35); font: 600 11.5px 'Pretendard', sans-serif; cursor: pointer; padding: 6px; }
+    .report-btn:hover { color: rgba(255,255,255,.7); }
+    body.in-simulator .star-row { display: none; }
+
     /* ── 앞면 틀(frame) ────────────────────────────────────────────── */
     :root { --tc-noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
     .plate-photo { position: absolute; inset: 0; z-index: 1; overflow: hidden; }
@@ -1922,6 +1932,11 @@
       </a>
     </div>
 
+    <!-- ♥ 좋아요 · 신고 (스타) -->
+    <div class="star-row" id="starRow">
+      <button type="button" class="like-btn" id="likeBtn" onclick="event.stopPropagation(); starLikeClick();"><span class="heart">♥</span><span id="likeCount">0</span></button>
+      <button type="button" class="report-btn" onclick="event.stopPropagation(); starReportClick();" data-i18n="star.report">신고</button>
+    </div>
     <!-- Viral Powered-By Badge -->
     <a href="/maker?ref=card" class="viral-badge-link" id="viralBadgeLink">
       <i data-lucide="sparkles" style="width: 13px; height: 13px; color: var(--neon-accent);"></i>

@@ -20,6 +20,10 @@
       "destination": "/index-legacy.html"
     },
     {
+      "source": "/admin/star",
+      "destination": "/admin-star.html"
+    },
+    {
       "source": "/maker",
       "destination": "/maker.html"
     },

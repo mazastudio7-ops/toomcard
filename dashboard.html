@@ -60,6 +60,7 @@
     .stat b { display: block; font: 900 28px 'Montserrat', sans-serif; }
     .stat span { font-size: 12.5px; color: rgba(255,255,255,.55); }
     .acts { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+    .note { text-align: center; font-size: 13px; color: #ffd978; background: rgba(255,217,120,.08); border: 1px solid rgba(255,217,120,.25); border-radius: 12px; padding: 10px 14px; }
 
     /* 오늘 할 일 */
     .todo { border-radius: 22px; padding: 18px; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.1); }
@@ -133,13 +134,18 @@
         <div><b id="sWeek">0</b><span data-k="week">이번 주 조회</span></div>
         <div><b id="sAll">0</b><span data-k="all">전체 조회</span></div>
       </div>
+      <div class="stat" id="starStat" hidden>
+        <div><b id="sLikes">0</b><span data-k="likes">♥ 좋아요</span></div>
+        <div><b id="sClicks">0</b><span data-k="clicks">링크 클릭</span></div>
+      </div>
+      <p class="note" id="starNote" hidden></p>
       <div class="acts">
         <button class="btn" id="shareBtn" type="button" data-k="share">링크 보내기</button>
         <a class="btn ghost" id="editBtn" href="#" data-k="edit">꾸미기</a>
       </div>
 
       <div class="todo">
-        <div class="todo-h"><b data-k="todo">내 카드 키우기</b><span id="todoCount">0/4</span></div>
+        <div class="todo-h"><b data-k="todo">내 카드 키우기</b><span id="todoCount">0/5</span></div>
         <div class="prog"><i id="todoBar" style="width:0"></i></div>
         <div id="todoList"></div>
       </div>
@@ -162,11 +168,11 @@
   <script>
     const L = {
       ko: { out_t: '내 카드를 만들고<br><span class="gold">키워 보세요</span>', out_s: '로그인하면 내 카드가 저장되고, 몇 번 열렸는지 볼 수 있어요.', login: 'Google로 시작하기', try: '로그인 없이 먼저 만들어 보기', none_t: '첫 카드를 만들어 볼까요?<br><span class="gold">30초면 돼요</span>', none_s: '사진 한 장과 이름만 있으면 끝. 마음에 드는 모양으로 시작하세요.', first: '내 카드 만들기', week: '이번 주 조회', all: '전체 조회', share: '링크 보내기', edit: '꾸미기', todo: '내 카드 키우기', mycards: '내 카드', biz: '기업 · 리드 관리', gallery: '갤러리', terms: '이용약관', privacy: '개인정보처리방침', login_btn: '로그인', logout_btn: '로그아웃', copied: '링크를 복사했어요',
-        t1: '내 사진 넣기', d1: '사진이 들어가면 카드가 확 달라져요', t2: '로고 꾸미기', d2: '금속 엠블럼이나 내 로고를 올려 보세요', t3: '배경화면으로 저장', d3: '폰 잠금화면에 내 카드를 걸어 두세요', t4: '친구에게 보내기', d4: '받는 사람이 열면 "나도 만들기"가 보여요', add: '새 카드', noname: '이름 없음' },
+        t1: '내 사진 넣기', d1: '사진이 들어가면 카드가 확 달라져요', t2: '로고 꾸미기', d2: '금속 엠블럼이나 내 로고를 올려 보세요', t3: '배경화면으로 저장', d3: '폰 잠금화면에 내 카드를 걸어 두세요', t4: '친구에게 보내기', d4: '받는 사람이 열면 "나도 만들기"가 보여요', t5: '스타에 올리기', d5: '홈 스타 탭에 올려 좋아요를 받아요', likes: '♥ 좋아요', clicks: '링크 클릭', pending: '스타 검토 중이에요 (하루 안에 올라가요)', rejected: '스타 검토에서 보류됐어요: ', approved: '스타에 올라가 있어요 ✨', add: '새 카드', noname: '이름 없음' },
       en: { out_t: 'Make your card<br><span class="gold">and grow it</span>', out_s: 'Sign in to save your card and see how often it is opened.', login: 'Start with Google', try: 'Try it first without signing in', none_t: 'Ready for your first card?<br><span class="gold">30 seconds</span>', none_s: 'One photo and your name is enough. Start from a look you like.', first: 'Make my card', week: 'Views this week', all: 'Total views', share: 'Send link', edit: 'Decorate', todo: 'Grow your card', mycards: 'My cards', biz: 'Business · Leads', gallery: 'Gallery', terms: 'Terms', privacy: 'Privacy', login_btn: 'Sign in', logout_btn: 'Sign out', copied: 'Link copied',
-        t1: 'Add your photo', d1: 'A photo changes the whole card', t2: 'Style your logo', d2: 'Try a metal emblem or upload your logo', t3: 'Save as wallpaper', d3: 'Put your card on your lock screen', t4: 'Send it to a friend', d4: 'They will see "make mine" when they open it', add: 'New card', noname: 'Untitled' },
+        t1: 'Add your photo', d1: 'A photo changes the whole card', t2: 'Style your logo', d2: 'Try a metal emblem or upload your logo', t3: 'Save as wallpaper', d3: 'Put your card on your lock screen', t4: 'Send it to a friend', d4: 'They will see "make mine" when they open it', t5: 'Post to Stars', d5: 'Get likes on the Stars tab', likes: '♥ Likes', clicks: 'Link clicks', pending: 'In review for Stars (live within a day)', rejected: 'Held back from Stars: ', approved: 'Live on Stars ✨', add: 'New card', noname: 'Untitled' },
       de: { out_t: 'Erstelle deine Karte<br><span class="gold">und lass sie wachsen</span>', out_s: 'Melde dich an, um deine Karte zu speichern und Aufrufe zu sehen.', login: 'Mit Google starten', try: 'Erst ohne Anmeldung ausprobieren', none_t: 'Bereit für deine erste Karte?<br><span class="gold">30 Sekunden</span>', none_s: 'Ein Foto und dein Name reichen. Starte mit einem Look, der dir gefällt.', first: 'Meine Karte erstellen', week: 'Aufrufe diese Woche', all: 'Aufrufe gesamt', share: 'Link senden', edit: 'Gestalten', todo: 'Karte weiterentwickeln', mycards: 'Meine Karten', biz: 'Business · Leads', gallery: 'Galerie', terms: 'Nutzungsbedingungen', privacy: 'Datenschutz', login_btn: 'Anmelden', logout_btn: 'Abmelden', copied: 'Link kopiert',
-        t1: 'Foto hinzufügen', d1: 'Ein Foto verändert die ganze Karte', t2: 'Logo gestalten', d2: 'Metall-Emblem oder eigenes Logo hochladen', t3: 'Als Hintergrund speichern', d3: 'Deine Karte auf den Sperrbildschirm', t4: 'An Freunde senden', d4: 'Beim Öffnen sehen sie „Selbst erstellen“', add: 'Neue Karte', noname: 'Ohne Namen' }
+        t1: 'Foto hinzufügen', d1: 'Ein Foto verändert die ganze Karte', t2: 'Logo gestalten', d2: 'Metall-Emblem oder eigenes Logo hochladen', t3: 'Als Hintergrund speichern', d3: 'Deine Karte auf den Sperrbildschirm', t4: 'An Freunde senden', d4: 'Beim Öffnen sehen sie „Selbst erstellen“', t5: 'In Stars zeigen', d5: 'Likes im Stars-Tab sammeln', likes: '♥ Likes', clicks: 'Link-Klicks', pending: 'In Prüfung für Stars (innerhalb eines Tages online)', rejected: 'Für Stars zurückgestellt: ', approved: 'Live in Stars ✨', add: 'Neue Karte', noname: 'Ohne Namen' }
     };
     const lang = () => (window.i18n && window.i18n.lang) || localStorage.getItem('toomcard_lang') || 'ko';
     const T = (k) => (L[lang()] || L.ko)[k] || L.ko[k] || k;
@@ -195,13 +201,14 @@
         { k: 1, done: hasPhoto, href: `/maker?edit=${encodeURIComponent(slug)}&tab=photo` },
         { k: 2, done: hasLogo, href: `/maker?edit=${encodeURIComponent(slug)}&tab=logo` },
         { k: 3, done: flag('wp', slug), href: `/maker?edit=${encodeURIComponent(slug)}&tab=publish` },
-        { k: 4, done: flag('shared', slug), act: 'share' }
+        { k: 4, done: flag('shared', slug), act: 'share' },
+        { k: 5, done: !!(c.star && c.star.on), href: `/maker?edit=${encodeURIComponent(slug)}&tab=publish` }
       ];
     }
 
     function renderTodos() {
       const list = todos(main), n = list.filter((x) => x.done).length;
-      $('todoCount').textContent = n + '/4'; $('todoBar').style.width = (n * 25) + '%';
+      $('todoCount').textContent = n + '/' + list.length; $('todoBar').style.width = Math.round(n / list.length * 100) + '%';
       $('todoList').innerHTML = list.map((x) => `<div class="item ${x.done ? 'done' : ''}" data-href="${x.href || ''}" data-act="${x.act || ''}"><span class="ck">✓</span><span class="t">${T('t' + x.k)}<small>${T('d' + x.k)}</small></span><span class="go">›</span></div>`).join('');
     }
     $('todoList').addEventListener('click', (e) => {
@@ -245,7 +252,22 @@
       row.querySelectorAll('.mini[data-slug]').forEach((a) => a.addEventListener('click', (e) => { e.preventDefault(); main = pods.find((p) => p.slug === a.dataset.slug); try { localStorage.setItem('toomcard_primary_personal_slug', main.slug); } catch (er) {} renderMine(); loadViews(); }));
     }
 
+    async function loadStar() {
+      const st = cardOf(main).star, on = !!(st && st.on);
+      $('starStat').hidden = !on; $('starNote').hidden = true;
+      if (!on) return;
+      if (demo) { $('sLikes').textContent = '12'; $('sClicks').textContent = '9'; $('starNote').textContent = T('approved'); $('starNote').hidden = false; return; }
+      if (typeof getMyStarStats !== 'function') return;
+      const s = await getMyStarStats(main.slug); if (!s) return;
+      $('sLikes').textContent = String(s.likes || 0); $('sClicks').textContent = String(s.clicks || 0);
+      const r = s.review || {};
+      if (r.status === 'pending') $('starNote').textContent = T('pending');
+      else if (r.status === 'rejected') $('starNote').textContent = T('rejected') + (r.reason || '');
+      else if (r.status === 'approved') $('starNote').textContent = T('approved');
+      $('starNote').hidden = !r.status;
+    }
     async function loadViews() {
+      loadStar();
       if (demo) { $('sWeek').textContent = '37'; $('sAll').textContent = '128'; return; }
       $('sWeek').textContent = '–'; $('sAll').textContent = '–';
       try {
@@ -262,6 +284,7 @@
         let card = {};
         try { card = await (await fetch('/cards/toomcard.json')).json(); } catch (e) {}
         card.name = card.name || 'Alex Rivera';
+        card.star = { on: true, tag: 'biz' };
         pods = [{ slug: 'toomcard', components_json: { card } }, { slug: 'demo2', components_json: { card: { name: 'Mina', front: { bg: { type: 'color', color: '#3b1a6e' } } } } }];
         main = pods[0]; applyText(); show('vMine'); renderMine(); loadViews(); return;
       }

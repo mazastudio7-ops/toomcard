@@ -761,6 +761,48 @@ function setupTilt() {
   }, 900);
 }
 
+
+// ── 스타: ♥ 좋아요 · 신고 · 링크 클릭 기록 ──────────────────────────
+let _starSlug = '';
+function starSource() { try { return new URLSearchParams(location.search).get('from') === 'star' ? 'star' : 'card'; } catch (e) { return 'card'; } }
+async function starInit(slug) {
+  _starSlug = slug || '';
+  const btn = document.getElementById('likeBtn'), cnt = document.getElementById('likeCount');
+  if (!btn || !_starSlug || typeof starLikeCount !== 'function') return;
+  try {
+    const [n, liked] = await Promise.all([starLikeCount(_starSlug), starLiked(_starSlug)]);
+    cnt.textContent = String(n || 0);
+    btn.classList.toggle('on', !!liked);
+    btn.title = liked ? t('star.liked') : t('star.like');
+  } catch (e) {}
+}
+window.starLikeClick = async function () {
+  const btn = document.getElementById('likeBtn'), cnt = document.getElementById('likeCount');
+  if (!btn || !_starSlug || btn.classList.contains('on')) return;
+  btn.classList.add('on', 'pop'); cnt.textContent = String((Number(cnt.textContent) || 0) + 1);
+  setTimeout(() => btn.classList.remove('pop'), 300);
+  if (typeof starLike === 'function') { const ok = await starLike(_starSlug); if (!ok) { btn.classList.remove('on'); cnt.textContent = String(Math.max(0, Number(cnt.textContent) - 1)); } }
+  if (typeof gtag === 'function') gtag('event', 'star_like', { slug: _starSlug });
+};
+window.starReportClick = async function () {
+  if (!_starSlug) return;
+  const a = prompt(t('star.report_q'), '');
+  const reason = { '1': 'photo', '2': 'impersonation', '3': 'spam' }[(a || '').trim()];
+  if (!reason) return;
+  if (typeof reportStarCard === 'function') await reportStarCard(_starSlug, reason);
+  if (typeof showToast === 'function') showToast(t('star.report_done')); else alert(t('star.report_done'));
+};
+// 카드 안의 링크(웹·SNS·추가 링크)를 누르면 어떤 링크였는지 기록한다 (대시보드의 "링크 클릭")
+document.addEventListener('click', (e) => {
+  const a = e.target.closest('a.btn-action[href], a.action-bar-btn[href]');
+  if (!a || !_starSlug || typeof recordLinkClick !== 'function') return;
+  const href = a.getAttribute('href') || '';
+  if (!href || href === '#' || href.startsWith('tel:') || href.startsWith('sms:')) return;
+  let kind = 'web';
+  try { const h = new URL(href, location.href).hostname.replace(/^www\./, ''); kind = h.split('.')[0].slice(0, 32) || 'web'; } catch (err) {}
+  recordLinkClick(_starSlug, kind, starSource());
+}, true);
+
 // URL 쿼리 파라미터(view=back / side=back / flipped=true)에 따른 초기 카드 회전 상태 적용
 function applyInitialFlipState() {
   try {
@@ -1555,6 +1597,7 @@ async function initCardEngine() {
             } catch (err) {}
           }
           await populateCardFromCloud(cloud, company);
+          starInit(cloud.pod ? cloud.pod.slug : (decodedSlug || slug));
           setupSwipe();
           setupTilt();
           applyInitialFlipState();

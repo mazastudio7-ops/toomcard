@@ -104,6 +104,18 @@
     .go { position: absolute; right: 12px; top: 12px; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font-style: normal; font-weight: 800; background: rgba(0,0,0,0.45); border: 1px solid rgba(255,255,255,0.25); transition: transform .3s, background .3s; }
     .tile:hover .go { transform: translateX(3px); background: #ffd978; color: #000; }
 
+    .tabs { display: flex; justify-content: center; gap: 6px; margin: 28px auto 0; padding: 4px; width: max-content; border-radius: 99px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); }
+    .tab { appearance: none; border: 0; background: transparent; color: rgba(255,255,255,.6); font: 800 14px 'Noto Sans KR', sans-serif; padding: 9px 22px; border-radius: 99px; cursor: pointer; }
+    .tab.on { background: #ffd978; color: #000; }
+    .empty { text-align: center; color: rgba(255,255,255,.55); padding: 30px 10px; font-size: 15px; }
+    .stile { position: relative; display: block; width: 100%; aspect-ratio: 330 / 529; margin-bottom: 12px; border-radius: 22px; overflow: hidden; background: #14111c; background-size: cover; background-position: center; break-inside: avoid; border: 1px solid rgba(255,255,255,.12); box-shadow: 0 14px 34px rgba(0,0,0,.5); }
+    .stile .who { position: absolute; left: 14px; right: 14px; bottom: 50px; text-shadow: 0 2px 12px rgba(0,0,0,.7); }
+    .stile .who b { display: block; font-size: 17px; font-weight: 900; } .stile .who span { font-size: 12px; opacity: .85; }
+    .stile .lk { position: absolute; left: 12px; bottom: 12px; appearance: none; border: 1px solid rgba(255,217,120,.5); background: rgba(0,0,0,.55); color: #ffd978; font: 800 12.5px 'Noto Sans KR', sans-serif; padding: 6px 11px; border-radius: 99px; cursor: pointer; backdrop-filter: blur(6px); }
+    .stile .lk.on { background: #ffd978; color: #000; }
+    .stile .tg { position: absolute; right: 12px; top: 12px; font-size: 11px; font-weight: 800; padding: 4px 9px; border-radius: 99px; background: rgba(0,0,0,.5); color: rgba(255,255,255,.85); }
+    .grid.wk { columns: 3; column-gap: 10px; }
+    @media (min-width: 760px) { .grid.wk { columns: 3; max-width: 640px; margin: 14px auto 0; } }
     .three { max-width: 1080px; margin: 0 auto; padding: 50px 16px 30px; display: grid; gap: 14px; }
     @media (min-width: 760px) { .three { grid-template-columns: repeat(3, 1fr); } }
     .three div { padding: 24px 22px; border-radius: 20px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.09); }
@@ -140,6 +152,33 @@
     <a class="stage" href="/maker" aria-label="make"><img src="/assets/toomcard_front_plate.jpg" alt="TOOMCARD" width="330" height="529"></a>
   </section>
 
+  <div class="tabs" id="homeTabs">
+    <button class="tab on" data-t="gallery" type="button" data-i18n="star.tab_gallery">갤러리</button>
+    <button class="tab" data-t="stars" type="button" data-i18n="star.tab_stars">스타</button>
+  </div>
+  <section class="section" id="weekly" hidden>
+    <h2 data-i18n="star.weekly">이번 주 스타</h2>
+    <div class="grid wk" id="weeklyGrid"></div>
+  </section>
+  <section class="section" id="stars" hidden>
+    <h2 data-i18n="star.title">이번 주 스타들</h2>
+    <p class="sub" data-i18n="star.sub">좋아요로 응원하고, 마음에 들면 나도 만들어 보세요.</p>
+    <div class="chips" id="starSort">
+      <button class="chip" data-s="hot" aria-pressed="true" data-i18n="star.hot">인기</button>
+      <button class="chip" data-s="new" aria-pressed="false" data-i18n="star.new">새로운</button>
+    </div>
+    <div class="chips" id="starTags">
+      <button class="chip" data-tag="" aria-pressed="true" data-i18n="home.cat_all">전체</button>
+      <button class="chip" data-tag="student" aria-pressed="false" data-i18n="maker.tag_student">학생</button>
+      <button class="chip" data-tag="creator" aria-pressed="false" data-i18n="maker.tag_creator">크리에이터</button>
+      <button class="chip" data-tag="biz" aria-pressed="false" data-i18n="maker.tag_biz">사업</button>
+      <button class="chip" data-tag="music" aria-pressed="false" data-i18n="maker.tag_music">음악</button>
+      <button class="chip" data-tag="design" aria-pressed="false" data-i18n="maker.tag_design">디자인</button>
+      <button class="chip" data-tag="etc" aria-pressed="false" data-i18n="maker.tag_etc">기타</button>
+    </div>
+    <div class="grid" id="starGrid"></div>
+    <p class="empty" id="starEmpty" hidden data-i18n="star.empty">아직 올라온 카드가 없어요. 첫 스타가 되어 보세요!</p>
+  </section>
   <section class="section" id="gallery">
     <h2 data-i18n="gallery.title">마음에 드는 카드를 고르세요</h2>
     <p class="sub" data-i18n="gallery.sub">누르면 그 디자인으로 바로 시작해요. 내 사진과 이름만 넣으면 끝.</p>
@@ -206,6 +245,7 @@
       });
     })();
   </script>
+  <script src="/js/home-stars.js" defer></script>
   <script src="/js/site-menu.js"></script>
 </body>
 </html>
