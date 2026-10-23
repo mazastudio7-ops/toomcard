@@ -55,6 +55,7 @@
     try { localStorage.setItem('tc_liked_' + b.dataset.like, '1'); } catch (err) {}
     try { await loadSb(); starLike(b.dataset.like); } catch (err) {}
   }, true);
-  if (location.hash === '#stars') setTab('stars');
+  function openFromHash() { if (location.hash === '#stars') { setTab('stars'); setTimeout(function () { var el = $('homeTabs'); if (el && el.scrollIntoView) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 250); } }
+  openFromHash(); window.addEventListener('hashchange', openFromHash);
   setTimeout(loadWeekly, 1200);
 })();

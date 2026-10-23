@@ -485,13 +485,14 @@ async function assignStaffEmailToPod(slug, staffEmail) {
 async function deleteMyPod(slug) {
   const user = await getCurrentUser();
   if (!user) return false;
-  const { error } = await supabaseClient
+  const { data, error } = await supabaseClient
     .from('pods')
     .delete()
     .eq('user_id', user.id)
-    .eq('slug', slug);
+    .eq('slug', slug)
+    .select('slug');
   if (error) console.error("Error deleting pod:", error);
-  return !error;
+  return !error && Array.isArray(data) && data.length > 0;   // 실제로 지워진 줄이 있어야 성공
 }
 
 // 12. PRO 업그레이드 상태 저장
