@@ -319,6 +319,8 @@ function sanitizeForPublicStar(d) {
   out.socials = (d.socials || []).filter((s) => s && !CONTACT_SOCIAL_TYPES.includes(s.type) && !isContactUrl(s.url));
   out.links = (d.links || []).filter((l) => l && !isContactUrl(l.url));
   if (out.primaryAction && isContactUrl(out.primaryAction.url)) out.primaryAction = null;
+  // 이젠스타 목록 타일은 사진이 카드 전체를 채운다. 열었을 때도 같은 모습으로 보여 준다 (테두리·원형 틀 없이)
+  if (out.front && out.front.bg && out.front.bg.type === 'image') out.front = Object.assign({}, out.front, { frame: 'full' });
   return out;
 }
 // 명함 링크(?k=…)로 들어오면 비공개 항목(전화·이메일·카톡 등)을 합쳐서 보여준다

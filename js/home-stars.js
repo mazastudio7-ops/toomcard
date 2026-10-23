@@ -23,7 +23,7 @@
     return `<a class="stile" href="/${String(row.slug).split('/').map(encodeURIComponent).join('/')}?from=star" style="${st}" data-slug="${esc(row.slug)}">
       ${c.tag && TAG[c.tag] ? `<span class="tg">${esc(T(TAG[c.tag]))}</span>` : ''}
       <span class="who"><b>${esc(c.name || '')}</b><span>${esc(c.role || '')}</span></span>
-      <button type="button" class="lk ${liked(row.slug) ? 'on' : ''}" data-like="${esc(row.slug)}">♥ ${Number(row.likes) || 0}</button></a>`;
+      <button type="button" class="lk ${liked(row.slug) ? 'on' : ''}" data-like="${esc(row.slug)}">♥ ${Number(row.likes != null ? row.likes : row.likes_week) || 0}</button></a>`;
   }
   async function loadFeed() {
     $('starGrid').innerHTML = ''; $('starEmpty').hidden = true;
