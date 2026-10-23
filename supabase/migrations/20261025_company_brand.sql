@@ -63,7 +63,7 @@ begin
     'socials', '[]'::jsonb, 'links', '[]'::jsonb, 'moatTags', '[]'::jsonb,
     'privacy', jsonb_build_object('phone', false, 'email', false), 'star', jsonb_build_object('on', false, 'tag', ''));
   if c.plate_url is not null then v_card := v_card || jsonb_build_object('plateCardImage', c.plate_url); end if;
-  if c.logo_url is not null then v_card := v_card || jsonb_build_object('logo', jsonb_build_object('src', c.logo_url, 'alt', c.name || ' Logo'), 'avatar', c.logo_url); end if;
+  if c.logo_url is not null then v_card := v_card || jsonb_build_object('logo', jsonb_build_object('src', c.logo_url, 'alt', c.name || ' Logo'), 'avatar', c.logo_url, 'logoShape', 'square'); end if;
   perform set_config('tc.bypass_slug_rule', 'on', true);
   insert into public.pods (user_id, slug, components_json) values (v_uid, v_pod, v_card || jsonb_build_object('card', v_card));
   perform set_config('tc.bypass_slug_rule', 'off', true);

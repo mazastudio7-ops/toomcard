@@ -103,7 +103,8 @@ function getSocialIconSvg(type) {
     </svg>`;
   }
   const icons = { youtube: ['youtube', '#ff4d4d'], linkedin: ['linkedin', '#60a5fa'], x: ['twitter', '#e5e7eb'], threads: ['at-sign', '#e5e7eb'],
-                  tiktok: ['music-2', '#f0abfc'], discord: ['message-circle', '#a5b4fc'], whatsapp: ['message-circle', '#4ade80'] };
+                  tiktok: ['music-2', '#f0abfc'], discord: ['message-circle', '#a5b4fc'], whatsapp: ['message-circle', '#4ade80'],
+                  facebook: ['facebook', '#60a5fa'], blog: ['book-open', '#4ade80'], github: ['github', '#e5e7eb'], telegram: ['send', '#38bdf8'] };
   const [name, color] = icons[type] || ['globe', '#38bdf8'];
   return `<i data-lucide="${name}" style="width:14px;height:14px;color:${color};"></i>`;
 }
@@ -117,7 +118,7 @@ function collectLinks(data) {
   const site = (data.primaryAction && data.primaryAction.url && data.primaryAction.url !== '#')
     ? { kind: 'web', url: data.primaryAction.url, label: data.primaryAction.label || t('common.website'), icon: data.primaryAction.icon || 'globe' }
     : (data.primaryAction && data.primaryAction.url === '#' ? { kind: 'web', url: '#', label: data.primaryAction.label || t('common.website'), icon: 'globe' } : null);
-  const socials = (data.socials || []).slice(0, 2).filter((s) => s.type === 'social_modal' || s.url)
+  const socials = (data.socials || []).slice(0, 8).filter((s) => s.type === 'social_modal' || s.url)
     .map((s) => ({ kind: 'social', type: s.type, url: s.url, label: s.label, icon: s.icon }));
   const extras = (data.links || []).slice(0, 4).filter((l) => l && l.url)
     .map((l) => ({ kind: 'link', url: l.url, label: l.label || l.url.replace(/^https?:\/\//, '').slice(0, 24), icon: 'link' }));
@@ -170,6 +171,9 @@ function renderActionDocks(data) {
     // 기본·큰 로고: 카드에는 2개, 나머지는 더보기 시트
     html = items.length ? `<div class="inside-action-row">${items.slice(0, 2).map(linkButtonHtml).join('')}</div>` : '';
     rest = items.slice(2);
+    // 3번째부터의 SNS는 카드에 아이콘 줄로 보여 주고, 전체 목록은 더보기에도 둔다
+    const icons = rest.filter((it) => it.kind === 'social' && it.type !== 'social_modal' && it.url).slice(0, 6);
+    if (icons.length) html += `<div class="inside-social-icons">${icons.map((it) => `<a class="sico" href="${it.url}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" title="${it.label || it.type}" aria-label="${it.label || it.type}">${getSocialIconSvg(it.type)}</a>`).join('')}</div>`;
   }
   if (dockFront) dockFront.innerHTML = html;
   if (dockBack) dockBack.innerHTML = html;
@@ -292,7 +296,7 @@ function renderSocialModal(data) {
 
 /* ── 이젠스타 공개 보기: SNS·링크만 보여 준다 (연락처·전화·이메일·카톡·왓츠앱은 숨김) ──
    명함 링크(?k=…)로 직접 받은 사람에게는 전부 보인다. 나만 보는 비공개 항목은 서버에서 키가 맞을 때만 내려온다. */
-const CONTACT_SOCIAL_TYPES = ['kakao', 'whatsapp'];
+const CONTACT_SOCIAL_TYPES = ['kakao', 'whatsapp', 'telegram'];
 function isContactUrl(u) {
   return /^(tel:|mailto:|sms:)/i.test(String(u || '')) || /kakao|wa\.me|whatsapp|line\.me|t\.me|telegram/i.test(String(u || ''));
 }
@@ -395,7 +399,10 @@ function populateCard(data) {
 
   // 사진(Photo/Avatar) 우선 바인딩
   const photoSrc = data.photo || data.avatar;
-  const isCustomPhoto = !!photoSrc || (data.logo && (data.logo.isPhoto || (typeof data.logo.src === 'string' && (data.logo.src.includes('sample_profile') || data.logo.src.startsWith('data:image')))));
+  const isCustomPhotoAuto = !!photoSrc || (data.logo && (data.logo.isPhoto || (typeof data.logo.src === 'string' && (data.logo.src.includes('sample_profile') || data.logo.src.startsWith('data:image')))));
+
+  // 로고 모양을 카드가 정하면(logoShape: 'square' | 'circle') 그대로 따른다. 없으면 사진이면 원, 로고면 사각
+  const isCustomPhoto = data.logoShape === 'square' ? false : (data.logoShape === 'circle' ? true : isCustomPhotoAuto);
 
   if (isCustomPhoto) {
     if (fLogoBox) fLogoBox.classList.add('has-photo');

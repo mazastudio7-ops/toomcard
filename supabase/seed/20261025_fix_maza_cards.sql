@@ -5,9 +5,9 @@ set components_json =
   (p.components_json || jsonb_build_object(
       'layout', 'plate', 'plateCardImage', '/assets/maza_front_plate.jpg', 'theme', 'maza',
       'logo', jsonb_build_object('src', '/assets/logo_maza_mark.webp', 'fallback', '/assets/logo_maza.gif', 'alt', 'MAZA STUDIO Logo'),
-      'avatar', '/assets/logo_maza_mark.webp'))
+      'avatar', '/assets/logo_maza_mark.webp', 'logoShape', 'square'))
   || jsonb_build_object('card', coalesce(p.components_json -> 'card', '{}'::jsonb) || jsonb_build_object(
       'layout', 'plate', 'plateCardImage', '/assets/maza_front_plate.jpg', 'theme', 'maza',
       'logo', jsonb_build_object('src', '/assets/logo_maza_mark.webp', 'fallback', '/assets/logo_maza.gif', 'alt', 'MAZA STUDIO Logo'),
-      'avatar', '/assets/logo_maza_mark.webp'))
+      'avatar', '/assets/logo_maza_mark.webp', 'logoShape', 'square'))
 where p.slug like 'maza-studio/%';

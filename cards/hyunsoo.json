@@ -67,5 +67,6 @@
     "ogImage": "https://toomcard.com/assets/toomcard_card_hybrid.jpg"
   },
   "avatar": "/assets/logo_maza_mark.webp",
-  "plateCardImage": "/assets/maza_front_plate.jpg"
+  "plateCardImage": "/assets/maza_front_plate.jpg",
+  "logoShape": "square"
 }

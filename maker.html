@@ -257,6 +257,7 @@
     .tint.none { background: transparent; color: var(--tc-text-subtle); font: 700 14px var(--tc-font-body); }
     .tint.custom { position: relative; overflow: hidden; background: conic-gradient(#ff4d4d, #ffd24d, #4dff88, #4dd2ff, #7a4dff, #ff4dd2, #ff4d4d); }
     .tint.custom input { position: absolute; inset: -8px; width: 50px; height: 50px; opacity: 0; cursor: pointer; }
+    .sns-row { display: grid; grid-template-columns: 110px 1fr 34px; gap: 8px; margin-top: 8px; }
     .extra-row { display: grid; grid-template-columns: 92px 1fr 34px; gap: 8px; margin-bottom: 8px; }
     .x-del { background: none; border: 1px solid var(--tc-border); border-radius: 8px; color: var(--tc-text-subtle); font-size: 16px; cursor: pointer; }
     #addLinkBtn[hidden] { display: none; }
@@ -457,6 +458,8 @@
             </select>
             <input class="input" id="fSocial2Url" type="url" placeholder="https://">
           </div>
+          <div id="extraSns"></div>
+          <button type="button" class="btn-secondary" id="addSnsBtn" onclick="addSocialRow()" style="margin-top:8px"><i data-lucide="plus"></i><span data-i18n="maker.add_sns">SNS 더 추가</span></button>
         </div>
         <div class="field">
           <label data-i18n="maker.more_links">추가 링크</label>
@@ -601,6 +604,7 @@
         <div class="hr"></div>
         <div class="toggle"><span data-i18n="maker.show_logo">앞면에도 로고 표시</span><button class="switch" id="logoSwitch" role="switch" aria-checked="false"></button></div>
         <div class="field"><label data-i18n="maker.logo_upload">로고 / 프로필 사진 (선택)</label><input type="file" id="logoFile" accept="image/*" class="input" style="padding-top:8px;"></div>
+        <div class="field"><label data-i18n="maker.logo_shape">로고 모양</label><div class="chips" id="logoShapeChips"><button class="chip" type="button" data-shape="" aria-pressed="true" data-i18n="maker.logo_shape_auto">자동</button><button class="chip" type="button" data-shape="square" aria-pressed="false" data-i18n="maker.logo_shape_square">사각</button><button class="chip" type="button" data-shape="circle" aria-pressed="false" data-i18n="maker.logo_shape_circle">원</button></div></div>
         <div class="hr"></div>
         <button type="button" class="btn-secondary" onclick="openOrderModal()"><i data-lucide="sparkles"></i><span data-i18n="maker.order_btn">내 로고 3D로 제작 신청</span></button>
         <p class="photo-off" data-i18n="maker.order_note">전문 디자이너가 움직이는 3D 로고(GIF·영상)를 만들어 드려요. 견적은 신청 후 안내해요.</p>
@@ -894,6 +898,26 @@
 
     /* ── 추가 링크 (최대 3개) ───────────────────────── */
     const MAX_EXTRA = 3;
+
+    /* SNS 채널: 처음 2개는 고정 칸, 그 뒤로 목록으로 더 추가한다 (카드에는 2개는 버튼, 나머지는 아이콘 줄) */
+    const SOCIAL_TYPES = [['instagram', 'Instagram'], ['threads', 'Threads'], ['tiktok', 'TikTok'], ['youtube', 'YouTube'], ['x', 'X'], ['facebook', 'Facebook'], ['linkedin', 'LinkedIn'], ['blog', 'Blog'], ['github', 'GitHub'], ['discord', 'Discord'], ['kakao', 'KakaoTalk'], ['whatsapp', 'WhatsApp'], ['telegram', 'Telegram']];
+    const MAX_SNS_EXTRA = 6;
+    ['fSocialType', 'fSocial2Type'].forEach((id) => { const sel = $(id); SOCIAL_TYPES.forEach(([v, l]) => { if (![...sel.options].some((o) => o.value === v)) sel.add(new Option(l, v)); }); });
+    function addSocialRow(type, url) {
+      const box = $('extraSns'); if (box.children.length >= MAX_SNS_EXTRA) return;
+      const row = document.createElement('div'); row.className = 'sns-row';
+      const sel = document.createElement('select'); sel.className = 'select';
+      SOCIAL_TYPES.forEach(([v, l]) => sel.add(new Option(l, v))); sel.value = type || 'threads';
+      const u = document.createElement('input'); u.className = 'input'; u.type = 'url'; u.placeholder = 'https://'; u.value = url || '';
+      const x = document.createElement('button'); x.type = 'button'; x.className = 'x-del'; x.textContent = '×'; x.setAttribute('aria-label', 'remove');
+      [sel, u].forEach((el) => el.addEventListener('input', () => render(false, 260)));
+      sel.addEventListener('change', () => render(false, 260));
+      x.addEventListener('click', () => { row.remove(); syncAddSnsBtn(); render(); });
+      row.append(sel, u, x); box.appendChild(row); syncAddSnsBtn();
+    }
+    function syncAddSnsBtn() { $('addSnsBtn').hidden = $('extraSns').children.length >= MAX_SNS_EXTRA; }
+    function setExtraSns(list) { $('extraSns').innerHTML = ''; (list || []).slice(0, MAX_SNS_EXTRA).forEach((s) => addSocialRow(s.type, s.url)); syncAddSnsBtn(); }
+
     function addExtraLink(label, url) {
       const box = $('extraLinks'); if (box.children.length >= MAX_EXTRA) return;
       const row = document.createElement('div'); row.className = 'extra-row';
@@ -1050,7 +1074,8 @@
       card.primaryAction = web ? { url: web, label: t('common.website'), icon: 'globe' } : null;
       card.socials = [['fSocialType', 'fSocialUrl'], ['fSocial2Type', 'fSocial2Url']]
         .map(([ty, u]) => ({ type: $(ty).value, url: $(u).value.trim(), label: $(ty).selectedOptions[0].text }))
-        .filter((s) => s.url);
+        .concat([...document.querySelectorAll('#extraSns .sns-row')].map((r) => ({ type: r.querySelector('select').value, url: r.querySelector('input').value.trim(), label: r.querySelector('select').selectedOptions[0].text })))
+        .filter((s) => s.url).slice(0, 8);
       card.links = [...document.querySelectorAll('#extraLinks .extra-row')]
         .map((r) => ({ label: r.querySelector('.x-label').value.trim(), url: r.querySelector('.x-url').value.trim() }))
         .filter((l) => l.url).slice(0, MAX_EXTRA);
@@ -1401,6 +1426,11 @@
       textTouched = true;
       card.front.text.layout = b.dataset.layout; pressOnly($('textChips'), 'layout', b.dataset.layout); render();
     });
+
+    /* 로고 모양: 자동 / 사각 / 원 (프로필 사진은 원, 회사 로고는 사각이 어울린다) */
+    function syncLogoShapeUI() { document.querySelectorAll('#logoShapeChips .chip').forEach((c) => c.setAttribute('aria-pressed', String(c.dataset.shape === (card.logoShape || '')))); }
+    $('logoShapeChips').addEventListener('click', (e) => { const b = e.target.closest('.chip'); if (!b) return; card.logoShape = b.dataset.shape; syncLogoShapeUI(); render(); });
+
     function setLogo(on) { card.front.text.showLogo = !!on; $('logoSwitch').setAttribute('aria-checked', on ? 'true' : 'false'); }
     $('logoSwitch').addEventListener('click', () => { setLogo(!card.front.text.showLogo); render(); });
     $('finishChips').addEventListener('click', (e) => {
@@ -1845,7 +1875,7 @@
       const priv = {};
       if (c.phone) { priv.phone = c.phone; pub.phone = ''; if (pub.vcard) pub.vcard.tel = ''; }
       if (c.email) { priv.email = c.email; pub.email = ''; if (pub.vcard) pub.vcard.email = ''; }
-      const isContact = (s) => s && (s.type === 'kakao' || s.type === 'whatsapp');
+      const isContact = (s) => s && (s.type === 'kakao' || s.type === 'whatsapp' || s.type === 'telegram');
       const cs = (pub.socials || []).filter(isContact);
       if (cs.length) { priv.contactSocials = cs; pub.socials = (pub.socials || []).filter((s) => !isContact(s)); }
       return { pub, priv: Object.keys(priv).length ? priv : null };
@@ -2016,7 +2046,7 @@
       const HL = { fCompany: '#backCompany', fSlogan: '#backSlogan', fRole: '.profile-row', fName: '.profile-row', fPhone: '#contactLine', fEmail: '#contactLine', fTags: '#backMoatTags', fWebsite: '#insideActionDockBack', fSocialType: '#insideActionDockBack', fSocialUrl: '#insideActionDockBack', fSocial2Type: '#insideActionDockBack', fSocial2Url: '#insideActionDockBack' };
       const send = (sel) => { const f = $('preview'); if (f && f.contentWindow) f.contentWindow.postMessage({ action: 'hl', sel }, '*'); };
       const sec = $('secInfo'); if (!sec) return;
-      sec.addEventListener('focusin', (e) => { const el = e.target; const sel = HL[el.id] || (el.closest && el.closest('#extraLinks') ? '#insideActionDockBack' : ''); if (!sel) return; flip('show_back'); send(sel); });
+      sec.addEventListener('focusin', (e) => { const el = e.target; const sel = HL[el.id] || (el.closest && (el.closest('#extraLinks') || el.closest('#extraSns')) ? '#insideActionDockBack' : ''); if (!sel) return; flip('show_back'); send(sel); });
       sec.addEventListener('focusout', () => send(''));
     })();
     /* ── 편집 모드 (?edit=slug) ─────────────────────── */
@@ -2037,8 +2067,9 @@
       const ss = (c.socials || []).filter((s) => s.url);
       if (ss[0]) { $('fSocialType').value = ss[0].type; $('fSocialUrl').value = ss[0].url; }
       if (ss[1]) { $('fSocial2Type').value = ss[1].type; $('fSocial2Url').value = ss[1].url; }
+      setExtraSns(ss.slice(2));
       setKind(c.kind || (fromCloud ? 'business' : 'personal'));   // 예전 카드는 모두 비즈니스
-      $('fTags').value = (c.moatTags || []).join(', '); setSlugInputs(slug); checkSlug();
+      $('fTags').value = (c.moatTags || []).join(', '); setSlugInputs(slug); checkSlug(); syncLogoShapeUI();
       // 예전 그라데이션 카드는 단색(부드러운 그라데이션)으로 읽는다
       if (card.front.bg.type === 'gradient') card.front.bg = { type: 'color', color: card.front.bg.from || DEFAULT_SOLID, shade: 0, soft: true };
       const knownPlate = CURATED_BG.find((b) => b.type === 'image' && b.src === card.front.bg.src);
@@ -2050,7 +2081,7 @@
       $('emText').value = (c.emblem && c.emblem.text) || ''; syncEmblemUI();
       card.star = Object.assign({ on: false, tag: '' }, c.star || {}); card.privacy = Object.assign({ phone: false, email: false }, c.privacy || {}); syncStarUI();
       if (fromCloud && card.star.on && typeof getMyPrivateCard === 'function') {
-        getMyPrivateCard(slug).then((pv) => { if (!pv) return; if (pv.phone && !$('fPhone').value) $('fPhone').value = pv.phone; if (pv.email && !$('fEmail').value) $('fEmail').value = pv.email; (pv.contactSocials || []).forEach((s) => { if (!$('fSocialUrl').value) { $('fSocialType').value = s.type; $('fSocialUrl').value = s.url; } else if (!$('fSocial2Url').value) { $('fSocial2Type').value = s.type; $('fSocial2Url').value = s.url; } }); render(); });
+        getMyPrivateCard(slug).then((pv) => { if (!pv) return; if (pv.phone && !$('fPhone').value) $('fPhone').value = pv.phone; if (pv.email && !$('fEmail').value) $('fEmail').value = pv.email; (pv.contactSocials || []).forEach((s) => { if (!$('fSocialUrl').value) { $('fSocialType').value = s.type; $('fSocialUrl').value = s.url; } else if (!$('fSocial2Url').value) { $('fSocial2Type').value = s.type; $('fSocial2Url').value = s.url; } else addSocialRow(s.type, s.url); }); render(); });
       }
       pressOnly($('textChips'), 'layout', card.front.text.layout); setLogo(card.front.text.showLogo);
       pressOnly($('finishChips'), 'finish', card.front.finish); $('qrSwitch').setAttribute('aria-checked', card.front.qr === 'subtle' ? 'true' : 'false');
