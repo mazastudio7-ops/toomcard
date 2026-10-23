@@ -476,7 +476,7 @@ function populateCard(data) {
     }
     plateImg.onerror = function() {
       this.onerror = null;
-      this.src = './assets/toomcard_front_plate.jpg';
+      this.src = '/assets/toomcard_front_plate.jpg';
     };
     // 같은 사진이면 다시 받지 않는다 (매번 새로 받으면 카드가 깜빡였다)
     const next = (rawPath.startsWith('data:') || rawPath.startsWith('blob:')) ? rawPath : resolveAssetUrl(rawPath);
