@@ -18,9 +18,9 @@
     '.sm-drawer a.sm-small{font-size:13px;font-weight:500;color:rgba(255,255,255,.5);padding:10px 12px}' +
     '}';
   var LABEL = {
-    ko: { home: '홈 · 갤러리', stars: '이젠스타', make: '내 카드 만들기', cards: '내 카드 관리', more: 'NFC 실물 · 기업 · 요금', terms: '이용약관', privacy: '개인정보처리방침' },
-    en: { home: 'Home · Gallery', stars: 'e zen star', make: 'Make my card', cards: 'My cards', more: 'NFC · Business · Pricing', terms: 'Terms', privacy: 'Privacy' },
-    de: { home: 'Start · Galerie', stars: 'e zen star', make: 'Meine Karte erstellen', cards: 'Meine Karten', more: 'NFC · Business · Preise', terms: 'Nutzungsbedingungen', privacy: 'Datenschutz' }
+    ko: { home: '홈 · 갤러리', stars: '이젠스타', make: '내 카드 만들기', cards: '내 카드 관리', more: 'NFC 실물 (준비 중)', terms: '이용약관', privacy: '개인정보처리방침' },
+    en: { home: 'Home · Gallery', stars: 'e zen star', make: 'Make my card', cards: 'My cards', more: 'NFC cards (coming soon)', terms: 'Terms', privacy: 'Privacy' },
+    de: { home: 'Start · Galerie', stars: 'e zen star', make: 'Meine Karte erstellen', cards: 'Meine Karten', more: 'NFC-Karten (bald)', terms: 'Nutzungsbedingungen', privacy: 'Datenschutz' }
   };
   function init() {
     var host = null;
@@ -40,7 +40,7 @@
         '<a href="/">' + L.home + '</a>' +
         '<a href="/#stars">' + L.stars + '</a>' +
         '<a href="/dashboard">' + L.cards + '</a>' +
-        '<a href="/index-legacy#nfc">' + L.more + '</a>' +
+        '<a href="/maker?nfc=1">' + L.more + '</a>' +
         '<a class="sm-small" href="/terms">' + L.terms + '</a>' +
         '<a class="sm-small" href="/privacy">' + L.privacy + '</a>';
     }

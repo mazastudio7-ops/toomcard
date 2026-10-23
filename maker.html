@@ -724,7 +724,7 @@
         <div class="section-title"><i data-lucide="smartphone"></i><span data-i18n="maker.sec_export">내보내기</span></div>
         <button class="btn-secondary" onclick="saveWallpaper()"><i data-lucide="download"></i><span data-i18n="maker.wallpaper">앞면을 폰 배경화면으로 저장</span></button>
         <button class="btn-secondary" onclick="savePoster()"><i data-lucide="qr-code"></i><span data-i18n="maker.poster">매장용 QR 포스터 저장</span></button>
-        <a class="btn-secondary" href="/#nfc"><i data-lucide="credit-card"></i><span data-i18n="maker.nfc_order">실물 NFC 카드 주문</span></a>
+        <button class="btn-secondary" onclick="openNfcWait()"><i data-lucide="credit-card"></i><span data-i18n="maker.nfc_order">실물 NFC 카드 (준비 중)</span></button>
         <button class="btn-secondary" onclick="exportJson()"><i data-lucide="file-code-2"></i><span data-i18n="maker.backup_json">JSON 백업</span></button>
       </section>
     </aside>
@@ -759,6 +759,24 @@
       <p class="order-note" data-i18n="maker.order_file_note">로고 파일은 접수 후 연락드리는 방법으로 보내 주세요.</p>
       <button type="submit" class="btn-primary" id="orSubmit"><span data-i18n="maker.order_submit">신청하기</span></button>
       <button type="button" class="btn-secondary" onclick="closeOrderModal()"><span data-i18n="common.close">닫기</span></button>
+    </form>
+  </div>
+  <div class="order-overlay" id="nfcWaitModal" hidden onclick="if (event.target === this) closeNfcWait()">
+    <form class="order-box" id="nfcWaitForm" onsubmit="submitNfcWait(event)">
+      <h3 data-i18n="maker.nfc_wait_title">실물 NFC 카드, 곧 열려요</h3>
+      <p class="order-sub" data-i18n="maker.nfc_wait_sub">지금은 테스트 중이에요. 관심 등록을 해 두시면 열릴 때 가장 먼저 알려 드려요. 구매 약속은 아니에요.</p>
+      <label data-i18n="maker.order_contact">연락처 (이메일·전화·카톡) *</label>
+      <input class="input" id="nwContact" required autocomplete="off">
+      <label data-i18n="maker.nfc_wait_qty">필요한 수량</label>
+      <select class="select" id="nwQty">
+        <option value="1-9" data-i18n="maker.nfc_q1">1~9장</option>
+        <option value="10-49" data-i18n="maker.nfc_q2">10~49장</option>
+        <option value="50+" data-i18n="maker.nfc_q3">50장 이상 (기업·단체)</option>
+      </select>
+      <label data-i18n="maker.order_memo">요청 내용 (분위기, 재질 등)</label>
+      <textarea class="input" id="nwMemo" rows="2"></textarea>
+      <button type="submit" class="btn-primary" id="nwSubmit"><span data-i18n="maker.nfc_wait_submit">관심 등록</span></button>
+      <button type="button" class="btn-secondary" onclick="closeNfcWait()"><span data-i18n="common.close">닫기</span></button>
     </form>
   </div>
 
@@ -972,6 +990,27 @@
       $('orderModal').hidden = false; setTimeout(() => $('orContact').focus(), 50);
     }
     function closeOrderModal() { $('orderModal').hidden = true; }
+
+    /* ── 실물 NFC 카드: 판매 전 관심 등록 ─────────────── */
+    function openNfcWait() { $('nfcWaitModal').hidden = false; setTimeout(() => $('nwContact').focus(), 50); }
+    function closeNfcWait() { $('nfcWaitModal').hidden = true; }
+    async function submitNfcWait(e) {
+      e.preventDefault();
+      const contact = $('nwContact').value.trim(); if (!contact) return;
+      const btn = $('nwSubmit'); btn.disabled = true;
+      const memo = ['[실물 NFC 카드 관심 등록]', `수량: ${$('nwQty').value}`, $('nwMemo').value.trim() && `요청: ${$('nwMemo').value.trim()}`, curSlug() && `카드: ${location.origin}/${curSlug()}`].filter(Boolean).join(' | ');
+      let ok = false;
+      try {
+        const res = await fetch('/api/leads', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({
+          pod_id: 'toomcard_nfc_waitlist', contact, email: contact.includes('@') ? contact : `${Date.now()}@toomcard.order`, phone: contact.includes('@') ? null : contact,
+          lead_type: 'nfc_waitlist', gift_title: '실물 NFC 카드 관심 등록', memo, source: 'toomcard.com/maker' }) });
+        ok = res.ok;
+      } catch (err) { ok = false; }
+      btn.disabled = false;
+      if (ok) { closeNfcWait(); $('nwMemo').value = ''; toast(t('maker.nfc_wait_done')); if (typeof gtag === 'function') gtag('event', 'nfc_waitlist', { event_category: 'conversion' }); }
+      else toast(t('maker.order_fail'));
+    }
+
     async function submitLogoOrder(e) {
       e.preventDefault();
       const contact = $('orContact').value.trim(); if (!contact) return;
@@ -2077,6 +2116,7 @@
       const edit = params.get('edit');
       const preset = params.get('preset') || params.get('template') || params.get('design');
       const startTab = params.get('tab');
+      if (params.get('nfc')) setTimeout(openNfcWait, 800);
       const sample = params.get('sample');
       const SAMPLES = { creator: { src: '/assets/sample_profile_creator.jpg', frame: 'arch' }, ceo: { src: '/assets/sample_profile_ceo.jpg', frame: 'polaroid', tone: 'light' }, tech: { src: '/assets/sample_profile_tech.jpg', frame: 'magazine' }, film: { src: '/assets/sample_profile_tech.jpg', frame: 'film' } };
       const goTab = (n) => { if (!n) return; if (isMobile()) { currentTab = ''; openTab(n); } else if (typeof setSide === 'function') setSide(['logo', 'finish', 'publish', 'info'].includes(n) ? 'back' : 'front'); };
