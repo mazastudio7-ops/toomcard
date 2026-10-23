@@ -399,6 +399,12 @@ async function getAnalyticsHistory(slug, days = 7) {
 }
 
 // 10. 내 명함 목록 불러오기 (대시보드용 - 본인 소유 명함 + 위임받은 직원 명함)
+// 예전 프로젝트에서 옮긴 카드를 같은 이메일의 새 로그인에 연결한다 (한 번만 실제로 바뀜)
+async function claimMyPods() {
+  if (!supabaseClient) return 0;
+  try { const { data } = await supabaseClient.rpc('tc_claim_pods'); return data || 0; } catch (e) { return 0; }
+}
+
 async function getMyPods() {
   const user = await getCurrentUser();
   if (!user) return null;

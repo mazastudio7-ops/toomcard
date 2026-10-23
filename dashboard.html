@@ -270,7 +270,7 @@
     async function load() {
       applyText();
       let list = [];
-      try { list = (await getMyPods()) || []; } catch (e) {}
+      try { await claimMyPods(); list = (await getMyPods()) || []; } catch (e) {}
       pods = list.filter((p) => !p._isAssignedStaff && p.components_json && p.components_json.card);
       if (!pods.length) { show('vNone'); return; }
       let slug = null; try { slug = localStorage.getItem('toomcard_primary_personal_slug'); } catch (e) {}
