@@ -1,0 +1,20 @@
+-- MAZA STUDIO 회사를 만들고 조윤서 대표 카드를 기업 대시보드(/team)로 옮긴다.
+-- Supabase SQL Editor 에서 한 번 실행한다. 여러 번 실행해도 안전하다.
+--  · 회사 관리자: ceo@mazastudio.kr (구글 로그인 계정이어야 한다)
+--  · 카드 주소: toomcard.com/maza-studio/조윤서  (예전 주소 toomcard.com/조윤서 도 그대로 열린다)
+--  · 그 이메일로 로그인하면 카드가 본인에게 자동 연결된다 (public.tc_claim_pods)
+
+insert into public.tc_companies (slug, name, brand_color) values ('maza-studio', 'MAZA STUDIO', '#7c3aed') on conflict (slug) do nothing;
+insert into public.tc_company_admins (company_slug, email) values ('maza-studio', 'ceo@mazastudio.kr') on conflict do nothing;
+
+insert into public.pods (user_id, slug, components_json)
+values ((select id from auth.users where lower(email) = 'ceo@mazastudio.kr' limit 1), 'maza-studio/조윤서', '{"slug": "maza-studio/조윤서", "company": "MAZA STUDIO", "companySlug": "maza-studio", "layout": "classic", "theme": "maza", "companyWatermark": "MAZA", "slogan": "플립마켓에서 달러자산 플랫폼으로", "tagline": "BUILD · SCALE · EXIT", "role": "대표", "name": "조윤서", "phone": "010-8970-9449", "phoneLabel": "M", "email": "ceo@mazastudio.kr", "emailLabel": "E", "moatTags": ["디지털 자산 구축", "글로벌 플립 매각", "수익형 플랫폼 빌드"], "logo": {"src": "/assets/sample_gif_1.gif", "fallback": "/assets/sample_gif_1.gif", "alt": "MAZA STUDIO Logo"}, "primaryAction": {"url": "https://about.mazastudio.kr", "label": "MAZA 바로가기", "icon": "sparkles"}, "socials": [{"type": "kakao", "url": "https://open.kakao.com/o/sySmTxKi", "label": "카카오 1:1", "color": "#ffd978"}], "vcard": {"lastName": "조", "firstName": "윤서", "formattedName": "조윤서 (MAZA STUDIO 대표)", "org": "MAZA STUDIO", "title": "대표", "tel": "010-8970-9449", "email": "ceo@mazastudio.kr", "url": "https://toomcard.com/maza-studio/조윤서", "note": "MAZA STUDIO | 플립마켓에서 달러자산 플랫폼으로"}, "meta": {"title": "MAZA STUDIO | 조윤서 대표 디지털 명함", "siteName": "MAZA STUDIO", "ogTitle": "조윤서 대표 | MAZA STUDIO", "ogDescription": "플립마켓에서 달러자산 플랫폼으로 | MAZA STUDIO 공식 3D 명함", "ogImage": "https://toomcard.com/assets/toomcard_card_hybrid.jpg"}, "avatar": "/assets/sample_gif_1.gif", "plateCardImage": "/assets/toomcard_front_plate.png", "id": "maza-studio/조윤서", "kind": "business", "privacy": {"phone": true, "email": true}, "star": {"on": false, "tag": ""}, "card": {"slug": "maza-studio/조윤서", "company": "MAZA STUDIO", "companySlug": "maza-studio", "layout": "classic", "theme": "maza", "companyWatermark": "MAZA", "slogan": "플립마켓에서 달러자산 플랫폼으로", "tagline": "BUILD · SCALE · EXIT", "role": "대표", "name": "조윤서", "phone": "010-8970-9449", "phoneLabel": "M", "email": "ceo@mazastudio.kr", "emailLabel": "E", "moatTags": ["디지털 자산 구축", "글로벌 플립 매각", "수익형 플랫폼 빌드"], "logo": {"src": "/assets/sample_gif_1.gif", "fallback": "/assets/sample_gif_1.gif", "alt": "MAZA STUDIO Logo"}, "primaryAction": {"url": "https://about.mazastudio.kr", "label": "MAZA 바로가기", "icon": "sparkles"}, "socials": [{"type": "kakao", "url": "https://open.kakao.com/o/sySmTxKi", "label": "카카오 1:1", "color": "#ffd978"}], "vcard": {"lastName": "조", "firstName": "윤서", "formattedName": "조윤서 (MAZA STUDIO 대표)", "org": "MAZA STUDIO", "title": "대표", "tel": "010-8970-9449", "email": "ceo@mazastudio.kr", "url": "https://toomcard.com/maza-studio/조윤서", "note": "MAZA STUDIO | 플립마켓에서 달러자산 플랫폼으로"}, "meta": {"title": "MAZA STUDIO | 조윤서 대표 디지털 명함", "siteName": "MAZA STUDIO", "ogTitle": "조윤서 대표 | MAZA STUDIO", "ogDescription": "플립마켓에서 달러자산 플랫폼으로 | MAZA STUDIO 공식 3D 명함", "ogImage": "https://toomcard.com/assets/toomcard_card_hybrid.jpg"}, "avatar": "/assets/sample_gif_1.gif", "plateCardImage": "/assets/toomcard_front_plate.png", "id": "maza-studio/조윤서", "kind": "business", "privacy": {"phone": true, "email": true}, "star": {"on": false, "tag": ""}}}'::jsonb)
+on conflict (slug) do nothing;
+
+insert into public.tc_pod_claims (slug, owner_email)
+select 'maza-studio/조윤서', 'ceo@mazastudio.kr'
+where exists (select 1 from public.pods p where p.slug = 'maza-studio/조윤서' and p.user_id is null)
+on conflict (slug) do update set owner_email = excluded.owner_email;
+
+insert into public.tc_company_members (company_slug, member_slug, email, name, role)
+values ('maza-studio', '조윤서', 'ceo@mazastudio.kr', '조윤서', '대표') on conflict do nothing;
