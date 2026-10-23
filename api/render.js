@@ -132,12 +132,14 @@ module.exports = async (req, res) => {
       } catch (e) {}
     }
 
-    // 2. Fallback to Supabase Cloud Pods if not found locally
-    if (!cardFound) {
+    // 2. Supabase Cloud Pods. 로컬 파일이 없으면 대신 쓰고, 로컬 파일이 있어도 같은 이름으로
+    //    메이커에서 만든 카드(front 디자인이 있는 것)가 있으면 그 카드가 우선한다 (예전 샘플 파일이 새 카드를 가리는 문제)
+    const hadLocal = cardFound;
+    {
       let pod = null;
       let profile = null;
 
-      const orFilter = slugsToTry.map(s => `slug.eq.${s}`).join(',');
+      const orFilter = (hadLocal ? [cleanSlug, decodedSlug] : slugsToTry).filter(Boolean).map(s => `slug.eq.${s}`).join(',');
 
       if (supabase) {
         const { data: pData } = await supabase
@@ -147,12 +149,14 @@ module.exports = async (req, res) => {
           .maybeSingle();
         pod = pData;
 
-        const { data: prData } = await supabase
-          .from('profiles')
-          .select('*')
-          .or(orFilter)
-          .maybeSingle();
-        profile = prData;
+        if (!hadLocal) {
+          const { data: prData } = await supabase
+            .from('profiles')
+            .select('*')
+            .or(orFilter)
+            .maybeSingle();
+          profile = prData;
+        }
       } else {
         try {
           const res = await fetch(`${SUPABASE_URL}/rest/v1/pods?or=(${encodeURIComponent(orFilter)})&select=components_json&limit=1`, {
@@ -163,14 +167,14 @@ module.exports = async (req, res) => {
         } catch (err) {}
       }
 
-      if (pod && pod.components_json) {
+      if (pod && pod.components_json && (!hadLocal || (pod.components_json.card || pod.components_json).front)) {
         const card = pod.components_json.card || pod.components_json;
         loadedCardObj = card;
         title = card.name || profile?.name || title;
         subtitle = `${card.role || profile?.handle || ''} · ${card.slogan || card.tagline || ''}`.trim() || subtitle;
         company = card.company || profile?.bio || company;
         cardFound = true;
-      } else if (profile) {
+      } else if (!hadLocal && profile) {
         title = profile.name || title;
         subtitle = profile.handle || subtitle;
         company = profile.bio || company;
