@@ -53,3 +53,32 @@ self.addEventListener('fetch', (event) => {
       .catch(() => caches.match(event.request))
   );
 });
+
+// 새 문의 알림 (Web Push). 서버(api/push.js)가 보낸 내용을 그대로 보여 준다.
+self.addEventListener('push', (event) => {
+  let d = {};
+  try { d = event.data ? event.data.json() : {}; } catch (e) {}
+  const title = d.title || 'TOOMCARD';
+  event.waitUntil(Promise.all([
+    self.registration.showNotification(title, {
+      body: d.body || '',
+      icon: '/assets/icon-192.png',
+      badge: '/assets/icon-192.png',
+      tag: 'toomcard-leads',          // 같은 태그는 하나로 합쳐 보인다 (알림이 쌓이지 않는다)
+      renotify: true,
+      data: { url: d.url || '/dashboard' }
+    }),
+    (self.navigator && self.navigator.setAppBadge && d.count) ? self.navigator.setAppBadge(d.count).catch(() => {}) : Promise.resolve()
+  ]));
+});
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  const url = (event.notification.data && event.notification.data.url) || '/dashboard';
+  event.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((list) => {
+      for (const c of list) { if (c.url.includes(url) && 'focus' in c) return c.focus(); }
+      return self.clients.openWindow(url);
+    })
+  );
+});

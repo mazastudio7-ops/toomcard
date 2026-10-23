@@ -91,6 +91,8 @@
     .tabs button.on { color: #1a1205; background: #ffd978; border-color: #ffd978; }
     .leadbox { padding: 16px; border-radius: 20px; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1); }
     .csvbtn { appearance: none; font: 800 11.5px inherit; font-family: inherit; color: #ffd978; background: transparent; border: 1px solid rgba(255,217,120,.5); border-radius: 99px; padding: 4px 10px; margin-right: 8px; cursor: pointer; }
+    .pushbtn { appearance: none; width: 100%; font: 800 13px inherit; font-family: inherit; color: #1a1205; background: #ffd978; border: 0; border-radius: 12px; padding: 10px; margin: 6px 0 4px; cursor: pointer; }
+    .pushbtn.off { color: rgba(255,255,255,.7); background: rgba(255,255,255,.08); cursor: default; }
     .lcnt { color: #ffd978; font-weight: 900; }
     .lead { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-top: 1px solid rgba(255,255,255,.08); font-size: 13.5px; }
     .lead:first-child { border-top: 0; }
@@ -164,6 +166,7 @@
       <p class="note" id="starNote" hidden></p>
       <div class="leadbox" id="leadBox" hidden>
         <div class="row-h"><span data-k="leads">받은 연락처</span><span><button type="button" id="leadCsv" class="csvbtn" data-k="csv">CSV</button> <span id="leadCnt" class="lcnt">0</span></span></div>
+        <button type="button" id="pushBtn" class="pushbtn" hidden></button>
         <div id="leadList"></div>
       </div>
       <div class="acts">
@@ -200,11 +203,11 @@
   <script>
     const L = {
       ko: { out_t: '내 카드를 만들고<br><span class="gold">키워 보세요</span>', out_s: '로그인하면 내 카드가 저장되고, 몇 번 열렸는지 볼 수 있어요.', login: 'Google로 시작하기', try: '로그인 없이 먼저 만들어 보기', none_t: '첫 카드를 만들어 볼까요?<br><span class="gold">30초면 돼요</span>', none_s: '사진 한 장과 이름만 있으면 끝. 마음에 드는 모양으로 시작하세요.', first: '내 카드 만들기', week: '이번 주 조회', all: '전체 조회', share: '링크 보내기', edit: '꾸미기', todo: '내 카드 키우기', mycards: '내 카드', biz: '기업 · 리드 관리', gallery: '갤러리', terms: '이용약관', privacy: '개인정보처리방침', login_btn: '로그인', logout_btn: '로그아웃', copied: '링크를 복사했어요',
-        rn: '주소 바꾸기', del: '카드 삭제', rnPrompt: '새 주소를 입력하세요 (예: a/mina)\n이전 주소의 링크와 QR은 더 이상 열리지 않아요.', rnOk: '주소를 바꿨어요', rnBad: '주소는 글자 하나와 이름이에요 (예: a/mina)', rnTaken: '이미 사용 중인 주소예요', fail: '잠시 후 다시 해 주세요', delConfirm: '"{n}" 카드를 삭제할까요?\n되돌릴 수 없고, 이 주소의 링크와 QR이 모두 닫혀요.', delDone: '카드를 삭제했어요', seeStar: '이젠스타 보기', t1: '내 사진 넣기', d1: '사진이 들어가면 카드가 확 달라져요', t2: '로고 꾸미기', d2: '금속 엠블럼이나 내 로고를 올려 보세요', t3: '배경화면으로 저장', d3: '폰 잠금화면에 내 카드를 걸어 두세요', t4: '친구에게 보내기', d4: '받는 사람이 열면 "나도 만들기"가 보여요', t5: '이젠스타에 올리기', d5: '홈 이젠스타 탭에 올려 좋아요를 받아요', likes: '♥ 좋아요', clicks: '링크 클릭', pending: '이젠스타 검토 중이에요 (하루 안에 올라가요)', rejected: '이젠스타 검토에서 보류됐어요: ', approved: '이젠스타에 올라가 있어요 ✨', add: '새 카드', tabP: '개인', tabTeam: '팀 관리', leads: '받은 연락처', leadNone: '아직 받은 연락처가 없어요. 카드를 보낸 분이 연락처를 남기면 여기에 쌓여요.', noname: '이름 없음' },
+        rn: '주소 바꾸기', del: '카드 삭제', rnPrompt: '새 주소를 입력하세요 (예: a/mina)\n이전 주소의 링크와 QR은 더 이상 열리지 않아요.', rnOk: '주소를 바꿨어요', rnBad: '주소는 글자 하나와 이름이에요 (예: a/mina)', rnTaken: '이미 사용 중인 주소예요', fail: '잠시 후 다시 해 주세요', delConfirm: '"{n}" 카드를 삭제할까요?\n되돌릴 수 없고, 이 주소의 링크와 QR이 모두 닫혀요.', delDone: '카드를 삭제했어요', seeStar: '이젠스타 보기', t1: '내 사진 넣기', d1: '사진이 들어가면 카드가 확 달라져요', t2: '로고 꾸미기', d2: '금속 엠블럼이나 내 로고를 올려 보세요', t3: '배경화면으로 저장', d3: '폰 잠금화면에 내 카드를 걸어 두세요', t4: '친구에게 보내기', d4: '받는 사람이 열면 "나도 만들기"가 보여요', t5: '이젠스타에 올리기', d5: '홈 이젠스타 탭에 올려 좋아요를 받아요', likes: '♥ 좋아요', clicks: '링크 클릭', pending: '이젠스타 검토 중이에요 (하루 안에 올라가요)', rejected: '이젠스타 검토에서 보류됐어요: ', approved: '이젠스타에 올라가 있어요 ✨', add: '새 카드', tabP: '개인', tabTeam: '팀 관리', leads: '받은 연락처', leadNone: '아직 받은 연락처가 없어요. 카드를 보낸 분이 연락처를 남기면 여기에 쌓여요.', pushEnable: '🔔 새 문의 알림 켜기', pushOn: '🔔 새 문의 알림이 켜져 있어요', pushDenied: '알림이 차단돼 있어요. 브라우저 설정에서 허용해 주세요.', pushIos: '아이폰은 사파리 공유 버튼 → \'홈 화면에 추가\' 후 앱에서 열면 알림을 켤 수 있어요.', pushNo: '이 브라우저는 알림을 지원하지 않아요.', pushSrv: '알림 서버가 아직 준비되지 않았어요.', noname: '이름 없음' },
       en: { out_t: 'Make your card<br><span class="gold">and grow it</span>', out_s: 'Sign in to save your card and see how often it is opened.', login: 'Start with Google', try: 'Try it first without signing in', none_t: 'Ready for your first card?<br><span class="gold">30 seconds</span>', none_s: 'One photo and your name is enough. Start from a look you like.', first: 'Make my card', week: 'Views this week', all: 'Total views', share: 'Send link', edit: 'Decorate', todo: 'Grow your card', mycards: 'My cards', biz: 'Business · Leads', gallery: 'Gallery', terms: 'Terms', privacy: 'Privacy', login_btn: 'Sign in', logout_btn: 'Sign out', copied: 'Link copied',
-        rn: 'Change address', del: 'Delete card', rnPrompt: 'Enter a new address (e.g. a/mina)\nLinks and QR codes with the old address will stop working.', rnOk: 'Address changed', rnBad: 'An address is one letter and a name (e.g. a/mina)', rnTaken: 'That address is already taken', fail: 'Please try again in a moment', delConfirm: 'Delete "{n}"?\nThis cannot be undone and every link and QR code for this address will stop working.', delDone: 'Card deleted', seeStar: 'See e zen star', t1: 'Add your photo', d1: 'A photo changes the whole card', t2: 'Style your logo', d2: 'Try a metal emblem or upload your logo', t3: 'Save as wallpaper', d3: 'Put your card on your lock screen', t4: 'Send it to a friend', d4: 'They will see "make mine" when they open it', t5: 'Post to Stars', d5: 'Get likes on the Stars tab', likes: '♥ Likes', clicks: 'Link clicks', pending: 'In review for Stars (live within a day)', rejected: 'Held back from Stars: ', approved: 'Live on Stars ✨', add: 'New card', tabP: 'Personal', tabTeam: 'Manage team', leads: 'Contacts received', leadNone: 'No contacts yet. When someone leaves their number on your card, it shows up here.', noname: 'Untitled' },
+        rn: 'Change address', del: 'Delete card', rnPrompt: 'Enter a new address (e.g. a/mina)\nLinks and QR codes with the old address will stop working.', rnOk: 'Address changed', rnBad: 'An address is one letter and a name (e.g. a/mina)', rnTaken: 'That address is already taken', fail: 'Please try again in a moment', delConfirm: 'Delete "{n}"?\nThis cannot be undone and every link and QR code for this address will stop working.', delDone: 'Card deleted', seeStar: 'See e zen star', t1: 'Add your photo', d1: 'A photo changes the whole card', t2: 'Style your logo', d2: 'Try a metal emblem or upload your logo', t3: 'Save as wallpaper', d3: 'Put your card on your lock screen', t4: 'Send it to a friend', d4: 'They will see "make mine" when they open it', t5: 'Post to Stars', d5: 'Get likes on the Stars tab', likes: '♥ Likes', clicks: 'Link clicks', pending: 'In review for Stars (live within a day)', rejected: 'Held back from Stars: ', approved: 'Live on Stars ✨', add: 'New card', tabP: 'Personal', tabTeam: 'Manage team', leads: 'Contacts received', leadNone: 'No contacts yet. When someone leaves their number on your card, it shows up here.', pushEnable: '🔔 Turn on new-contact alerts', pushOn: '🔔 New-contact alerts are on', pushDenied: 'Notifications are blocked. Allow them in your browser settings.', pushIos: 'On iPhone: Safari Share → Add to Home Screen, then open the app to turn on alerts.', pushNo: 'This browser does not support notifications.', pushSrv: 'The alert server is not set up yet.', noname: 'Untitled' },
       de: { out_t: 'Erstelle deine Karte<br><span class="gold">und lass sie wachsen</span>', out_s: 'Melde dich an, um deine Karte zu speichern und Aufrufe zu sehen.', login: 'Mit Google starten', try: 'Erst ohne Anmeldung ausprobieren', none_t: 'Bereit für deine erste Karte?<br><span class="gold">30 Sekunden</span>', none_s: 'Ein Foto und dein Name reichen. Starte mit einem Look, der dir gefällt.', first: 'Meine Karte erstellen', week: 'Aufrufe diese Woche', all: 'Aufrufe gesamt', share: 'Link senden', edit: 'Gestalten', todo: 'Karte weiterentwickeln', mycards: 'Meine Karten', biz: 'Business · Leads', gallery: 'Galerie', terms: 'Nutzungsbedingungen', privacy: 'Datenschutz', login_btn: 'Anmelden', logout_btn: 'Abmelden', copied: 'Link kopiert',
-        rn: 'Adresse ändern', del: 'Karte löschen', rnPrompt: 'Neue Adresse eingeben (z. B. a/mina)\nLinks und QR-Codes mit der alten Adresse funktionieren dann nicht mehr.', rnOk: 'Adresse geändert', rnBad: 'Eine Adresse besteht aus einem Buchstaben und einem Namen (z. B. a/mina)', rnTaken: 'Diese Adresse ist schon vergeben', fail: 'Bitte gleich noch einmal versuchen', delConfirm: '"{n}" löschen?\nDas lässt sich nicht rückgängig machen und alle Links und QR-Codes dieser Adresse funktionieren nicht mehr.', delDone: 'Karte gelöscht', seeStar: 'e zen star ansehen', t1: 'Foto hinzufügen', d1: 'Ein Foto verändert die ganze Karte', t2: 'Logo gestalten', d2: 'Metall-Emblem oder eigenes Logo hochladen', t3: 'Als Hintergrund speichern', d3: 'Deine Karte auf den Sperrbildschirm', t4: 'An Freunde senden', d4: 'Beim Öffnen sehen sie „Selbst erstellen“', t5: 'In Stars zeigen', d5: 'Likes im Stars-Tab sammeln', likes: '♥ Likes', clicks: 'Link-Klicks', pending: 'In Prüfung für Stars (innerhalb eines Tages online)', rejected: 'Für Stars zurückgestellt: ', approved: 'Live in Stars ✨', add: 'Neue Karte', tabP: 'Persönlich', tabTeam: 'Team verwalten', leads: 'Erhaltene Kontakte', leadNone: 'Noch keine Kontakte. Hinterlässt jemand seine Nummer auf deiner Karte, erscheint sie hier.', noname: 'Ohne Namen' }
+        rn: 'Adresse ändern', del: 'Karte löschen', rnPrompt: 'Neue Adresse eingeben (z. B. a/mina)\nLinks und QR-Codes mit der alten Adresse funktionieren dann nicht mehr.', rnOk: 'Adresse geändert', rnBad: 'Eine Adresse besteht aus einem Buchstaben und einem Namen (z. B. a/mina)', rnTaken: 'Diese Adresse ist schon vergeben', fail: 'Bitte gleich noch einmal versuchen', delConfirm: '"{n}" löschen?\nDas lässt sich nicht rückgängig machen und alle Links und QR-Codes dieser Adresse funktionieren nicht mehr.', delDone: 'Karte gelöscht', seeStar: 'e zen star ansehen', t1: 'Foto hinzufügen', d1: 'Ein Foto verändert die ganze Karte', t2: 'Logo gestalten', d2: 'Metall-Emblem oder eigenes Logo hochladen', t3: 'Als Hintergrund speichern', d3: 'Deine Karte auf den Sperrbildschirm', t4: 'An Freunde senden', d4: 'Beim Öffnen sehen sie „Selbst erstellen“', t5: 'In Stars zeigen', d5: 'Likes im Stars-Tab sammeln', likes: '♥ Likes', clicks: 'Link-Klicks', pending: 'In Prüfung für Stars (innerhalb eines Tages online)', rejected: 'Für Stars zurückgestellt: ', approved: 'Live in Stars ✨', add: 'Neue Karte', tabP: 'Persönlich', tabTeam: 'Team verwalten', leads: 'Erhaltene Kontakte', leadNone: 'Noch keine Kontakte. Hinterlässt jemand seine Nummer auf deiner Karte, erscheint sie hier.', pushEnable: '🔔 Benachrichtigungen aktivieren', pushOn: '🔔 Benachrichtigungen sind aktiv', pushDenied: 'Benachrichtigungen sind blockiert. Bitte in den Browser-Einstellungen erlauben.', pushIos: 'iPhone: Safari Teilen → Zum Home-Bildschirm, dann die App öffnen.', pushNo: 'Dieser Browser unterstützt keine Benachrichtigungen.', pushSrv: 'Der Benachrichtigungsserver ist noch nicht eingerichtet.', noname: 'Ohne Namen' }
     };
     const lang = () => (window.i18n && window.i18n.lang) || localStorage.getItem('toomcard_lang') || 'ko';
     const T = (k) => (L[lang()] || L.ko)[k] || L.ko[k] || k;
@@ -319,6 +322,33 @@
       else if (r.status === 'approved') $('starNote').textContent = T('approved');
       $('starNote').hidden = !r.status;
     }
+    /* 새 문의 앱 알림 (Web Push) */
+    const b64u = (b) => { const p = '='.repeat((4 - b.length % 4) % 4), r = atob((b + p).replace(/-/g, '+').replace(/_/g, '/')); return Uint8Array.from([...r].map((c) => c.charCodeAt(0))); };
+    async function pushState() {
+      const btn = $('pushBtn'); if (!btn) return;
+      const ios = /iPad|iPhone|iPod/.test(navigator.userAgent), standalone = window.navigator.standalone || matchMedia('(display-mode: standalone)').matches;
+      btn.hidden = false; btn.disabled = false; btn.className = 'pushbtn';
+      if (!('serviceWorker' in navigator) || !('PushManager' in window) || !('Notification' in window)) {
+        btn.className = 'pushbtn off'; btn.textContent = ios && !standalone ? T('pushIos') : T('pushNo'); return;
+      }
+      if (Notification.permission === 'denied') { btn.className = 'pushbtn off'; btn.textContent = T('pushDenied'); return; }
+      let sub = null; try { const reg = await navigator.serviceWorker.getRegistration('/'); sub = reg && await reg.pushManager.getSubscription(); } catch (e) {}
+      if (sub && Notification.permission === 'granted') { btn.className = 'pushbtn off'; btn.textContent = T('pushOn'); try { if (user) await supabaseClient.from('tc_push_subs').upsert({ endpoint: sub.endpoint, user_id: user.id, sub: sub.toJSON() }); } catch (e) {} return; }
+      btn.textContent = T('pushEnable');
+    }
+    async function enablePush() {
+      try {
+        const reg = await navigator.serviceWorker.register('/sw.js'); await navigator.serviceWorker.ready;
+        const perm = await Notification.requestPermission(); if (perm !== 'granted') { pushState(); return; }
+        const k = (await (await fetch('/api/push')).json()).key; if (!k) { alert(T('pushSrv')); return; }
+        const sub = (await reg.pushManager.getSubscription()) || await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64u(k) });
+        const u = await getCurrentUser(); if (!u) return;
+        const { error } = await supabaseClient.from('tc_push_subs').upsert({ endpoint: sub.endpoint, user_id: u.id, sub: sub.toJSON() });
+        if (error) throw error;
+      } catch (e) { alert(T('fail')); }
+      pushState();
+    }
+    document.addEventListener('click', (e) => { if (e.target && e.target.id === 'pushBtn' && !e.target.classList.contains('off')) enablePush(); });
     function csvCell(v) { return '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"'; }
     function downloadLeadsCsv() {
       const slugs = new Set(pods.map((p) => p.slug)), nameOf = {}; pods.forEach((p) => { nameOf[p.slug] = cardOf(p).name || p.slug; });
@@ -333,7 +363,7 @@
       if (demo || typeof getMyLeads !== 'function') return;
       let all = null; try { all = await getMyLeads(); } catch (e) {}
       if (!all) return;
-      allLeads = all;
+      allLeads = all; pushState();
       const mine = all.filter((l) => l.target_slug === main.slug);
       $('leadCnt').textContent = String(mine.length);
       const esc = (x) => String(x == null ? '' : x).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
