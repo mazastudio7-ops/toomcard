@@ -615,6 +615,13 @@ async function adminStarQueue() {
   return data || [];
 }
 
+async function adminStarLive() {
+  if (!supabaseClient) return [];
+  const { data, error } = await supabaseClient.rpc('admin_star_live');
+  if (error) { console.warn('admin_star_live', error); return null; }
+  return data || [];
+}
+
 async function adminStarDecide(slug, status, reason = null) {
   if (!supabaseClient) return false;
   const { error } = await supabaseClient.rpc('admin_star_decide', { p_slug: slug, p_status: status, p_reason: reason });
