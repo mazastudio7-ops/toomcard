@@ -386,6 +386,16 @@
     }
 
 
+    /* 앞·뒷면 나란히 보기 (넓은 화면은 가로, 폰은 세로로 쌓는다) */
+    .dual-btn { appearance: none; font: 700 12.5px 'Pretendard', sans-serif; color: rgba(255,255,255,.85); background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.2); padding: 8px 14px; border-radius: 99px; cursor: pointer; }
+    .dual-btn:hover { border-color: #ffd978; color: #ffd978; }
+    body.in-simulator .dual-btn { display: none; }
+    body.dual-view .container { max-width: min(100%, 800px); }
+    body.dual-view .card-scene.dual { max-width: 800px; height: auto; min-height: 0; max-height: none; transform: none !important; animation: none; cursor: default; }
+    .card-scene.dual .card-flipper { transform: none !important; transform-style: flat; display: grid; grid-template-columns: 1fr 1fr; gap: 24px; height: auto; }
+    .card-scene.dual .card-face.front, .card-scene.dual .card-face.back { position: relative !important; inset: auto !important; width: 100% !important; transform: none !important; backface-visibility: visible !important; -webkit-backface-visibility: visible !important; pointer-events: auto !important; z-index: 1 !important; height: min(630px, calc(100dvh - 150px - env(safe-area-inset-top) - env(safe-area-inset-bottom))) !important; min-height: 520px !important; max-height: 645px !important; }
+    .card-scene.dual .back-flip-pill, .card-scene.dual .plate-flip-pill { display: none; }
+    @media (max-width: 760px) { .card-scene.dual .card-flipper { grid-template-columns: 1fr; max-width: 375px; margin: 0 auto; } }
     .tc-hl { outline: 2px solid #ffd978; outline-offset: 5px; border-radius: 10px; box-shadow: 0 0 26px rgba(255,217,120,.55); transition: box-shadow .2s, outline-color .2s; }
     .back-flip-pill { position: absolute; top: 12px; right: 12px; z-index: 6; appearance: none; font: 800 10.5px 'Montserrat', sans-serif; letter-spacing: .12em; color: #ffd978; background: rgba(8,6,14,.7); border: 1px solid rgba(255,217,120,.55); border-radius: 99px; padding: 7px 12px; cursor: pointer; backdrop-filter: blur(8px); }
     body.in-simulator .back-flip-pill { display: none; }
@@ -1938,6 +1948,7 @@
 
     <!-- ♥ 좋아요 · 신고 (이젠스타) -->
     <div class="star-row" id="starRow">
+      <button type="button" class="dual-btn" id="dualBtn" onclick="event.stopPropagation(); toggleDual();" data-i18n="card.dual_on">▥ 앞·뒷면 같이 보기</button>
       <button type="button" class="like-btn" id="likeBtn" onclick="event.stopPropagation(); starLikeClick();"><span class="heart">♥</span><span id="likeCount">0</span></button>
       <button type="button" class="report-btn" onclick="event.stopPropagation(); starReportClick();" data-i18n="star.report">신고</button>
     </div>

@@ -615,6 +615,7 @@ function toggleCardFlip(e) {
   if (e && typeof e.stopPropagation === 'function') {
     e.stopPropagation();
   }
+  if (document.body.classList.contains('dual-view')) return;   // 나란히 보기에서는 뒤집지 않는다
   if (isCardFlipping) return;
   isCardFlipping = true;
   setTimeout(() => { isCardFlipping = false; }, 250);
@@ -804,6 +805,22 @@ document.addEventListener('click', (e) => {
 }, true);
 
 // URL 쿼리 파라미터(view=back / side=back / flipped=true)에 따른 초기 카드 회전 상태 적용
+
+// 앞·뒷면 나란히 보기 토글 (?view=both 로 바로 열 수도 있다)
+window.toggleDual = function (force) {
+  const on = typeof force === 'boolean' ? force : !document.body.classList.contains('dual-view');
+  document.body.classList.toggle('dual-view', on);
+  const scene = document.getElementById('cardScene');
+  if (scene) { scene.classList.toggle('dual', on); if (on) scene.classList.remove('flipped'); }
+  const b = document.getElementById('dualBtn');
+  if (b) {
+    const key = on ? 'card.dual_off' : 'card.dual_on';
+    b.setAttribute('data-i18n', key);
+    const txt = (window.i18n && typeof window.i18n.t === 'function') ? window.i18n.t(key) : key;
+    b.textContent = txt === key ? (on ? '▤ 한 면씩 보기' : '▥ 앞·뒷면 같이 보기') : txt;
+  }
+};
+
 function applyInitialFlipState() {
   try {
     const urlParams = new URLSearchParams(window.location.search);
@@ -811,6 +828,7 @@ function applyInitialFlipState() {
     const flipped = urlParams.get('flipped');
     const scene = document.getElementById('cardScene');
     if (scene) {
+      if (view === 'both') { window.toggleDual(true); return; }
       if (view === 'back' || flipped === 'true' || flipped === '1') {
         scene.classList.add('flipped');
         // 방문자가 뒷면으로 즉시 들어왔으므로 앞면 2.5초 자동 팝업 타이머 해제
