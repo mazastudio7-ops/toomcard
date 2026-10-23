@@ -150,6 +150,12 @@ function linkButtonHtml(item) {
       </a>`;
 }
 
+// 연락처 저장 시 회사 칸: 업종이 있으면 "보험 · 회사명" (받는 사람이 나중에 "보험"으로 검색해도 찾아지게)
+function vcardOrg(d, v) {
+  const company = (v && v.org) || d.company || '';
+  const ind = d.industry ? (d.industry === 'other' ? (d.industryText || '') : t('ind.' + d.industry)) : '';
+  return ind && ind !== 'ind.' + d.industry ? `${ind} · ${company}` : company;
+}
 // 뒷면 모양: default(기본) / big(큰 로고) / links(링크 모음)
 function applyBackLayout(data) {
   const scene = document.getElementById('cardScene');
@@ -1476,7 +1482,7 @@ function downloadVCard() {
 VERSION:3.0
 N:${v.lastName || ''};${v.firstName || ''};;;
 FN:${v.formattedName || cardData.name}
-ORG:${v.org || cardData.company}
+ORG:${vcardOrg(cardData, v)}
 TITLE:${v.title || cardData.role}
 TEL;TYPE=WORK,VOICE:${v.tel || cardData.phone}
 EMAIL;TYPE=WORK,INTERNET:${v.email || cardData.email}

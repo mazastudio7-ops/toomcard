@@ -434,6 +434,11 @@
         </div>
         <p class="seg-hint"><span class="per-only" data-i18n="maker.kind_personal_hint">학생, 크리에이터, 누구나. 회사 없이 나를 소개해요.</span><span class="biz-only" data-i18n="maker.kind_business_hint">회사·직함이 들어가는 업무용 명함이에요.</span></p>
         <div class="field"><label><span class="biz-only"><span data-i18n="maker.company">회사 / 브랜드</span><span class="req">*</span></span><span class="per-only"><span data-i18n="maker.affiliation">소속</span> <span style="font-weight:600;opacity:.6;" data-i18n="common.optional">선택</span></span></label><input class="input" id="fCompany" placeholder="TOOMCARD"></div>
+        <div class="field biz-only"><label><span data-i18n="maker.industry">업종</span> <span style="font-weight:600;opacity:.6;" data-i18n="common.optional">선택</span></label>
+          <select class="select" id="fIndustry"><option value="" data-i18n="maker.industry_none">선택 안 함</option><option value="insurance" data-i18n="ind.insurance">보험</option><option value="realestate" data-i18n="ind.realestate">부동산</option><option value="auto" data-i18n="ind.auto">자동차</option><option value="finance" data-i18n="ind.finance">금융·대출</option><option value="legal" data-i18n="ind.legal">법률</option><option value="tax" data-i18n="ind.tax">세무·회계</option><option value="medical" data-i18n="ind.medical">의료·건강</option><option value="education" data-i18n="ind.education">교육</option><option value="beauty" data-i18n="ind.beauty">뷰티</option><option value="food" data-i18n="ind.food">요식·카페</option><option value="it" data-i18n="ind.it">IT·개발</option><option value="other" data-i18n="ind.other">기타 (직접 입력)</option></select>
+          <input class="input" id="fIndustryText" placeholder="예: 펫 케어" data-i18n-placeholder="maker.industry_custom_ph" hidden style="margin-top:8px">
+          <p class="photo-off" data-i18n="maker.industry_note">받는 분 폰에 "보험 · 회사명"처럼 저장돼서, 나중에 "보험"만 검색해도 내가 나와요.</p>
+        </div>
         <div class="field"><label data-i18n="maker.slogan">슬로건 한 줄</label><input class="input" id="fSlogan" placeholder="오늘의 만남을 내일의 비즈니스로"></div>
         <div class="row-2">
           <div class="field"><label><span class="biz-only" data-i18n="maker.role">직함</span><span class="per-only" data-i18n="maker.intro">한 줄 소개</span></label><input class="input" id="fRole" placeholder="대표"></div>
@@ -1100,11 +1105,15 @@
       else toast(t('maker.order_fail'));
     }
 
+    $('fIndustry').addEventListener('change', () => { $('fIndustryText').hidden = $('fIndustry').value !== 'other'; render(false, 260); });
+    $('fIndustryText').addEventListener('input', () => render(false, 260));
     function collect() {
       card.name = $('fName').value.trim();
       card.role = $('fRole').value.trim();
       card.company = $('fCompany').value.trim();
       card.kind = kind;
+      card.industry = kind === 'business' ? $('fIndustry').value : '';
+      card.industryText = (kind === 'business' && card.industry === 'other') ? $('fIndustryText').value.trim().slice(0, 20) : '';
       // 워터마크: 비즈니스는 회사명, 일반은 소속이 있으면 소속, 없으면 이름
       card.companyWatermark = kind === 'business' ? card.company : (card.company || card.name);
       card.slogan = $('fSlogan').value.trim();
@@ -2142,6 +2151,7 @@
       card = Object.assign(JSON.parse(JSON.stringify(DEFAULT_CARD)), c);
       if (!c.front) card.front = { bg: { type: 'image', src: c.plateCardImage || DEFAULT_CARD.front.bg.src }, text: { layout: 'none', showLogo: false, tone: 'auto' }, finish: 'metal', qr: 'off' };
       $('fName').value = c.name || ''; $('fRole').value = c.role || ''; $('fCompany').value = c.company || '';
+      $('fIndustry').value = c.industry || ''; $('fIndustryText').value = c.industryText || ''; $('fIndustryText').hidden = c.industry !== 'other';
       $('fSlogan').value = c.slogan || ''; $('fPhone').value = c.phone || ''; $('fEmail').value = c.email || '';
       $('fWebsite').value = (c.primaryAction && c.primaryAction.url) || '';
       const ss = (c.socials || []).filter((s) => s.url);
