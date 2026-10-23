@@ -348,6 +348,8 @@
     @media (max-width: 980px) {
       input, select, textarea, .input, .select, .url-preview input { font-size: 16px !important; }
     }
+    .toast.show { pointer-events: auto; }
+    .toast-act { margin-left: 12px; appearance: none; border: 0; border-radius: 99px; padding: 6px 12px; background: var(--tc-accent); color: #000; font: 800 12.5px var(--tc-font-body); cursor: pointer; }
   </style>
 </head>
 <body>
@@ -1076,12 +1078,18 @@
     }
     $('bgFile').addEventListener('change', (e) => {
       const f = e.target.files[0]; if (!f) return;
+      // 잘못 골랐을 때 바로 되돌릴 수 있게 지금 상태를 기억해 둔다
+      const snap = { front: JSON.parse(JSON.stringify(card.front)), bgId: currentBgId, idx: designIdx, up: uploadedPhoto, orig: photoOrig, pbg: photoBg };
       readImage(f, 1440, (dataUrl) => {
+        setTimeout(() => toastAction(t('maker.bg_set'), t('maker.undo'), () => {
+          uploadedPhoto = snap.up; photoOrig = snap.orig; photoBg = snap.pbg; photoMask = null;
+          card.front = snap.front; currentBgId = snap.bgId; designIdx = snap.idx;
+          syncAdjustUI(); renderCarousel(); render(true);
+        }), 60);
         uploadedPhoto = dataUrl; photoBg = null; photoOrig = dataUrl; photoMask = null; setFx('orig');
         setBg({ type: 'image', src: dataUrl }, 'upload');
         setFrame('full'); designIdx = 0; renderCarousel();
         if (isMobile()) { currentTab = ''; openTab('photo'); }
-        toast(t('maker.bg_set'));
       });
       e.target.value = '';
     });
@@ -1591,6 +1599,8 @@
     }
     function closeSheet() {
       document.body.classList.remove('sheet-open'); currentTab = '';
+      if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+      window.scrollTo(0, 0);
       setPhotoMode(false);
       setTimeout(renderCarousel, 320);
       document.querySelectorAll('#tabbar button').forEach((b) => b.setAttribute('aria-selected', 'false'));
@@ -1784,11 +1794,24 @@
     /* ── 유틸 ───────────────────────────────────────── */
     let toastTimer;
     function toast(msg) { const el = $('toast'); el.textContent = msg; el.classList.add('show'); clearTimeout(toastTimer); toastTimer = setTimeout(() => el.classList.remove('show'), 2400); }
+    // 되돌리기 같은 버튼이 달린 알림 (조금 더 오래 보인다)
+    function toastAction(msg, label, fn) {
+      const el = $('toast'); el.textContent = '';
+      const s = document.createElement('span'); s.textContent = msg;
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'toast-act'; b.textContent = label;
+      b.addEventListener('click', () => { el.classList.remove('show'); fn(); });
+      el.append(s, b); el.classList.add('show'); clearTimeout(toastTimer); toastTimer = setTimeout(() => el.classList.remove('show'), 6000);
+    }
 
     /* ── 초기화 ─────────────────────────────────────── */
     // 화면 높이: 폰 브라우저 주소창이 접혔다 펴질 때도 하단 탭과 무대가 맞도록 실제 높이를 쓴다
     function syncAppHeight() { document.documentElement.style.setProperty('--app-h', window.innerHeight + 'px'); }
     syncAppHeight(); window.addEventListener('resize', syncAppHeight);
+    // 폰: 입력칸에서 키보드가 닫히면 화면이 위로 밀린 채 남는다 → 맨 위로 되돌려 상단 메뉴가 보이게
+    document.addEventListener('focusout', () => setTimeout(() => {
+      const a = document.activeElement;
+      if (isMobile() && (!a || a === document.body || !/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName))) window.scrollTo(0, 0);
+    }, 80));
     $('backLayoutChips').addEventListener('click', (e) => {
       const b = e.target.closest('.chip'); if (!b) return;
       setBackLayout(b.dataset.bl); render(true);
