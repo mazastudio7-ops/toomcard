@@ -1,8 +1,9 @@
 const fs = require('fs');
 const path = require('path');
 
-const SUPABASE_URL = process.env.SUPABASE_URL || "https://omlcbrslzvdtqwbszgvg.supabase.co";
-const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9tbGNicnNsenZkdHF3YnN6Z3ZnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI3Mzc4NTQsImV4cCI6MjEwODMxMzg1NH0.j2YVNIFIit7nzvaGGCprpFhPQfpQ6cQCf5n-2Dctg3g";
+// 배포 환경에 예전 프로젝트 주소(SUPABASE_URL)가 남아 있어도 이 파일은 새 프로젝트를 읽는다. 바꾸려면 TC_ 이름의 변수를 쓴다.
+const SUPABASE_URL = process.env.TC_SUPABASE_URL || "https://omlcbrslzvdtqwbszgvg.supabase.co";
+const SUPABASE_ANON_KEY = process.env.TC_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9tbGNicnNsenZkdHF3YnN6Z3ZnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI3Mzc4NTQsImV4cCI6MjEwODMxMzg1NH0.j2YVNIFIit7nzvaGGCprpFhPQfpQ6cQCf5n-2Dctg3g";
 
 const ALIAS_MAP = {
   '이향원': 'hyangwon', 'hyanwon': 'hyangwon', 'won': 'hyangwon',
