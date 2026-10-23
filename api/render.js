@@ -8,6 +8,11 @@ const SUPABASE_ANON_KEY = process.env.TC_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1N
 let supabase = null;
 try {
   const { createClient } = require('@supabase/supabase-js');
+
+// 카드 이름·회사명 같은 사용자 입력은 HTML/속성에 넣기 전에 반드시 이스케이프한다 (저장형 XSS 방지)
+const esc = (v) => String(v == null ? '' : v).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+// 자산 주소는 /assets/… 또는 https://… 만 허용 (javascript: 등 차단)
+const safeAsset = (u) => (typeof u === 'string' && /^(\/assets\/[\w.\-\/]+|https:\/\/[\w.\-\/%?=&]+)$/.test(u)) ? u : null;
   supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 } catch (e) {}
 
@@ -189,6 +194,16 @@ module.exports = async (req, res) => {
       }
     }
 
+    // 없는 주소는 샘플 카드 대신 404 (검색엔진 중복·사용자 혼란 방지)
+    if (!cardFound) {
+      const nf = `<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex"><title>명함을 찾을 수 없어요 | TOOMCARD</title>
+<style>body{margin:0;min-height:100vh;display:grid;place-items:center;background:#07050d;color:#fff;font-family:'Noto Sans KR',-apple-system,sans-serif;text-align:center;padding:24px}h1{font-size:22px;margin:0 0 10px}p{color:rgba(255,255,255,.6);margin:0 0 22px;line-height:1.6}a{display:inline-block;margin:4px;padding:12px 20px;border-radius:99px;font-weight:800;text-decoration:none}.p{background:#ffd978;color:#1a1205}.g{border:1px solid rgba(255,255,255,.25);color:#fff}</style></head>
+<body><div><h1>이 주소의 명함이 없어요</h1><p>toomcard.com/${esc(decodedSlug).slice(0, 60)}<br>주소가 바뀌었거나 삭제된 카드예요.</p><a class="p" href="/maker">내 명함 만들기</a><a class="g" href="/">홈으로</a></div></body></html>`;
+      res.setHeader('Content-Type', 'text/html; charset=utf-8');
+      res.setHeader('Cache-Control', 's-maxage=60');
+      return res.status(404).send(nf);
+    }
+
     // 3. Read HTML template (card.html)
     const htmlPath = path.join(process.cwd(), 'card.html');
     let html = fs.readFileSync(htmlPath, 'utf8');
@@ -232,10 +247,11 @@ module.exports = async (req, res) => {
       ogImageUrl = `https://toomcard.com/api/og?title=${qTitle}&company=${qCompany}&subtitle=${qSub}&theme=${qTheme}`;
     }
 
-    html = html.replace(/<title>.*?<\/title>/i, `<title>${ogTitle}</title>`);
-    html = html.replace(/<meta\s+property=["']og:title["'].*?>/i, `<meta property="og:title" content="${ogTitle}" />`);
-    html = html.replace(/<meta\s+property=["']og:description["'].*?>/i, `<meta property="og:description" content="${ogDesc}" />`);
-    html = html.replace(/<meta\s+property=["']og:image["'].*?>/i, `<meta property="og:image" content="${ogImageUrl}" />`);
+    ogTitle = esc(ogTitle); ogDesc = esc(ogDesc); ogImageUrl = esc(ogImageUrl);
+    html = html.replace(/<title>.*?<\/title>/i, () => `<title>${ogTitle}</title>`);
+    html = html.replace(/<meta\s+property=["']og:title["'].*?>/i, () => `<meta property="og:title" content="${ogTitle}" />`);
+    html = html.replace(/<meta\s+property=["']og:description["'].*?>/i, () => `<meta property="og:description" content="${ogDesc}" />`);
+    html = html.replace(/<meta\s+property=["']og:image["'].*?>/i, () => `<meta property="og:image" content="${ogImageUrl}" />`);
 
     // 개인별 맞춤 PWA Manifest 동적 교체 (앱 설치 시 내 명함 이름 및 start_url 직행)
     const dynamicManifestUrl = `/manifest/${encodeURIComponent(cleanSlug || 'toomus')}.json`;
@@ -243,7 +259,7 @@ module.exports = async (req, res) => {
 
     // SSR 레이아웃 & 테마 사전 적용 (첫 화면 깜빡임 완벽 제거)
     if (loadedCardObj) {
-      const layout = loadedCardObj.layout || 'classic';
+      const layout = /^[a-z-]{1,20}$/.test(loadedCardObj.layout || '') ? loadedCardObj.layout : 'classic';
       if (layout !== 'classic') {
         html = html.replace(
           '<link rel="stylesheet" id="layoutStylesheet" href="">',
@@ -252,15 +268,15 @@ module.exports = async (req, res) => {
         html = html.replace('class="card-scene"', `class="card-scene layout-${layout}"`);
         html = html.replace('class="card-flipper"', `class="card-flipper layout-${layout}"`);
       }
-      if (loadedCardObj.theme && loadedCardObj.theme !== 'obsidian') {
+      if (loadedCardObj.theme && loadedCardObj.theme !== 'obsidian' && /^[a-z0-9-]{1,30}$/.test(loadedCardObj.theme)) {
         html = html.replace('/themes/obsidian.css', `/themes/${loadedCardObj.theme}.css`);
       }
-      if (loadedCardObj.plateCardImage) {
+      if (safeAsset(loadedCardObj.plateCardImage)) {
         html = html.replace('/assets/toomcard_front_plate.jpg', loadedCardObj.plateCardImage);
         html = html.replace('/assets/toomcard_front_plate.png', loadedCardObj.plateCardImage);
       }
-      if (loadedCardObj.logo && loadedCardObj.logo.src) {
-        html = html.replace(/src=["']\/assets\/toomcard_hd\.gif["']/g, `src="${loadedCardObj.logo.src}"`);
+      if (loadedCardObj.logo && safeAsset(loadedCardObj.logo.src)) {
+        html = html.replace(/src=["']\/assets\/toomcard_hd\.gif["']/g, () => `src="${loadedCardObj.logo.src}"`);
       }
     }
 

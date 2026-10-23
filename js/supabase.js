@@ -293,7 +293,8 @@ async function saveLeadToCloud(targetSlug, phone, memo = '', extra = {}) {
         userAgent: navigator.userAgent
       }
     });
-  return !error;
+  if (error) { window.__leadError = String(error.message || ''); return false; }
+  return true;
 }
 
 // 9-1. 내 명함에 접수된 리드(방문자 연락처) 목록 불러오기

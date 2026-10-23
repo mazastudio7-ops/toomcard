@@ -1865,7 +1865,7 @@
             <!-- 로고 박스 (탭 시 QR 팝업) -->
             <div class="front-logo-container">
               <div class="front-logo-box" onclick="event.stopPropagation(); openShareModal();" title="로고를 탭하면 QR코드가 열립니다">
-                <img id="frontLogoImg" src="/assets/logo_toomcard_hd.gif" alt="Logo" onerror="this.onerror=null; this.src='/assets/logo_toomcard_hd.webp';">
+                <img id="frontLogoImg" src="/assets/logo_toomcard_hd.webp" alt="Logo" onerror="this.onerror=null; this.src='/assets/logo_toomcard_hd.webp';">
               </div>
             </div>
 
@@ -1905,7 +1905,7 @@
                   <div class="back-flipper-face back-flipper-logo" id="backFlipperLogoFace">
                     <div class="back-top-logo">
                       <div class="back-emblem-host" id="backEmblem" hidden></div>
-                      <img id="backLogoImg" src="/assets/logo_toomcard_hd.gif" alt="Logo" onerror="this.onerror=null; this.src='/assets/logo_toomcard_hd.webp';">
+                      <img id="backLogoImg" src="/assets/logo_toomcard_hd.webp" alt="Logo" onerror="this.onerror=null; this.src='/assets/logo_toomcard_hd.webp';">
                     </div>
                   </div>
                 </div>
@@ -2478,7 +2478,10 @@
         showToast(window.i18n ? i18n.t('card.lead_done') : '전달되었습니다!');
         ['leadNameInput', 'leadPhoneInput', 'leadEmailInput', 'leadMemoInput'].forEach((id) => { const el = document.getElementById(id); if (el) el.value = ''; });
       } else {
-        showToast('오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+        const m = window.__leadError || '';
+        showToast(m.includes('lead_duplicate') ? (window.i18n ? i18n.t('card.lead_dup') : '이미 접수됐어요. 곧 연락이 갈 거예요.')
+          : m.includes('lead_rate') ? (window.i18n ? i18n.t('card.lead_busy') : '요청이 많아요. 잠시 후 다시 시도해 주세요.')
+          : '오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
       }
     }
   </script>
@@ -2494,13 +2497,9 @@
   <script src="/js/i18n.js"></script>
   <script src="/js/card-renderer.js"></script>
   <script src="/js/toast.js"></script>
-  <script>if (!window.__MAKER) document.write('<script src="/js/maza-telemetry.js"><\/script>');</script>
   <script>
     if (window.self !== window.top || new URLSearchParams(window.location.search).get('embed') === 'simulator') {
       document.body.classList.add('in-simulator');
-    }
-    if (window.MazaTelemetry) {
-      window.MazaTelemetry.init({ podId: 'toomcard3d' });
     }
     // 비상 안전 타이머: 네트워크 지연이나 예외 발생 시에도 흰 화면 방지 및 카드 강제 노출
     setTimeout(function() {

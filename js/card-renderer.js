@@ -13,7 +13,7 @@ const DEFAULT_CARD_FALLBACK = {
   theme: "obsidian",
   layout: "classic",
   edition: "TITANIUM PRO",
-  name: "Alex Rivera",
+  name: "TOOMCARD",
   role: "총괄 디렉터 / Managing Director",
   company: "TOOMCARD",
   companyWatermark: "TOOMCARD",
@@ -25,7 +25,7 @@ const DEFAULT_CARD_FALLBACK = {
   moatTags: ["3D 인터랙티브", "vCard 주소록 저장", "스마트 NFC 하드웨어"],
   logo: {
     src: "/assets/logo_toomcard_hd.webp",
-    fallback: "/assets/logo_toomcard_hd.gif",
+    fallback: "/assets/logo_toomcard_hd.webp",
     alt: "TOOMCARD Logo"
   },
   plateCardImage: "/assets/toomcard_front_plate.png",
@@ -41,7 +41,7 @@ const DEFAULT_CARD_FALLBACK = {
   vcard: {
     firstName: "Alex",
     lastName: "Rivera",
-    formattedName: "Alex Rivera",
+    formattedName: "TOOMCARD",
     org: "TOOMCARD",
     title: "총괄 디렉터",
     tel: "010-5555-0100",
@@ -133,20 +133,23 @@ function collectLinks(data) {
   return items;
 }
 
+// 사용자 입력(이름·라벨·주소)을 HTML에 넣기 전 이스케이프 + 링크는 http(s)/mailto/tel 만 허용
+function escHtml(v) { return String(v == null ? '' : v).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+function safeHref(u) { const s = String(u || '').trim(); return /^(https?:\/\/|mailto:|tel:|sms:)/i.test(s) ? escHtml(s) : '#'; }
 function linkButtonHtml(item) {
   if (item.kind === 'social' && item.type === 'social_modal') {
     return `
-      <button class="btn-action btn-glass" onclick="event.stopPropagation(); openSocialModal();" title="${item.label}">
-        <i data-lucide="${item.icon || 'globe'}" style="width: 14px; height: 14px; color: #38bdf8;"></i>
-        <span>${item.label}</span>
+      <button class="btn-action btn-glass" onclick="event.stopPropagation(); openSocialModal();" title="${escHtml(item.label)}">
+        <i data-lucide="${escHtml(item.icon || 'globe')}" style="width: 14px; height: 14px; color: #38bdf8;"></i>
+        <span>${escHtml(item.label)}</span>
       </button>`;
   }
   const icon = item.kind === 'social' ? getSocialIconSvg(item.type)
-    : `<i data-lucide="${item.icon || 'globe'}" style="width: 14px; height: 14px; color: #38bdf8;"></i>`;
+    : `<i data-lucide="${escHtml(item.icon || 'globe')}" style="width: 14px; height: 14px; color: #38bdf8;"></i>`;
   return `
-      <a href="${item.url}" target="_blank" rel="noopener noreferrer" class="btn-action btn-glass" onclick="event.stopPropagation()" title="${item.label || ''}">
+      <a href="${safeHref(item.url)}" target="_blank" rel="noopener noreferrer" class="btn-action btn-glass" onclick="event.stopPropagation()" title="${escHtml(item.label || '')}">
         ${icon}
-        <span>${item.label || ''}</span>
+        <span>${escHtml(item.label || '')}</span>
       </a>`;
 }
 
@@ -184,7 +187,7 @@ function renderActionDocks(data) {
     rest = items.slice(2);
     // 3번째부터의 SNS는 카드에 아이콘 줄로 보여 주고, 전체 목록은 더보기에도 둔다
     const icons = rest.filter((it) => it.kind === 'social' && it.type !== 'social_modal' && it.url).slice(0, 6);
-    if (icons.length) html += `<div class="inside-social-icons">${icons.map((it) => `<a class="sico" href="${it.url}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" title="${it.label || it.type}" aria-label="${it.label || it.type}">${getSocialIconSvg(it.type)}</a>`).join('')}</div>`;
+    if (icons.length) html += `<div class="inside-social-icons">${icons.map((it) => `<a class="sico" href="${safeHref(it.url)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" title="${escHtml(it.label || it.type)}" aria-label="${escHtml(it.label || it.type)}">${getSocialIconSvg(it.type)}</a>`).join('')}</div>`;
   }
   if (dockFront) dockFront.innerHTML = html;
   if (dockBack) dockBack.innerHTML = html;
@@ -285,16 +288,16 @@ function renderSocialModal(data) {
   }
 
   const itemsHtml = socialModalItem.channels.map(channel => `
-    <a href="${channel.url}" target="_blank" rel="noopener noreferrer" class="channel-row">
+    <a href="${safeHref(channel.url)}" target="_blank" rel="noopener noreferrer" class="channel-row">
       <div class="channel-left">
-        <i data-lucide="${channel.icon || 'globe'}" style="width: 18px; height: 18px;"></i>
+        <i data-lucide="${escHtml(channel.icon || 'globe')}" style="width: 18px; height: 18px;"></i>
         <div class="channel-info">
-          <span class="channel-name">${channel.name}</span>
-          <span class="channel-handle">${channel.id}</span>
+          <span class="channel-name">${escHtml(channel.name)}</span>
+          <span class="channel-handle">${escHtml(channel.id)}</span>
         </div>
       </div>
       <div class="channel-right">
-        <span class="channel-badge">${channel.badge}</span>
+        <span class="channel-badge">${escHtml(channel.badge)}</span>
         <i data-lucide="chevron-right" style="width: 16px; height: 16px; color: rgba(255,255,255,0.4);"></i>
       </div>
     </a>
@@ -439,8 +442,8 @@ function populateCard(data) {
     const fContainer = document.querySelector('.card-medallion-area') || document.querySelector('.front-logo-container');
     if (fContainer) fContainer.style.display = 'none';
   } else if (data.logo) {
-    const primarySrc = resolveAssetUrl(data.logo.src || '/assets/logo_toomcard_hd.gif');
-    const fallbackSrc = resolveAssetUrl(data.logo.fallback || '/assets/logo_toomcard_hd.gif');
+    const primarySrc = resolveAssetUrl(data.logo.src || '/assets/logo_toomcard_hd.webp');
+    const fallbackSrc = resolveAssetUrl(data.logo.fallback || '/assets/logo_toomcard_hd.webp');
 
     if (frontLogoImg) {
       frontLogoImg.onerror = function() {
@@ -546,7 +549,7 @@ function populateCard(data) {
   // 해자 태그 (Moat Tags) 바인딩
   const frontMoatTags = document.getElementById('frontMoatTags');
   const backMoatTags = document.getElementById('backMoatTags');
-  const tagsHtml = (data.moatTags || []).map(tag => `<span class="moat-tag">${tag}</span>`).join('');
+  const tagsHtml = (data.moatTags || []).map(tag => `<span class="moat-tag">${escHtml(tag)}</span>`).join('');
   if (frontMoatTags) frontMoatTags.innerHTML = tagsHtml;
   if (backMoatTags) backMoatTags.innerHTML = tagsHtml;
 
@@ -1564,8 +1567,8 @@ function populateCardFromCloud(cloud, company) {
     affiliateAction: affiliateAction,
     socials: socials,
     logo: innerCard.logo || {
-      src: p.avatar_url || '/assets/logo_toomcard_hd.gif',
-      fallback: '/assets/logo_toomcard_hd.gif',
+      src: p.avatar_url || '/assets/logo_toomcard_hd.webp',
+      fallback: '/assets/logo_toomcard_hd.webp',
       alt: companyName
     },
     plateCardImage: innerCard.plateCardImage || '/assets/toomcard_front_plate.png',

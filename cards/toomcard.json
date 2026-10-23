@@ -4,14 +4,14 @@
   "theme": "obsidian",
   "layout": "plate",
   "edition": "TITANIUM PRO",
-  "name": "Alex Rivera",
-  "role": "총괄 디렉터 / Managing Director",
-  "title": "총괄 디렉터",
+  "name": "TOOMCARD",
+  "role": "공식 카드 · 디지털 명함 & NFC",
+  "title": "공식 카드",
   "company": "TOOMCARD",
   "companyWatermark": "TOOMCARD",
   "slogan": "오늘의 짧은 만남을 내일의 거대한 비즈니스로 잇는 스마트 카드",
   "tagline": "TO DAY, TO TOMORROW",
-  "phone": "02-1544-0000",
+  "phone": "010-8019-0700",
   "email": "hello@toomcard.com",
   "origin": "TOOMCARD Global",
   "moatTags": [
@@ -20,11 +20,11 @@
     "스마트 NFC 하드웨어"
   ],
   "logo": {
-    "src": "/assets/logo_toomcard_hd.gif",
-    "fallback": "/assets/logo_toomcard_hd.gif",
+    "src": "/assets/logo_toomcard_hd.webp",
+    "fallback": "/assets/logo_toomcard_hd.webp",
     "alt": "TOOMCARD Logo"
   },
-  "avatar": "/assets/logo_toomcard_hd.gif",
+  "avatar": "/assets/logo_toomcard_hd.webp",
   "plateCardImage": "/assets/toomcard_front_plate.jpg",
   "primaryAction": {
     "url": "https://toomcard.com",
@@ -44,19 +44,19 @@
     }
   ],
   "vcard": {
-    "firstName": "Alex",
-    "lastName": "Rivera",
-    "formattedName": "Alex Rivera",
-    "org": "TOOMCARD",
-    "title": "총괄 디렉터",
-    "tel": "010-5555-0100",
+    "firstName": "TOOMCARD",
+    "lastName": "",
+    "formattedName": "TOOMCARD",
+    "org": "TOOMUS",
+    "title": "디지털 명함 & NFC",
+    "tel": "010-8019-0700",
     "email": "hello@toomcard.com",
     "url": "https://toomcard.com"
   },
   "meta": {
-    "title": "TOOMCARD | Alex Rivera 디지털 명함",
+    "title": "TOOMCARD 공식 카드 | 디지털 명함 & NFC",
     "siteName": "TOOMCARD",
-    "ogTitle": "Alex Rivera | TOOMCARD",
+    "ogTitle": "TOOMCARD 공식 카드",
     "ogDescription": "오늘의 짧은 만남을 내일의 거대한 비즈니스로 잇는 스마트 카드 | TOOMCARD",
     "ogImage": "/assets/toomcard_front_plate.png"
   }
