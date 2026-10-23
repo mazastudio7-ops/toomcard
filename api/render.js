@@ -135,6 +135,7 @@ module.exports = async (req, res) => {
     // 2. Supabase Cloud Pods. 로컬 파일이 없으면 대신 쓰고, 로컬 파일이 있어도 같은 이름으로
     //    메이커에서 만든 카드(front 디자인이 있는 것)가 있으면 그 카드가 우선한다 (예전 샘플 파일이 새 카드를 가리는 문제)
     const hadLocal = cardFound;
+    let dbgCloud = 'skip';
     {
       let pod = null;
       let profile = null;
@@ -142,12 +143,13 @@ module.exports = async (req, res) => {
       const orFilter = (hadLocal ? [cleanSlug, decodedSlug] : slugsToTry).filter(Boolean).map(s => `slug.eq.${s}`).join(',');
 
       if (supabase) {
-        const { data: pData } = await supabase
+        const { data: pData, error: pErr } = await supabase
           .from('pods')
           .select('components_json')
           .or(orFilter)
           .maybeSingle();
         pod = pData;
+        if (pErr) dbgCloud = 'err:' + String(pErr.message || '').slice(0, 60);
 
         if (!hadLocal) {
           const { data: prData } = await supabase
@@ -167,6 +169,8 @@ module.exports = async (req, res) => {
         } catch (err) {}
       }
 
+      if (dbgCloud === 'skip') dbgCloud = pod ? ((pod.components_json.card || pod.components_json).front ? 'cloud-front' : 'cloud-nofront') : 'miss';
+      globalThis.__dbgCloud = dbgCloud;
       if (pod && pod.components_json && (!hadLocal || (pod.components_json.card || pod.components_json).front)) {
         const card = pod.components_json.card || pod.components_json;
         loadedCardObj = card;
@@ -268,6 +272,7 @@ module.exports = async (req, res) => {
 
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate');
+    res.setHeader('X-Card-Cloud', (globalThis.__dbgCloud || 'none') + '|' + (process.env.SUPABASE_URL ? 'env' : 'default'));
     return res.status(200).send(html);
 
   } catch (err) {
