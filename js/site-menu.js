@@ -14,13 +14,14 @@
     '.sm-head button{width:36px;height:36px;border-radius:10px;border:1px solid rgba(255,255,255,.14);background:transparent;color:#fff;font-size:20px;cursor:pointer}' +
     '.sm-drawer a{padding:15px 12px;border-radius:12px;color:#fff;font-size:17px;font-weight:700;text-decoration:none}' +
     '.sm-drawer a:active{background:rgba(255,255,255,.08)}' +
+    '.sm-drawer a.sm-login{border:1px solid rgba(255,217,120,.6);color:#ffd978;text-align:center;font-weight:900;margin-bottom:6px}' +
     '.sm-drawer a.sm-main{background:#ffd978;color:#000;text-align:center;font-weight:900;margin-bottom:8px}' +
     '.sm-drawer a.sm-small{font-size:13px;font-weight:500;color:rgba(255,255,255,.5);padding:10px 12px}' +
     '}';
   var LABEL = {
-    ko: { home: '홈 · 갤러리', stars: '이젠스타', make: '내 카드 만들기', cards: '내 카드 관리', more: 'NFC 실물 (준비 중)', terms: '이용약관', privacy: '개인정보처리방침' },
-    en: { home: 'Home · Gallery', stars: 'e zen star', make: 'Make my card', cards: 'My cards', more: 'NFC cards (coming soon)', terms: 'Terms', privacy: 'Privacy' },
-    de: { home: 'Start · Galerie', stars: 'e zen star', make: 'Meine Karte erstellen', cards: 'Meine Karten', more: 'NFC-Karten (bald)', terms: 'Nutzungsbedingungen', privacy: 'Datenschutz' }
+    ko: { login: '로그인', home: '홈 · 갤러리', stars: '이젠스타', make: '내 카드 만들기', cards: '내 카드 관리', more: 'NFC 실물 (준비 중)', terms: '이용약관', privacy: '개인정보처리방침' },
+    en: { login: 'Log in', home: 'Home · Gallery', stars: 'e zen star', make: 'Make my card', cards: 'My cards', more: 'NFC cards (coming soon)', terms: 'Terms', privacy: 'Privacy' },
+    de: { login: 'Anmelden', home: 'Start · Galerie', stars: 'e zen star', make: 'Meine Karte erstellen', cards: 'Meine Karten', more: 'NFC-Karten (bald)', terms: 'Nutzungsbedingungen', privacy: 'Datenschutz' }
   };
   function init() {
     var host = null;
@@ -35,7 +36,9 @@
     var d = document.createElement('aside'); d.className = 'sm-drawer'; d.setAttribute('aria-hidden', 'true');
     function build() {
       var L = lab();
+      var logged = false; try { logged = !!localStorage.getItem('sb-omlcbrslzvdtqwbszgvg-auth-token'); } catch (e) {}
       d.innerHTML = '<div class="sm-head"><span>MENU</span><button type="button" aria-label="close">×</button></div>' +
+        (logged ? '' : '<a class="sm-login" href="/dashboard">' + L.login + '</a>') +
         '<a class="sm-main" href="/maker">' + L.make + '</a>' +
         '<a href="/">' + L.home + '</a>' +
         '<a href="/#stars">' + L.stars + '</a>' +
