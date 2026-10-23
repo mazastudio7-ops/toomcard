@@ -90,11 +90,13 @@
     .starters a { display: block; aspect-ratio: 330 / 529; border-radius: 16px; border: 1px solid rgba(255,255,255,.14); background-size: cover; background-position: center; }
     .toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: rgba(20,16,30,.96); border: 1px solid rgba(255,255,255,.2); padding: 11px 18px; border-radius: 99px; font-size: 13.5px; font-weight: 700; opacity: 0; pointer-events: none; transition: opacity .2s; z-index: 100000; }
     .toast.on { opacity: 1; }
+    .logo { display: flex; align-items: center; gap: 8px; }
+    .logo img { width: 30px; height: 30px; border-radius: 8px; flex: none; box-shadow: 0 0 14px rgba(255,200,90,.25); }
   </style>
 </head>
 <body>
   <header class="bar">
-    <a href="/" class="logo">TOOMCARD</a>
+    <a href="/" class="logo"><img src="/assets/logo_toomcard_mark.webp" alt="" width="30" height="30">TOOMCARD</a>
     <div class="bar-r">
       <div data-i18n-switcher></div>
       <button class="auth" id="authBtn" type="button">로그인</button>

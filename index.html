@@ -114,12 +114,14 @@
     footer a:hover { color: #fff; }
     @media (max-width: 760px) { .aurora { display: none; } }
     @media (prefers-reduced-motion: reduce) { .aurora i, .hero h1, .hero p, .hero .big, .stage { animation: none; } .tile { opacity: 1; transform: none; transition: none; } }
+    .logo { display: flex; align-items: center; gap: 8px; }
+    .logo img { width: 30px; height: 30px; border-radius: 8px; flex: none; box-shadow: 0 0 14px rgba(255,200,90,.25); }
   </style>
 </head>
 <body>
   <div class="aurora" aria-hidden="true"><i></i><i></i></div>
   <header class="bar">
-    <a href="/" class="logo">TOOMCARD</a>
+    <a href="/" class="logo"><img src="/assets/logo_toomcard_mark.webp" alt="" width="30" height="30">TOOMCARD</a>
     <div class="bar-r">
       <div data-i18n-switcher></div>
       <a href="/dashboard" class="mine" data-i18n="nav.dashboard">내 명함 관리</a>
