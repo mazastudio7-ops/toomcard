@@ -349,6 +349,7 @@
       input, select, textarea, .input, .select, .url-preview input { font-size: 16px !important; }
     }
     .toast.show { pointer-events: auto; }
+    @media (max-width: 980px) { .toast { bottom: calc(var(--tabbar-h, 62px) + 78px + env(safe-area-inset-bottom)); max-width: calc(100vw - 32px); } }
     .toast-act { margin-left: 12px; appearance: none; border: 0; border-radius: 99px; padding: 6px 12px; background: var(--tc-accent); color: #000; font: 800 12.5px var(--tc-font-body); cursor: pointer; }
   </style>
 </head>
@@ -999,7 +1000,30 @@
         if (frame && frame.contentWindow) frame.contentWindow.postMessage({ action: 'render', card: previewCard(), seq: renderSeq }, '*');
       };
       if (immediate) send(); else renderTimer = setTimeout(send, delay || 80);
+      scheduleDraft();
     }
+    /* ── 만들던 카드 임시 저장 (로그인하러 다녀와도, 창을 닫아도 이어서) ── */
+    const DRAFT_KEY = 'tc_maker_draft';
+    let draftTimer = 0, draftReady = false;
+    function scheduleDraft() { if (!draftReady) return; clearTimeout(draftTimer); draftTimer = setTimeout(saveDraft, 700); }
+    function saveDraft() {
+      try {
+        const c = collect();
+        const d = { v: 1, at: Date.now(), slugInput: $('fSlug').value, card: c, orig: typeof photoOrig === 'string' ? photoOrig : '' };
+        try { localStorage.setItem(DRAFT_KEY, JSON.stringify(d)); }
+        catch (e) { d.orig = ''; localStorage.setItem(DRAFT_KEY, JSON.stringify(d)); }   // 용량이 모자라면 원본 사진은 빼고
+      } catch (e) {}
+    }
+    function loadDraft() {
+      try {
+        const d = JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null');
+        if (!d || !d.card || Date.now() - d.at > 14 * 864e5) return null;
+        const c = d.card, bg = (c.front && c.front.bg) || {};
+        const touched = c.name || c.phone || c.email || c.role || (bg.type === 'image' && !/^\/assets\//.test(bg.src || ''));
+        return touched ? d : null;
+      } catch (e) { return null; }
+    }
+    function clearDraft() { try { localStorage.removeItem(DRAFT_KEY); } catch (e) {} }
     // 뷰어가 다 그렸다는 신호를 기다린다 (너무 오래 걸리면 그냥 진행)
     function waitRendered(ms) {
       return new Promise((resolve) => { renderedWaiters.push(resolve); setTimeout(resolve, ms); });
@@ -1678,7 +1702,7 @@
         $('resultLink').textContent = publishedUrl; $('resultLink').href = publishedUrl;
         $('resultQr').innerHTML = '';
         try { new QRCode($('resultQr'), { text: publishedUrl, width: 104, height: 104, correctLevel: QRCode.CorrectLevel.M }); } catch (e) {}
-        $('result').classList.add('show');
+        $('result').classList.add('show'); clearDraft();
         if (typeof gtag === 'function') gtag('event', 'card_published', { event_category: 'conversion', card_name: c.slug });
         toast(t(c.star && c.star.on ? 'maker.star_pending' : 'maker.published_title'));
       };
@@ -1761,6 +1785,10 @@
       if (typeof loadPodFromCloud !== 'function') return;
       const res = await loadPodFromCloud(slug); if (!res || !res.pod) return;
       const json = res.pod.components_json || {}; const c = json.card || json;
+      applyCardData(c, slug, true);
+    }
+    // 저장된 카드 데이터(클라우드 또는 임시 저장)를 메이커 화면에 채운다
+    function applyCardData(c, slug, fromCloud) {
       card = Object.assign(JSON.parse(JSON.stringify(DEFAULT_CARD)), c);
       if (!c.front) card.front = { bg: { type: 'image', src: c.plateCardImage || DEFAULT_CARD.front.bg.src }, text: { layout: 'none', showLogo: false, tone: 'auto' }, finish: 'metal', qr: 'off' };
       $('fName').value = c.name || ''; $('fRole').value = c.role || ''; $('fCompany').value = c.company || '';
@@ -1769,8 +1797,8 @@
       const ss = (c.socials || []).filter((s) => s.url);
       if (ss[0]) { $('fSocialType').value = ss[0].type; $('fSocialUrl').value = ss[0].url; }
       if (ss[1]) { $('fSocial2Type').value = ss[1].type; $('fSocial2Url').value = ss[1].url; }
-      setKind(c.kind || 'business');   // 예전 카드는 모두 비즈니스
-      $('fTags').value = (c.moatTags || []).join(', '); $('fSlug').value = slug;
+      setKind(c.kind || (fromCloud ? 'business' : 'personal'));   // 예전 카드는 모두 비즈니스
+      $('fTags').value = (c.moatTags || []).join(', '); $('fSlug').value = slug || '';
       // 예전 그라데이션 카드는 단색(부드러운 그라데이션)으로 읽는다
       if (card.front.bg.type === 'gradient') card.front.bg = { type: 'color', color: card.front.bg.from || DEFAULT_SOLID, shade: 0, soft: true };
       const knownPlate = CURATED_BG.find((b) => b.type === 'image' && b.src === card.front.bg.src);
@@ -1781,7 +1809,7 @@
       card.emblem = Object.assign({}, DEFAULT_CARD.emblem, c.emblem || { on: false });   // 예전 카드는 엠블럼 없이 기존 로고 그대로
       $('emText').value = (c.emblem && c.emblem.text) || ''; syncEmblemUI();
       card.star = Object.assign({ on: false, tag: '' }, c.star || {}); card.privacy = Object.assign({ phone: false, email: false }, c.privacy || {}); syncStarUI();
-      if (card.star.on && typeof getMyPrivateCard === 'function') {
+      if (fromCloud && card.star.on && typeof getMyPrivateCard === 'function') {
         getMyPrivateCard(slug).then((pv) => { if (!pv) return; if (pv.phone && !$('fPhone').value) $('fPhone').value = pv.phone; if (pv.email && !$('fEmail').value) $('fEmail').value = pv.email; render(); });
       }
       pressOnly($('textChips'), 'layout', card.front.text.layout); setLogo(card.front.text.showLogo);
@@ -1849,7 +1877,17 @@
       const sample = params.get('sample');
       const SAMPLES = { creator: { src: '/assets/sample_profile_creator.jpg', frame: 'arch' }, ceo: { src: '/assets/sample_profile_ceo.jpg', frame: 'polaroid', tone: 'light' }, tech: { src: '/assets/sample_profile_tech.jpg', frame: 'magazine' }, film: { src: '/assets/sample_profile_tech.jpg', frame: 'film' } };
       const goTab = (n) => { if (!n) return; if (isMobile()) { currentTab = ''; openTab(n); } else if (typeof setSide === 'function') setSide(['logo', 'finish', 'publish', 'info'].includes(n) ? 'back' : 'front'); };
-      if (edit) Promise.resolve(loadForEdit(edit)).then(() => setTimeout(() => goTab(startTab), 400));
+      const backFromLogin = /access_token|refresh_token/.test(location.hash) || params.has('code');
+      const draft = (!edit && !sample && !params.get('preset')) ? loadDraft() : null;
+      if (draft) {
+        applyCardData(draft.card, draft.slugInput, false);
+        if (draft.orig && currentBgId === 'upload') photoOrig = draft.orig;
+        if (backFromLogin) { if (isMobile()) { currentTab = ''; openTab('publish'); } toast(t('maker.draft_back')); }
+        else setTimeout(() => toastAction(t('maker.draft_loaded'), t('maker.draft_new'), () => { clearDraft(); location.replace('/maker'); }), 600);
+      }
+      setTimeout(() => { draftReady = true; }, 1500);
+      if (draft) { /* 이어서 만들기 */ }
+      else if (edit) Promise.resolve(loadForEdit(edit)).then(() => setTimeout(() => goTab(startTab), 400));
       else if (sample && SAMPLES[sample]) {
         const sp = SAMPLES[sample];
         uploadedPhoto = sp.src; photoOrig = sp.src; photoMask = null; photoBg = null;
