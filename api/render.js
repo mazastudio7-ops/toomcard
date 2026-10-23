@@ -1,6 +1,11 @@
 const fs = require('fs');
 const path = require('path');
 
+// 카드 이름·회사명 같은 사용자 입력은 HTML/속성에 넣기 전에 반드시 이스케이프한다 (저장형 XSS 방지)
+const esc = (v) => String(v == null ? '' : v).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+// 자산 주소는 /assets/… 또는 https://… 만 허용 (javascript: 등 차단)
+const safeAsset = (u) => (typeof u === 'string' && /^(\/assets\/[\w.\-\/]+|https:\/\/[\w.\-\/%?=&]+)$/.test(u)) ? u : null;
+
 // 배포 환경에 예전 프로젝트 주소(SUPABASE_URL)가 남아 있어도 이 파일은 새 프로젝트를 읽는다. 바꾸려면 TC_ 이름의 변수를 쓴다.
 const SUPABASE_URL = process.env.TC_SUPABASE_URL || "https://omlcbrslzvdtqwbszgvg.supabase.co";
 const SUPABASE_ANON_KEY = process.env.TC_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9tbGNicnNsenZkdHF3YnN6Z3ZnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI3Mzc4NTQsImV4cCI6MjEwODMxMzg1NH0.j2YVNIFIit7nzvaGGCprpFhPQfpQ6cQCf5n-2Dctg3g";
@@ -8,11 +13,6 @@ const SUPABASE_ANON_KEY = process.env.TC_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1N
 let supabase = null;
 try {
   const { createClient } = require('@supabase/supabase-js');
-
-// 카드 이름·회사명 같은 사용자 입력은 HTML/속성에 넣기 전에 반드시 이스케이프한다 (저장형 XSS 방지)
-const esc = (v) => String(v == null ? '' : v).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-// 자산 주소는 /assets/… 또는 https://… 만 허용 (javascript: 등 차단)
-const safeAsset = (u) => (typeof u === 'string' && /^(\/assets\/[\w.\-\/]+|https:\/\/[\w.\-\/%?=&]+)$/.test(u)) ? u : null;
   supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 } catch (e) {}
 
