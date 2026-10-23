@@ -129,6 +129,11 @@
     .logo { display: flex; align-items: center; gap: 8px; }
     .logo img { width: 30px; height: 30px; border-radius: 8px; flex: none; box-shadow: 0 0 14px rgba(255,200,90,.25); }
 
+    .spill { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 99px; border: 1px solid rgba(255,217,120,.65); background: rgba(255,217,120,.13); color: #ffd978; font-weight: 900; font-size: 13.5px; white-space: nowrap; box-shadow: 0 0 22px -6px rgba(255,217,120,.7); animation: spGlow 2.8s ease-in-out infinite; }
+    .spill span { font-size: 14px; line-height: 1; }
+    @keyframes spGlow { 50% { box-shadow: 0 0 30px -2px rgba(255,217,120,.95); } }
+    @media (max-width: 640px) { .spill { padding: 0; width: 34px; height: 34px; justify-content: center; } .spill b { display: none; } .spill span { font-size: 17px; } }
+    @media (max-width: 420px) { .bar .logo { font-size: 12.5px; gap: 5px; letter-spacing: 0; } .bar .logo img { width: 24px; height: 24px; } .bar .tc-lang-switcher button { padding: 5px 5px; font-size: 10.5px; } .bar .tc-lang-switcher { padding: 2px; } .spill { width: 32px !important; height: 32px !important; } .bar .cta { padding: 8px 11px; font-size: 12px; } .bar .bar-r { gap: 5px; } .bar { padding-left: 10px; padding-right: 10px; } }
     .starlink { display: inline-block; margin-top: 14px; font-weight: 800; font-size: 14.5px; color: #ffd978; padding: 9px 16px; border-radius: 99px; border: 1px solid rgba(255,217,120,.5); background: rgba(255,217,120,.08); box-shadow: 0 0 26px -8px rgba(255,217,120,.6); }
     .starband { width: calc(100% - 32px); max-width: 1048px; margin: 18px auto 0; padding: 20px 22px; border-radius: 22px; display: flex; flex-wrap: wrap; gap: 14px 24px; align-items: center; justify-content: space-between; border: 1px solid rgba(255,217,120,.45); background: linear-gradient(120deg, rgba(255,217,120,.14), rgba(167,139,250,.10)); box-shadow: 0 0 50px -18px rgba(255,217,120,.55); }
     .sb-t b { display: block; font-size: clamp(17px, 4.4vw, 22px); font-weight: 900; letter-spacing: -.02em; color: #ffd978; }
@@ -283,7 +288,7 @@
     <a href="/" class="logo"><img src="/assets/logo_toomcard_mark.webp" alt="" width="30" height="30">TOOMCARD</a>
     <div class="bar-r">
       <div data-i18n-switcher></div>
-      <a href="/#stars" class="mine" data-i18n="star.tab_stars">스타</a>
+      <a href="/#stars" class="spill" aria-label="Stars"><span>★</span><b data-i18n="star.tab_stars">스타</b></a>
       <a href="/dashboard" class="mine" data-i18n="nav.dashboard">내 명함 관리</a>
       <a href="/maker.html" class="cta" data-i18n="nav.tab_make">만들기</a>
     </div>
