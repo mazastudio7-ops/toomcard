@@ -353,9 +353,11 @@
     .toast-act { margin-left: 12px; appearance: none; border: 0; border-radius: 99px; padding: 6px 12px; background: var(--tc-accent); color: #000; font: 800 12.5px var(--tc-font-body); cursor: pointer; }
     .car-thumb { overflow: hidden; }
     .ft-full { inset: 0; }
-    .car-thumb[data-off="-1"] .sug-tag { left: auto; right: 8%; transform: none; }
-    .car-thumb[data-off="1"] .sug-tag { left: 8%; transform: none; }
-    .sug-tag { position: absolute; left: 50%; bottom: 8%; transform: translateX(-50%); white-space: nowrap; padding: 6px 12px; border-radius: 99px; background: rgba(0,0,0,.62); border: 1px solid rgba(255,217,120,.55); color: #ffd978; font: 800 12px var(--tc-font-body); backdrop-filter: blur(6px); }
+    /* 양옆 추천 이름표: 카드가 화면 밖으로 나가도 보이도록 무대 양 끝에 고정 */
+    .sug-pill { position: absolute; top: 50%; z-index: 7; transform: translateY(-50%); max-width: 34%; padding: 8px 12px; border-radius: 99px; background: rgba(10,8,18,.78); border: 1px solid rgba(255,217,120,.6); color: #ffd978; font: 800 12px/1.2 var(--tc-font-body); text-align: center; cursor: pointer; backdrop-filter: blur(8px); box-shadow: 0 6px 18px rgba(0,0,0,.45); }
+    .sug-pill[hidden] { display: none; }
+    .sug-pill.l { left: 10px; } .sug-pill.r { right: 10px; }
+    @media (min-width: 981px) { .sug-pill { top: auto; bottom: 14px; transform: none; } }
   </style>
 </head>
 <body>
@@ -651,6 +653,8 @@
           <div class="car-card" id="carCard"><iframe id="preview" class="booting" src="/card.html?embed=simulator&maker=1&id=toomcard" title="Live preview"></iframe></div>
         </div>
         <button type="button" class="car-nav next" onclick="goDesign(designIdx + 1, 1)" aria-label="Next">›</button>
+        <button type="button" class="sug-pill l" id="sugL" hidden onclick="goDesign(designIdx - 1, -1)"></button>
+        <button type="button" class="sug-pill r" id="sugR" hidden onclick="goDesign(designIdx + 1, 1)"></button>
       </div>
       <div class="car-label"><span id="designName">TOOMCARD</span><span class="idx" id="designIdxLabel"></span></div>
       <div class="stage-tools">
@@ -1492,7 +1496,6 @@
         if (!ph) { ph = document.createElement('div'); ph.className = 'ft-photo ft-full'; ph.style.backgroundImage = `url('${d.bg.src}')`; el.style.backgroundImage = 'none'; el.prepend(ph); }
         ph.style.backgroundPosition = st.objectPosition; ph.style.transform = st.transform; ph.style.transformOrigin = st.transformOrigin; ph.style.filter = st.filter;
       }
-      if (d.tag) { const tg = document.createElement('span'); tg.className = 'sug-tag'; tg.textContent = d.tag; el.appendChild(tg); }
     }
     function paintThumbBody(el, d) {
       el.innerHTML = '';
@@ -1514,6 +1517,8 @@
       visLimit = 1;   // 양옆에는 한 장씩만
       $('designName').textContent = list[designIdx].label;
       $('designIdxLabel').textContent = sugMode ? '' : `${designIdx + 1} / ${n}`;
+      $('sugL').hidden = !sugMode; $('sugR').hidden = !sugMode;
+      if (sugMode) { $('sugL').textContent = '‹ ' + list[0].tag; $('sugR').textContent = list[2].tag + ' ›'; }
       fitCard();
       const stack = $('carStack'); const box = cardBox();
       if (stack.children.length !== OFFSETS.length) {
