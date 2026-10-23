@@ -18,9 +18,9 @@
     '.sm-drawer a.sm-small{font-size:13px;font-weight:500;color:rgba(255,255,255,.5);padding:10px 12px}' +
     '}';
   var LABEL = {
-    ko: { home: '홈 · 갤러리', stars: '스타', make: '내 카드 만들기', cards: '내 카드 관리', more: 'NFC 실물 · 기업 · 요금', terms: '이용약관', privacy: '개인정보처리방침' },
-    en: { home: 'Home · Gallery', stars: 'Stars', make: 'Make my card', cards: 'My cards', more: 'NFC · Business · Pricing', terms: 'Terms', privacy: 'Privacy' },
-    de: { home: 'Start · Galerie', stars: 'Stars', make: 'Meine Karte erstellen', cards: 'Meine Karten', more: 'NFC · Business · Preise', terms: 'Nutzungsbedingungen', privacy: 'Datenschutz' }
+    ko: { home: '홈 · 갤러리', stars: '이젠스타', make: '내 카드 만들기', cards: '내 카드 관리', more: 'NFC 실물 · 기업 · 요금', terms: '이용약관', privacy: '개인정보처리방침' },
+    en: { home: 'Home · Gallery', stars: 'ezenstar', make: 'Make my card', cards: 'My cards', more: 'NFC · Business · Pricing', terms: 'Terms', privacy: 'Privacy' },
+    de: { home: 'Start · Galerie', stars: 'ezenstar', make: 'Meine Karte erstellen', cards: 'Meine Karten', more: 'NFC · Business · Preise', terms: 'Nutzungsbedingungen', privacy: 'Datenschutz' }
   };
   function init() {
     var host = null;

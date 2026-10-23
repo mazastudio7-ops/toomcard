@@ -685,9 +685,9 @@
           <div class="url-preview"><span>toomcard.com/</span><select id="fLetter" aria-label="a"></select><span id="slashSp">/</span><input id="fSlug" placeholder="alex" data-i18n-placeholder="maker.slug_ph" autocapitalize="off" autocomplete="off"></div>
           <div class="slug-msg" id="slugMsg"></div>
         </div>
-        <!-- 스타(자랑 피드): 켜면 검토 후 홈 스타 탭에 올라간다. 전화·이메일은 기본 비공개 -->
+        <!-- 이젠스타(자랑 피드): 켜면 검토 후 홈 이젠스타 탭에 올라간다. 전화·이메일은 기본 비공개 -->
         <div class="star-box">
-          <div class="toggle"><span><b data-i18n="maker.star_on">스타에 올리기</b><small class="star-desc" data-i18n="maker.star_desc">검토 후 홈 '스타' 탭에 올라가요. 좋아요를 받고 내 링크를 홍보할 수 있어요.</small></span><button class="switch" id="starSwitch" role="switch" aria-checked="false" type="button"></button></div>
+          <div class="toggle"><span><b data-i18n="maker.star_on">이젠스타에 올리기</b><small class="star-desc" data-i18n="maker.star_desc">검토 후 홈 '이젠스타' 탭에 올라가요. 좋아요를 받고 내 링크를 홍보할 수 있어요.</small></span><button class="switch" id="starSwitch" role="switch" aria-checked="false" type="button"></button></div>
           <div id="starOpts" hidden>
             <div class="field"><label data-i18n="maker.star_tag">분야</label>
               <div class="chips" id="starTags">
@@ -698,8 +698,8 @@
                 <button class="chip" type="button" data-tag="design" data-i18n="maker.tag_design">디자인</button>
                 <button class="chip" type="button" data-tag="etc" data-i18n="maker.tag_etc">기타</button>
               </div></div>
-            <div class="toggle"><span data-i18n="maker.pub_phone">스타에서 전화번호 보이기</span><button class="switch" id="pubPhone" role="switch" aria-checked="false" type="button"></button></div>
-            <div class="toggle"><span data-i18n="maker.pub_email">스타에서 이메일 보이기</span><button class="switch" id="pubEmail" role="switch" aria-checked="false" type="button"></button></div>
+            <div class="toggle"><span data-i18n="maker.pub_phone">이젠스타에서 전화번호 보이기</span><button class="switch" id="pubPhone" role="switch" aria-checked="false" type="button"></button></div>
+            <div class="toggle"><span data-i18n="maker.pub_email">이젠스타에서 이메일 보이기</span><button class="switch" id="pubEmail" role="switch" aria-checked="false" type="button"></button></div>
             <p class="photo-off" style="display:block" data-i18n="maker.pub_note">명함 링크로 직접 보낸 사람에게는 전부 보여요. 홍보 링크는 모두 공개돼요.</p>
           </div>
         </div>
@@ -1786,7 +1786,7 @@
 
     /* ── 발행 ───────────────────────────────────────── */
 
-    /* ── 스타에 올리기 · 공개 설정 ─────────────────────── */
+    /* ── 이젠스타에 올리기 · 공개 설정 ─────────────────────── */
     function syncStarUI() {
       const s = card.star || (card.star = { on: false, tag: '' });
       const pv = card.privacy || (card.privacy = { phone: false, email: false });
@@ -1800,7 +1800,7 @@
     $('starTags').addEventListener('click', (e) => { const b = e.target.closest('.chip'); if (!b) return; card.star.tag = b.dataset.tag; syncStarUI(); });
     $('pubPhone').addEventListener('click', () => { card.privacy.phone = !card.privacy.phone; syncStarUI(); });
     $('pubEmail').addEventListener('click', () => { card.privacy.email = !card.privacy.email; syncStarUI(); });
-    // 스타에 올린 카드는 비공개 항목(전화·이메일)을 공개 데이터에서 빼서 따로 저장한다
+    // 이젠스타에 올린 카드는 비공개 항목(전화·이메일)을 공개 데이터에서 빼서 따로 저장한다
     function splitPrivate(c) {
       const pub = JSON.parse(JSON.stringify(c));
       if (!(c.star && c.star.on)) return { pub, priv: null };

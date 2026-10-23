@@ -1,4 +1,4 @@
-// 홈 "스타" 탭: 승인된 실제 사용자 카드 피드 + 이번 주 스타. Supabase 는 탭을 열 때만 불러온다.
+// 홈 "이젠스타" 탭: 승인된 실제 사용자 카드 피드 + 이번 주 이젠스타. Supabase 는 탭을 열 때만 불러온다.
 (function () {
   const $ = (id) => document.getElementById(id);
   if (!$('homeTabs')) return;

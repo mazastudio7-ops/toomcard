@@ -762,7 +762,7 @@ function setupTilt() {
 }
 
 
-// ── 스타: ♥ 좋아요 · 신고 · 링크 클릭 기록 ──────────────────────────
+// ── 이젠스타: ♥ 좋아요 · 신고 · 링크 클릭 기록 ──────────────────────────
 let _starSlug = '';
 function starSource() { try { return new URLSearchParams(location.search).get('from') === 'star' ? 'star' : 'card'; } catch (e) { return 'card'; } }
 async function starInit(slug) {
