@@ -218,6 +218,9 @@ module.exports = async (req, res) => {
       }
     }
 
+    // MAZA STUDIO 팀 카드: 마자 플레이트 미리보기 (카카오톡·메신저 링크 미리보기용 정적 이미지)
+    if (!ogImageUrl && /^maza-studio(\/|$)/i.test(cleanSlug || '')) ogImageUrl = 'https://toomcard.com/assets/og_maza.jpg';
+
     // [옵션 1] 개인마다 이름, 직함, 회사명이 실시간 렌더링된 1200x630 동적 OG 이미지 생성
     if (!ogImageUrl) {
       const qTitle = encodeURIComponent(title || 'TOOMCARD');
