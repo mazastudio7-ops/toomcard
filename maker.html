@@ -1620,6 +1620,7 @@
     /* ── 배경화면 저장: 앞면 레이어를 1080×1920 PNG로 ── */
     function saveWallpaper() {
       const c = collect();
+      try { const sl = ($('fSlug').value || '').trim(); if (sl) localStorage.setItem('tc_wp_' + sl, '1'); } catch (e) {}
       const W = 1080, H = 1920;
       const cv = document.createElement('canvas'); cv.width = W; cv.height = H;
       const ctx = cv.getContext('2d');
@@ -1748,9 +1749,11 @@
       const params = new URLSearchParams(location.search);
       const edit = params.get('edit');
       const preset = params.get('preset') || params.get('template') || params.get('design');
+      const startTab = params.get('tab');
       const sample = params.get('sample');
       const SAMPLES = { creator: { src: '/assets/sample_profile_creator.jpg', frame: 'arch' }, ceo: { src: '/assets/sample_profile_ceo.jpg', frame: 'polaroid', tone: 'light' }, tech: { src: '/assets/sample_profile_tech.jpg', frame: 'magazine' }, film: { src: '/assets/sample_profile_tech.jpg', frame: 'film' } };
-      if (edit) loadForEdit(edit);
+      const goTab = (n) => { if (!n) return; if (isMobile()) { currentTab = ''; openTab(n); } else if (typeof setSide === 'function') setSide(['logo', 'finish', 'publish', 'info'].includes(n) ? 'back' : 'front'); };
+      if (edit) Promise.resolve(loadForEdit(edit)).then(() => setTimeout(() => goTab(startTab), 400));
       else if (sample && SAMPLES[sample]) {
         const sp = SAMPLES[sample];
         uploadedPhoto = sp.src; photoOrig = sp.src; photoMask = null; photoBg = null;

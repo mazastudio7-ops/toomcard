@@ -24,6 +24,10 @@
       "destination": "/maker.html"
     },
     {
+      "source": "/dashboard-legacy",
+      "destination": "/dashboard-legacy.html"
+    },
+    {
       "source": "/maker-legacy",
       "destination": "/maker-legacy.html"
     },
