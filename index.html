@@ -125,13 +125,151 @@
     .final a { display: inline-block; background: #ffd978; color: #000; font-weight: 900; padding: 16px 32px; border-radius: 99px; font-size: 17px; }
     footer { max-width: 1080px; margin: 0 auto; padding: 24px 20px calc(40px + env(safe-area-inset-bottom)); display: flex; flex-wrap: wrap; gap: 8px 22px; justify-content: center; color: rgba(255,255,255,0.45); font-size: 13px; border-top: 1px solid rgba(255,255,255,0.08); }
     footer a:hover { color: #fff; }
-    @media (max-width: 760px) { .aurora { display: none; } }
-    @media (prefers-reduced-motion: reduce) { .aurora i, .hero h1, .hero p, .hero .big, .stage { animation: none; } .tile { opacity: 1; transform: none; transition: none; } }
+        @media (prefers-reduced-motion: reduce) { .aurora i, .hero h1, .hero p, .hero .big, .stage { animation: none; } .tile { opacity: 1; transform: none; transition: none; } }
     .logo { display: flex; align-items: center; gap: 8px; }
     .logo img { width: 30px; height: 30px; border-radius: 8px; flex: none; box-shadow: 0 0 14px rgba(255,200,90,.25); }
+
+    /* ===== home2: 궤도 히어로 + 숫자 띠 + 4단계 ===== */
+    body { background: radial-gradient(1200px 800px at 80% -10%, #1a1030 0%, #07050d 60%); }
+    .aurora { opacity: .5; height: 90vh; }
+    .aurora i:nth-child(1) { width: 60vw; height: 60vw; } .aurora i:nth-child(2) { width: 50vw; height: 50vw; }
+    .grain { position: fixed; inset: 0; pointer-events: none; z-index: 70; opacity: .045; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>"); }
+    .progress { position: fixed; left: 0; top: 0; height: 3px; width: 100%; transform-origin: 0 50%; transform: scaleX(0); background: linear-gradient(90deg, #ffd978, #a78bfa); z-index: 80; }
+    .hero2 { padding-top: 22px; overflow: visible; }
+    .kick { display: inline-flex; align-items: center; gap: 10px; font: 700 12px 'Montserrat', sans-serif; letter-spacing: .2em; color: #ffd978; margin-bottom: 14px; animation: rise .8s both; }
+    .kick i { width: 9px; height: 9px; border-radius: 50%; background: #ffd978; box-shadow: 0 0 14px #ffd978; animation: pl 2.4s ease-in-out infinite; }
+    @keyframes pl { 50% { transform: scale(.7); opacity: .7; } }
+    .hero2 h1 em { background: linear-gradient(100deg, #e0b34f, #fff6d6, #ffd978, #e0b34f); background-size: 250% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: shim 5s linear infinite; filter: drop-shadow(0 0 26px rgba(255,217,120,.35)); }
+    @keyframes shim { to { background-position: -250% 0; } }
+    .ctas { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; justify-content: center; }
+    .hero2 .big { animation: rise .8s .24s cubic-bezier(.2,.8,.2,1) both, pulse 2.6s 1.2s ease-out infinite; }
+    @keyframes pulse { 0% { box-shadow: 0 10px 30px rgba(255,217,120,.25), 0 0 0 0 rgba(255,217,120,.5); } 100% { box-shadow: 0 10px 30px rgba(255,217,120,.25), 0 0 0 22px rgba(255,217,120,0); } }
+    .ghost { margin-top: 22px; border: 1px solid rgba(255,255,255,.18); padding: 15px 24px; border-radius: 99px; font-weight: 800; font-size: 15px; color: rgba(255,255,255,.85); background: rgba(255,255,255,.05); backdrop-filter: blur(8px); }
+    .o-hint { margin-top: 16px; font-size: 13px; color: rgba(255,255,255,.5); }
+    @media (min-width: 900px) { .ctas { justify-content: flex-start; } }
+    @media (max-width: 899px) { .hero2 { gap: 6px; padding-top: 14px; } .hero2 .big { margin-top: 14px; padding: 14px 26px; font-size: 16px; } .ghost { margin-top: 14px; padding: 12px 18px; font-size: 14px; } .hero2 p { margin-top: 8px; font-size: 15px; } .o-hint { display: none; } .kick { margin-bottom: 8px; } }
+
+    .orbit { position: relative; width: min(94vw, 460px); aspect-ratio: 1; justify-self: center; touch-action: pan-y; animation: rise 1s .15s cubic-bezier(.2,.8,.2,1) both; }
+    @media (min-width: 900px) { .orbit { width: min(46vw, 560px); order: 2; } }
+    .orbit canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
+    .o-ring { position: absolute; inset: 10% 12%; border: 1px dashed rgba(255,255,255,.14); border-radius: 50%; }
+    .o-ring.r2 { inset: 18% 22%; border-color: rgba(255,217,120,.12); }
+    .o-glow { position: absolute; left: 50%; top: 50%; width: 62%; aspect-ratio: 1; border-radius: 50%; background: conic-gradient(#ffd978, #7c3aed, #22d3ee, #ffd978); filter: blur(46px); opacity: .5; transform: translate(-50%,-50%); animation: oSpin 10s linear infinite; }
+    @keyframes oSpin { to { transform: translate(-50%,-50%) rotate(360deg); } }
+    .o-card { position: absolute; left: 50%; top: 50%; width: 34%; transform: translate(-50%,-50%); z-index: 5; display: block; }
+    .o-float { animation: oFloat 6s ease-in-out infinite; }
+    @keyframes oFloat { 0%,100% { transform: translateY(0) rotate(-1.2deg); } 50% { transform: translateY(-9px) rotate(1.2deg); } }
+    .o-tilt { transition: transform .15s ease-out; }
+    .o-flip { position: relative; width: 100%; aspect-ratio: 330 / 529; filter: drop-shadow(0 26px 40px rgba(0,0,0,.55)); }
+    .o-flip.sw { animation: oSw .46s cubic-bezier(.4,0,.2,1); }
+    @keyframes oSw { 0% { transform: perspective(900px) rotateY(0); } 50% { transform: perspective(900px) rotateY(90deg) scale(.96); } 100% { transform: perspective(900px) rotateY(0); } }
+    .orbit .tile.o-face { position: absolute; left: 0; top: 0; width: 330px; height: 529px; aspect-ratio: auto; margin: 0; transform-origin: 0 0; transform: scale(var(--s, .36)) !important; opacity: 1; transition: none; }
+    .o-chip { position: absolute; left: 0; top: 0; z-index: 6; appearance: none; border: 1px solid rgba(255,255,255,.2); background: rgba(20,16,32,.72); backdrop-filter: blur(10px); color: #fff; font: 800 12.5px 'Noto Sans KR', sans-serif; padding: 8px 13px 8px 11px; border-radius: 99px; display: inline-flex; align-items: center; gap: 7px; white-space: nowrap; cursor: pointer; will-change: transform; }
+    .o-chip i { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,.35); }
+    .o-chip.on { background: #ffd978; color: #000; border-color: #ffd978; box-shadow: 0 0 26px rgba(255,217,120,.55); }
+    .o-chip.on i { background: #000; }
+
+    .kpis { width: calc(100% - 32px); max-width: 1048px; margin: 14px auto 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; border-radius: 22px; overflow: hidden; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.1); }
+    .kpi { background: rgba(10,7,18,.86); backdrop-filter: blur(10px); padding: 20px 12px; text-align: center; }
+    .kpi b { display: block; font: 900 clamp(28px, 7vw, 50px)/1 'Montserrat', 'Noto Sans KR', sans-serif; letter-spacing: -.03em; background: linear-gradient(180deg, #fff6d6, #e0b34f); -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(0 0 22px rgba(255,217,120,.3)); }
+    .kpi span { display: block; margin-top: 8px; font-size: clamp(11px, 2.9vw, 14px); color: rgba(255,255,255,.6); }
+
+    .rail2 { position: sticky; top: var(--bar-h, 56px); z-index: 18; margin-top: 48px; background: rgba(7,5,13,.86); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255,255,255,.08); }
+    .rail2 div { max-width: 1080px; margin: 0 auto; display: flex; gap: 6px; overflow-x: auto; padding: 10px 16px; scrollbar-width: none; justify-content: center; }
+    .rail2 a { flex: none; font: 700 12px 'Montserrat','Noto Sans KR',sans-serif; letter-spacing: .04em; color: rgba(255,255,255,.6); border: 1px solid rgba(255,255,255,.14); border-radius: 99px; padding: 6px 13px; }
+    .rail2 a.cur { background: #ffd978; color: #000; border-color: #ffd978; }
+    .stp { max-width: 1080px; margin: 0 auto; padding: 64px 16px; display: grid; gap: 28px; align-items: center; scroll-margin-top: 110px; border-bottom: 1px solid rgba(255,255,255,.07); }
+    @media (min-width: 820px) { .stp { grid-template-columns: .9fr 1.1fr; gap: 54px; } .stp.flipx .stp-t { order: 2; } }
+    .stp .no { display: inline-block; font: 800 12px 'Montserrat', sans-serif; letter-spacing: .14em; color: #000; background: #ffd978; padding: 3px 10px; border-radius: 5px; box-shadow: 0 0 18px rgba(255,217,120,.5); margin-bottom: 14px; }
+    .stp h2 { font-size: clamp(30px, 6vw, 48px); line-height: 1.08; font-weight: 900; letter-spacing: -.035em; background: linear-gradient(100deg, #fff 40%, #ffd978 140%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .stp p { margin-top: 12px; color: rgba(255,255,255,.68); font-size: 16.5px; line-height: 1.65; max-width: 28em; }
+    .tags2 { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
+    .tags2 span { font: 700 12px 'Noto Sans KR', sans-serif; padding: 4px 11px; border-radius: 99px; border: 1px solid rgba(255,255,255,.16); color: rgba(255,255,255,.6); }
+    .vx { position: relative; min-height: 300px; border-radius: 24px; border: 1px solid rgba(255,255,255,.1); background: linear-gradient(160deg, rgba(255,255,255,.07), rgba(255,255,255,.015)); backdrop-filter: blur(14px); box-shadow: 0 40px 90px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.08); display: grid; place-items: center; overflow: hidden; padding: 26px; }
+    .rv { opacity: 0; transform: translateY(28px); transition: opacity .8s ease, transform .8s cubic-bezier(.2,.8,.2,1); }
+    .rv.in2 { opacity: 1; transform: none; }
+    /* 01 */
+    .v-photo { position: relative; width: 150px; height: 240px; border-radius: 18px; background: url(/assets/sample_profile_creator.jpg) center top / cover; box-shadow: 0 20px 50px rgba(0,0,0,.5); overflow: hidden; }
+    .v-photo:after { content: ""; position: absolute; left: 0; right: 0; height: 36%; top: -40%; background: linear-gradient(180deg, transparent, rgba(255,217,120,.55), transparent); animation: scan 2.8s ease-in-out infinite; }
+    @keyframes scan { to { top: 110%; } }
+    .v-photo b { position: absolute; left: 8px; right: 8px; bottom: 8px; padding: 6px; text-align: center; font-size: 11.5px; border-radius: 10px; background: rgba(0,0,0,.55); backdrop-filter: blur(6px); }
+    .corner { position: absolute; width: 22px; height: 22px; border: 2px solid #ffd978; }
+    .corner.a { left: -10px; top: -10px; border-right: 0; border-bottom: 0; } .corner.b { right: -10px; top: -10px; border-left: 0; border-bottom: 0; }
+    .corner.c { left: -10px; bottom: -10px; border-right: 0; border-top: 0; } .corner.d { right: -10px; bottom: -10px; border-left: 0; border-top: 0; }
+    /* 02 */
+    .v-frames { display: flex; gap: 12px; align-items: flex-end; }
+    .fm { width: 70px; height: 112px; background: url(/assets/sample_profile_ceo.jpg) center top / cover; border: 2px solid rgba(255,255,255,.2); opacity: .6; animation: fmOn 6s infinite; }
+    .fm.f1 { border-radius: 999px 999px 8px 8px; }
+    .fm.f2 { background-color: #f5f0e4; padding: 6px 6px 24px; border: 0; background-clip: content-box; border-radius: 3px; outline: 6px solid #f5f0e4; outline-offset: -1px; }
+    .fm.f3 { border-radius: 6px; border: 8px solid #0b0b0e; border-left-width: 14px; border-right-width: 14px; }
+    .fm.f4 { border-radius: 50%; height: 70px; align-self: center; }
+    .fm:nth-child(2) { animation-delay: 1.5s; } .fm:nth-child(3) { animation-delay: 3s; } .fm:nth-child(4) { animation-delay: 4.5s; }
+    @keyframes fmOn { 0%, 25%, 100% { opacity: .55; transform: scale(1); } 6%, 20% { opacity: 1; transform: translateY(-12px) scale(1.12); filter: drop-shadow(0 0 18px rgba(255,217,120,.6)); } }
+    /* 03 */
+    .v-url { width: min(340px, 100%); border-radius: 16px; background: rgba(0,0,0,.45); border: 1px solid rgba(255,255,255,.14); padding: 16px 18px; font: 700 clamp(15px, 4.4vw, 20px) ui-monospace, Menlo, monospace; display: flex; align-items: center; gap: 2px; white-space: nowrap; }
+    .v-url .dim { color: rgba(255,255,255,.5); } .v-url .ty { display: inline-block; overflow: hidden; width: 0; color: #ffd978; border-right: 2px solid #ffd978; animation: typ 4s steps(4) infinite; }
+    @keyframes typ { 0% { width: 0; } 45%, 90% { width: 4ch; } 100% { width: 0; } }
+    .v-ok { margin-top: 18px; display: inline-flex; gap: 8px; align-items: center; padding: 8px 16px; border-radius: 99px; background: rgba(120,255,170,.12); border: 1px solid rgba(120,255,170,.4); color: #8affb8; font-weight: 800; font-size: 14px; animation: okp 4s infinite; }
+    @keyframes okp { 0%, 45% { opacity: 0; transform: translateY(8px) scale(.9); } 55%, 90% { opacity: 1; transform: none; } 100% { opacity: 0; } }
+    /* 04 */
+    .v-tap { position: relative; width: 240px; height: 240px; display: grid; place-items: center; }
+    .v-tap .rp { position: absolute; inset: 0; margin: auto; width: 60px; height: 60px; border-radius: 50%; border: 2px solid #ffd978; opacity: 0; animation: rp 3s ease-out infinite; }
+    .v-tap .rp:nth-child(2) { animation-delay: 1s; } .v-tap .rp:nth-child(3) { animation-delay: 2s; }
+    @keyframes rp { 0% { transform: scale(.3); opacity: .9; } 100% { transform: scale(3.6); opacity: 0; } }
+    .v-tap .cd { position: relative; z-index: 2; width: 92px; height: 148px; border-radius: 14px; background: url(/assets/toomcard_front_plate.jpg) center / cover; box-shadow: 0 16px 40px rgba(0,0,0,.55); animation: tapn 3s ease-in-out infinite; }
+    @keyframes tapn { 0%, 100% { transform: translateY(14px) rotate(-6deg); } 50% { transform: translateY(-6px) rotate(3deg); } }
+    @media (prefers-reduced-motion: reduce) { .kick i, .hero2 h1 em, .o-glow, .o-float, .v-photo:after, .fm, .v-url .ty, .v-ok, .v-tap .rp, .v-tap .cd, .hero2 .big { animation: none !important; } .rv { opacity: 1; transform: none; } .v-url .ty { width: 4ch; } .v-ok { opacity: 1; } }
+
+    /* ===== 카드 극장 (FILM 형식) ===== */
+    .theater { display: grid; grid-template-columns: minmax(0, 1fr) 290px; gap: 16px; align-items: start; margin: 24px 0 34px; text-align: left; }
+    @media (max-width: 900px) { .theater, .allcap { display: none; } }
+    @property --ang { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
+    @keyframes spinb { to { --ang: 360deg; } }
+    .tstage { position: relative; border-radius: 24px; padding: 1.5px; background: conic-gradient(from var(--ang, 0deg), rgba(255,217,120,.95), rgba(167,139,250,.3), rgba(34,211,238,.7), rgba(255,217,120,.15), rgba(255,217,120,.95)); animation: spinb 8s linear infinite; --amb: 255,217,120; }
+    .tstage:before { content: ""; position: absolute; inset: 6% 4%; border-radius: 40px; background: rgb(var(--amb)); filter: blur(60px); opacity: .38; z-index: -1; transition: background .6s; }
+    .tscreen { position: relative; aspect-ratio: 16 / 9; border-radius: 22.5px; overflow: hidden; background: #07050d; display: flex; align-items: center; gap: 6%; padding: 16px 22px 50px 7%; }
+    @media (max-width: 900px) { .tscreen { aspect-ratio: 5 / 4.4; padding: 14px 14px 46px 5%; gap: 5%; } }
+    .tamb { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(60% 80% at 25% 50%, rgba(var(--amb), .28), transparent 70%); transition: background .6s; }
+    .tcardlink { position: relative; flex: none; display: block; }
+    .tflipw { position: relative; filter: drop-shadow(0 22px 34px rgba(0,0,0,.6)); }
+    .tflipw.sw { animation: oSw .46s cubic-bezier(.4,0,.2,1); }
+    .tile.tface { position: absolute; left: 0; top: 0; width: 330px; height: 529px; aspect-ratio: auto; margin: 0; transform-origin: 0 0; transform: scale(var(--s, .5)) !important; opacity: 1; transition: none; }
+    .ttext { position: relative; flex: 1; min-width: 0; }
+    .ttext.tgo > * { animation: tin .7s cubic-bezier(.2,.8,.2,1) both; } .ttext.tgo > *:nth-child(2) { animation-delay: .06s; } .ttext.tgo > *:nth-child(3) { animation-delay: .12s; } .ttext.tgo > *:nth-child(4) { animation-delay: .18s; }
+    @keyframes tin { from { opacity: 0; transform: translateY(14px); filter: blur(6px); } }
+    .ttext b { display: block; font: 700 11px 'Montserrat', sans-serif; letter-spacing: .3em; color: #ffd978; margin-bottom: 8px; }
+    .ttext h3 { font-size: clamp(24px, 5.2vw, 46px); line-height: 1.05; font-weight: 900; letter-spacing: -.035em; background: linear-gradient(100deg, #fff 35%, #ffd978 130%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .ttext p { margin-top: 8px; color: rgba(255,255,255,.7); font-size: clamp(12px, 1.7vw, 16px); line-height: 1.5; }
+    .tcta { display: inline-block; margin-top: 14px; background: #ffd978; color: #000; font-weight: 900; font-size: clamp(12.5px, 1.6vw, 15px); padding: 10px 18px; border-radius: 99px; box-shadow: 0 0 30px rgba(255,217,120,.35); }
+    .thud { position: absolute; right: 14px; top: 12px; z-index: 3; display: flex; gap: 9px; align-items: center; font: 700 11.5px 'Montserrat', sans-serif; letter-spacing: .12em; }
+    .thud .no { color: #000; background: #ffd978; padding: 2px 8px; border-radius: 4px; font-weight: 800; box-shadow: 0 0 16px rgba(255,217,120,.6); }
+    .thud .rec { width: 8px; height: 8px; border-radius: 50%; background: #ff5d5d; box-shadow: 0 0 10px #ff5d5d; animation: pl 1.2s ease-in-out infinite; }
+    .tdock { position: absolute; left: 0; right: 0; bottom: 0; z-index: 3; padding: 0 14px 10px; }
+    .tsegs { display: flex; gap: 3px; height: 4px; margin-bottom: 9px; cursor: pointer; }
+    .tsegs i { position: relative; flex: 1 1 0; background: rgba(255,255,255,.22); border-radius: 2px; overflow: hidden; }
+    .tsegs i:after { content: ""; position: absolute; inset: 0; width: calc(var(--p, 0) * 100%); background: #ffd978; box-shadow: 0 0 10px #ffd978; }
+    .tctl { display: flex; align-items: center; gap: 6px; font: 600 12px 'Montserrat', sans-serif; }
+    .tctl button { appearance: none; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.16); color: #fff; border-radius: 99px; padding: 5px 12px; font-size: 12px; cursor: pointer; backdrop-filter: blur(8px); }
+    .tctl button:hover { border-color: #ffd978; color: #ffd978; }
+    .tctl .tt { margin-left: auto; opacity: .8; }
+    .tchaps { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; max-height: 420px; overflow-y: auto; scrollbar-width: thin; position: relative; }
+    .tchaps li { position: relative; display: grid; grid-template-columns: 46px 1fr; gap: 12px; align-items: center; padding: 8px; border: 1px solid rgba(255,255,255,.1); border-radius: 14px; background: rgba(255,255,255,.03); cursor: pointer; transition: border-color .2s, background .2s, transform .2s; }
+    .tchaps li:hover { border-color: rgba(255,217,120,.5); transform: translateX(-2px); }
+    .tchaps li.cur { border-color: #ffd978; background: rgba(255,217,120,.08); box-shadow: 0 0 30px -12px #ffd978; }
+    .tchaps .th { position: relative; width: 46px; height: 74px; border-radius: 8px; overflow: hidden; background: #14111c; }
+    .tchaps li:not(.cur) .th { filter: saturate(.8) brightness(.8); }
+    .tchaps .n { display: block; font: 700 10.5px 'Montserrat', sans-serif; letter-spacing: .12em; color: #ffd978; }
+    .tchaps strong { display: block; font-size: 14.5px; font-weight: 800; line-height: 1.3; }
+    .tchaps small { display: block; font-size: 12px; color: rgba(255,255,255,.55); line-height: 1.35; }
+    .tchaps .tbar { position: absolute; left: 8px; right: 8px; bottom: 3px; height: 2px; }
+    .tchaps li.cur .tbar:after { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: calc(var(--p, 0) * 100%); background: #ffd978; }
+    @media (max-width: 900px) { .tchaps { grid-auto-flow: column; grid-auto-columns: 190px; max-height: none !important; overflow-x: auto; overflow-y: hidden; padding-bottom: 6px; } .tchaps li:hover { transform: none; } }
+    .allcap { margin: 8px 0 0; font: 700 12px 'Montserrat', 'Noto Sans KR', sans-serif; letter-spacing: .2em; color: rgba(255,255,255,.45); text-align: center; }
+    @media (prefers-reduced-motion: reduce) { .tstage { animation: none; } .thud .rec { animation: none; } }
   </style>
 </head>
 <body>
+  <div class="progress" id="prog"></div><div class="grain" aria-hidden="true"></div>
   <div class="aurora" aria-hidden="true"><i></i><i></i></div>
   <header class="bar">
     <a href="/" class="logo"><img src="/assets/logo_toomcard_mark.webp" alt="" width="30" height="30">TOOMCARD</a>
@@ -142,15 +280,44 @@
     </div>
   </header>
 
-  <section class="hero">
+  <section class="hero hero2">
     <div class="hero-text">
+      <div class="kick"><i></i>TOOMCARD · MY PHOTO, MY CARD</div>
       <h1 data-i18n="home.title" data-i18n-html>내 사진이<br><em>명함이 됩니다</em></h1>
       <p data-i18n="home.sub" data-i18n-html>앞면은 폰 배경화면, 뒷면은 내 정보.<br>사진 한 장과 이름만 넣으면 끝나요.</p>
-      <a href="/maker.html" class="big" data-i18n="home.cta">내 사진으로 만들기</a>
-      <a href="#gallery" class="sec" data-i18n="home.browse">또는 디자인부터 고르기 ↓</a>
+      <div class="ctas">
+        <a href="/maker.html" class="big" data-i18n="home.cta">내 사진으로 만들기</a>
+        <a href="#gallery" class="ghost" data-i18n="home.browse">또는 디자인부터 고르기 ↓</a>
+      </div>
+      <div class="o-hint" data-i18n="h2.hint">둘레의 스타일을 눌러 보세요 — 가운데 카드가 바뀌어요</div>
     </div>
-    <a class="stage" href="/maker" aria-label="make"><img src="/assets/toomcard_front_plate.jpg" alt="TOOMCARD" width="330" height="529"></a>
+    <div class="orbit" id="orbit">
+      <div class="o-ring"></div><div class="o-ring r2"></div>
+      <div class="o-glow"></div><canvas id="spark"></canvas>
+      <a class="o-card" id="oCard" href="/maker.html?preset=toomcard" aria-label="TOOMCARD">
+        <div class="o-float"><div class="o-tilt" id="oTilt"><div class="o-flip" id="oFlip"><div class="tile in o-face" id="oFace"></div></div></div></div>
+      </a>
+    </div>
   </section>
+
+  <div class="kpis rv">
+    <div class="kpi"><b data-i18n="h2.k1b">₩0</b><span data-i18n="h2.k1">사진 한 장으로</span></div>
+    <div class="kpi"><b data-i18n="h2.k2b">1분</b><span data-i18n="h2.k2">만들고 바로 공유</span></div>
+    <div class="kpi"><b>3</b><span>KO · EN · DE</span></div>
+  </div>
+
+  <nav class="rail2" id="rail2" aria-label="steps"><div>
+    <a href="#st1" data-i18n="h2.r1">01 사진</a><a href="#st2" data-i18n="h2.r2">02 꾸미기</a><a href="#st3" data-i18n="h2.r3">03 발행</a><a href="#st4" data-i18n="h2.r4">04 공유</a>
+  </div></nav>
+
+  <section class="stp rv" id="st1"><div class="stp-t"><span class="no">STEP 01</span><h2 data-i18n="h2.st1h">사진 한 장 고르기</h2><p data-i18n="h2.st1p">폰 갤러리에서 마음에 드는 사진 한 장이면 돼요. 배경은 자동으로 지워지고, 밝기와 분위기도 한 번에 맞춰져요.</p><div class="tags2"><span data-i18n="h2.st1t1">1분</span><span data-i18n="h2.st1t2">무료</span><span data-i18n="h2.st1t3">배경 자동 제거</span></div></div>
+    <div class="vx"><div class="v-photo"><i class="corner a"></i><i class="corner b"></i><i class="corner c"></i><i class="corner d"></i><b>배경을 지우는 중…</b></div></div></section>
+  <section class="stp flipx rv" id="st2"><div class="stp-t"><span class="no">STEP 02</span><h2 data-i18n="h2.st2h">양옆으로 넘기며 꾸미기</h2><p data-i18n="h2.st2p">폴라로이드, 필름, 매거진, 아치… 프레임과 로고, 색, 움직임까지. 마음에 드는 모습이 나올 때까지 넘겨 보세요.</p><div class="tags2"><span data-i18n="h2.st2t1">프레임 7종</span><span data-i18n="h2.st2t2">로고 모션</span><span data-i18n="h2.st2t3">되돌리기</span></div></div>
+    <div class="vx"><div class="v-frames"><i class="fm f1"></i><i class="fm f2"></i><i class="fm f3"></i><i class="fm f4"></i></div></div></section>
+  <section class="stp rv" id="st3"><div class="stp-t"><span class="no">STEP 03</span><h2 data-i18n="h2.st3h">이름이 곧 주소</h2><p data-i18n="h2.st3p">toomcard.com/내이름 — 외우기 쉬운 내 주소가 생겨요. 로그인해서 저장하면 언제든 고칠 수 있어요.</p><div class="tags2"><span data-i18n="h2.st3t1">내 주소</span><span data-i18n="h2.st3t2">Google 로그인</span><span data-i18n="h2.st3t3">언제든 수정</span></div></div>
+    <div class="vx"><div style="text-align:center"><div class="v-url"><span class="dim">toomcard.com/</span><span class="ty">mina</span></div><div class="v-ok">✓ 발행됐어요</div></div></div></section>
+  <section class="stp flipx rv" id="st4"><div class="stp-t"><span class="no">STEP 04</span><h2 data-i18n="h2.st4h">탭 한 번으로 공유</h2><p data-i18n="h2.st4p">링크, QR, NFC 카드로 건네세요. 받는 사람은 앱 없이 바로 열고, 앞면을 배경화면으로 저장해요.</p><div class="tags2"><span data-i18n="h2.st4t1">링크</span><span data-i18n="h2.st4t2">QR</span><span data-i18n="h2.st4t3">NFC 카드</span></div></div>
+    <div class="vx"><div class="v-tap"><i class="rp"></i><i class="rp"></i><i class="rp"></i><div class="cd"></div></div></div></section>
 
   <div class="tabs" id="homeTabs">
     <button class="tab on" data-t="gallery" type="button" data-i18n="star.tab_gallery">갤러리</button>
@@ -182,6 +349,21 @@
   <section class="section" id="gallery">
     <h2 data-i18n="gallery.title">마음에 드는 카드를 고르세요</h2>
     <p class="sub" data-i18n="gallery.sub">누르면 그 디자인으로 바로 시작해요. 내 사진과 이름만 넣으면 끝.</p>
+
+    <div class="theater rv" id="theater">
+      <div class="tstage" id="tstage">
+        <div class="tscreen" id="tscreen">
+          <div class="tamb"></div>
+          <div class="thud"><span class="rec"></span><span class="no" id="tNo">01</span><span id="tKick">CARD</span></div>
+          <a class="tcardlink" id="tLink" href="/maker.html" aria-label="open"><div class="tflipw" id="tFlip"><div class="tile in tface" id="tFace"></div></div></a>
+          <div class="ttext tgo" id="tText"><b id="tScene"></b><h3 id="tTitle"></h3><p id="tDesc"></p><a class="tcta" id="tCta" href="/maker.html" data-i18n="h2.cta">이 카드로 만들기 →</a></div>
+          <div class="tdock"><div class="tsegs" id="tSegs" aria-label="scenes"></div>
+            <div class="tctl"><button type="button" id="tPrev" aria-label="prev">⏮</button><button type="button" id="tPlay" aria-label="play/pause">❚❚</button><button type="button" id="tNext" aria-label="next">⏭</button><span class="tt" id="tCount"></span></div></div>
+        </div>
+      </div>
+      <ol class="tchaps" id="tChaps"></ol>
+    </div>
+    <div class="allcap" data-i18n="h2.all">전체 카드</div>
     <div class="chips" id="chips">
       <button class="chip" data-f="all" aria-pressed="true" data-i18n="home.cat_all">전체</button>
       <button class="chip" data-f="brand" aria-pressed="false" data-i18n="home.cat_brand">브랜드</button>
@@ -205,11 +387,6 @@
     </div>
   </section>
 
-  <section class="three">
-    <div><b data-i18n="home.p1t">설치 없이</b><span data-i18n="home.p1d">링크 하나면 끝. 받는 사람도 앱이 필요 없어요.</span></div>
-    <div><b data-i18n="home.p2t">배경화면으로</b><span data-i18n="home.p2d">앞면을 폰 배경화면으로 저장해 매일 꺼내 쓰세요.</span></div>
-    <div><b data-i18n="home.p3t">전부 한 곳에</b><span data-i18n="home.p3d">전화, 이메일, 카톡, 인스타, 웹사이트를 뒷면에 모아요.</span></div>
-  </section>
   <div class="final"><a href="/maker.html" data-i18n="home.cta">내 사진으로 만들기</a></div>
 
   <footer>
@@ -222,7 +399,7 @@
 
   <script>
     (function () {
-      const tiles = [].slice.call(document.querySelectorAll('.tile'));
+      const tiles = [].slice.call(document.querySelectorAll('#grid .tile'));
       const io = new IntersectionObserver((es) => {
         let n = 0;
         es.forEach((e) => { if (!e.isIntersecting) return; e.target.style.setProperty('--d', (n++ * 0.08) + 's'); e.target.classList.add('in'); io.unobserve(e.target); });
@@ -240,9 +417,161 @@
       });
       document.getElementById('chips').addEventListener('click', (e) => {
         const b = e.target.closest('.chip'); if (!b) return;
-        document.querySelectorAll('.chip').forEach((c) => c.setAttribute('aria-pressed', String(c === b)));
+        document.querySelectorAll('#chips .chip').forEach((c) => c.setAttribute('aria-pressed', String(c === b)));
         tiles.forEach((t) => { const show = b.dataset.f === 'all' || t.dataset.cat === b.dataset.f; t.hidden = !show; if (show) { t.classList.add('in'); } });
       });
+    })();
+  </script>
+  <script>
+    (function () {
+      var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      var bar = document.querySelector('.bar');
+      function setBar() { document.documentElement.style.setProperty('--bar-h', (bar ? bar.offsetHeight : 56) + 'px'); }
+      setBar(); addEventListener('resize', setBar);
+      var prog = document.getElementById('prog');
+      function onScroll() { var h = document.documentElement.scrollHeight - innerHeight; prog.style.transform = 'scaleX(' + (h > 0 ? Math.min(1, scrollY / h) : 0) + ')'; }
+      addEventListener('scroll', onScroll, { passive: true }); onScroll();
+      var rv = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in2'); rv.unobserve(e.target); } }); }, { threshold: 0.15 });
+      [].forEach.call(document.querySelectorAll('.rv'), function (el) { rv.observe(el); });
+      var links = [].slice.call(document.querySelectorAll('#rail2 a'));
+      var sIO = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) links.forEach(function (a) { a.classList.toggle('cur', a.getAttribute('href') === '#' + e.target.id); }); }); }, { rootMargin: '-40% 0px -50% 0px' });
+      [].forEach.call(document.querySelectorAll('.stp'), function (s) { sIO.observe(s); });
+
+      /* ---- 궤도 히어로 ---- */
+      var orbit = document.getElementById('orbit'), flip = document.getElementById('oFlip'), face = document.getElementById('oFace'), card = document.getElementById('oCard'), tilt = document.getElementById('oTilt');
+      window.h2T = function (k, f) { try { return window.i18n ? i18n.t(k) : f; } catch (e) { return f; } };
+      var P = '<span class="ph" style="background-image:url(/assets/';
+      var LOOKS = [
+        { n: 'TOOMCARD', cls: '', st: 'background-image:url(/assets/toomcard_front_plate.jpg)', html: '', href: '/maker.html?preset=toomcard' },
+        { n: '아치', cls: 'fr-arch', st: '', html: P + 'sample_profile_creator.jpg)"></span><span class="nm">김하늘</span>', href: '/maker?sample=creator' },
+        { n: '폴라로이드', cls: 'fr-polaroid', st: '', html: P + 'sample_profile_ceo.jpg)"></span><span class="nm">Daniel Park</span>', href: '/maker?sample=ceo' },
+        { n: '필름', cls: 'fr-film', st: '', html: P + 'sample_profile_tech.jpg)"></span><span class="nm">Minho Lee</span>', href: '/maker?sample=film' },
+        { n: '매거진', cls: 'fr-magazine', st: 'background-image:url(/assets/sample_profile_tech.jpg)', html: '<b class="mast">TOOMCARD</b><span class="nm">Jisoo Han</span>', href: '/maker?sample=tech' },
+        { n: '단색', cls: '', st: 'background:linear-gradient(160deg,#3b1a6e,color-mix(in srgb,#3b1a6e 55%,#000))', html: '<b class="ini">M</b><span class="nm">Mina Choi</span>', href: '/maker.html?preset=violet' }
+      ];
+      var N = LOOKS.length, cur = 0, userTouched = false, pauseUntil = 0;
+      var chips = LOOKS.map(function (l, i) {
+        var b = document.createElement('button'); b.type = 'button'; b.className = 'o-chip'; b.innerHTML = '<i></i>' + l.n;
+        b.addEventListener('click', function () { userTouched = true; pauseUntil = performance.now() + 4500; show(i); });
+        b.addEventListener('pointerenter', function () { pauseUntil = performance.now() + 1500; });
+        orbit.appendChild(b); return b;
+      });
+      var OMAP = [0, 1, 4, 7, 6, 3];
+      function olab() { chips.forEach(function (b, i) { b.innerHTML = '<i></i>' + h2T('h2.s' + OMAP[i] + 'k', LOOKS[i].n); }); }
+      document.addEventListener('DOMContentLoaded', olab); document.addEventListener('i18n:change', olab);
+      function apply(i) { var l = LOOKS[i]; face.className = 'tile in o-face ' + l.cls; face.style.cssText = l.st; face.innerHTML = l.html; card.href = l.href; }
+      function show(i, instant) {
+        cur = i; chips.forEach(function (c, j) { c.classList.toggle('on', j === i); });
+        if (instant || reduce) return apply(i);
+        flip.classList.remove('sw'); void flip.offsetWidth; flip.classList.add('sw'); setTimeout(function () { apply(i); }, 230);
+      }
+      show(0, true);
+      setInterval(function () { if (!userTouched && visible) show((cur + 1) % N); }, 3200);
+      function fit() { flip.style.setProperty('--s', flip.clientWidth / 330); }
+      fit(); if (window.ResizeObserver) new ResizeObserver(fit).observe(flip); else addEventListener('resize', fit);
+      orbit.addEventListener('pointermove', function (e) {
+        if (reduce) return; var r = orbit.getBoundingClientRect(), x = (e.clientX - r.left) / r.width - .5, y = (e.clientY - r.top) / r.height - .5;
+        tilt.style.transform = 'perspective(900px) rotateY(' + (x * 26) + 'deg) rotateX(' + (-y * 20) + 'deg)';
+      });
+      function untilt() { tilt.style.transform = ''; } orbit.addEventListener('pointerleave', untilt); orbit.addEventListener('pointercancel', untilt);
+
+      /* 반짝이 + 궤도 계산 */
+      var cv = document.getElementById('spark'), cx = cv.getContext('2d'), dpr = Math.min(2, devicePixelRatio || 1), PT = [], visible = true;
+      for (var k = 0; k < 40; k++) PT.push({ x: Math.random(), y: Math.random(), r: .6 + Math.random() * 1.8, v: .015 + Math.random() * .04, ph: Math.random() * 6.28, c: k % 3 });
+      var COL = ['255,217,120', '255,255,255', '167,139,250'];
+      new IntersectionObserver(function (es) { visible = es[0].isIntersecting; }).observe(orbit);
+      var t = 0, last = performance.now();
+      function frame(now) {
+        var dt = Math.min(.05, (now - last) / 1000); last = now;
+        if (visible) {
+          if (!reduce && now > pauseUntil) t += dt * .3;
+          var W = orbit.clientWidth;
+          for (var i = 0; i < N; i++) {
+            var a = t + i / N * 6.2832 - 1.5708, c = Math.cos(a), s = Math.sin(a), q = (s + 1) / 2;
+            chips[i].style.transform = 'translate(' + (W / 2 + c * W * .38) + 'px,' + (W / 2 + s * W * .40) + 'px) translate(-50%,-50%) scale(' + (.84 + .26 * q) + ')';
+            chips[i].style.opacity = .6 + .4 * q; chips[i].style.zIndex = s > 0 ? 6 : 3;
+          }
+          if (cv.width !== (W * dpr | 0)) { cv.width = cv.height = W * dpr | 0; }
+          cx.setTransform(dpr, 0, 0, dpr, 0, 0); cx.clearRect(0, 0, W, W);
+          for (var j = 0; j < PT.length; j++) {
+            var p = PT[j]; if (!reduce) p.y -= p.v * dt; if (p.y < -.02) { p.y = 1.02; p.x = Math.random(); }
+            cx.globalAlpha = .25 + .75 * Math.abs(Math.sin(now / 700 + p.ph)); cx.fillStyle = 'rgb(' + COL[p.c] + ')';
+            cx.beginPath(); cx.arc(p.x * W, p.y * W, p.r, 0, 6.2832); cx.fill();
+          }
+          cx.globalAlpha = 1;
+        }
+        requestAnimationFrame(frame);
+      }
+      requestAnimationFrame(frame);
+    })();
+  </script>
+  <script>
+    (function () {
+      var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      var $ = function (id) { return document.getElementById(id); };
+      var P = '<span class="ph" style="background-image:url(/assets/';
+      var SC = [
+        { k: 'TOOMCARD', t: '로고가 빛나는 브랜드 카드', d: '움직이는 로고와 함께 시작하는 기본 카드', cls: '', st: 'background-image:url(/assets/toomcard_front_plate.jpg)', html: '', href: '/maker.html?preset=toomcard', amb: '255,217,120' },
+        { k: '아치', t: '사진이 아치 속에 서요', d: '부드러운 곡선 프레임에 이름을 담아요', cls: 'fr-arch', st: '', html: P + 'sample_profile_creator.jpg)"></span><span class="nm">김하늘</span>', href: '/maker?sample=creator', amb: '167,139,250' },
+        { k: 'SETUPOD', t: '움직이는 로고 카드', d: '브랜드 로고에 금빛이 스치는 카드', cls: '', st: 'background-image:url(/assets/setupod_front_plate.jpg)', html: '', href: '/maker.html?preset=setupod', amb: '110,190,255' },
+        { k: '단색', t: '사진 없이도 멋지게', d: '색 하나와 이니셜만으로 완성하는 카드', cls: '', st: 'background:linear-gradient(160deg,#1c1c22,color-mix(in srgb,#1c1c22 55%,#000))', html: '<b class="ini">A</b><span class="nm">Alex Rivera</span>', href: '/maker.html?preset=obsidian', amb: '190,190,215' },
+        { k: '폴라로이드', t: '인화한 한 장처럼', d: '따뜻한 필름 감성의 사진 카드', cls: 'fr-polaroid', st: '', html: P + 'sample_profile_ceo.jpg)"></span><span class="nm">Daniel Park</span>', href: '/maker?sample=ceo', amb: '255,200,150' },
+        { k: 'MAZA', t: '브랜드 플레이트', d: '사업용으로 어울리는 묵직한 카드', cls: '', st: 'background-image:url(/assets/maza_front_plate.jpg)', html: '', href: '/maker.html?preset=maza', amb: '255,120,150' },
+        { k: '매거진', t: '잡지 표지처럼', d: '큰 사진 위에 이름이 올라가는 카드', cls: 'fr-magazine', st: 'background-image:url(/assets/sample_profile_tech.jpg)', html: '<b class="mast">TOOMCARD</b><span class="nm">Jisoo Han</span>', href: '/maker?sample=tech', amb: '120,255,200' },
+        { k: '필름', t: '영화 필름 한 컷', d: '필름 테두리가 감싸는 시네마 카드', cls: 'fr-film', st: '', html: P + 'sample_profile_tech.jpg)"></span><span class="nm">Minho Lee</span>', href: '/maker?sample=film', amb: '230,230,230' }
+      ];
+      var T = window.h2T || function (k, f) { return f; };
+      var N = SC.length, cur = 0, el = 0, DUR = 4600, running = !reduce, visible = true, hover = false;
+      var stage = $('tstage'), screen = $('tscreen'), flip = $('tFlip'), face = $('tFace'), chaps = $('tChaps'), segs = $('tSegs');
+      function mk(node, l) { node.className = 'tile in tface ' + l.cls; node.style.cssText = l.st; node.innerHTML = l.html; }
+      var lis = SC.map(function (l, i) {
+        var li = document.createElement('li');
+        li.innerHTML = '<div class="th" style="--s:' + (46 / 330) + '"><div class="tile in tface ' + l.cls + '" style="' + l.st + '">' + l.html + '</div></div><div><span class="n">SCENE ' + String(i + 1).padStart(2, '0') + '</span><strong>' + l.k + '</strong><small>' + l.d + '</small></div><i class="tbar"></i>';
+        li.addEventListener('click', function () { go(i, true); });
+        chaps.appendChild(li); return li;
+      });
+      var sg = SC.map(function (l, i) { var s = document.createElement('i'); s.addEventListener('click', function () { go(i, true); }); segs.appendChild(s); return s; });
+      function fit() {
+        var h = (screen.clientHeight - 62) * 0.98, hh = Math.max(120, h), w = hh * 330 / 529;
+        flip.style.width = w + 'px'; flip.style.height = hh + 'px'; flip.style.setProperty('--s', hh / 529);
+        if (innerWidth > 900) chaps.style.maxHeight = stage.offsetHeight + 'px'; else chaps.style.maxHeight = '';
+      }
+      fit(); if (window.ResizeObserver) new ResizeObserver(fit).observe(screen); else addEventListener('resize', fit);
+      function paint(i) {
+        var l = SC[i];
+        mk(face, l); $('tLink').href = l.href; $('tCta').href = l.href;
+        $('tScene').textContent = 'SCENE ' + String(i + 1).padStart(2, '0') + ' · ' + l.k; $('tTitle').textContent = l.t; $('tDesc').textContent = l.d;
+        $('tNo').textContent = String(i + 1).padStart(2, '0'); $('tKick').textContent = l.k; $('tCount').textContent = (i + 1) + ' / ' + N;
+        stage.style.setProperty('--amb', l.amb);
+        var tx = $('tText'); tx.classList.remove('tgo'); void tx.offsetWidth; tx.classList.add('tgo');
+      }
+      function go(i, manual) {
+        i = (i + N) % N; var first = i === cur && !manual;
+        lis[cur].classList.remove('cur'); cur = i; lis[cur].classList.add('cur'); el = 0;
+        if (reduce) paint(i); else { flip.classList.remove('sw'); void flip.offsetWidth; flip.classList.add('sw'); setTimeout(function () { paint(i); }, 230); }
+        var li = lis[cur]; chaps.scrollTo({ top: li.offsetTop - chaps.clientHeight / 2 + li.offsetHeight / 2, left: li.offsetLeft - chaps.clientWidth / 2 + li.offsetWidth / 2, behavior: 'smooth' });
+      }
+      function refresh() {
+        SC.forEach(function (l, i) { l.k = T('h2.s' + i + 'k', l.k); l.t = T('h2.s' + i + 't', l.t); l.d = T('h2.s' + i + 'd', l.d); var li = lis[i]; li.querySelector('strong').textContent = l.k; li.querySelector('small').textContent = l.d; });
+        paint(cur);
+      }
+      document.addEventListener('DOMContentLoaded', refresh); document.addEventListener('i18n:change', refresh);
+      lis[0].classList.add('cur'); paint(0);
+      $('tPrev').addEventListener('click', function () { go(cur - 1, true); });
+      $('tNext').addEventListener('click', function () { go(cur + 1, true); });
+      $('tPlay').addEventListener('click', function () { running = !running; $('tPlay').textContent = running ? '❚❚' : '▶'; });
+      stage.addEventListener('pointerenter', function (e) { if (e.pointerType === 'mouse') hover = true; });
+      stage.addEventListener('pointerleave', function () { hover = false; });
+      new IntersectionObserver(function (es) { visible = es[0].isIntersecting; }).observe(stage);
+      var last = performance.now();
+      (function tick(now) {
+        var dt = now - last; last = now;
+        if (running && visible && !hover && !document.hidden) { el += Math.min(dt, 60); if (el >= DUR) go(cur + 1); }
+        var p = Math.min(1, el / DUR);
+        for (var i = 0; i < N; i++) { var v = i < cur ? 1 : i === cur ? p : 0; sg[i].style.setProperty('--p', v); }
+        lis[cur].style.setProperty('--p', p);
+        requestAnimationFrame(tick);
+      })(last);
     })();
   </script>
   <script src="/js/home-stars.js" defer></script>

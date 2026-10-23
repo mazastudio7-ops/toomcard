@@ -17,11 +17,15 @@
     },
     {
       "source": "/home2",
-      "destination": "/home2"
+      "destination": "/"
     },
     {
       "source": "/index-legacy",
       "destination": "/index-legacy"
+    },
+    {
+      "source": "/index-v1",
+      "destination": "/index-v1"
     },
     {
       "source": "/admin/star",
