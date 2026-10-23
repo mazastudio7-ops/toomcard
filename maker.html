@@ -189,6 +189,8 @@
     .car-card { position: absolute; left: 50%; top: 50%; width: 354px; height: 553px; margin: -276.5px 0 0 -177px; transform: scale(var(--k, 1)); transform-origin: 50% 50%; z-index: 5; }
     .car-card iframe { display: block; width: 100%; height: 100%; border: none; border-radius: 24px; background: transparent; }
     .car-stack { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
+    .car-stack.cover { z-index: 6; }   /* 넘기는 동안 썸네일이 실제 카드를 덮는다 */
+    .car-card iframe { -webkit-backface-visibility: hidden; backface-visibility: hidden; }
     .car-thumb {
       position: absolute; top: 50%; left: 50%;
       border-radius: 26px; background-size: cover; background-position: center;
@@ -1545,9 +1547,10 @@
       // 1) 다음 디자인을 지금 바로 그리기 시작 (카드가 가려져 있는 동안 완성된다)
       applyDesignSilently(i);
       clearTimeout(renderTimer); render(true);
-      // 2) 실제 카드는 살짝 감추고, 썸네일 줄 전체가 한 칸(또는 여러 칸) 이동
-      ifr.style.transition = 'opacity 0.12s ease'; ifr.style.transform = ''; ifr.style.opacity = '0';
-      stack.classList.add('animating');
+      // 2) 썸네일 줄을 실제 카드 위로 올려 덮은 채로 한 칸(또는 여러 칸) 이동
+      //    (카드 자체의 투명도는 건드리지 않는다: 폰에서 iframe 투명도 전환이 흰 섬광으로 보였다)
+      ifr.style.transform = '';
+      stack.classList.add('animating', 'cover');
       [...stack.children].forEach((el) => placeThumb(el, Number(el.dataset.off) - dir * steps));
       await new Promise((r) => setTimeout(r, 340));
       // 3) 줄을 새 위치 기준으로 다시 깔고, 새 디자인이 다 그려진 뒤에 카드를 위에 띄운다
@@ -1556,7 +1559,7 @@
       await waitRenderedSeq(renderSeq, 1000);
       // 다음 프레임에 그림이 올라간 뒤 보여준다 (화면이 가려져 rAF가 멈춰도 50ms 뒤엔 진행)
       await new Promise((r) => { requestAnimationFrame(() => requestAnimationFrame(r)); setTimeout(r, 50); });
-      ifr.style.transform = ''; ifr.style.opacity = '1';
+      ifr.style.transform = ''; stack.classList.remove('cover');
       setTimeout(() => { sliding = false; }, 120);
     }
     function applyDesignSilently(i) {
