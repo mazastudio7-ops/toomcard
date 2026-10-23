@@ -552,7 +552,7 @@ async function starWeekly(limit = 3) {
 
 async function recordLinkClick(slug, kind, source = 'card') {
   if (!supabaseClient || !slug || !kind) return false;
-  const { error } = await supabaseClient.from('link_clicks').insert({ slug, kind: String(kind).slice(0, 32), source });
+  const { error } = await supabaseClient.from('star_link_clicks').insert({ slug, kind: String(kind).slice(0, 32), source });
   return !error;
 }
 
@@ -572,19 +572,19 @@ async function getMyStarStats(slug) {
 async function savePrivateCard(slug, data) {
   const user = await getCurrentUser();
   if (!user || !slug) return false;
-  const { error } = await supabaseClient.from('pod_private').upsert({ slug, user_id: user.id, data, updated_at: new Date().toISOString() }, { onConflict: 'slug' });
+  const { error } = await supabaseClient.from('tc_pod_private').upsert({ slug, user_id: user.id, data, updated_at: new Date().toISOString() }, { onConflict: 'slug' });
   return !error;
 }
 
 async function getMyShareKey(slug) {
   if (!supabaseClient || !slug) return null;
-  const { data } = await supabaseClient.from('pod_private').select('share_key').eq('slug', slug).maybeSingle();
+  const { data } = await supabaseClient.from('tc_pod_private').select('share_key').eq('slug', slug).maybeSingle();
   return data ? data.share_key : null;
 }
 
 async function getPrivateCard(slug, key) {
   if (!supabaseClient || !slug || !key) return null;
-  const { data, error } = await supabaseClient.rpc('get_private_card', { p_slug: slug, p_key: key });
+  const { data, error } = await supabaseClient.rpc('tc_get_private_card', { p_slug: slug, p_key: key });
   return error ? null : data;
 }
 

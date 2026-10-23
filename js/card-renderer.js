@@ -1054,7 +1054,14 @@ window.addEventListener('message', (event) => {
   }
   if (action === 'render' && event.data.card) {
     // 메이커 미리보기: 카드 데이터를 통째로 다시 그리고, 다 그렸다고 알린다 (전환 애니메이션 타이밍용)
+    // 앞면 사진이 실제로 그려질 수 있을 때까지 기다린다 → 빈 카드 테두리만 잠깐 보이는 일이 없게
     Promise.resolve(populateCard(event.data.card)).then(() => {
+      const img = document.getElementById('plateArtworkImg');
+      const ready = img && img.getAttribute('src') && !img.hidden
+        ? (img.decode ? img.decode().catch(() => {}) : new Promise((r) => { if (img.complete) r(); else { img.onload = r; img.onerror = r; } }))
+        : Promise.resolve();
+      return Promise.race([ready, new Promise((r) => setTimeout(r, 900))]);
+    }).then(() => {
       try { window.parent.postMessage({ action: 'rendered', seq: event.data.seq }, '*'); } catch (err) {}
     });
     return;

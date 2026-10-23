@@ -1409,7 +1409,7 @@
       // 3) 줄을 새 위치 기준으로 다시 깔고, 새 디자인이 다 그려진 뒤에 카드를 위에 띄운다
       stack.classList.remove('animating');
       renderCarousel();
-      await waitRenderedSeq(renderSeq, 700);
+      await waitRenderedSeq(renderSeq, 1000);
       // 다음 프레임에 그림이 올라간 뒤 보여준다 (화면이 가려져 rAF가 멈춰도 50ms 뒤엔 진행)
       await new Promise((r) => { requestAnimationFrame(() => requestAnimationFrame(r)); setTimeout(r, 50); });
       ifr.style.transform = ''; ifr.style.opacity = '1';
