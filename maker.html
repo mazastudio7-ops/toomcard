@@ -211,6 +211,9 @@
     .car-nav.prev { left: 8px; } .car-nav.next { right: 8px; }
     .car-label { display: flex; align-items: center; gap: 10px; font: 800 14px var(--tc-font-display); letter-spacing: 0.04em; }
     .car-label .idx { font: 600 11.5px var(--tc-font-body); color: var(--tc-text-subtle); letter-spacing: 0; }
+    .tool-btn[data-face].on { color: #000; background: var(--tc-accent); border-color: var(--tc-accent); }
+    .face-badge { position: absolute; left: 50%; top: 4px; transform: translateX(-50%); z-index: 8; pointer-events: none; display: inline-flex; align-items: center; gap: 7px; padding: 6px 14px; border-radius: 99px; background: rgba(8,6,14,.82); border: 1px solid var(--tc-accent); color: var(--tc-accent); font: 800 12.5px var(--tc-font-body); white-space: nowrap; backdrop-filter: blur(8px); box-shadow: 0 6px 22px rgba(0,0,0,.45); }
+    .face-badge i { width: 8px; height: 8px; border-radius: 50%; background: var(--tc-accent); box-shadow: 0 0 10px var(--tc-accent); }
     .tool-btn.accent { color: #000; background: var(--tc-accent); border-color: var(--tc-accent); }
 
     /* 사진 조정 슬라이더 */
@@ -650,6 +653,7 @@
     <!-- ── 가운데: 3D 무대 ──────────────────────────── -->
     <section class="stage">
       <div class="carousel">
+        <div class="face-badge" id="faceBadge" aria-live="polite"><i></i><span id="faceBadgeTxt"></span></div>
         <button type="button" class="car-nav prev" onclick="goDesign(designIdx - 1, -1)" aria-label="Previous">‹</button>
         <div class="car-track" id="carTrack">
           <div class="car-stack" id="carStack"></div>
@@ -661,8 +665,8 @@
       </div>
       <div class="car-label"><span id="designName">TOOMCARD</span><span class="idx" id="designIdxLabel"></span></div>
       <div class="stage-tools">
-        <button class="tool-btn" onclick="flip('show_front')"><i data-lucide="image"></i><span data-i18n="maker.front">앞면</span></button>
-        <button class="tool-btn" onclick="flip('show_back')"><i data-lucide="file-text"></i><span data-i18n="maker.back">뒷면</span></button>
+        <button class="tool-btn on" data-face="front" onclick="flip('show_front')"><i data-lucide="image"></i><span data-i18n="maker.front">앞면</span></button>
+        <button class="tool-btn" data-face="back" onclick="flip('show_back')"><i data-lucide="file-text"></i><span data-i18n="maker.back">뒷면</span></button>
         <button class="tool-btn accent" onclick="pickPhoto()"><i data-lucide="image-plus"></i><span data-i18n="maker.add_photo">내 사진 넣기</span></button>
               </div>
     </section>
@@ -1049,7 +1053,13 @@
         renderedWaiters.push(check);
       });
     }
-    function flip(action) { if (typeof setSide === 'function' && innerWidth > 980 && (action === 'show_back' || action === 'show_front')) setSide(action === 'show_back' ? 'back' : 'front', true); const f = $('preview'); if (f && f.contentWindow) f.contentWindow.postMessage({ action }, '*'); }
+    let curFace = 'front';
+    function markFace() {
+      document.querySelectorAll('.tool-btn[data-face]').forEach((b) => b.classList.toggle('on', b.dataset.face === curFace));
+      const el = document.getElementById('faceBadgeTxt'); if (el) el.textContent = t(curFace === 'back' ? 'maker.face_back' : 'maker.face_front');
+    }
+    document.addEventListener('i18n:change', markFace); document.addEventListener('DOMContentLoaded', markFace);
+    function flip(action) { if (action === 'show_back' || action === 'show_front') { curFace = action === 'show_back' ? 'back' : 'front'; markFace(); } if (typeof setSide === 'function' && innerWidth > 980 && (action === 'show_back' || action === 'show_front')) setSide(action === 'show_back' ? 'back' : 'front', true); const f = $('preview'); if (f && f.contentWindow) f.contentWindow.postMessage({ action }, '*'); }
 
     /* ── 배경 ───────────────────────────────────────── */
     let currentBgId = 'toomcard';
@@ -1125,6 +1135,7 @@
         uploadedPhoto = dataUrl; photoBg = null; photoOrig = dataUrl; photoMask = null; setFx('orig');
         setBg({ type: 'image', src: dataUrl }, 'upload');
         setFrame('full'); designIdx = 1; sugOrig = null; makeSuggestions('photo'); renderCarousel();
+        flip('show_front');   // 사진을 넣으면 사진이 보이는 앞면으로
         if (isMobile()) { currentTab = ''; openTab('photo'); }
       });
       e.target.value = '';
@@ -1593,7 +1604,7 @@
     }
     window.addEventListener('resize', () => { if (!sliding) renderCarousel(); });
 
-    function pickPhoto() { $('bgFile').click(); }
+    function pickPhoto() { flip('show_front'); $('bgFile').click(); }
 
     /* ── 사진 조정 ───────────────────────────────────── */
     function isImageBg() { return card.front.bg && card.front.bg.type === 'image'; }
