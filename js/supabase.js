@@ -289,6 +289,7 @@ async function saveLeadToCloud(targetSlug, phone, memo = '', extra = {}) {
         memo: memo || '',
         name: (extra && extra.name) || '',
         email: (extra && extra.email) || '',
+        timing: (extra && ['now', 'soon', 'browse'].includes(extra.timing)) ? extra.timing : '',
         pageUrl: window.location.href,
         userAgent: navigator.userAgent
       }
@@ -318,6 +319,7 @@ async function getLeadsPage(slugs, from = 0, size = 30, opts = {}) {
     .select('id,target_slug,phone,metadata,created_at,status,note,followup_at', { count: 'exact' })
     .in('target_slug', list);
   if (opts.status && opts.status !== 'all') q = q.eq('status', opts.status);
+  if (opts.timing) q = q.eq('metadata->>timing', opts.timing);
   if (opts.followupDue) q = q.not('followup_at', 'is', null).lte('followup_at', new Date().toISOString()).not('status', 'in', '(won,hold)');
   const t = String(opts.q || '').trim().replace(/[%,()]/g, ' ').slice(0, 60);
   if (t) q = q.or(`phone.ilike.%${t}%,metadata->>name.ilike.%${t}%,metadata->>email.ilike.%${t}%,metadata->>memo.ilike.%${t}%,note.ilike.%${t}%`);

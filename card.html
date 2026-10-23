@@ -407,6 +407,8 @@
     .sico svg, .sico i { width: 18px !important; height: 18px !important; }
     .star-back { display: none; position: fixed; z-index: 60; top: calc(10px + env(safe-area-inset-top, 0px)); left: 12px; padding: 8px 14px; border-radius: 99px; font: 800 12.5px 'Noto Sans KR', sans-serif; color: #ffd978; background: rgba(8,6,14,.72); border: 1px solid rgba(255,217,120,.5); backdrop-filter: blur(8px); text-decoration: none; }
     body.star-public .star-back { display: inline-block; }
+    .lt-chip { appearance: none; font: 700 13px 'Noto Sans KR', sans-serif; color: rgba(255,255,255,.8); background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.18); border-radius: 99px; padding: 9px 14px; cursor: pointer; }
+    .lt-chip.on { color: #1a1205; background: #ffd978; border-color: #ffd978; }
     .tc-hl { outline: 2px solid #ffd978; outline-offset: 5px; border-radius: 10px; box-shadow: 0 0 26px rgba(255,217,120,.55); transition: box-shadow .2s, outline-color .2s; }
     .back-flip-pill { position: absolute; top: 12px; right: 12px; z-index: 6; appearance: none; font: 800 10.5px 'Montserrat', sans-serif; letter-spacing: .12em; color: #ffd978; background: rgba(8,6,14,.7); border: 1px solid rgba(255,217,120,.55); border-radius: 99px; padding: 7px 12px; cursor: pointer; backdrop-filter: blur(8px); }
     body.in-simulator .back-flip-pill { display: none; }
@@ -2083,6 +2085,14 @@
         <input type="email" id="leadEmailInput" autocomplete="email" placeholder="name@example.com" style="width: 100%; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 12px; color: white; font-size: 14px; outline: none; font-family: inherit;">
       </div>
       <div style="text-align: left; margin-bottom: 12px;">
+        <label style="display: block; font-size: 12px; color: rgba(255,255,255,0.7); margin-bottom: 6px; font-weight:600;"><span data-i18n="card.lead_timing">상담 희망 시기</span></label>
+        <div id="leadTiming" style="display:flex; gap:6px; flex-wrap:wrap;">
+          <button type="button" class="lt-chip" data-t="now" data-i18n="card.lt_now">🔥 지금</button>
+          <button type="button" class="lt-chip" data-t="soon" data-i18n="card.lt_soon">1~3개월 안</button>
+          <button type="button" class="lt-chip" data-t="browse" data-i18n="card.lt_browse">그냥 둘러봄</button>
+        </div>
+      </div>
+      <div style="text-align: left; margin-bottom: 12px;">
         <label style="display: block; font-size: 12px; color: rgba(255,255,255,0.7); margin-bottom: 6px; font-weight:600;"><span data-i18n="card.lead_memo">문의 내용 (선택)</span></label>
         <textarea id="leadMemoInput" rows="3" placeholder="예: 협업 문의" data-i18n-placeholder="card.lead_memo_ph" style="width: 100%; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 12px; color: white; font-size: 14px; outline: none; font-family: inherit; resize: vertical;"></textarea>
       </div>
@@ -2463,6 +2473,7 @@
       if (tooltip) tooltip.classList.remove('active');
     }
 
+    document.addEventListener('click', (e) => { const b = e.target && e.target.closest && e.target.closest('#leadTiming .lt-chip'); if (!b) return; const was = b.classList.contains('on'); document.querySelectorAll('#leadTiming .lt-chip').forEach((x) => x.classList.remove('on')); if (!was) b.classList.add('on'); });
     async function submitLead() {
       const val = (id) => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
       const name = val('leadNameInput'), phone = val('leadPhoneInput'), email = val('leadEmailInput'), memo = val('leadMemoInput');
@@ -2472,11 +2483,13 @@
         return;
       }
       const slug = typeof getCardSlug === 'function' ? getCardSlug() : (new URLSearchParams(window.location.search).get('id') || 'toomus');
-      const success = await saveLeadToCloud(slug, phone, memo, { name, email });
+      const timingEl = document.querySelector('#leadTiming .lt-chip.on');
+      const success = await saveLeadToCloud(slug, phone, memo, { name, email, timing: timingEl ? timingEl.dataset.t : '' });
       if (success) {
         document.getElementById('leadModal').classList.remove('active');
         showToast(window.i18n ? i18n.t('card.lead_done') : '전달되었습니다!');
         ['leadNameInput', 'leadPhoneInput', 'leadEmailInput', 'leadMemoInput'].forEach((id) => { const el = document.getElementById(id); if (el) el.value = ''; });
+        document.querySelectorAll('#leadTiming .lt-chip').forEach((b) => b.classList.remove('on'));
       } else {
         const m = window.__leadError || '';
         showToast(m.includes('lead_duplicate') ? (window.i18n ? i18n.t('card.lead_dup') : '이미 접수됐어요. 곧 연락이 갈 거예요.')
