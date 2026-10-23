@@ -240,6 +240,20 @@
     #emLogoField[hidden], #emTextField[hidden], #emblemControls[hidden] { display: none; }
     #emblemControls.off { opacity: 0.4; pointer-events: none; }
     .hr { height: 1px; background: var(--tc-border); margin: 2px 0; }
+    .btn-ai { display: flex; flex-direction: column; align-items: center; gap: 2px; width: 100%; margin-top: 10px; padding: 12px; border-radius: 14px; border: 1px solid rgba(255,217,120,.55); background: linear-gradient(135deg, rgba(255,217,120,.16), rgba(168,85,247,.16)); color: #ffd978; font: 800 14px inherit; font-family: inherit; cursor: pointer; }
+    .btn-ai small { font-weight: 600; font-size: 11.5px; color: rgba(255,255,255,.65); }
+    .btn-ai i { width: 16px; height: 16px; }
+    .ai-box { max-width: 420px; }
+    .ai-src { display: flex; align-items: center; gap: 10px; font-size: 12px; color: rgba(255,255,255,.6); }
+    .ai-src img { width: 54px; height: 72px; object-fit: cover; border-radius: 10px; border: 1px solid rgba(255,255,255,.15); }
+    .ai-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .ai-grid:empty { display: none; }
+    .ai-cell { position: relative; aspect-ratio: 3/4; border-radius: 12px; overflow: hidden; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.12); cursor: pointer; }
+    .ai-cell img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .ai-cell .lb { position: absolute; left: 0; right: 0; bottom: 0; padding: 4px 6px; font-size: 10.5px; font-weight: 700; color: #fff; background: linear-gradient(transparent, rgba(0,0,0,.7)); }
+    .ai-cell.busy::after { content: ''; position: absolute; inset: 0; margin: auto; width: 22px; height: 22px; border-radius: 50%; border: 2px solid rgba(255,217,120,.3); border-top-color: #ffd978; animation: aispin .8s linear infinite; }
+    .ai-cell.err { display: grid; place-items: center; font-size: 11px; color: #ff9c9c; text-align: center; padding: 6px; cursor: default; }
+    @keyframes aispin { to { transform: rotate(360deg); } }
     .order-overlay { position: fixed; inset: 0; z-index: 90; display: flex; align-items: center; justify-content: center; padding: 16px; background: rgba(4, 2, 10, 0.78); }
     .order-overlay[hidden] { display: none; }
     .order-box { width: 100%; max-width: 360px; max-height: 92dvh; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding: 22px 20px; border-radius: 22px; background: #140d24; border: 1px solid var(--tc-accent-border); box-shadow: 0 24px 60px rgba(0,0,0,0.9); }
@@ -492,6 +506,7 @@
           <ul class="photo-perks"><li data-i18n="maker.perk1">사람만 오려서 배경 바꾸기</li><li data-i18n="maker.perk2">틀 8가지 (폴라로이드·필름·잡지 표지…)</li><li data-i18n="maker.perk3">크기·위치·색감 조절</li></ul>
         </div>
         <button type="button" class="btn-secondary" id="photoRe" onclick="pickPhoto()" hidden><i data-lucide="image-plus"></i><span data-i18n="maker.pick_photo">내 사진 고르기</span></button>
+        <button type="button" class="btn-ai" id="aiPhotoBtn" onclick="openAiPhoto()"><i data-lucide="sparkles"></i><span data-i18n="maker.ai_btn">AI 프로필 사진 만들기</span><small data-i18n="maker.ai_btn_sub">사진관 안 가도 정장·스튜디오 사진 6장</small></button>
         <div class="field" id="fxField">
           <label data-i18n="maker.fx">사진 배경</label>
           <div class="chips" id="fxChips">
@@ -789,6 +804,26 @@
       <button type="submit" class="btn-primary" id="nwSubmit"><span data-i18n="maker.nfc_wait_submit">관심 등록</span></button>
       <button type="button" class="btn-secondary" onclick="closeNfcWait()"><span data-i18n="common.close">닫기</span></button>
     </form>
+  </div>
+
+  <div class="order-overlay" id="aiModal" hidden onclick="if (event.target === this) closeAiPhoto()">
+    <div class="order-box ai-box">
+      <h3 data-i18n="maker.ai_title">AI 프로필 사진</h3>
+      <p class="order-sub" data-i18n="maker.ai_sub">얼굴은 그대로 두고 옷·배경·조명만 바꿔요. 마음에 드는 사진을 누르면 카드에 들어가요.</p>
+      <div class="ai-src"><img id="aiSrc" alt=""><span data-i18n="maker.ai_src">원본</span></div>
+      <div class="chips" id="aiStyles">
+        <button class="chip" data-style="studio" aria-pressed="true" data-i18n="maker.ai_s_studio">정장 · 스튜디오</button>
+        <button class="chip" data-style="white" aria-pressed="true" data-i18n="maker.ai_s_white">흰 배경</button>
+        <button class="chip" data-style="navy" aria-pressed="true" data-i18n="maker.ai_s_navy">네이비</button>
+        <button class="chip" data-style="bright" aria-pressed="true" data-i18n="maker.ai_s_bright">밝은 오피스</button>
+        <button class="chip" data-style="outdoor" aria-pressed="false" data-i18n="maker.ai_s_outdoor">야외</button>
+        <button class="chip" data-style="bw" aria-pressed="false" data-i18n="maker.ai_s_bw">흑백</button>
+      </div>
+      <button type="button" class="btn-primary" id="aiGo" onclick="runAiPhoto()"><span data-i18n="maker.ai_go">만들기</span></button>
+      <div class="ai-grid" id="aiGrid"></div>
+      <p class="order-note" data-i18n="maker.ai_note">사진은 생성에만 쓰이고 저장하지 않아요. 테스트 기간엔 무료예요.</p>
+      <button type="button" class="btn-secondary" onclick="closeAiPhoto()"><span data-i18n="common.close">닫기</span></button>
+    </div>
   </div>
 
   <div class="toast" id="toast"></div>
@@ -1725,6 +1760,43 @@
     window.addEventListener('resize', () => { if (!sliding) renderCarousel(); });
 
     function pickPhoto() { flip('show_front'); $('bgFile').click(); }
+
+    /* ── AI 프로필 사진: 서버(/api/ai-photo)가 Gemini 로 옷·배경·조명만 바꾼다. 얼굴은 그대로. ── */
+    $('aiStyles').addEventListener('click', (e) => { const c = e.target.closest('.chip'); if (!c) return; c.setAttribute('aria-pressed', String(c.getAttribute('aria-pressed') !== 'true')); });
+    function openAiPhoto() {
+      if (!uploadedPhoto) { toast(t('maker.ai_need_photo')); pickPhoto(); return; }
+      $('aiSrc').src = photoOrig || uploadedPhoto; $('aiGrid').innerHTML = ''; $('aiModal').hidden = false;
+    }
+    function closeAiPhoto() { $('aiModal').hidden = true; }
+    async function aiOne(style, cell) {
+      try {
+        const r = await fetch('/api/ai-photo', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ image: photoOrig || uploadedPhoto, style }) });
+        const j = await r.json().catch(() => ({}));
+        if (!r.ok || !j.image) throw new Error(j.error === 'no_key' ? t('maker.ai_no_key') : (j.message || j.error || r.status));
+        cell.classList.remove('busy'); cell.innerHTML = `<img src="${j.image}" alt=""><span class="lb">${cell.dataset.label}</span>`;
+        cell.onclick = () => useAiPhoto(j.image);
+      } catch (err) {
+        cell.classList.remove('busy'); cell.classList.add('err'); cell.textContent = String(err.message || err).slice(0, 80);
+      }
+    }
+    async function runAiPhoto() {
+      const styles = [...document.querySelectorAll('#aiStyles .chip[aria-pressed="true"]')];
+      if (!styles.length) { toast(t('maker.ai_pick_style')); return; }
+      const grid = $('aiGrid'); grid.innerHTML = ''; $('aiGo').disabled = true;
+      const jobs = styles.map((c) => { const cell = document.createElement('div'); cell.className = 'ai-cell busy'; cell.dataset.label = c.textContent.trim(); grid.appendChild(cell); return aiOne(c.dataset.style, cell); });
+      await Promise.all(jobs); $('aiGo').disabled = false;
+    }
+    function useAiPhoto(dataUrl) {
+      const snap = { front: JSON.parse(JSON.stringify(card.front)), bgId: currentBgId, idx: designIdx, up: uploadedPhoto, orig: photoOrig, pbg: photoBg };
+      uploadedPhoto = dataUrl; photoBg = null; photoOrig = dataUrl; photoMask = null; setFx('orig');
+      setBg({ type: 'image', src: dataUrl }, 'upload'); setFrame('full'); renderCarousel(); flip('show_front');
+      closeAiPhoto();
+      setTimeout(() => toastAction(t('maker.ai_applied'), t('maker.undo'), () => {
+        uploadedPhoto = snap.up; photoOrig = snap.orig; photoBg = snap.pbg; photoMask = null;
+        card.front = snap.front; currentBgId = snap.bgId; designIdx = snap.idx;
+        syncAdjustUI(); renderCarousel(); render(true);
+      }), 60);
+    }
 
     /* ── 사진 조정 ───────────────────────────────────── */
     function isImageBg() { return card.front.bg && card.front.bg.type === 'image'; }
