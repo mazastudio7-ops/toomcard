@@ -209,7 +209,10 @@
     });
 
     async function share() {
-      const url = `https://toomcard.com/${main.slug}`, name = cardOf(main).name || '';
+      let url = `https://toomcard.com/${main.slug}`; const name = cardOf(main).name || '';
+      // 스타에 올린 카드는 전화·이메일이 따로 저장돼 있다 → 명함 링크에는 키를 붙여 전부 보이게
+      const st = cardOf(main).star;
+      if (!demo && st && st.on && typeof getMyShareKey === 'function') { try { const k = await getMyShareKey(main.slug); if (k) url += `?k=${k}`; } catch (e) {} }
       try {
         if (navigator.share) { await navigator.share({ title: name ? name + ' | TOOMCARD' : 'TOOMCARD', url }); setFlag('shared', main.slug); renderTodos(); return; }
       } catch (e) { if (e && e.name === 'AbortError') return; }
