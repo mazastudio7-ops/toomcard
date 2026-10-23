@@ -43,6 +43,14 @@
     .stage { position: relative; width: 264px; height: 424px; }
     .stage iframe { position: absolute; left: 0; top: 0; width: 330px; height: 529px; border: 0; transform: scale(.8); transform-origin: 0 0; border-radius: 28px; pointer-events: none; background: transparent; }
     .stage a { position: absolute; inset: 0; z-index: 2; }
+    .pcard { position: relative; display: block; width: 264px; height: 424px; border-radius: 26px; overflow: hidden; border: 1px solid rgba(255,255,255,.16); box-shadow: 0 30px 60px rgba(0,0,0,.6), 0 0 0 1px rgba(0,0,0,.4); background: #14111c; animation: pcFloat 7s ease-in-out infinite; transform-style: preserve-3d; }
+    .pc-bg { position: absolute; inset: 0; background-size: cover; background-position: center; }
+    .pc-tx { position: absolute; left: 18px; right: 18px; bottom: 22px; display: flex; flex-direction: column; gap: 3px; text-shadow: 0 2px 12px rgba(0,0,0,.6); }
+    .pc-tx b { font-size: 22px; font-weight: 900; }
+    .pc-tx small { font-size: 12.5px; opacity: .85; }
+    .pcard::after { content: ""; position: absolute; inset: 0; background: linear-gradient(115deg, transparent 40%, rgba(255,255,255,.10) 50%, transparent 60%); pointer-events: none; }
+    @keyframes pcFloat { 0%, 100% { transform: perspective(900px) rotateY(-7deg) rotateX(3deg) translateY(0); } 50% { transform: perspective(900px) rotateY(7deg) rotateX(-2deg) translateY(-6px); } }
+    @media (prefers-reduced-motion: reduce) { .pcard { animation: none; } }
     .who { text-align: center; }
     .who b { display: block; font-size: 20px; font-weight: 900; }
     .who span { color: rgba(255,255,255,.55); font-size: 14px; }
@@ -116,7 +124,7 @@
 
     <!-- 내 카드 -->
     <section id="vMine" hidden style="display:flex;flex-direction:column;gap:22px">
-      <div class="stage-w"><div class="stage"><iframe id="cardFrame" title="card"></iframe><a id="cardLink" href="#" aria-label="open"></a></div></div>
+      <div class="stage-w"><a class="pcard" id="cardLink" href="#" aria-label="open"><span class="pc-bg" id="pcBg"></span><span class="pc-tx" id="pcTx"><b id="pcName"></b><small id="pcRole"></small></span></a></div>
       <div class="who"><b id="mName"></b><span id="mRole"></span></div>
       <div class="stat">
         <div><b id="sWeek">0</b><span data-k="week">이번 주 조회</span></div>
@@ -209,7 +217,13 @@
 
     function renderMine() {
       const c = cardOf(main), slug = main.slug;
-      $('cardFrame').src = `/card.html?id=${encodeURIComponent(slug)}&embed=simulator`;
+      const bg = (c.front && c.front.bg) || {}, plate = bg.type === 'image' && /^\/assets\/.*_front_plate/.test(bg.src || '');
+      $('pcBg').style.background = '';
+      if (bg.type === 'image' && bg.src) $('pcBg').style.backgroundImage = `url('${bg.src}')`;
+      else if (bg.type === 'color') $('pcBg').style.background = `linear-gradient(160deg, ${bg.color || '#3b1a6e'}, #07050d)`;
+      else $('pcBg').style.backgroundImage = `url('/assets/toomcard_front_plate.jpg')`;
+      $('pcTx').hidden = plate || !(bg.type === 'image' || bg.type === 'color');
+      $('pcName').textContent = c.name || ''; $('pcRole').textContent = c.role || '';
       $('cardLink').href = `/${slug}`;
       $('mName').textContent = c.name || T('noname');
       $('mRole').textContent = [c.role, c.company].filter(Boolean).join(' · ');
