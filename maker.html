@@ -1772,7 +1772,7 @@
       try {
         const r = await fetch('/api/ai-photo', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ image: photoOrig || uploadedPhoto, style }) });
         const j = await r.json().catch(() => ({}));
-        if (!r.ok || !j.image) throw new Error(j.error === 'no_key' ? t('maker.ai_no_key') : (j.message || j.error || r.status));
+        if (!r.ok || !j.image) throw new Error(j.error === 'no_key' ? t('maker.ai_no_key') : (r.status === 429 ? t('maker.ai_busy') : (j.message || j.error || r.status)));
         cell.classList.remove('busy'); cell.innerHTML = `<img src="${j.image}" alt=""><span class="lb">${cell.dataset.label}</span>`;
         cell.onclick = () => useAiPhoto(j.image);
       } catch (err) {
