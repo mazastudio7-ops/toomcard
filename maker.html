@@ -700,9 +700,7 @@
                 <button class="chip" type="button" data-tag="design" data-i18n="maker.tag_design">디자인</button>
                 <button class="chip" type="button" data-tag="etc" data-i18n="maker.tag_etc">기타</button>
               </div></div>
-            <div class="toggle"><span data-i18n="maker.pub_phone">이젠스타에서 전화번호 보이기</span><button class="switch" id="pubPhone" role="switch" aria-checked="false" type="button"></button></div>
-            <div class="toggle"><span data-i18n="maker.pub_email">이젠스타에서 이메일 보이기</span><button class="switch" id="pubEmail" role="switch" aria-checked="false" type="button"></button></div>
-            <p class="photo-off" style="display:block" data-i18n="maker.pub_note">명함 링크로 직접 보낸 사람에게는 전부 보여요. 홍보 링크는 모두 공개돼요.</p>
+            <p class="photo-off" style="display:block" data-i18n="maker.pub_note">이젠스타는 홍보용 소개 공간이라 실제 명함과 달라요. SNS와 링크만 공개되고, 전화번호·이메일·카카오톡은 숨겨져요. 내가 직접 보낸 명함 링크로 받은 사람에게만 보여요.</p>
           </div>
         </div>
         <!-- 발행(서버 저장 · 공개 링크)에만 연령 확인. 만들기와 배경화면 저장은 누구나 -->
@@ -1796,20 +1794,20 @@
       $('starSwitch').setAttribute('aria-checked', String(!!s.on));
       $('starOpts').hidden = !s.on;
       document.querySelectorAll('#starTags .chip').forEach((c) => c.setAttribute('aria-pressed', String(c.dataset.tag === s.tag)));
-      $('pubPhone').setAttribute('aria-checked', String(!!pv.phone));
-      $('pubEmail').setAttribute('aria-checked', String(!!pv.email));
     }
     $('starSwitch').addEventListener('click', () => { card.star = Object.assign({ tag: '' }, card.star, { on: !(card.star && card.star.on) }); if (card.star.on && !card.star.tag) card.star.tag = kind === 'business' ? 'biz' : 'creator'; syncStarUI(); });
     $('starTags').addEventListener('click', (e) => { const b = e.target.closest('.chip'); if (!b) return; card.star.tag = b.dataset.tag; syncStarUI(); });
-    $('pubPhone').addEventListener('click', () => { card.privacy.phone = !card.privacy.phone; syncStarUI(); });
-    $('pubEmail').addEventListener('click', () => { card.privacy.email = !card.privacy.email; syncStarUI(); });
     // 이젠스타에 올린 카드는 비공개 항목(전화·이메일)을 공개 데이터에서 빼서 따로 저장한다
     function splitPrivate(c) {
       const pub = JSON.parse(JSON.stringify(c));
       if (!(c.star && c.star.on)) return { pub, priv: null };
-      const pv = c.privacy || {}, priv = {};
-      if (!pv.phone && c.phone) { priv.phone = c.phone; pub.phone = ''; if (pub.vcard) pub.vcard.tel = ''; }
-      if (!pv.email && c.email) { priv.email = c.email; pub.email = ''; if (pub.vcard) pub.vcard.email = ''; }
+      // 이젠스타에는 SNS·링크만 공개한다: 전화·이메일·카톡·왓츠앱은 항상 비공개로 따로 저장 (명함 링크로 보낸 사람에게만 보인다)
+      const priv = {};
+      if (c.phone) { priv.phone = c.phone; pub.phone = ''; if (pub.vcard) pub.vcard.tel = ''; }
+      if (c.email) { priv.email = c.email; pub.email = ''; if (pub.vcard) pub.vcard.email = ''; }
+      const isContact = (s) => s && (s.type === 'kakao' || s.type === 'whatsapp');
+      const cs = (pub.socials || []).filter(isContact);
+      if (cs.length) { priv.contactSocials = cs; pub.socials = (pub.socials || []).filter((s) => !isContact(s)); }
       return { pub, priv: Object.keys(priv).length ? priv : null };
     }
 
@@ -2012,7 +2010,7 @@
       $('emText').value = (c.emblem && c.emblem.text) || ''; syncEmblemUI();
       card.star = Object.assign({ on: false, tag: '' }, c.star || {}); card.privacy = Object.assign({ phone: false, email: false }, c.privacy || {}); syncStarUI();
       if (fromCloud && card.star.on && typeof getMyPrivateCard === 'function') {
-        getMyPrivateCard(slug).then((pv) => { if (!pv) return; if (pv.phone && !$('fPhone').value) $('fPhone').value = pv.phone; if (pv.email && !$('fEmail').value) $('fEmail').value = pv.email; render(); });
+        getMyPrivateCard(slug).then((pv) => { if (!pv) return; if (pv.phone && !$('fPhone').value) $('fPhone').value = pv.phone; if (pv.email && !$('fEmail').value) $('fEmail').value = pv.email; (pv.contactSocials || []).forEach((s) => { if (!$('fSocialUrl').value) { $('fSocialType').value = s.type; $('fSocialUrl').value = s.url; } else if (!$('fSocial2Url').value) { $('fSocial2Type').value = s.type; $('fSocial2Url').value = s.url; } }); render(); });
       }
       pressOnly($('textChips'), 'layout', card.front.text.layout); setLogo(card.front.text.showLogo);
       pressOnly($('finishChips'), 'finish', card.front.finish); $('qrSwitch').setAttribute('aria-checked', card.front.qr === 'subtle' ? 'true' : 'false');

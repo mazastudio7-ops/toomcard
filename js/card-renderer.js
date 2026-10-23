@@ -289,7 +289,47 @@ function renderSocialModal(data) {
 }
 
 // 메인 데이터 바인딩 (layout CSS 로드 완료 후 resolve하는 Promise 반환)
+
+/* ── 이젠스타 공개 보기: SNS·링크만 보여 준다 (연락처·전화·이메일·카톡·왓츠앱은 숨김) ──
+   명함 링크(?k=…)로 직접 받은 사람에게는 전부 보인다. 나만 보는 비공개 항목은 서버에서 키가 맞을 때만 내려온다. */
+const CONTACT_SOCIAL_TYPES = ['kakao', 'whatsapp'];
+function isContactUrl(u) {
+  return /^(tel:|mailto:|sms:)/i.test(String(u || '')) || /kakao|wa\.me|whatsapp|line\.me|t\.me|telegram/i.test(String(u || ''));
+}
+function isPublicStarView(d) {
+  try {
+    if (!d || !d.star || !d.star.on) return false;
+    if (document.body.classList.contains('in-simulator')) return false;
+    return !new URLSearchParams(location.search).get('k');
+  } catch (e) { return false; }
+}
+function sanitizeForPublicStar(d) {
+  const out = Object.assign({}, d);
+  out.phone = ''; out.email = '';
+  out.vcard = Object.assign({}, d.vcard, { tel: '', email: '' });
+  out.socials = (d.socials || []).filter((s) => s && !CONTACT_SOCIAL_TYPES.includes(s.type) && !isContactUrl(s.url));
+  out.links = (d.links || []).filter((l) => l && !isContactUrl(l.url));
+  if (out.primaryAction && isContactUrl(out.primaryAction.url)) out.primaryAction = null;
+  return out;
+}
+// 명함 링크(?k=…)로 들어오면 비공개 항목(전화·이메일·카톡 등)을 합쳐서 보여준다
+async function mergeSharePrivate(card, slug) {
+  const k = new URLSearchParams(location.search).get('k');
+  if (!k || !card || !card.star || !card.star.on || typeof getPrivateCard !== 'function') return card;
+  try {
+    const priv = await getPrivateCard(slug, k);
+    if (priv) {
+      const cs = Array.isArray(priv.contactSocials) ? priv.contactSocials : [];
+      Object.assign(card, priv); delete card.contactSocials;
+      card.vcard = Object.assign({}, card.vcard, priv.phone ? { tel: priv.phone } : {}, priv.email ? { email: priv.email } : {});
+      if (cs.length) card.socials = (card.socials || []).concat(cs);
+    }
+  } catch (e) {}
+  return card;
+}
+
 function populateCard(data) {
+  if (isPublicStarView(data)) { document.body.classList.add('star-public'); data = sanitizeForPublicStar(data); const nt = document.getElementById('starNotice'); if (nt) nt.hidden = false; }
   cardData = data;
 
   // 레이아웃 적용 (기본: SETUPOD 정통 3D 카드)
@@ -537,6 +577,12 @@ function populateCard(data) {
 let plateMorphTimer = null;
 let plateMorphQrObj = null;
 
+// QR·링크 복사·공유가 담는 주소. 이젠스타 공개 보기에서는 쿼리(?from=star, ?k=…)를 뺀 깨끗한 공개 주소만 쓴다
+function qrBaseUrl() {
+  try { if (document.body.classList.contains('star-public')) return location.origin + location.pathname; } catch (e) {}
+  return location.href;
+}
+
 function initPlateMorphQR(data) {
   const target = document.getElementById('plateMorphQrTarget');
   if (!target) return;
@@ -544,11 +590,11 @@ function initPlateMorphQR(data) {
   // 상대방이 카메라로 스캔했을 때 즉시 뒷면(스마트 콕핏)이 로드되도록 ?view=back URL 인코딩
   let scanUrl;
   try {
-    const url = new URL(window.location.href);
+    const url = new URL(qrBaseUrl());
     url.searchParams.set('view', 'back');
     scanUrl = url.toString();
   } catch (e) {
-    scanUrl = window.location.href + (window.location.href.includes('?') ? '&view=back' : '?view=back');
+    scanUrl = qrBaseUrl() + (qrBaseUrl().includes('?') ? '&view=back' : '?view=back');
   }
 
   // 같은 주소면 QR을 다시 만들지 않는다 (입력할 때마다 다시 그리면 버벅였다)
@@ -1172,7 +1218,7 @@ function renderBackDirectQr() {
   if (typeof QRCode !== 'undefined') {
     try {
       new QRCode(target, {
-        text: window.location.href,
+        text: qrBaseUrl(),
         width: 86,
         height: 86,
         colorDark: "#0c0a14",
@@ -1190,7 +1236,7 @@ function initQrCode() {
   if (!qrTarget) return;
   qrTarget.innerHTML = "";
   qrcodeObj = new QRCode(qrTarget, {
-    text: window.location.href,
+    text: qrBaseUrl(),
     width: 160,
     height: 160,
     colorDark: "#100a24",
@@ -1211,7 +1257,7 @@ window.switchQrType = function(type) {
     btnKakao.style.background = 'transparent';
     btnKakao.style.color = 'rgba(255, 255, 255, 0.5)';
     qrcodeObj.clear();
-    qrcodeObj.makeCode(window.location.href);
+    qrcodeObj.makeCode(qrBaseUrl());
   } else if (type === 'kakao') {
     const kakaoSocial = cardData?.socials?.find(s => s.type === 'kakao');
     if (!kakaoSocial || !kakaoSocial.url || !kakaoSocial.url.startsWith('http')) {
@@ -1320,16 +1366,16 @@ function shareToKakao() {
       description: desc,
       imageUrl: imageUrl,
       link: {
-        mobileWebUrl: window.location.href,
-        webUrl: window.location.href,
+        mobileWebUrl: qrBaseUrl(),
+        webUrl: qrBaseUrl(),
       },
     },
     buttons: [
       {
         title: '명함 보기',
         link: {
-          mobileWebUrl: window.location.href,
-          webUrl: window.location.href,
+          mobileWebUrl: qrBaseUrl(),
+          webUrl: qrBaseUrl(),
         },
       },
     ],
@@ -1353,7 +1399,7 @@ function copyCardUrl() {
       item_id: window.location.pathname
     });
   }
-  navigator.clipboard.writeText(window.location.href).then(() => {
+  navigator.clipboard.writeText(qrBaseUrl()).then(() => {
     showToast("명함 링크가 복사되었습니다!");
     closeShareModal();
   }).catch(() => {
@@ -1374,7 +1420,7 @@ function nativeShare() {
     navigator.share({
       title: (cardData && cardData.meta) ? cardData.meta.title : "TOOMCARD 3D 디지털 명함",
       text: (cardData && cardData.company) ? `${cardData.company} 3D 스마트 명함입니다.` : "TOOMCARD 3D 스마트 명함입니다.",
-      url: window.location.href
+      url: qrBaseUrl()
     }).catch(() => {});
   } else {
     copyCardUrl();
@@ -1511,7 +1557,7 @@ function populateCardFromCloud(cloud, company) {
       title: role,
       tel: phone,
       email: email,
-      url: primaryAction.url || window.location.href,
+      url: primaryAction.url || qrBaseUrl(),
       note: `${companyName} | ${slogan}`
     },
     meta: {
@@ -1581,6 +1627,7 @@ const CARD_ALIAS_MAP = {
 async function initCardEngine() {
   // 0. SSR에서 주입된 데이터가 있으면 네트워크 대기 0초 즉시 렌더링 (화면 깜빡임 원천 차단)
   if (window.INITIAL_CARD_DATA) {
+    try { const d0 = window.INITIAL_CARD_DATA; await mergeSharePrivate(d0, d0.slug || d0.id || getCardIdentifier().slug); } catch (e) {}
     await populateCard(window.INITIAL_CARD_DATA);
     try { const d = window.INITIAL_CARD_DATA; starInit(d.slug || d.id || getCardIdentifier().slug); } catch (e) {}
     setupSwipe();
@@ -1615,8 +1662,10 @@ async function initCardEngine() {
               const priv = await getPrivateCard(cloud.pod.slug, shareKey);
               if (priv) {
                 const cj = cloud.pod.components_json || {}, inner = cj.card || cj;
-                Object.assign(inner, priv);
+                const cs = Array.isArray(priv.contactSocials) ? priv.contactSocials : [];
+                Object.assign(inner, priv); delete inner.contactSocials;
                 inner.vcard = Object.assign({}, inner.vcard, priv.phone ? { tel: priv.phone } : {}, priv.email ? { email: priv.email } : {});
+                if (cs.length) inner.socials = (inner.socials || []).concat(cs);
               }
             } catch (err) {}
           }
