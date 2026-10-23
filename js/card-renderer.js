@@ -1542,6 +1542,18 @@ async function initCardEngine() {
           cloud = await loadPodFromCloud(s);
         }
         if (cloud && (cloud.profile || cloud.pod)) {
+          // 명함 링크(?k=…)로 들어오면 비공개 항목(전화·이메일)을 합쳐서 보여준다
+          const shareKey = new URLSearchParams(location.search).get('k');
+          if (shareKey && cloud.pod && typeof getPrivateCard === 'function') {
+            try {
+              const priv = await getPrivateCard(cloud.pod.slug, shareKey);
+              if (priv) {
+                const cj = cloud.pod.components_json || {}, inner = cj.card || cj;
+                Object.assign(inner, priv);
+                inner.vcard = Object.assign({}, inner.vcard, priv.phone ? { tel: priv.phone } : {}, priv.email ? { email: priv.email } : {});
+              }
+            } catch (err) {}
+          }
           await populateCardFromCloud(cloud, company);
           setupSwipe();
           setupTilt();

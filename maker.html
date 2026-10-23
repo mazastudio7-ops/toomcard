@@ -329,6 +329,12 @@
     .photo-cta[hidden], #photoRe[hidden], #fxField[hidden], #lookField[hidden] { display: none !important; }
     .photo-perks { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: var(--tc-text-muted); }
     .photo-perks li::before { content: "✓ "; color: var(--tc-accent); font-weight: 900; }
+    .star-box { border: 1px solid rgba(255,217,120,.28); background: rgba(255,217,120,.05); border-radius: 14px; padding: 6px 12px 10px; display: flex; flex-direction: column; gap: 8px; }
+    .star-box .toggle > span { display: flex; flex-direction: column; gap: 2px; padding-right: 10px; }
+    .star-box .toggle b { color: var(--tc-text); font-size: 13.5px; }
+    .star-desc { font-weight: 500; font-size: 11.5px; color: var(--tc-text-subtle); line-height: 1.45; }
+    #starOpts { display: flex; flex-direction: column; gap: 8px; }
+    #starOpts[hidden] { display: none; }
   </style>
 </head>
 <body>
@@ -642,6 +648,24 @@
           <label><span data-i18n="maker.slug">명함 주소</span> <span style="font-weight:600;opacity:.6;" data-i18n="maker.slug_hint">비워두면 자동 생성</span></label>
           <div class="url-preview"><span>toomcard.com/</span><input id="fSlug" placeholder="alex" data-i18n-placeholder="maker.slug_ph"></div>
         </div>
+        <!-- 스타(자랑 피드): 켜면 검토 후 홈 스타 탭에 올라간다. 전화·이메일은 기본 비공개 -->
+        <div class="star-box">
+          <div class="toggle"><span><b data-i18n="maker.star_on">스타에 올리기</b><small class="star-desc" data-i18n="maker.star_desc">검토 후 홈 '스타' 탭에 올라가요. 좋아요를 받고 내 링크를 홍보할 수 있어요.</small></span><button class="switch" id="starSwitch" role="switch" aria-checked="false" type="button"></button></div>
+          <div id="starOpts" hidden>
+            <div class="field"><label data-i18n="maker.star_tag">분야</label>
+              <div class="chips" id="starTags">
+                <button class="chip" type="button" data-tag="student" data-i18n="maker.tag_student">학생</button>
+                <button class="chip" type="button" data-tag="creator" data-i18n="maker.tag_creator">크리에이터</button>
+                <button class="chip" type="button" data-tag="biz" data-i18n="maker.tag_biz">사업</button>
+                <button class="chip" type="button" data-tag="music" data-i18n="maker.tag_music">음악</button>
+                <button class="chip" type="button" data-tag="design" data-i18n="maker.tag_design">디자인</button>
+                <button class="chip" type="button" data-tag="etc" data-i18n="maker.tag_etc">기타</button>
+              </div></div>
+            <div class="toggle"><span data-i18n="maker.pub_phone">스타에서 전화번호 보이기</span><button class="switch" id="pubPhone" role="switch" aria-checked="false" type="button"></button></div>
+            <div class="toggle"><span data-i18n="maker.pub_email">스타에서 이메일 보이기</span><button class="switch" id="pubEmail" role="switch" aria-checked="false" type="button"></button></div>
+            <p class="photo-off" style="display:block" data-i18n="maker.pub_note">명함 링크로 직접 보낸 사람에게는 전부 보여요. 홍보 링크는 모두 공개돼요.</p>
+          </div>
+        </div>
         <!-- 발행(서버 저장 · 공개 링크)에만 연령 확인. 만들기와 배경화면 저장은 누구나 -->
         <label class="age-check" id="ageCheck">
           <input type="checkbox" id="fAge">
@@ -713,6 +737,7 @@
       logo: { src: '/assets/logo_toomcard_hd.gif', alt: '' },
       primaryAction: { url: '', label: '', icon: 'globe' },
       socials: [], links: [], backLayout: 'default',
+      star: { on: false, tag: '' }, privacy: { phone: false, email: false },
       emblem: { on: true, source: 'initials', text: '', img: '', material: 'gold', shape: 'coin', motion: 'sweep' },
       front: { bg: { type: 'image', src: '/assets/toomcard_front_plate.jpg' }, text: { layout: 'none', showLogo: false, tone: 'auto' }, finish: 'metal', qr: 'subtle', frame: 'full', frameTone: 'dark', look: 'clean' }
     };
@@ -1210,6 +1235,7 @@
     }
     $('gifBtn').addEventListener('click', saveLogoGif);
 
+    syncStarUI();
     $('logoFile').addEventListener('change', (e) => {
       const f = e.target.files[0]; if (!f) return;
       readImage(f, 400, (dataUrl) => { card.logo = { src: dataUrl, alt: card.company }; card.avatar = dataUrl; setLogo(true); render(); });
@@ -1579,6 +1605,31 @@
     }
 
     /* ── 발행 ───────────────────────────────────────── */
+
+    /* ── 스타에 올리기 · 공개 설정 ─────────────────────── */
+    function syncStarUI() {
+      const s = card.star || (card.star = { on: false, tag: '' });
+      const pv = card.privacy || (card.privacy = { phone: false, email: false });
+      $('starSwitch').setAttribute('aria-checked', String(!!s.on));
+      $('starOpts').hidden = !s.on;
+      document.querySelectorAll('#starTags .chip').forEach((c) => c.setAttribute('aria-pressed', String(c.dataset.tag === s.tag)));
+      $('pubPhone').setAttribute('aria-checked', String(!!pv.phone));
+      $('pubEmail').setAttribute('aria-checked', String(!!pv.email));
+    }
+    $('starSwitch').addEventListener('click', () => { card.star = Object.assign({ tag: '' }, card.star, { on: !(card.star && card.star.on) }); if (card.star.on && !card.star.tag) card.star.tag = kind === 'business' ? 'biz' : 'creator'; syncStarUI(); });
+    $('starTags').addEventListener('click', (e) => { const b = e.target.closest('.chip'); if (!b) return; card.star.tag = b.dataset.tag; syncStarUI(); });
+    $('pubPhone').addEventListener('click', () => { card.privacy.phone = !card.privacy.phone; syncStarUI(); });
+    $('pubEmail').addEventListener('click', () => { card.privacy.email = !card.privacy.email; syncStarUI(); });
+    // 스타에 올린 카드는 비공개 항목(전화·이메일)을 공개 데이터에서 빼서 따로 저장한다
+    function splitPrivate(c) {
+      const pub = JSON.parse(JSON.stringify(c));
+      if (!(c.star && c.star.on)) return { pub, priv: null };
+      const pv = c.privacy || {}, priv = {};
+      if (!pv.phone && c.phone) { priv.phone = c.phone; pub.phone = ''; if (pub.vcard) pub.vcard.tel = ''; }
+      if (!pv.email && c.email) { priv.email = c.email; pub.email = ''; if (pub.vcard) pub.vcard.email = ''; }
+      return { pub, priv: Object.keys(priv).length ? priv : null };
+    }
+
     async function publish() {
       const c = collect();
       if (!$('fAge').checked) {
@@ -1592,16 +1643,21 @@
       const run = async () => {
         toast(t('maker.publishing'));
         const consent = { ageConfirmed: true, lang: (window.i18n && i18n.lang) || 'ko', at: new Date().toISOString() };
-        const res = await syncPodToCloud(c.slug, { name: c.name, handle: c.role, bio: c.company, theme: c.theme }, { ...c, card: c, consent });
+        const { pub, priv } = splitPrivate(c);
+        const res = await syncPodToCloud(c.slug, { name: c.name, handle: c.role, bio: c.company, theme: c.theme }, { ...pub, card: pub, consent });
         btn.disabled = false;
         if (res && res.error) { toast(t('maker.publish_fail') + ' ' + res.error); return; }
         publishedUrl = `${location.origin}/${c.slug}`;
+        if (priv) {
+          // 명함 링크: 키가 붙은 주소로 열면 전화·이메일까지 보인다
+          if (await savePrivateCard(c.slug, priv)) { const k = await getMyShareKey(c.slug); if (k) publishedUrl += `?k=${k}`; }
+        }
         $('resultLink').textContent = publishedUrl; $('resultLink').href = publishedUrl;
         $('resultQr').innerHTML = '';
         try { new QRCode($('resultQr'), { text: publishedUrl, width: 104, height: 104, correctLevel: QRCode.CorrectLevel.M }); } catch (e) {}
         $('result').classList.add('show');
         if (typeof gtag === 'function') gtag('event', 'card_published', { event_category: 'conversion', card_name: c.slug });
-        toast(t('maker.published_title'));
+        toast(t(c.star && c.star.on ? 'maker.star_pending' : 'maker.published_title'));
       };
       if (typeof window.requireAuth === 'function') window.requireAuth(run);
       else { btn.disabled = false; toast(t('maker.publish_fail')); }
@@ -1701,6 +1757,10 @@
       setBackLayout(c.backLayout); setExtraLinks(c.links);
       card.emblem = Object.assign({}, DEFAULT_CARD.emblem, c.emblem || { on: false });   // 예전 카드는 엠블럼 없이 기존 로고 그대로
       $('emText').value = (c.emblem && c.emblem.text) || ''; syncEmblemUI();
+      card.star = Object.assign({ on: false, tag: '' }, c.star || {}); card.privacy = Object.assign({ phone: false, email: false }, c.privacy || {}); syncStarUI();
+      if (card.star.on && typeof getMyPrivateCard === 'function') {
+        getMyPrivateCard(slug).then((pv) => { if (!pv) return; if (pv.phone && !$('fPhone').value) $('fPhone').value = pv.phone; if (pv.email && !$('fEmail').value) $('fEmail').value = pv.email; render(); });
+      }
       pressOnly($('textChips'), 'layout', card.front.text.layout); setLogo(card.front.text.showLogo);
       pressOnly($('finishChips'), 'finish', card.front.finish); $('qrSwitch').setAttribute('aria-checked', card.front.qr === 'subtle' ? 'true' : 'false');
       if (currentBgId === 'upload') { uploadedPhoto = card.front.bg.src; photoBg = card.front.bg; }

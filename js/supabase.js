@@ -588,6 +588,12 @@ async function savePrivateCard(slug, data) {
   return !error;
 }
 
+async function getMyPrivateCard(slug) {
+  if (!supabaseClient || !slug) return null;
+  const { data } = await supabaseClient.from('tc_pod_private').select('data').eq('slug', slug).maybeSingle();
+  return data ? data.data : null;
+}
+
 async function getMyShareKey(slug) {
   if (!supabaseClient || !slug) return null;
   const { data } = await supabaseClient.from('tc_pod_private').select('share_key').eq('slug', slug).maybeSingle();
