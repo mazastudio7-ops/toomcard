@@ -361,6 +361,15 @@ async function getAllLeadsFor(slugs, max = 20000) {
   return all;
 }
 
+// 9-1d. 대시보드 그래프용 통계 (하루별 조회·문의, 유입 채널, 문의 상태) — 서버에서 집계해 작은 결과만 받는다
+async function getCardStats(slug, days = 30) {
+  if (!supabaseClient) return null;
+  let tz = 'Asia/Seoul'; try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || tz; } catch (e) {}
+  const { data, error } = await supabaseClient.rpc('tc_card_stats', { p_slug: slug, p_days: days, p_tz: tz });
+  if (error) { console.error('getCardStats', error); return null; }
+  return data;
+}
+
 // 9-2. 명함 조회수(Analytics) 기록하기 (정밀 채널 및 세션 스토리지 중복 방지)
 async function recordPageView(slug) {
   if (!supabaseClient) return false;
