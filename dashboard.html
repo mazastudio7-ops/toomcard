@@ -90,6 +90,7 @@
     .tabs button, .tabs a { appearance: none; font: 800 13px inherit; font-family: inherit; color: #cfc8e8; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.16); border-radius: 99px; padding: 8px 16px; cursor: pointer; text-decoration: none; }
     .tabs button.on { color: #1a1205; background: #ffd978; border-color: #ffd978; }
     .leadbox { padding: 16px; border-radius: 20px; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1); }
+    .csvbtn { appearance: none; font: 800 11.5px inherit; font-family: inherit; color: #ffd978; background: transparent; border: 1px solid rgba(255,217,120,.5); border-radius: 99px; padding: 4px 10px; margin-right: 8px; cursor: pointer; }
     .lcnt { color: #ffd978; font-weight: 900; }
     .lead { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-top: 1px solid rgba(255,255,255,.08); font-size: 13.5px; }
     .lead:first-child { border-top: 0; }
@@ -162,7 +163,7 @@
       </div>
       <p class="note" id="starNote" hidden></p>
       <div class="leadbox" id="leadBox" hidden>
-        <div class="row-h"><span data-k="leads">받은 연락처</span><span id="leadCnt" class="lcnt">0</span></div>
+        <div class="row-h"><span data-k="leads">받은 연락처</span><span><button type="button" id="leadCsv" class="csvbtn" data-k="csv">CSV</button> <span id="leadCnt" class="lcnt">0</span></span></div>
         <div id="leadList"></div>
       </div>
       <div class="acts">
@@ -212,7 +213,7 @@
       $('authBtn').textContent = user ? T('logout_btn') : T('login_btn');
     }
     const $ = (id) => document.getElementById(id);
-    let user = null, pods = [], main = null, allPods = [], tab = 'personal';
+    let allLeads = [], user = null, pods = [], main = null, allPods = [], tab = 'personal';
     const demo = /[?&]demo=1/.test(location.search);
 
     function toast(msg) { const t = $('toast'); t.textContent = msg; t.classList.add('on'); setTimeout(() => t.classList.remove('on'), 1800); }
@@ -318,11 +319,21 @@
       else if (r.status === 'approved') $('starNote').textContent = T('approved');
       $('starNote').hidden = !r.status;
     }
+    function csvCell(v) { return '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"'; }
+    function downloadLeadsCsv() {
+      const slugs = new Set(pods.map((p) => p.slug)), nameOf = {}; pods.forEach((p) => { nameOf[p.slug] = cardOf(p).name || p.slug; });
+      const rows = allLeads.filter((l) => slugs.has(l.target_slug));
+      const head = ['날짜', '카드', '이름', '전화', '이메일', '문의', '유입'];
+      const lines = [head].concat(rows.map((l) => { const m = l.metadata || {}; return [new Date(l.created_at).toLocaleString('sv-SE'), nameOf[l.target_slug], m.name, l.phone, m.email, m.memo, m.channel]; }));
+      const blob = new Blob(['\ufeff' + lines.map((r) => r.map(csvCell).join(',')).join('\r\n')], { type: 'text/csv;charset=utf-8' });
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'toomcard-leads.csv'; document.body.appendChild(a); a.click(); a.remove();
+    }
     async function loadLeads() {
       const box = $('leadBox'); box.hidden = true;
       if (demo || typeof getMyLeads !== 'function') return;
       let all = null; try { all = await getMyLeads(); } catch (e) {}
       if (!all) return;
+      allLeads = all;
       const mine = all.filter((l) => l.target_slug === main.slug);
       $('leadCnt').textContent = String(mine.length);
       const esc = (x) => String(x == null ? '' : x).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -365,6 +376,7 @@
       if (!user) { show('vOut'); applyText(); return; }
       await load();
     }
+    document.addEventListener('click', (e) => { if (e.target && e.target.id === 'leadCsv') downloadLeadsCsv(); });
     async function load() {
       applyText();
       let list = [];

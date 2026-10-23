@@ -57,7 +57,7 @@
     const $ = (id) => document.getElementById(id);
     const esc = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
     const ERR = { not_allowed: '권한이 없어요', not_admin: '투머스 관리자만 할 수 있어요', slug_taken: '이미 사용 중인 주소예요', bad_email: '이메일 형식을 확인해 주세요', bad_slug: '주소는 영문 소문자·숫자·하이픈(2~31자)만 쓸 수 있어요', bad_url: '이미지 주소는 /assets/… 또는 https://… 형식이어야 해요', name_required: '이름을 입력해 주세요', no_company: '회사를 찾지 못했어요' };
-    let user = null, companies = [], cur = null, members = [];
+    let user = null, companies = [], cur = null, members = [], leads = [];
     function toast(m) { const t = $('toast'); t.textContent = m; t.classList.add('on'); clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove('on'), 2400); }
     function errText(e) { const m = String((e && e.message) || e || ''); for (const k in ERR) if (m.includes(k)) return ERR[k]; return '잠시 후 다시 해 주세요'; }
     function slugify(v) { return String(v || '').toLowerCase().replace(/[^a-z0-9가-힣_-]/g, '').slice(0, 40); }
@@ -65,7 +65,24 @@
     async function rpc(name, args) { const { data, error } = await supabaseClient.rpc(name, args || {}); if (error) throw error; return data; }
 
     async function loadCompanies() { companies = (await rpc('tc_company_my')) || []; }
-    async function loadMembers() { members = (await rpc('tc_company_list', { p_company: cur.slug })) || []; }
+    async function loadMembers() {
+      members = (await rpc('tc_company_list', { p_company: cur.slug })) || [];
+      try { leads = (await rpc('tc_company_leads', { p_company: cur.slug })) || []; } catch (e) { leads = []; }
+    }
+    const csvCell = (v) => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
+    function leadsCsv() {
+      const nameOf = {}; members.forEach((m) => { nameOf[cur.slug + '/' + m.member_slug] = m.name; });
+      const rows = [['날짜', '담당자', '이름', '전화', '이메일', '문의', '유입']].concat(leads.map((l) => { const m = l.metadata || {}; return [new Date(l.created_at).toLocaleString('sv-SE'), nameOf[l.target_slug] || l.target_slug, m.name, l.phone, m.email, m.memo, m.channel]; }));
+      const blob = new Blob(['\ufeff' + rows.map((r) => r.map(csvCell).join(',')).join('\r\n')], { type: 'text/csv;charset=utf-8' });
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = cur.slug + '-leads.csv'; document.body.appendChild(a); a.click(); a.remove();
+    }
+    function leadsPanel() {
+      const nameOf = {}; members.forEach((m) => { nameOf[cur.slug + '/' + m.member_slug] = m.name; });
+      const rows = leads.slice(0, 20).map((l) => { const m = l.metadata || {}, d = new Date(l.created_at);
+        const who = [m.name, l.phone ? `<a href="tel:${esc(l.phone)}" style="color:#fff">${esc(l.phone)}</a>` : '', m.email ? `<a href="mailto:${esc(m.email)}" style="color:#fff">${esc(m.email)}</a>` : ''].map((x, i) => i === 0 ? esc(x) : x).filter(Boolean).join(' · ');
+        return `<div class="member"><div style="flex:1;min-width:0"><b style="font-size:13.5px">${who}</b><div style="font-size:12px;opacity:.6;word-break:break-all">${esc(m.memo || '')}</div><div style="font-size:12px;opacity:.5">담당 ${esc(nameOf[l.target_slug] || l.target_slug)}${m.channel ? ' · ' + esc(m.channel) : ''}</div></div><span style="font-size:12px;opacity:.5;white-space:nowrap">${d.getMonth() + 1}/${d.getDate()}</span></div>`; }).join('');
+      return `<div class="panel"><h2 style="display:flex;justify-content:space-between;align-items:center">받은 문의 (${leads.length})${leads.length ? '<button type="button" id="leadsCsv" class="btn ghost" style="padding:6px 12px;font-size:12px">CSV 내려받기</button>' : ''}</h2><div class="list">${rows || '<p style="opacity:.6;font-size:13.5px;margin:0">아직 받은 문의가 없어요. 구성원 카드에서 방문자가 연락처를 남기면 여기에 모여요.</p>'}</div></div>`;
+    }
 
     function view() {
       const isAdmin = companies.length ? !!companies[0].is_platform_admin : false;
@@ -80,6 +97,7 @@
           <div class="row"><input type="email" id="nEmail" placeholder="이메일 (구글 계정)" autocomplete="off" autocapitalize="off"><button class="btn" id="addBtn" type="button">추가</button></div>
           <p class="note">카드 주소는 <b>toomcard.com/${esc(cur.slug)}/이름</b> 으로 자동 만들어져요. 같은 이름이면 숫자가 붙어요.</p>
           <details><summary class="note" style="cursor:pointer">여러 명을 한 번에 추가</summary><textarea id="bulk" placeholder="한 줄에 한 명: 이름, 직함, 이메일&#10;김민수, 매니저, minsu@회사.com"></textarea><button class="btn ghost sm" id="bulkBtn" type="button" style="margin-top:8px">한 번에 추가</button></details></div>`;
+        html += leadsPanel();
         html += `<div class="panel"><h2>구성원 (${members.length})</h2><div class="list">` + (members.length ? members.map((m, i) => `
           <div class="member"><div class="av">${esc(Array.from(m.name || '?')[0])}</div>
             <div><div class="mn">${esc(m.name)}</div><div class="mr">${esc(m.role || '')}${m.role ? ' · ' : ''}${esc(m.email)}</div>
@@ -108,6 +126,7 @@
     function bind() {
       const on = (id, fn) => { const e = $(id); if (e) e.onclick = fn; };
       if ($('coSel')) $('coSel').onchange = async () => { cur = companies.find((c) => c.slug === $('coSel').value); await refresh(); };
+      on('leadsCsv', leadsCsv);
       on('addBtn', () => addOne($('nName').value, $('nRole').value, $('nEmail').value, true));
       on('bulkBtn', async () => {
         const lines = $('bulk').value.split('\n').map((l) => l.trim()).filter(Boolean); let ok = 0, fail = [];
