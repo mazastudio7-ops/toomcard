@@ -1,0 +1,11 @@
+# 배포 용량 줄이기: 사이트에서 쓰지 않는 큰 파일과 서버에 필요 없는 폴더는 올리지 않는다
+assets/toomcard.mp4
+assets/toomcard_hd_original.gif
+assets/toomcard_wide.gif
+assets/logo_toomcard.gif
+assets/concepts/
+supabase/
+docs/
+BRAND_STORY.md
+README.md
+.claude/

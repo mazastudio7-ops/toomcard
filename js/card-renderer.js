@@ -24,8 +24,8 @@ const DEFAULT_CARD_FALLBACK = {
   origin: "TOOMCARD Global",
   moatTags: ["3D 인터랙티브", "vCard 주소록 저장", "스마트 NFC 하드웨어"],
   logo: {
-    src: "/assets/logo_toomcard.gif",
-    fallback: "/assets/toomcard-brand-logo.svg",
+    src: "/assets/logo_toomcard_hd.webp",
+    fallback: "/assets/logo_toomcard_hd.gif",
     alt: "TOOMCARD Logo"
   },
   plateCardImage: "/assets/toomcard_front_plate.png",
