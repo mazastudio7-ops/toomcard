@@ -351,6 +351,11 @@
     .toast.show { pointer-events: auto; }
     @media (max-width: 980px) { .toast { bottom: calc(var(--tabbar-h, 62px) + 78px + env(safe-area-inset-bottom)); max-width: calc(100vw - 32px); } }
     .toast-act { margin-left: 12px; appearance: none; border: 0; border-radius: 99px; padding: 6px 12px; background: var(--tc-accent); color: #000; font: 800 12.5px var(--tc-font-body); cursor: pointer; }
+    .car-thumb { overflow: hidden; }
+    .ft-full { inset: 0; }
+    .car-thumb[data-off="-1"] .sug-tag { left: auto; right: 8%; transform: none; }
+    .car-thumb[data-off="1"] .sug-tag { left: 8%; transform: none; }
+    .sug-tag { position: absolute; left: 50%; bottom: 8%; transform: translateX(-50%); white-space: nowrap; padding: 6px 12px; border-radius: 99px; background: rgba(0,0,0,.62); border: 1px solid rgba(255,217,120,.55); color: #ffd978; font: 800 12px var(--tc-font-body); backdrop-filter: blur(6px); }
   </style>
 </head>
 <body>
@@ -1112,7 +1117,7 @@
         }), 60);
         uploadedPhoto = dataUrl; photoBg = null; photoOrig = dataUrl; photoMask = null; setFx('orig');
         setBg({ type: 'image', src: dataUrl }, 'upload');
-        setFrame('full'); designIdx = 0; renderCarousel();
+        setFrame('full'); designIdx = 1; suggestions = []; makeSuggestions('photo'); renderCarousel();
         if (isMobile()) { currentTab = ''; openTab('photo'); }
       });
       e.target.value = '';
@@ -1376,11 +1381,11 @@
     $('toneChips').addEventListener('click', (e) => {
       const b = e.target.closest('.chip'); if (!b) return;
       card.front.frameTone = b.dataset.ft === 'light' ? 'light' : 'dark';
-      syncFrameUI(); renderCarousel(); render(true);
+      syncFrameUI(); render(true); refreshSuggestions('style');
     });
     $('lookChips').addEventListener('click', (e) => {
       const b = e.target.closest('.chip'); if (!b) return;
-      card.front.look = b.dataset.look; syncFrameUI(); render(true);
+      card.front.look = b.dataset.look; syncFrameUI(); render(true); refreshSuggestions('style');
     });
 
     /* ── 팬 캐러셀 ───────────────────────────────────── */
@@ -1393,10 +1398,59 @@
         key: d.key, label: d.labelKey ? t(d.labelKey) : d.label,
         bg: d.key === 'solid' ? (solidMemory || makeSolid(DEFAULT_SOLID)) : CURATED_BG.find((b) => b.id === d.bgId)
       }));
-      if (!uploadedPhoto) return list;
-      // 사진을 올리면 그 사진이 틀 5가지로 먼저 나온다: 넘기면서 틀을 고른다
-      const photo = { type: 'image', src: uploadedPhoto };
-      return FRAMES.map((f) => ({ key: 'frame:' + f, frame: f, label: t('maker.frame_' + f), bg: photo })).concat(list);
+      if (!uploadedPhoto || currentBgId !== 'upload') return list;
+      // 사진을 넣으면: 가운데는 지금 카드, 양옆은 지금 카드를 살짝 바꾼 추천 1장씩
+      if (!suggestions.length) makeSuggestions('photo');
+      const f = card.front;
+      const cur = { key: 'cur', label: t('maker.frame_' + (f.frame || 'full')), bg: f.bg, frame: f.frame || 'full', look: f.look || 'clean', tone: f.frameTone };
+      return [suggestions[0], cur, suggestions[1]];
+    }
+    /* ── 양옆 추천 카드 ─────────────────────────────────
+       사용자가 방금 한 일(사진 넣기·크기 바꾸기·틀 고르기)에 맞춰 지금 카드를 살짝 바꾼 두 장을 보여준다.
+       넘기거나 누르면 그 모습이 가운데로 오고, 양옆은 새 추천으로 바뀐다. */
+    const SUG_POOL = {
+      close:    { frame: 'full',     look: 'studio',    zoom: 1.45, tag: 'sug_close' },
+      polaroid: { frame: 'polaroid', look: 'clean',     zoom: 1,    tone: 'light', tag: 'sug_polaroid' },
+      arch:     { frame: 'arch',     look: 'editorial', zoom: 1.1,  tag: 'sug_arch' },
+      magazine: { frame: 'magazine', look: 'editorial', zoom: 1.15, tag: 'sug_magazine' },
+      film:     { frame: 'film',     look: 'film',      zoom: 1.05, tag: 'sug_film' },
+      round:    { frame: 'round',    look: 'studio',    zoom: 1.2,  tag: 'sug_round' },
+      wide:     { frame: 'full',     look: 'clean',     zoom: 1,    tag: 'sug_wide' },
+      rim:      { frame: 'rim',      look: 'studio',    zoom: 1.1,  tag: 'sug_rim' }
+    };
+    const SUG_ORDER = ['arch', 'magazine', 'film', 'round', 'rim', 'polaroid', 'close', 'wide'];
+    let suggestions = [], sugTurn = 0;
+    function sameAsNow(s) {
+      const f = card.front, z = (f.bg && f.bg.zoom) || 1;
+      return s.frame === (f.frame || 'full') && s.look === (f.look || 'clean') && Math.abs(s.zoom - z) < 0.08;
+    }
+    function makeSuggestions(action) {
+      let picks;
+      if (action === 'photo') picks = ['close', 'polaroid'];
+      else if (action === 'zoom') picks = ((card.front.bg && card.front.bg.zoom) || 1) > 1.25 ? ['round', 'arch'] : ['magazine', 'film'];
+      else picks = [];
+      // 지금 모습과 같은 추천은 빼고, 모자라면 순서대로 돌아가며 채운다
+      picks = picks.filter((k) => !sameAsNow(SUG_POOL[k]));
+      for (let i = 0; picks.length < 2 && i < SUG_ORDER.length * 2; i++) {
+        const k = SUG_ORDER[(sugTurn + i) % SUG_ORDER.length];
+        if (!picks.includes(k) && !sameAsNow(SUG_POOL[k])) picks.push(k);
+      }
+      sugTurn = (sugTurn + 2) % SUG_ORDER.length;
+      const src = uploadedPhoto;
+      suggestions = picks.slice(0, 2).map((k) => {
+        const s = SUG_POOL[k], bg = Object.assign({}, card.front.bg, { src, zoom: s.zoom });
+        return { key: 'sug:' + k, sug: k, label: t('maker.' + s.tag), tag: t('maker.' + s.tag), bg, frame: s.frame, look: s.look, tone: s.tone || card.front.frameTone };
+      });
+    }
+    function refreshSuggestions(action) {
+      if (!uploadedPhoto || currentBgId !== 'upload') return;
+      makeSuggestions(action); renderCarousel();
+    }
+    function applySuggestion(d) {
+      const s = SUG_POOL[d.sug]; if (!s) return;
+      card.front.bg.zoom = s.zoom; card.front.look = s.look;
+      if (s.tone) card.front.frameTone = s.tone;
+      setFrame(s.frame); syncAdjustUI();
     }
     // 카드 썸네일 7장(-3..3)을 한 줄로 두고, 넘길 때 전체가 한 칸씩 움직인다.
     // 가운데(0) 썸네일은 iframe 카드 바로 뒤에 같은 크기로 깔려, 넘기는 동안 카드 역할을 한다.
@@ -1430,10 +1484,22 @@
     const THUMB_LIGHT = 'radial-gradient(120% 90% at 50% 0%, #f8f5ef 0%, #e6e0d4 100%)';
     const THUMB_RIM = 'linear-gradient(135deg, #e9ecf2 0%, #8c92a0 22%, #f7f9fc 48%, #858b99 74%, #d6dae2 100%)';
     function paintThumb(el, d) {
+      paintThumbBody(el, d);
+      // 사진 카드: 확대·룩을 썸네일에도 반영하고, 추천 카드에는 이름표를 단다
+      if (d.bg && d.bg.type === 'image' && (d.look || (d.bg.zoom || 1) !== 1) && window.TCCore) {
+        const st = TCCore.frontImageStyle(d.bg, d.look);
+        let ph = el.querySelector('.ft-photo');
+        if (!ph) { ph = document.createElement('div'); ph.className = 'ft-photo ft-full'; ph.style.backgroundImage = `url('${d.bg.src}')`; el.style.backgroundImage = 'none'; el.prepend(ph); }
+        ph.style.backgroundPosition = st.objectPosition; ph.style.transform = st.transform; ph.style.transformOrigin = st.transformOrigin; ph.style.filter = st.filter;
+      }
+      if (d.tag) { const tg = document.createElement('span'); tg.className = 'sug-tag'; tg.textContent = d.tag; el.appendChild(tg); }
+    }
+    function paintThumbBody(el, d) {
       el.innerHTML = '';
       if (!d.frame || d.frame === 'full') { el.setAttribute('style', d.bg ? thumbStyle(d.bg) : ''); return; }
       if (d.frame === 'magazine') { el.setAttribute('style', thumbStyle(d.bg)); const mm = document.createElement('div'); mm.className = 'ft-mast'; mm.textContent = 'TOOMCARD'; el.appendChild(mm); return; }
-      const back = d.frame === 'film' ? '#0b0b0e' : d.frame === 'rim' ? THUMB_RIM : (card.front.frameTone === 'light' ? THUMB_LIGHT : THUMB_DARK);
+      const tone = d.tone || card.front.frameTone;
+      const back = d.frame === 'film' ? '#0b0b0e' : d.frame === 'rim' ? THUMB_RIM : (tone === 'light' ? THUMB_LIGHT : THUMB_DARK);
       el.setAttribute('style', `background:${back}`);
       const p = document.createElement('div');
       p.className = 'ft-photo ft-' + d.frame; p.style.backgroundImage = `url('${d.bg.src}')`;
@@ -1442,10 +1508,12 @@
     }
     function renderCarousel() {
       const list = designs(); const n = list.length;
+      const sugMode = list[1] && list[1].key === 'cur';
+      if (sugMode) designIdx = 1;
       designIdx = ((designIdx % n) + n) % n;
-      visLimit = Math.max(1, Math.min(3, Math.floor((n - 1) / 2)));
+      visLimit = 1;   // 양옆에는 한 장씩만
       $('designName').textContent = list[designIdx].label;
-      $('designIdxLabel').textContent = `${designIdx + 1} / ${n}`;
+      $('designIdxLabel').textContent = sugMode ? '' : `${designIdx + 1} / ${n}`;
       fitCard();
       const stack = $('carStack'); const box = cardBox();
       if (stack.children.length !== OFFSETS.length) {
@@ -1490,7 +1558,9 @@
       const list = designs(); const n = list.length;
       designIdx = ((i % n) + n) % n;
       const d = list[designIdx];
-      if (d.key.startsWith('frame:')) { setBg(d.bg, 'upload'); setFrame(d.frame); } else applyStart(d.key);
+      if (d.key.startsWith('sug:')) { applySuggestion(d); makeSuggestions('pick'); designIdx = 1; }
+      else if (d.key === 'cur') { /* 지금 카드 그대로 */ }
+      else if (d.key.startsWith('frame:')) { setBg(d.bg, 'upload'); setFrame(d.frame); } else applyStart(d.key);
       $('designName').textContent = d.label;
       $('designIdxLabel').textContent = `${designIdx + 1} / ${n}`;
     }
@@ -1559,6 +1629,7 @@
       const b = e.target.closest('.tint'); if (!b || !isImageBg()) return;
       card.front.bg.tint = b.dataset.tint || ''; liveAdjust();
     });
+    $('adjZoom').addEventListener('change', () => refreshSuggestions('zoom'));
     [['adjZoom', 'zoom'], ['adjX', 'x'], ['adjY', 'y'], ['adjBright', 'brightness'], ['adjBlur', 'blur']].forEach(([id, key]) => {
       $(id).addEventListener('input', (e) => { if (!isImageBg()) return; card.front.bg[key] = Number(e.target.value); liveAdjust(); });
     });
