@@ -16,6 +16,10 @@
       "destination": "/"
     },
     {
+      "source": "/home2",
+      "destination": "/home2"
+    },
+    {
       "source": "/index-legacy",
       "destination": "/index-legacy"
     },
