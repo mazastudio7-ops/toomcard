@@ -327,8 +327,9 @@
       $('leadCnt').textContent = String(mine.length);
       const esc = (x) => String(x == null ? '' : x).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
       $('leadList').innerHTML = mine.length ? mine.slice(0, 30).map((l) => {
-        const m = l.metadata || {}, d = new Date(l.created_at), ph = esc(l.phone);
-        return `<div class="lead"><div><a class="lp" href="tel:${ph}">${ph}</a><small>${esc([m.memo, m.channel].filter(Boolean).join(' · '))}</small></div><span class="ld">${d.getMonth() + 1}/${d.getDate()}</span></div>`;
+        const m = l.metadata || {}, d = new Date(l.created_at), ph = esc(l.phone), em = esc(m.email), nm = esc(m.name);
+        const who = [nm, ph ? `<a class="lp" href="tel:${ph}">${ph}</a>` : '', em ? `<a class="lp" href="mailto:${em}">${em}</a>` : ''].filter(Boolean).join(' · ');
+        return `<div class="lead"><div>${who}<small>${esc(m.memo || '')}</small><small>${esc(m.channel || '')}</small></div><span class="ld">${d.getMonth() + 1}/${d.getDate()}</span></div>`;
       }).join('') : `<p class="note" style="margin:10px 0 0">${T('leadNone')}</p>`;
       box.hidden = false;
     }

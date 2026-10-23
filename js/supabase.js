@@ -236,7 +236,7 @@ async function loadPodByUserId(userId) {
 }
 
 // 9. 방문자 리드(전화번호) 클라우드 DB 저장 (정밀 출처 분석 및 UTM 추적)
-async function saveLeadToCloud(targetSlug, phone, memo = '') {
+async function saveLeadToCloud(targetSlug, phone, memo = '', extra = {}) {
   if (!supabaseClient) return false;
   
   // Get owner's user_id from pods table
@@ -280,13 +280,15 @@ async function saveLeadToCloud(targetSlug, phone, memo = '') {
     .insert({
       user_id: ownerId,
       target_slug: targetSlug,
-      phone: phone,
+      phone: phone || '',
       metadata: { 
         referrer: ref,
         channel: utmSource ? `${channel} (${utmSource})` : channel,
         utm_medium: utmMedium,
         device: isMobile ? 'Mobile' : 'Desktop',
         memo: memo || '',
+        name: (extra && extra.name) || '',
+        email: (extra && extra.email) || '',
         pageUrl: window.location.href,
         userAgent: navigator.userAgent
       }
