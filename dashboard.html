@@ -86,6 +86,9 @@
     .manage { display: flex; gap: 10px; justify-content: center; margin-top: 16px; }
     .manage button { appearance: none; background: none; border: 1px solid rgba(255,255,255,.16); color: rgba(255,255,255,.65); border-radius: 99px; padding: 8px 15px; font: 700 12.5px 'Noto Sans KR', sans-serif; cursor: pointer; }
     .manage #delBtn { color: #ff8a8a; border-color: rgba(255,138,138,.35); }
+    .tabs { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+    .tabs button, .tabs a { appearance: none; font: 800 13px inherit; font-family: inherit; color: #cfc8e8; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.16); border-radius: 99px; padding: 8px 16px; cursor: pointer; text-decoration: none; }
+    .tabs button.on { color: #1a1205; background: #ffd978; border-color: #ffd978; }
     .row-h { display: flex; align-items: center; justify-content: space-between; font-weight: 800; font-size: 15px; }
     .row { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
     .row::-webkit-scrollbar { display: none; }
@@ -163,6 +166,7 @@
       </div>
 
       <div>
+        <div class="tabs" id="tabsRow" hidden></div>
         <div class="row-h"><span data-k="mycards">내 카드</span></div>
         <div class="row" id="cardsRow" style="margin-top:10px"></div>
         <div class="manage" id="manage"><button type="button" id="renBtn" data-k="rn">주소 바꾸기</button><button type="button" id="delBtn" data-k="del">카드 삭제</button></div>
@@ -184,11 +188,11 @@
   <script>
     const L = {
       ko: { out_t: '내 카드를 만들고<br><span class="gold">키워 보세요</span>', out_s: '로그인하면 내 카드가 저장되고, 몇 번 열렸는지 볼 수 있어요.', login: 'Google로 시작하기', try: '로그인 없이 먼저 만들어 보기', none_t: '첫 카드를 만들어 볼까요?<br><span class="gold">30초면 돼요</span>', none_s: '사진 한 장과 이름만 있으면 끝. 마음에 드는 모양으로 시작하세요.', first: '내 카드 만들기', week: '이번 주 조회', all: '전체 조회', share: '링크 보내기', edit: '꾸미기', todo: '내 카드 키우기', mycards: '내 카드', biz: '기업 · 리드 관리', gallery: '갤러리', terms: '이용약관', privacy: '개인정보처리방침', login_btn: '로그인', logout_btn: '로그아웃', copied: '링크를 복사했어요',
-        rn: '주소 바꾸기', del: '카드 삭제', rnPrompt: '새 주소를 입력하세요 (예: a/mina)\n이전 주소의 링크와 QR은 더 이상 열리지 않아요.', rnOk: '주소를 바꿨어요', rnBad: '주소는 글자 하나와 이름이에요 (예: a/mina)', rnTaken: '이미 사용 중인 주소예요', fail: '잠시 후 다시 해 주세요', delConfirm: '"{n}" 카드를 삭제할까요?\n되돌릴 수 없고, 이 주소의 링크와 QR이 모두 닫혀요.', delDone: '카드를 삭제했어요', seeStar: '이젠스타 보기', t1: '내 사진 넣기', d1: '사진이 들어가면 카드가 확 달라져요', t2: '로고 꾸미기', d2: '금속 엠블럼이나 내 로고를 올려 보세요', t3: '배경화면으로 저장', d3: '폰 잠금화면에 내 카드를 걸어 두세요', t4: '친구에게 보내기', d4: '받는 사람이 열면 "나도 만들기"가 보여요', t5: '이젠스타에 올리기', d5: '홈 이젠스타 탭에 올려 좋아요를 받아요', likes: '♥ 좋아요', clicks: '링크 클릭', pending: '이젠스타 검토 중이에요 (하루 안에 올라가요)', rejected: '이젠스타 검토에서 보류됐어요: ', approved: '이젠스타에 올라가 있어요 ✨', add: '새 카드', noname: '이름 없음' },
+        rn: '주소 바꾸기', del: '카드 삭제', rnPrompt: '새 주소를 입력하세요 (예: a/mina)\n이전 주소의 링크와 QR은 더 이상 열리지 않아요.', rnOk: '주소를 바꿨어요', rnBad: '주소는 글자 하나와 이름이에요 (예: a/mina)', rnTaken: '이미 사용 중인 주소예요', fail: '잠시 후 다시 해 주세요', delConfirm: '"{n}" 카드를 삭제할까요?\n되돌릴 수 없고, 이 주소의 링크와 QR이 모두 닫혀요.', delDone: '카드를 삭제했어요', seeStar: '이젠스타 보기', t1: '내 사진 넣기', d1: '사진이 들어가면 카드가 확 달라져요', t2: '로고 꾸미기', d2: '금속 엠블럼이나 내 로고를 올려 보세요', t3: '배경화면으로 저장', d3: '폰 잠금화면에 내 카드를 걸어 두세요', t4: '친구에게 보내기', d4: '받는 사람이 열면 "나도 만들기"가 보여요', t5: '이젠스타에 올리기', d5: '홈 이젠스타 탭에 올려 좋아요를 받아요', likes: '♥ 좋아요', clicks: '링크 클릭', pending: '이젠스타 검토 중이에요 (하루 안에 올라가요)', rejected: '이젠스타 검토에서 보류됐어요: ', approved: '이젠스타에 올라가 있어요 ✨', add: '새 카드', tabP: '개인', tabTeam: '팀 관리', noname: '이름 없음' },
       en: { out_t: 'Make your card<br><span class="gold">and grow it</span>', out_s: 'Sign in to save your card and see how often it is opened.', login: 'Start with Google', try: 'Try it first without signing in', none_t: 'Ready for your first card?<br><span class="gold">30 seconds</span>', none_s: 'One photo and your name is enough. Start from a look you like.', first: 'Make my card', week: 'Views this week', all: 'Total views', share: 'Send link', edit: 'Decorate', todo: 'Grow your card', mycards: 'My cards', biz: 'Business · Leads', gallery: 'Gallery', terms: 'Terms', privacy: 'Privacy', login_btn: 'Sign in', logout_btn: 'Sign out', copied: 'Link copied',
-        rn: 'Change address', del: 'Delete card', rnPrompt: 'Enter a new address (e.g. a/mina)\nLinks and QR codes with the old address will stop working.', rnOk: 'Address changed', rnBad: 'An address is one letter and a name (e.g. a/mina)', rnTaken: 'That address is already taken', fail: 'Please try again in a moment', delConfirm: 'Delete "{n}"?\nThis cannot be undone and every link and QR code for this address will stop working.', delDone: 'Card deleted', seeStar: 'See e zen star', t1: 'Add your photo', d1: 'A photo changes the whole card', t2: 'Style your logo', d2: 'Try a metal emblem or upload your logo', t3: 'Save as wallpaper', d3: 'Put your card on your lock screen', t4: 'Send it to a friend', d4: 'They will see "make mine" when they open it', t5: 'Post to Stars', d5: 'Get likes on the Stars tab', likes: '♥ Likes', clicks: 'Link clicks', pending: 'In review for Stars (live within a day)', rejected: 'Held back from Stars: ', approved: 'Live on Stars ✨', add: 'New card', noname: 'Untitled' },
+        rn: 'Change address', del: 'Delete card', rnPrompt: 'Enter a new address (e.g. a/mina)\nLinks and QR codes with the old address will stop working.', rnOk: 'Address changed', rnBad: 'An address is one letter and a name (e.g. a/mina)', rnTaken: 'That address is already taken', fail: 'Please try again in a moment', delConfirm: 'Delete "{n}"?\nThis cannot be undone and every link and QR code for this address will stop working.', delDone: 'Card deleted', seeStar: 'See e zen star', t1: 'Add your photo', d1: 'A photo changes the whole card', t2: 'Style your logo', d2: 'Try a metal emblem or upload your logo', t3: 'Save as wallpaper', d3: 'Put your card on your lock screen', t4: 'Send it to a friend', d4: 'They will see "make mine" when they open it', t5: 'Post to Stars', d5: 'Get likes on the Stars tab', likes: '♥ Likes', clicks: 'Link clicks', pending: 'In review for Stars (live within a day)', rejected: 'Held back from Stars: ', approved: 'Live on Stars ✨', add: 'New card', tabP: 'Personal', tabTeam: 'Manage team', noname: 'Untitled' },
       de: { out_t: 'Erstelle deine Karte<br><span class="gold">und lass sie wachsen</span>', out_s: 'Melde dich an, um deine Karte zu speichern und Aufrufe zu sehen.', login: 'Mit Google starten', try: 'Erst ohne Anmeldung ausprobieren', none_t: 'Bereit für deine erste Karte?<br><span class="gold">30 Sekunden</span>', none_s: 'Ein Foto und dein Name reichen. Starte mit einem Look, der dir gefällt.', first: 'Meine Karte erstellen', week: 'Aufrufe diese Woche', all: 'Aufrufe gesamt', share: 'Link senden', edit: 'Gestalten', todo: 'Karte weiterentwickeln', mycards: 'Meine Karten', biz: 'Business · Leads', gallery: 'Galerie', terms: 'Nutzungsbedingungen', privacy: 'Datenschutz', login_btn: 'Anmelden', logout_btn: 'Abmelden', copied: 'Link kopiert',
-        rn: 'Adresse ändern', del: 'Karte löschen', rnPrompt: 'Neue Adresse eingeben (z. B. a/mina)\nLinks und QR-Codes mit der alten Adresse funktionieren dann nicht mehr.', rnOk: 'Adresse geändert', rnBad: 'Eine Adresse besteht aus einem Buchstaben und einem Namen (z. B. a/mina)', rnTaken: 'Diese Adresse ist schon vergeben', fail: 'Bitte gleich noch einmal versuchen', delConfirm: '"{n}" löschen?\nDas lässt sich nicht rückgängig machen und alle Links und QR-Codes dieser Adresse funktionieren nicht mehr.', delDone: 'Karte gelöscht', seeStar: 'e zen star ansehen', t1: 'Foto hinzufügen', d1: 'Ein Foto verändert die ganze Karte', t2: 'Logo gestalten', d2: 'Metall-Emblem oder eigenes Logo hochladen', t3: 'Als Hintergrund speichern', d3: 'Deine Karte auf den Sperrbildschirm', t4: 'An Freunde senden', d4: 'Beim Öffnen sehen sie „Selbst erstellen“', t5: 'In Stars zeigen', d5: 'Likes im Stars-Tab sammeln', likes: '♥ Likes', clicks: 'Link-Klicks', pending: 'In Prüfung für Stars (innerhalb eines Tages online)', rejected: 'Für Stars zurückgestellt: ', approved: 'Live in Stars ✨', add: 'Neue Karte', noname: 'Ohne Namen' }
+        rn: 'Adresse ändern', del: 'Karte löschen', rnPrompt: 'Neue Adresse eingeben (z. B. a/mina)\nLinks und QR-Codes mit der alten Adresse funktionieren dann nicht mehr.', rnOk: 'Adresse geändert', rnBad: 'Eine Adresse besteht aus einem Buchstaben und einem Namen (z. B. a/mina)', rnTaken: 'Diese Adresse ist schon vergeben', fail: 'Bitte gleich noch einmal versuchen', delConfirm: '"{n}" löschen?\nDas lässt sich nicht rückgängig machen und alle Links und QR-Codes dieser Adresse funktionieren nicht mehr.', delDone: 'Karte gelöscht', seeStar: 'e zen star ansehen', t1: 'Foto hinzufügen', d1: 'Ein Foto verändert die ganze Karte', t2: 'Logo gestalten', d2: 'Metall-Emblem oder eigenes Logo hochladen', t3: 'Als Hintergrund speichern', d3: 'Deine Karte auf den Sperrbildschirm', t4: 'An Freunde senden', d4: 'Beim Öffnen sehen sie „Selbst erstellen“', t5: 'In Stars zeigen', d5: 'Likes im Stars-Tab sammeln', likes: '♥ Likes', clicks: 'Link-Klicks', pending: 'In Prüfung für Stars (innerhalb eines Tages online)', rejected: 'Für Stars zurückgestellt: ', approved: 'Live in Stars ✨', add: 'Neue Karte', tabP: 'Persönlich', tabTeam: 'Team verwalten', noname: 'Ohne Namen' }
     };
     const lang = () => (window.i18n && window.i18n.lang) || localStorage.getItem('toomcard_lang') || 'ko';
     const T = (k) => (L[lang()] || L.ko)[k] || L.ko[k] || k;
@@ -197,7 +201,7 @@
       $('authBtn').textContent = user ? T('logout_btn') : T('login_btn');
     }
     const $ = (id) => document.getElementById(id);
-    let user = null, pods = [], main = null;
+    let user = null, pods = [], main = null, allPods = [], tab = 'personal';
     const demo = /[?&]demo=1/.test(location.search);
 
     function toast(msg) { const t = $('toast'); t.textContent = msg; t.classList.add('on'); setTimeout(() => t.classList.remove('on'), 1800); }
@@ -246,7 +250,26 @@
     }
     $('shareBtn').addEventListener('click', share);
 
+    const coOf = (p) => cardOf(p).companySlug || '';
+    function renderTabs() {
+      const box = $('tabsRow'), cos = [];
+      allPods.forEach((p) => { const k = coOf(p); if (k && !cos.some((x) => x.k === k)) cos.push({ k, n: cardOf(p).company || k }); });
+      const hasPersonal = allPods.some((p) => !coOf(p));
+      if (!cos.length) { box.hidden = true; return; }
+      box.hidden = false;
+      box.innerHTML = (hasPersonal ? `<button type="button" data-tab="personal" class="${tab === 'personal' ? 'on' : ''}">${T('tabP')}</button>` : '')
+        + cos.map((c) => `<button type="button" data-tab="${c.k}" class="${tab === c.k ? 'on' : ''}">${c.n}</button>`).join('')
+        + (tab !== 'personal' ? `<a href="/team">${T('tabTeam')}</a>` : '');
+      box.querySelectorAll('button').forEach((b) => b.addEventListener('click', () => setTab(b.dataset.tab)));
+    }
+    function setTab(t) {
+      tab = t;
+      pods = allPods.filter((p) => (t === 'personal' ? !coOf(p) : coOf(p) === t));
+      main = pods[0]; try { localStorage.setItem('toomcard_dash_tab', t); } catch (e) {}
+      renderMine(); loadViews();
+    }
     function renderMine() {
+      renderTabs();
       const c = cardOf(main), slug = main.slug;
       const bg = frontBg(c), plate = bg.type === 'image' && /^\/assets\/.*_front_plate/.test(bg.src || '');
       $('pcBg').style.background = '';
@@ -320,11 +343,13 @@
       applyText();
       let list = [];
       try { await claimMyPods(); list = (await getMyPods()) || []; } catch (e) {}
-      pods = list.filter((p) => !p._isAssignedStaff && p.components_json && p.components_json.card);
-      if (!pods.length) { show('vNone'); return; }
+      allPods = list.filter((p) => !p._isAssignedStaff && p.components_json && p.components_json.card);
+      if (!allPods.length) { show('vNone'); return; }
+      let t = 'personal'; try { t = localStorage.getItem('toomcard_dash_tab') || 'personal'; } catch (e) {}
+      if (!allPods.some((p) => (t === 'personal' ? !coOf(p) : coOf(p) === t))) t = allPods.some((p) => !coOf(p)) ? 'personal' : coOf(allPods[0]);
       let slug = null; try { slug = localStorage.getItem('toomcard_primary_personal_slug'); } catch (e) {}
-      main = pods.find((p) => p.slug === slug) || pods[0];
-      show('vMine'); renderMine(); loadViews();
+      show('vMine'); setTab(t);
+      const keep = pods.find((p) => p.slug === slug); if (keep && keep !== main) { main = keep; renderMine(); loadViews(); }
     }
     $('authBtn').addEventListener('click', () => { if (user && !demo) signOutUser(); else if (!demo) signInWithGoogle(); });
     $('loginBtn').addEventListener('click', () => signInWithGoogle());
