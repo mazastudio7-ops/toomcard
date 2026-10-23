@@ -162,6 +162,7 @@
 
     <div class="foot">
       <a href="/dashboard-legacy" data-k="biz">기업 · 리드 관리</a>
+      <a href="/admin/star" id="adminLink" hidden>스타 검토</a>
       <a href="/" data-k="gallery">갤러리</a>
       <a href="/terms" data-k="terms">이용약관</a>
       <a href="/privacy" data-k="privacy">개인정보처리방침</a>
@@ -296,6 +297,7 @@
         supabaseClient.auth.onAuthStateChange((ev, session) => { if (ev === 'SIGNED_IN' && session && !user) { user = session.user; load(); } if (ev === 'SIGNED_OUT') { user = null; show('vOut'); applyText(); } });
       }
       user = await getCurrentUser();
+      try { const r = user && await supabaseClient.rpc('tc_is_admin'); if (r && r.data === true) $('adminLink').hidden = false; } catch (e) {}   // 관리자에게만 스타 검토 바로가기
       if (location.hash.includes('access_token')) history.replaceState({}, document.title, location.pathname);
       if (!user) { show('vOut'); applyText(); return; }
       await load();
