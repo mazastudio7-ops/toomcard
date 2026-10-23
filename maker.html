@@ -506,7 +506,8 @@
           <ul class="photo-perks"><li data-i18n="maker.perk1">사람만 오려서 배경 바꾸기</li><li data-i18n="maker.perk2">틀 8가지 (폴라로이드·필름·잡지 표지…)</li><li data-i18n="maker.perk3">크기·위치·색감 조절</li></ul>
         </div>
         <button type="button" class="btn-secondary" id="photoRe" onclick="pickPhoto()" hidden><i data-lucide="image-plus"></i><span data-i18n="maker.pick_photo">내 사진 고르기</span></button>
-        <button type="button" class="btn-ai" id="aiPhotoBtn" onclick="openAiPhoto()"><i data-lucide="sparkles"></i><span data-i18n="maker.ai_btn">AI 프로필 사진 만들기</span><small data-i18n="maker.ai_btn_sub">사진관 안 가도 정장·스튜디오 사진 6장</small></button>
+        <button type="button" class="btn-ai" id="aiPhotoBtn" onclick="openAiPhoto()" hidden><i data-lucide="sparkles"></i><span data-i18n="maker.ai_btn">AI 프로필 사진 만들기</span><small data-i18n="maker.ai_btn_sub">사진관 안 가도 정장·스튜디오 사진 6장</small></button>
+        <button type="button" class="btn-ai" id="profSetBtn" onclick="openProfSet()"><i data-lucide="images"></i><span data-i18n="maker.pf_btn">프로필 사진 세트 만들기</span><small data-i18n="maker.pf_btn_sub">내 사진 한 장으로 카톡·사내 프로필·이력서용까지</small></button>
         <div class="field" id="fxField">
           <label data-i18n="maker.fx">사진 배경</label>
           <div class="chips" id="fxChips">
@@ -823,6 +824,16 @@
       <div class="ai-grid" id="aiGrid"></div>
       <p class="order-note" data-i18n="maker.ai_note">사진은 생성에만 쓰이고 저장하지 않아요. 테스트 기간엔 무료예요.</p>
       <button type="button" class="btn-secondary" onclick="closeAiPhoto()"><span data-i18n="common.close">닫기</span></button>
+    </div>
+  </div>
+
+  <div class="order-overlay" id="profModal" hidden onclick="if (event.target === this) closeProfSet()">
+    <div class="order-box ai-box">
+      <h3 data-i18n="maker.pf_title">프로필 사진 세트</h3>
+      <p class="order-sub" data-i18n="maker.pf_sub">지금 넣은 사진으로 바로 만들어요. 누르면 저장돼요. 사진은 폰 안에서만 처리돼요.</p>
+      <div class="ai-grid" id="profGrid"></div>
+      <p class="order-note" id="profNote" data-i18n="maker.pf_wait">사람을 오려내는 중이에요. 처음에는 몇 초 걸려요.</p>
+      <button type="button" class="btn-secondary" onclick="closeProfSet()"><span data-i18n="common.close">닫기</span></button>
     </div>
   </div>
 
@@ -1760,6 +1771,44 @@
     window.addEventListener('resize', () => { if (!sliding) renderCarousel(); });
 
     function pickPhoto() { flip('show_front'); $('bgFile').click(); }
+
+    /* ── 프로필 사진 세트: 내 사진 한 장 → 정사각(카톡·인스타)·3:4(사내 프로필·이력서) × 배경 3가지. 전부 브라우저 안에서 만든다 ── */
+    const PF_BACKS = [['orig', null], ['white', [['#ffffff', 0], ['#e9ebef', 1]]], ['studio', FX_BACK.studio], ['navy', [['#2b3a67', 0], ['#0c1230', 1]]]];
+    function pfCanvas(img, mask, back, ratio) {
+      const W = img.naturalWidth, H = img.naturalHeight;
+      // 가로 폭을 기준으로 세로를 자른다 (사람은 보통 위쪽 가운데에 있다)
+      const cw = W, ch = Math.min(H, Math.round(W / ratio)), cy = 0;
+      const out = 1200, oh = Math.round(out / ratio);
+      const cv = document.createElement('canvas'); cv.width = out; cv.height = oh; const ctx = cv.getContext('2d');
+      if (!back) { ctx.drawImage(img, 0, cy, cw, ch, 0, 0, out, oh); return cv; }
+      const g = ctx.createRadialGradient(out / 2, oh * .3, out * .05, out / 2, oh * .45, Math.max(out, oh) * .75);
+      back.forEach(([col, st]) => g.addColorStop(st, col)); ctx.fillStyle = g; ctx.fillRect(0, 0, out, oh);
+      const pc = document.createElement('canvas'); pc.width = out; pc.height = oh; const pctx = pc.getContext('2d');
+      pctx.drawImage(img, 0, cy, cw, ch, 0, 0, out, oh);
+      pctx.globalCompositeOperation = 'destination-in'; pctx.filter = 'blur(1.2px)';
+      pctx.drawImage(mask, 0, 0, mask.width, Math.round(mask.height * ch / H), 0, 0, out, oh);
+      ctx.drawImage(pc, 0, 0); return cv;
+    }
+    async function openProfSet() {
+      if (!photoOrig) { toast(t('maker.ai_need_photo')); pickPhoto(); return; }
+      const grid = $('profGrid'); grid.innerHTML = ''; $('profNote').hidden = false; $('profModal').hidden = false;
+      try {
+        const img = await loadImg(photoOrig);
+        if (!photoMask || photoMask.__src !== photoOrig) { photoMask = await buildMask(img); photoMask.__src = photoOrig; }
+        $('profNote').hidden = true;
+        const slug = ((card.slug || 'profile') + '').replace('/', '-');
+        [[1, 'sq'], [3 / 4, '34']].forEach(([ratio, tag]) => PF_BACKS.forEach(([name, back]) => {
+          const cv = pfCanvas(img, photoMask, back, ratio);
+          const cell = document.createElement('div'); cell.className = 'ai-cell'; if (ratio === 1) cell.style.aspectRatio = '1';
+          const im = document.createElement('img'); im.src = cv.toDataURL('image/jpeg', 0.8);
+          const lb = document.createElement('span'); lb.className = 'lb'; lb.textContent = (ratio === 1 ? t('maker.pf_sq') : t('maker.pf_34')) + ' · ' + t('maker.pf_' + name);
+          cell.append(im, lb);
+          cell.onclick = () => { const a = document.createElement('a'); a.href = cv.toDataURL('image/jpeg', 0.92); a.download = `${slug}-profile-${tag}-${name}.jpg`; a.click(); toast(t('maker.pf_saved')); };
+          grid.appendChild(cell);
+        }));
+      } catch (err) { console.warn(err); $('profNote').textContent = t('maker.fx_fail'); }
+    }
+    function closeProfSet() { $('profModal').hidden = true; }
 
     /* ── AI 프로필 사진: 서버(/api/ai-photo)가 Gemini 로 옷·배경·조명만 바꾼다. 얼굴은 그대로. ── */
     $('aiStyles').addEventListener('click', (e) => { const c = e.target.closest('.chip'); if (!c) return; c.setAttribute('aria-pressed', String(c.getAttribute('aria-pressed') !== 'true')); });
