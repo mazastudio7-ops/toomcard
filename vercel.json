@@ -13,55 +13,55 @@
   "rewrites": [
     {
       "source": "/",
-      "destination": "/index.html"
+      "destination": "/"
     },
     {
       "source": "/index-legacy",
-      "destination": "/index-legacy.html"
+      "destination": "/index-legacy"
     },
     {
       "source": "/admin/star",
-      "destination": "/admin-star.html"
+      "destination": "/admin-star"
     },
     {
       "source": "/maker",
-      "destination": "/maker.html"
+      "destination": "/maker"
     },
     {
       "source": "/dashboard-legacy",
-      "destination": "/dashboard-legacy.html"
+      "destination": "/dashboard-legacy"
     },
     {
       "source": "/maker-legacy",
-      "destination": "/maker-legacy.html"
+      "destination": "/maker-legacy"
     },
     {
       "source": "/templates",
-      "destination": "/index.html"
+      "destination": "/"
     },
     {
       "source": "/designs",
-      "destination": "/index.html"
+      "destination": "/"
     },
     {
       "source": "/dashboard",
-      "destination": "/dashboard.html"
+      "destination": "/dashboard"
     },
     {
       "source": "/card",
-      "destination": "/card.html"
+      "destination": "/card"
     },
     {
       "source": "/about",
-      "destination": "/about.html"
+      "destination": "/about"
     },
     {
       "source": "/terms",
-      "destination": "/terms.html"
+      "destination": "/terms"
     },
     {
       "source": "/privacy",
-      "destination": "/privacy.html"
+      "destination": "/privacy"
     },
     {
       "source": "/cards/:path*",

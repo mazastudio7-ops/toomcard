@@ -1559,6 +1559,7 @@ async function initCardEngine() {
   // 0. SSR에서 주입된 데이터가 있으면 네트워크 대기 0초 즉시 렌더링 (화면 깜빡임 원천 차단)
   if (window.INITIAL_CARD_DATA) {
     await populateCard(window.INITIAL_CARD_DATA);
+    try { const d = window.INITIAL_CARD_DATA; starInit(d.slug || d.id || getCardIdentifier().slug); } catch (e) {}
     setupSwipe();
     setupTilt();
     applyInitialFlipState();
