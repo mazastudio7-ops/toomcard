@@ -122,8 +122,11 @@ function collectLinks(data) {
     .map((s) => ({ kind: 'social', type: s.type, url: s.url, label: s.label, icon: s.icon }));
   const extras = (data.links || []).slice(0, 4).filter((l) => l && l.url)
     .map((l) => ({ kind: 'link', url: l.url, label: l.label || l.url.replace(/^https?:\/\//, '').slice(0, 24), icon: 'link' }));
-  // 명함 링크는 지워지는 경우가 많아서 카카오톡 연락을 맨 앞에 둔다
-  socials.sort((x, y) => (y.type === 'kakao') - (x.type === 'kakao'));
+  // 명함 링크는 지워지는 경우가 많아서 메신저 연락을 맨 앞에 둔다 (한국어 화면은 카카오톡, 그 외는 WhatsApp 먼저)
+  const lg = (window.i18n && window.i18n.lang) || 'ko';
+  const order = lg === 'ko' ? ['kakao', 'whatsapp', 'telegram'] : ['whatsapp', 'telegram', 'kakao'];
+  const rank = (s) => { const i = order.indexOf(s.type); return i < 0 ? 9 : i; };
+  socials.sort((x, y) => rank(x) - rank(y));
   if (personal) { items.push(...socials); if (site) items.push(site); }
   else { if (site) items.push(site); items.push(...socials); }
   items.push(...extras);
