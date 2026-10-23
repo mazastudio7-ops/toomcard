@@ -1,10 +1,10 @@
 /**
- * SETUPOD Supabase SDK Client
- * Supabase Project: xhjauoabxybaksvbtcic
+ * TOOMCARD Supabase SDK Client
+ * Supabase Project: omlcbrslzvdtqwbszgvg (툼카드 전용. 2026-10 SETUPOD 프로젝트에서 분리)
  */
 
-const SUPABASE_URL = "https://xhjauoabxybaksvbtcic.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhoamF1b2FieHliYWtzdmJ0Y2ljIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkwMzg0NzQsImV4cCI6MjEwNDYxNDQ3NH0.wBK3-8IIq3JKYbMrVlLtx6rRPRmhCblm74EwL_3PxBY";
+const SUPABASE_URL = "https://omlcbrslzvdtqwbszgvg.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9tbGNicnNsenZkdHF3YnN6Z3ZnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI3Mzc4NTQsImV4cCI6MjEwODMxMzg1NH0.j2YVNIFIit7nzvaGGCprpFhPQfpQ6cQCf5n-2Dctg3g";
 
 // Supabase 클라이언트 초기화
 let supabaseClient = null;
@@ -204,6 +204,12 @@ async function loadPodFromCloud(slug) {
       .eq('slug', slug)
       .maybeSingle();
     profile = resProfile?.data || null;
+  }
+
+  // 3. 주소는 소문자로 들어오는데 저장된 slug 에 대문자가 있는 경우 (예: AndrewK)
+  if (!pod && !profile) {
+    const resCi = await supabaseClient.from('pods').select('*').ilike('slug', decoded.replace(/[%_]/g, '\\$&')).limit(1).maybeSingle();
+    pod = resCi?.data || null;
   }
 
   return { profile, pod };
