@@ -855,14 +855,15 @@
     function slugify(v) { return (v || '').toLowerCase().replace(/[^a-z0-9가-힣_-]/g, '').slice(0, 40); }
     /* 주소: toomcard.com/<글자>/<이름> — 같은 이름은 글자(a, b, c …)로 구분한다. 글자 없는 맨 앞 주소는 관리자·예전 카드만 */
     const LETTERS = 'abcdefghijklmnopqrstuvwxyz'.split('');
-    let rootSlug = false, letterTouched = false, slugTimer = 0, slugSeq = 0, adminOpt = false, slugOk = true;
+    let lockedSlug = '', rootSlug = false, letterTouched = false, slugTimer = 0, slugSeq = 0, adminOpt = false, slugOk = true;
     $('fLetter').innerHTML = LETTERS.map((l) => `<option value="${l}">${l}</option>`).join(''); $('fLetter').value = 'a';
     function slugName() { return slugify($('fSlug').value) || slugify($('fName').value); }
-    function curSlug() { const n = slugName(); if (!n) return ''; const l = $('fLetter').value; return (rootSlug || !l) ? n : l + '/' + n; }
+    function curSlug() { if (lockedSlug) return lockedSlug; const n = slugName(); if (!n) return ''; const l = $('fLetter').value; return (rootSlug || !l) ? n : l + '/' + n; }
     function syncRootUI() { $('fLetter').style.display = rootSlug ? 'none' : ''; $('slashSp').style.display = rootSlug ? 'none' : ''; }
     function setSlugInputs(slug) {
-      const m = /^([a-z])\/(.+)$/.exec(slug || ''); rootSlug = false; letterTouched = true;
+      const m = /^([a-z])\/(.+)$/.exec(slug || ''); rootSlug = false; lockedSlug = ''; letterTouched = true; $('fSlug').readOnly = false;
       if (m) { $('fLetter').value = m[1]; $('fSlug').value = m[2]; }
+      else if (slug && slug.includes('/')) { lockedSlug = slug; rootSlug = true; $('fSlug').value = slug; $('fSlug').readOnly = true; }   // 회사 카드(회사/이름)는 주소를 바꾸지 않는다
       else if (slug) { rootSlug = true; $('fSlug').value = slug; }   // 예전 주소는 그대로 둔다
       else { $('fLetter').value = 'a'; $('fSlug').value = ''; letterTouched = false; }
       syncRootUI();

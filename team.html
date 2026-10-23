@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="robots" content="noindex">
+  <title>TOOMCARD | 팀 카드 관리</title>
+  <link rel="icon" type="image/x-icon" href="/assets/favicon.ico">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&family=Noto+Sans+KR:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/tokens.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/js/supabase.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; }
+    body { background: #07050d; color: #fff; font-family: 'Noto Sans KR', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+    a { color: inherit; text-decoration: none; }
+    .bar { position: sticky; top: 0; z-index: 10; display: flex; align-items: center; justify-content: space-between; padding: calc(12px + env(safe-area-inset-top, 0px)) 16px 12px; background: rgba(7,5,13,.92); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255,255,255,.08); }
+    .logo { font: 900 16px 'Montserrat', sans-serif; } .logo small { color: #ffd978; margin-left: 8px; font: 800 11px 'Montserrat', sans-serif; letter-spacing: .1em; }
+    .auth { appearance: none; border: 1px solid rgba(255,255,255,.2); background: rgba(255,255,255,.06); color: #fff; font-weight: 700; font-size: 12px; padding: 7px 11px; border-radius: 99px; cursor: pointer; }
+    .wrap { max-width: 860px; margin: 0 auto; padding: 18px 16px 90px; display: flex; flex-direction: column; gap: 18px; }
+    .msg { text-align: center; color: rgba(255,255,255,.65); padding: 40px 0; line-height: 1.7; }
+    h1 { font-size: 24px; font-weight: 900; letter-spacing: -.02em; } h2 { font-size: 16px; font-weight: 900; }
+    .sub { color: rgba(255,255,255,.6); font-size: 13.5px; line-height: 1.6; margin-top: 6px; }
+    .panel { padding: 16px; border-radius: 18px; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.1); display: flex; flex-direction: column; gap: 12px; }
+    .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .stat { padding: 14px 10px; text-align: center; border-radius: 16px; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.1); }
+    .stat b { display: block; font: 900 26px 'Montserrat', sans-serif; color: #ffd978; } .stat span { font-size: 12px; color: rgba(255,255,255,.6); }
+    .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    input[type=text], input[type=email], textarea, select { flex: 1; min-width: 140px; padding: 11px 13px; border-radius: 12px; border: 1px solid rgba(255,255,255,.18); background: rgba(255,255,255,.05); color: #fff; font: 600 16px 'Noto Sans KR', sans-serif; outline: none; }
+    textarea { width: 100%; min-height: 96px; resize: vertical; font-size: 14px; }
+    select option { background: #14101f; }
+    input:focus, textarea:focus, select:focus { border-color: #ffd978; }
+    input[type=color] { width: 46px; height: 44px; padding: 2px; border-radius: 12px; border: 1px solid rgba(255,255,255,.18); background: transparent; cursor: pointer; }
+    .btn { appearance: none; border: 0; padding: 11px 16px; border-radius: 12px; font: 900 14px 'Noto Sans KR', sans-serif; cursor: pointer; background: #ffd978; color: #000; white-space: nowrap; }
+    .btn.ghost { background: rgba(255,255,255,.08); color: #fff; border: 1px solid rgba(255,255,255,.18); }
+    .btn.danger { background: rgba(255,90,90,.14); color: #ff9c9c; border: 1px solid rgba(255,90,90,.45); }
+    .btn.sm { padding: 7px 11px; font-size: 12.5px; border-radius: 10px; }
+    .btn[disabled] { opacity: .5; cursor: default; }
+    .member { display: grid; grid-template-columns: 46px 1fr; gap: 12px; align-items: center; padding: 12px; border-radius: 16px; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.1); }
+    .av { width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; font: 900 18px 'Montserrat', 'Noto Sans KR', sans-serif; color: #ffd978; border: 2px solid #d9b25f; background: #0c0a14; }
+    .mn { font-weight: 900; font-size: 16px; } .mr { font-size: 12.5px; color: rgba(255,255,255,.6); margin-top: 2px; word-break: break-all; }
+    .chips { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; align-items: center; }
+    .chip { font-size: 11.5px; font-weight: 800; padding: 3px 9px; border-radius: 99px; background: rgba(255,255,255,.08); color: rgba(255,255,255,.75); }
+    .chip.ok { background: rgba(110,231,168,.16); color: #6ee7a8; } .chip.wait { background: rgba(255,217,120,.16); color: #ffd978; }
+    .macts { grid-column: 1 / -1; display: flex; gap: 6px; flex-wrap: wrap; }
+    .list { display: flex; flex-direction: column; gap: 10px; }
+    .note { font-size: 12.5px; color: rgba(255,255,255,.55); line-height: 1.6; }
+    #toast { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); transform: translate(-50%, 20px); background: #fff; color: #000; font-weight: 800; font-size: 14px; padding: 11px 18px; border-radius: 99px; opacity: 0; pointer-events: none; transition: .25s; z-index: 50; max-width: 90vw; text-align: center; }
+    #toast.on { opacity: 1; transform: translate(-50%, 0); }
+  </style>
+</head>
+<body>
+  <header class="bar"><a href="/dashboard" class="logo">TOOMCARD<small>TEAM</small></a><button class="auth" id="authBtn" type="button">로그인</button></header>
+  <main class="wrap" id="app"><div class="msg">불러오는 중…</div></main>
+  <div id="toast"></div>
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const esc = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
+    const ERR = { not_allowed: '권한이 없어요', not_admin: '투머스 관리자만 할 수 있어요', slug_taken: '이미 사용 중인 주소예요', bad_email: '이메일 형식을 확인해 주세요', bad_slug: '주소는 영문 소문자·숫자·하이픈(2~31자)만 쓸 수 있어요', name_required: '이름을 입력해 주세요', no_company: '회사를 찾지 못했어요' };
+    let user = null, companies = [], cur = null, members = [];
+    function toast(m) { const t = $('toast'); t.textContent = m; t.classList.add('on'); clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove('on'), 2400); }
+    function errText(e) { const m = String((e && e.message) || e || ''); for (const k in ERR) if (m.includes(k)) return ERR[k]; return '잠시 후 다시 해 주세요'; }
+    function slugify(v) { return String(v || '').toLowerCase().replace(/[^a-z0-9가-힣_-]/g, '').slice(0, 40); }
+    function cardUrl(m) { return 'https://toomcard.com/' + encodeURIComponent(cur.slug) + '/' + encodeURIComponent(m.member_slug); }
+    async function rpc(name, args) { const { data, error } = await supabaseClient.rpc(name, args || {}); if (error) throw error; return data; }
+
+    async function loadCompanies() { companies = (await rpc('tc_company_my')) || []; }
+    async function loadMembers() { members = (await rpc('tc_company_list', { p_company: cur.slug })) || []; }
+
+    function view() {
+      const isAdmin = companies.length ? !!companies[0].is_platform_admin : false;
+      let html = '';
+      if (cur) {
+        const claimed = members.filter((m) => m.claimed).length, views = members.reduce((a, m) => a + Number(m.views || 0), 0);
+        html += `<div><h1>${esc(cur.name)} 팀 카드</h1><p class="sub">구성원을 추가하면 회사 이름과 색이 들어간 카드가 만들어져요. 구성원이 <b>그 이메일(구글)</b>로 <a href="/dashboard" style="color:#ffd978">toomcard.com/dashboard</a>에 로그인하면 자기 카드가 연결되고, 사진·소개·링크를 직접 꾸밀 수 있어요.</p></div>`;
+        if (companies.length > 1) html += `<div class="row"><select id="coSel">${companies.map((c) => `<option value="${esc(c.slug)}" ${c.slug === cur.slug ? 'selected' : ''}>${esc(c.name)}</option>`).join('')}</select></div>`;
+        html += `<div class="stats"><div class="stat"><b>${members.length}</b><span>구성원</span></div><div class="stat"><b>${claimed}</b><span>카드 연결됨</span></div><div class="stat"><b>${views}</b><span>전체 조회</span></div></div>`;
+        html += `<div class="panel"><h2>구성원 추가</h2>
+          <div class="row"><input type="text" id="nName" placeholder="이름" autocomplete="off"><input type="text" id="nRole" placeholder="직함 (예: 매니저)" autocomplete="off"></div>
+          <div class="row"><input type="email" id="nEmail" placeholder="이메일 (구글 계정)" autocomplete="off" autocapitalize="off"><button class="btn" id="addBtn" type="button">추가</button></div>
+          <p class="note">카드 주소는 <b>toomcard.com/${esc(cur.slug)}/이름</b> 으로 자동 만들어져요. 같은 이름이면 숫자가 붙어요.</p>
+          <details><summary class="note" style="cursor:pointer">여러 명을 한 번에 추가</summary><textarea id="bulk" placeholder="한 줄에 한 명: 이름, 직함, 이메일&#10;김민수, 매니저, minsu@회사.com"></textarea><button class="btn ghost sm" id="bulkBtn" type="button" style="margin-top:8px">한 번에 추가</button></details></div>`;
+        html += `<div class="panel"><h2>구성원 (${members.length})</h2><div class="list">` + (members.length ? members.map((m, i) => `
+          <div class="member"><div class="av">${esc(Array.from(m.name || '?')[0])}</div>
+            <div><div class="mn">${esc(m.name)}</div><div class="mr">${esc(m.role || '')}${m.role ? ' · ' : ''}${esc(m.email)}</div>
+              <div class="chips"><span class="chip ${m.claimed ? 'ok' : 'wait'}">${m.claimed ? '카드 연결됨' : '초대됨 · 로그인하면 연결'}</span><span class="chip">조회 ${Number(m.views || 0)}</span>${m.has_photo ? '<span class="chip">사진 있음</span>' : ''}</div></div>
+            <div class="macts"><a class="btn ghost sm" href="${cardUrl(m)}" target="_blank" rel="noopener">카드 열기</a><button class="btn ghost sm" data-copy="${i}" type="button">링크 복사</button><button class="btn danger sm" data-del="${i}" type="button">삭제</button></div></div>`).join('') : '<div class="msg" style="padding:20px 0">아직 구성원이 없어요. 위에서 추가해 보세요.</div>') + `</div></div>`;
+        html += `<div class="panel"><h2>구성원에게 보낼 안내문</h2><p class="note">아래 글을 복사해서 보내세요.</p><button class="btn ghost sm" id="copyInvite" type="button" style="align-self:flex-start">안내문 복사</button></div>`;
+        html += `<div class="panel"><h2>회사 설정</h2><div class="row"><input type="text" id="cName" value="${esc(cur.name)}"><input type="color" id="cColor" value="${esc(cur.brand_color || '#3b1a6e')}" title="브랜드 색"><button class="btn" id="cSave" type="button">저장</button></div><p class="note">브랜드 색은 새로 추가하는 구성원 카드의 앞면 색으로 들어가요.</p>
+          <div class="row"><input type="email" id="aEmail" placeholder="회사 관리자 추가 (이메일)" autocapitalize="off"><button class="btn ghost" id="aAdd" type="button">관리자 추가</button></div></div>`;
+      } else {
+        html += `<div><h1>팀 카드 관리</h1><p class="sub">${isAdmin ? '아직 만든 회사가 없어요. 아래에서 첫 회사를 만들어 보세요.' : '연결된 회사가 없어요. 로그인한 이메일이 회사 관리자로 등록되어 있어야 해요. 담당자에게 문의해 주세요.'}</p></div>`;
+      }
+      if (isAdmin || (companies[0] && companies[0].is_platform_admin)) {
+        html += `<div class="panel"><h2>회사 만들기 <span class="chip">투머스 관리자</span></h2>
+          <div class="row"><input type="text" id="xSlug" placeholder="회사 주소 (영문 소문자, 예: maza-studio)" autocapitalize="off"><input type="text" id="xName" placeholder="회사 이름"></div>
+          <div class="row"><input type="email" id="xAdmin" placeholder="회사 관리자 이메일 (구글 계정)" autocapitalize="off"><input type="color" id="xColor" value="#3b1a6e"><button class="btn" id="xMake" type="button">회사 만들기</button></div>
+          <p class="note">만들면 그 관리자 이메일로 로그인한 사람이 이 화면에서 팀 카드를 관리할 수 있어요.</p></div>`;
+      }
+      $('app').innerHTML = html;
+      bind();
+    }
+
+    function bind() {
+      const on = (id, fn) => { const e = $(id); if (e) e.onclick = fn; };
+      if ($('coSel')) $('coSel').onchange = async () => { cur = companies.find((c) => c.slug === $('coSel').value); await refresh(); };
+      on('addBtn', () => addOne($('nName').value, $('nRole').value, $('nEmail').value, true));
+      on('bulkBtn', async () => {
+        const lines = $('bulk').value.split('\n').map((l) => l.trim()).filter(Boolean); let ok = 0, fail = [];
+        for (const l of lines) { const [n, r, e] = l.split(',').map((x) => (x || '').trim()); try { await addOne(n, r, e, false); ok++; } catch (err) { fail.push(`${n || l}: ${errText(err)}`); } }
+        toast(`${ok}명 추가${fail.length ? ' · 실패 ' + fail.length + '명 (' + fail[0] + ')' : ''}`); await refresh();
+      });
+      on('copyInvite', () => navigator.clipboard.writeText(`[${cur.name}] 디지털 명함이 만들어졌어요.\n1) toomcard.com/dashboard 에서 회사 이메일(구글 계정)로 로그인해 주세요.\n2) 내 카드가 보이면 '꾸미기'에서 사진·소개·링크를 넣어 완성하세요.\n3) 완성한 카드는 QR이나 링크로 바로 공유할 수 있어요.`).then(() => toast('안내문을 복사했어요'), () => toast('복사하지 못했어요')));
+      on('cSave', async () => { try { await rpc('tc_company_update', { p_company: cur.slug, p_name: $('cName').value, p_color: $('cColor').value }); toast('저장했어요'); await loadCompanies(); cur = companies.find((c) => c.slug === cur.slug); view(); } catch (e) { toast(errText(e)); } });
+      on('aAdd', async () => { try { await rpc('tc_company_add_admin', { p_company: cur.slug, p_email: $('aEmail').value }); toast('관리자를 추가했어요'); $('aEmail').value = ''; } catch (e) { toast(errText(e)); } });
+      on('xMake', async () => { try { const s = await rpc('tc_company_create', { p_slug: $('xSlug').value, p_name: $('xName').value, p_admin_email: $('xAdmin').value, p_color: $('xColor').value }); toast('회사를 만들었어요'); await loadCompanies(); cur = companies.find((c) => c.slug === s) || companies[0]; await refresh(); } catch (e) { toast(errText(e)); } });
+      document.querySelectorAll('[data-copy]').forEach((b) => b.onclick = () => navigator.clipboard.writeText(cardUrl(members[+b.dataset.copy])).then(() => toast('링크를 복사했어요'), () => toast('복사하지 못했어요')));
+      document.querySelectorAll('[data-del]').forEach((b) => b.onclick = async () => {
+        const m = members[+b.dataset.del]; if (!confirm(`"${m.name}" 카드를 삭제할까요?\n되돌릴 수 없고, 이 주소의 링크와 QR이 모두 닫혀요.`)) return;
+        try { await rpc('tc_company_remove_member', { p_company: cur.slug, p_member_slug: m.member_slug }); toast('삭제했어요'); await refresh(); } catch (e) { toast(errText(e)); }
+      });
+    }
+    async function addOne(name, role, email, single) {
+      name = String(name || '').trim(); if (!name) { if (single) toast(ERR.name_required); throw new Error('name_required'); }
+      const base = slugify(name) || 'member'; let lastErr = null;
+      for (let i = 1; i <= 9; i++) {
+        try { await rpc('tc_company_add_member', { p_company: cur.slug, p_name: name, p_role: String(role || '').trim(), p_email: String(email || '').trim(), p_member_slug: i === 1 ? base : base + i }); if (single) { toast(`${name} 님을 추가했어요`); await refresh(); } return; }
+        catch (e) { lastErr = e; if (!String(e && e.message || '').includes('slug_taken')) break; }
+      }
+      if (single) toast(errText(lastErr)); throw lastErr;
+    }
+    async function refresh() { await loadMembers(); view(); }
+
+    async function init() {
+      user = await getCurrentUser();
+      $('authBtn').textContent = user ? '로그아웃' : '로그인';
+      $('authBtn').onclick = () => (user ? signOutUser() : signInWithGoogle());
+      if (!user) { $('app').innerHTML = '<div class="msg">회사 관리자 계정(구글)으로 로그인해 주세요.<br><small>로그인 후 이 화면으로 돌아오지 않으면 <a href="/dashboard" style="color:#ffd978">대시보드</a>에서 먼저 로그인한 뒤 이 주소를 다시 열어 주세요.</small></div>'; return; }
+      try { await loadCompanies(); } catch (e) { $('app').innerHTML = '<div class="msg">회사 정보를 불러오지 못했어요.<br><small>' + esc(e.message || e) + '</small></div>'; return; }
+      cur = companies[0] || null;
+      if (cur) await loadMembers();
+      view();
+    }
+    window.addEventListener('error', (e) => { const a = $('app'); if (a && /불러오는 중/.test(a.textContent)) a.innerHTML = '<div class="msg">화면을 불러오지 못했어요.<br><small>' + esc(e.message) + '</small></div>'; });
+    if (supabaseClient && supabaseClient.auth) supabaseClient.auth.onAuthStateChange((ev, s) => { if (ev === 'SIGNED_IN' && s && !user) init(); });
+    init();
+  </script>
+</body>
+</html>

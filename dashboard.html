@@ -173,6 +173,7 @@
       <a href="/dashboard-legacy" data-k="biz">기업 · 리드 관리</a>
       <a href="/admin/star" id="adminLink" hidden>이젠스타 검토</a>
       <a href="/admin/print" id="adminPrintLink" hidden>인쇄 파일</a>
+      <a href="/team" id="teamLink" hidden>팀 카드 관리</a>
       <a href="/" data-k="gallery">갤러리</a>
       <a href="/terms" data-k="terms">이용약관</a>
       <a href="/privacy" data-k="privacy">개인정보처리방침</a>
@@ -307,6 +308,7 @@
         supabaseClient.auth.onAuthStateChange((ev, session) => { if (ev === 'SIGNED_IN' && session && !user) { user = session.user; load(); } if (ev === 'SIGNED_OUT') { user = null; show('vOut'); applyText(); } });
       }
       user = await getCurrentUser();
+      try { const tc = user && await supabaseClient.rpc('tc_company_my'); if (tc && Array.isArray(tc.data) && tc.data.length) $('teamLink').hidden = false; } catch (e) {}
       try { const r = user && await supabaseClient.rpc('tc_is_admin'); if (r && r.data === true) { $('adminLink').hidden = false; $('adminPrintLink').hidden = false; $('adminBar').hidden = false; try { const q = await adminStarQueue(); if (Array.isArray(q)) $('adminCnt').textContent = q.length ? `대기 ${q.length}건` : ''; } catch (e2) {} } } catch (e) {}   // 관리자에게만 이젠스타 검토 바로가기와 대기 수
       if (location.hash.includes('access_token')) history.replaceState({}, document.title, location.pathname);
       if (!user) { show('vOut'); applyText(); return; }

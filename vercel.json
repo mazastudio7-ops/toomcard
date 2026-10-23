@@ -36,6 +36,10 @@
       "destination": "/admin-print"
     },
     {
+      "source": "/team",
+      "destination": "/team"
+    },
+    {
       "source": "/maker",
       "destination": "/maker"
     },
