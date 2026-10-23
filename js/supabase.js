@@ -322,7 +322,14 @@ async function getLeadsPage(slugs, from = 0, size = 30, opts = {}) {
   const t = String(opts.q || '').trim().replace(/[%,()]/g, ' ').slice(0, 60);
   if (t) q = q.or(`phone.ilike.%${t}%,metadata->>name.ilike.%${t}%,metadata->>email.ilike.%${t}%,metadata->>memo.ilike.%${t}%,note.ilike.%${t}%`);
   const { data, count, error } = await q.order('created_at', { ascending: false }).range(from, from + size - 1);
-  if (error) { console.error('getLeadsPage', error); return null; }
+  if (error) {
+    // 20261028_leads_crm.sql 을 아직 실행하지 않았으면 예전 열만으로 목록을 보여 준다
+    if (/status|note|followup/i.test(String(error.message || '')) && !opts.__legacy) {
+      const r = await supabaseClient.from('leads').select('id,target_slug,phone,metadata,created_at', { count: 'exact' }).in('target_slug', list).order('created_at', { ascending: false }).range(from, from + size - 1);
+      if (!r.error) return { rows: (r.data || []).map((x) => Object.assign({ status: 'new' }, x)), total: r.count || 0 };
+    }
+    console.error('getLeadsPage', error); return null;
+  }
   return { rows: data || [], total: count || 0 };
 }
 
