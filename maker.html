@@ -630,7 +630,7 @@
         <p class="photo-off" data-i18n="maker.gif_note">카톡 프로필·인스타·유튜브에 올려 보세요. 움직이는 로고가 됩니다.</p>
         <div class="hr"></div>
         <div class="toggle"><span data-i18n="maker.show_logo">앞면에도 로고 표시</span><button class="switch" id="logoSwitch" role="switch" aria-checked="false"></button></div>
-        <div class="field"><label data-i18n="maker.logo_upload">로고 / 프로필 사진 (선택)</label><input type="file" id="logoFile" accept="image/*" class="input" style="padding-top:8px;"><p class="photo-off" data-i18n="maker.logo_anim_hint">움직이는 GIF·WebP도 그대로 움직여요 (700KB 이하).</p></div>
+        <div class="field"><label data-i18n="maker.logo_upload">로고 / 프로필 사진 (선택)</label><input type="file" id="logoFile" accept="image/*" class="input" style="padding-top:8px;"><p class="photo-off" data-i18n="maker.logo_anim_hint">움직이는 GIF·WebP도 그대로 움직여요 (3MB 이하).</p></div>
         <div class="field"><label data-i18n="maker.logo_shape">로고 모양</label><div class="chips" id="logoShapeChips"><button class="chip" type="button" data-shape="" aria-pressed="true" data-i18n="maker.logo_shape_auto">자동</button><button class="chip" type="button" data-shape="square" aria-pressed="false" data-i18n="maker.logo_shape_square">사각</button><button class="chip" type="button" data-shape="circle" aria-pressed="false" data-i18n="maker.logo_shape_circle">원</button></div></div>
         <div class="hr"></div>
         <button type="button" class="btn-secondary" onclick="openOrderModal()"><i data-lucide="sparkles"></i><span data-i18n="maker.order_btn">내 로고 3D로 제작 신청</span></button>
@@ -1463,13 +1463,33 @@
     $('gifBtn').addEventListener('click', saveLogoGif);
 
     syncStarUI();
+    const ANIM_LOGO_CLOUD_MAX = 3 * 1024 * 1024;   // 저장소에 올릴 수 있는 최대 크기
     const ANIM_LOGO_MAX = 700 * 1024;   // 움직이는 로고 최대 크기 (카드 데이터에 함께 저장되므로 작게)
     $('logoFile').addEventListener('change', (e) => {
       const f = e.target.files[0]; if (!f) return;
       const put = (dataUrl) => { card.logo = { src: dataUrl, alt: card.company }; card.avatar = dataUrl; setLogo(true); render(); };
       // 움직이는 로고(GIF·WebP)는 캔버스를 거치면 첫 장면으로 멈춘다. 용량이 작으면 원본 그대로 쓴다.
       if (/^image\/(gif|webp|apng)$/.test(f.type)) {
-        if (f.size > ANIM_LOGO_MAX) { toast(t('maker.logo_anim_big').replace('{kb}', Math.round(f.size / 1024)).replace('{max}', Math.round(ANIM_LOGO_MAX / 1024))); e.target.value = ''; return; }
+        if (f.size > ANIM_LOGO_MAX) {
+          if (f.size > ANIM_LOGO_CLOUD_MAX) { toast(t('maker.logo_anim_big').replace('{kb}', Math.round(f.size / 1024)).replace('{max}', Math.round(ANIM_LOGO_CLOUD_MAX / 1024))); e.target.value = ''; return; }
+          // 700KB 보다 큰 움직이는 로고는 카드 데이터에 넣지 않고 저장소(로그인 필요)에 올려 주소만 쓴다
+          e.target.value = '';
+          toast(t('maker.logo_anim_up'));
+          (async () => {
+            try {
+              await ensureCloud();
+              const u = await getCurrentUser();
+              if (!u) { toast(t('maker.logo_anim_login')); try { if (typeof openAuthModal === 'function') openAuthModal(); } catch (er) {} return; }
+              const ext = f.type === 'image/gif' ? 'gif' : (f.type === 'image/webp' ? 'webp' : 'png');
+              const path = `${u.id}/logo-${Date.now()}.${ext}`;
+              const up = await supabaseClient.storage.from('card-assets').upload(path, f, { contentType: f.type, cacheControl: '31536000', upsert: false });
+              if (up.error) throw up.error;
+              const pub = supabaseClient.storage.from('card-assets').getPublicUrl(path);
+              put(pub.data.publicUrl); toast(t('maker.logo_anim_ok'));
+            } catch (er) { console.warn(er); toast(t('maker.logo_anim_fail')); }
+          })();
+          return;
+        }
         const fr = new FileReader(); fr.onload = (ev) => { put(String(ev.target.result)); toast(t('maker.logo_anim_ok')); }; fr.readAsDataURL(f); e.target.value = ''; return;
       }
       readImage(f, 400, put, true);
