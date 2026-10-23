@@ -127,6 +127,8 @@
     .final a { display: inline-block; background: #ffd978; color: #000; font-weight: 900; padding: 16px 32px; border-radius: 99px; font-size: 17px; }
     footer { max-width: 1080px; margin: 0 auto; padding: 24px 20px calc(40px + env(safe-area-inset-bottom)); display: flex; flex-wrap: wrap; gap: 8px 22px; justify-content: center; color: rgba(255,255,255,0.45); font-size: 13px; border-top: 1px solid rgba(255,255,255,0.08); }
     footer a:hover { color: #fff; }
+    footer .biz { flex: 1 0 100%; margin: 6px 0 0; text-align: center; font-size: 11.5px; line-height: 1.6; color: rgba(255,255,255,0.32); }
+    footer .biz a { color: inherit; text-decoration: underline; }
         @media (prefers-reduced-motion: reduce) { .aurora i, .hero h1, .hero p, .hero .big, .stage { animation: none; } .tile { opacity: 1; transform: none; transition: none; } }
     .logo { display: flex; align-items: center; gap: 8px; }
     .logo img { width: 30px; height: 30px; border-radius: 8px; flex: none; box-shadow: 0 0 14px rgba(255,200,90,.25); }
@@ -426,6 +428,7 @@
     <a href="/terms" data-i18n="home.f_terms">이용약관</a>
     <a href="/privacy" data-i18n="home.f_privacy">개인정보처리방침</a>
     <span>© TOOMCARD</span>
+    <p class="biz" data-i18n="home.f_biz" data-i18n-html>상호 투머스(toomus) · 대표 김민호 · 사업자등록번호 604-30-53081 · 경기도 광주시 새말길317번길 19, B동 103호(신현동, 스카이힐) · 전화 010-8019-0700 · <a href="mailto:hello@toomcard.com">hello@toomcard.com</a></p>
   </footer>
 
   <script>
