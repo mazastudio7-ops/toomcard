@@ -66,7 +66,7 @@ self.addEventListener('push', (event) => {
       badge: '/assets/icon-192.png',
       tag: 'toomcard-leads',          // 같은 태그는 하나로 합쳐 보인다 (알림이 쌓이지 않는다)
       renotify: true,
-      data: { url: d.url || '/dashboard' }
+      data: { url: d.url || '/dashboard#leads' }
     }),
     (self.navigator && self.navigator.setAppBadge && d.count) ? self.navigator.setAppBadge(d.count).catch(() => {}) : Promise.resolve()
   ]));
@@ -74,10 +74,11 @@ self.addEventListener('push', (event) => {
 
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
-  const url = (event.notification.data && event.notification.data.url) || '/dashboard';
+  const url = (event.notification.data && event.notification.data.url) || '/dashboard#leads';
+  const path = url.split('#')[0];
   event.waitUntil(
     self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((list) => {
-      for (const c of list) { if (c.url.includes(url) && 'focus' in c) return c.focus(); }
+      for (const c of list) { if (c.url.includes(path) && 'focus' in c) { c.navigate && c.navigate(url); return c.focus(); } }
       return self.clients.openWindow(url);
     })
   );

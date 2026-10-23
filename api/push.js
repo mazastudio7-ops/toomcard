@@ -22,7 +22,7 @@ module.exports = async (req, res) => {
   const payload = JSON.stringify({
     title: count > 1 ? `새 문의 ${count}건` : '새 문의가 왔어요',
     body: '눌러서 받은 연락처를 확인하세요',
-    url: '/dashboard',
+    url: '/dashboard#leads',
     count
   });
   const results = await Promise.allSettled(subs.map((s) => webpush.sendNotification(s, payload, { TTL: 3600, urgency: 'high', topic: 'leads' })));
