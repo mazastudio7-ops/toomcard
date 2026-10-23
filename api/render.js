@@ -100,7 +100,9 @@ module.exports = async (req, res) => {
   };
 
   const aliasTarget = ALIAS_MAP[cleanSlug] || ALIAS_MAP[decodedSlug] || null;
-  const slugsToTry = Array.from(new Set([cleanSlug, decodedSlug, aliasTarget].filter(Boolean)));
+  // MAZA 회사 주소는 maza-studio → maza 로 줄였다. 어느 쪽 주소로 와도(DB를 옮기기 전후 모두) 열리게 한다.
+  const mazaAlt = (x) => /^maza-studio\//i.test(x || '') ? x.replace(/^maza-studio\//i, 'maza/') : (/^maza\/[^/]+$/i.test(x || '') ? x.replace(/^maza\//i, 'maza-studio/') : null);
+  const slugsToTry = Array.from(new Set([cleanSlug, decodedSlug, aliasTarget, mazaAlt(cleanSlug), mazaAlt(decodedSlug)].filter(Boolean)));
 
   let title = "TOOMCARD 3D 명함";
   let subtitle = "Next-Gen 3D Interactive Business Card";
@@ -219,7 +221,7 @@ module.exports = async (req, res) => {
     }
 
     // MAZA STUDIO 팀 카드: 마자 플레이트 미리보기 (카카오톡·메신저 링크 미리보기용 정적 이미지)
-    if (!ogImageUrl && /^maza-studio(\/|$)/i.test(cleanSlug || '')) ogImageUrl = 'https://toomcard.com/assets/og_maza.jpg';
+    if (!ogImageUrl && /^maza(-studio)?(\/|$)/i.test(cleanSlug || '')) ogImageUrl = 'https://toomcard.com/assets/og_maza.jpg';
 
     // [옵션 1] 개인마다 이름, 직함, 회사명이 실시간 렌더링된 1200x630 동적 OG 이미지 생성
     if (!ogImageUrl) {
