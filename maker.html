@@ -723,6 +723,7 @@
       <section class="section" id="secExport" data-tab="publish">
         <div class="section-title"><i data-lucide="smartphone"></i><span data-i18n="maker.sec_export">내보내기</span></div>
         <button class="btn-secondary" onclick="saveWallpaper()"><i data-lucide="download"></i><span data-i18n="maker.wallpaper">앞면을 폰 배경화면으로 저장</span></button>
+        <button class="btn-secondary" onclick="savePoster()"><i data-lucide="qr-code"></i><span data-i18n="maker.poster">매장용 QR 포스터 저장</span></button>
         <a class="btn-secondary" href="/#nfc"><i data-lucide="credit-card"></i><span data-i18n="maker.nfc_order">실물 NFC 카드 주문</span></a>
         <button class="btn-secondary" onclick="exportJson()"><i data-lucide="file-code-2"></i><span data-i18n="maker.backup_json">JSON 백업</span></button>
       </section>
@@ -1859,6 +1860,12 @@
     function saveWallpaper() {
       const c = collect();
       try { const sl = curSlug(); if (sl) localStorage.setItem('tc_wp_' + sl, '1'); } catch (e) {}
+      buildWallpaper(c, (cv) => {
+        const a = document.createElement('a'); a.href = cv.toDataURL('image/png'); a.download = `${(c.slug || 'toomcard').replace('/', '-')}-wallpaper.png`; a.click();
+        toast(t('maker.wallpaper_saved'));
+      });
+    }
+    function buildWallpaper(c, done) {
       const W = 1080, H = 1920;
       const cv = document.createElement('canvas'); cv.width = W; cv.height = H;
       const ctx = cv.getContext('2d');
@@ -1876,8 +1883,7 @@
           ctx.font = '900 84px Montserrat, Pretendard, sans-serif'; ctx.fillText(c.name, x, y);
           ctx.font = '600 38px Pretendard, sans-serif'; ctx.globalAlpha = 0.85; ctx.fillText(c.role || '', x, y + 62); ctx.globalAlpha = 1;
         }
-        const a = document.createElement('a'); a.href = cv.toDataURL('image/png'); a.download = `${c.slug || 'toomcard'}-wallpaper.png`; a.click();
-        toast(t('maker.wallpaper_saved'));
+        done(cv);
       };
       const bg = c.front.bg;
       if (bg.type === 'image') {
@@ -1909,6 +1915,56 @@
         ctx.fillRect(0, 0, W, H); drawText();
       }
     }
+
+    /* ── 매장용 QR 포스터: 앞면(사진) + 큰 QR + 뒷면 정보를 A4 한 장에 ── */
+    let editLoaded = false;
+    function rrect(ctx, x, y, w, h, r) { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); }
+    async function savePoster() {
+      const c = collect();
+      const url = publishedUrl ? publishedUrl.split('?')[0] : (editLoaded && curSlug() ? `${location.origin}/${curSlug()}` : '');
+      if (!url) { toast(t('maker.poster_need')); return; }
+      try { if (document.fonts && document.fonts.ready) await document.fonts.ready; } catch (e) {}
+      const front = await new Promise((res) => buildWallpaper(c, res));
+      const qrHost = document.createElement('div'); qrHost.style.cssText = 'position:fixed;left:-9999px;top:0';
+      document.body.appendChild(qrHost);
+      try { new QRCode(qrHost, { text: url, width: 640, height: 640, correctLevel: QRCode.CorrectLevel.M }); } catch (e) { qrHost.remove(); toast(t('maker.publish_fail')); return; }
+      await new Promise((r) => setTimeout(r, 120));
+      const qrSrc = qrHost.querySelector('canvas'); 
+      const W = 1654, H = 2339, cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+      const x = cv.getContext('2d'), FONT = "'Montserrat','Noto Sans KR',sans-serif";
+      const bgG = x.createLinearGradient(0, 0, W * 0.6, H); bgG.addColorStop(0, '#0b0814'); bgG.addColorStop(1, '#1b1033'); x.fillStyle = bgG; x.fillRect(0, 0, W, H);
+      const glow = x.createRadialGradient(W * 0.8, H * 0.18, 0, W * 0.8, H * 0.18, 900); glow.addColorStop(0, 'rgba(255,217,120,.28)'); glow.addColorStop(1, 'rgba(255,217,120,0)'); x.fillStyle = glow; x.fillRect(0, 0, W, H);
+      x.textAlign = 'center';
+      x.fillStyle = '#ffd978'; x.font = `900 100px ${FONT}`; x.fillText(t('maker.poster_title'), W / 2, 230);
+      x.fillStyle = 'rgba(255,255,255,.7)'; x.font = `600 44px ${FONT}`; x.fillText(t('maker.poster_sub'), W / 2, 318);
+      // 앞면
+      const cx0 = 110, cy0 = 420, cw = 700, ch = Math.round(700 * 1920 / 1080);
+      x.save(); x.shadowColor = 'rgba(0,0,0,.6)'; x.shadowBlur = 60; x.shadowOffsetY = 24; rrect(x, cx0, cy0, cw, ch, 44); x.fillStyle = '#000'; x.fill(); x.restore();
+      x.save(); rrect(x, cx0, cy0, cw, ch, 44); x.clip(); x.drawImage(front, cx0, cy0, cw, ch); x.restore();
+      x.strokeStyle = 'rgba(255,255,255,.18)'; x.lineWidth = 3; rrect(x, cx0, cy0, cw, ch, 44); x.stroke();
+      // QR
+      const qx = 860, qy = 420, qs = 684;
+      x.fillStyle = '#ffffff'; rrect(x, qx, qy, qs, qs, 36); x.fill();
+      if (qrSrc) x.drawImage(qrSrc, qx + 34, qy + 34, qs - 68, qs - 68);
+      x.fillStyle = '#ffd978'; x.font = `900 46px ${FONT}`; x.fillText('▲ ' + t('maker.poster_scan') + ' ▲', qx + qs / 2, qy + qs + 70);
+      // 뒷면 정보
+      const by = 1210, bh = ch + cy0 - by;
+      x.fillStyle = 'rgba(255,255,255,.07)'; rrect(x, qx, by, qs, bh, 36); x.fill(); x.strokeStyle = 'rgba(255,217,120,.45)'; x.lineWidth = 3; rrect(x, qx, by, qs, bh, 36); x.stroke();
+      const pub = splitPrivate(c).pub || c; let ty = by + 78; x.textAlign = 'left';
+      const line = (txt, font, color, step) => { if (!txt) return; x.font = font; x.fillStyle = color; let tt = String(txt); while (x.measureText(tt).width > qs - 80 && tt.length > 4) tt = tt.slice(0, -2); if (tt !== String(txt)) tt += '…'; x.fillText(tt, qx + 40, ty); ty += step; };
+      line((pub.company || '').toUpperCase(), `800 30px ${FONT}`, '#ffd978', 74);
+      line(pub.name, `900 68px ${FONT}`, '#ffffff', 62);
+      line(pub.role, `600 38px ${FONT}`, 'rgba(255,255,255,.8)', 64);
+      line(pub.phone, `700 42px ${FONT}`, '#ffffff', 56);
+      line(pub.email, `600 34px ${FONT}`, 'rgba(255,255,255,.85)', 56);
+      // 주소와 브랜드
+      x.textAlign = 'center'; x.fillStyle = '#ffd978'; x.font = `900 58px ${FONT}`; x.fillText(url.replace(/^https?:\/\//, ''), W / 2, ch + cy0 + 150);
+      x.fillStyle = 'rgba(255,255,255,.82)'; x.font = `600 44px ${FONT}`; x.fillText(t('maker.poster_foot'), W / 2, ch + cy0 + 250);
+      x.fillStyle = 'rgba(255,255,255,.55)'; x.font = `600 36px ${FONT}`; x.fillText('TOOMCARD · toomcard.com', W / 2, H - 120);
+      qrHost.remove();
+      const a = document.createElement('a'); a.href = cv.toDataURL('image/png'); a.download = `${(c.slug || 'toomcard').replace('/', '-')}-poster-A4.png`; a.click();
+      toast(t('maker.poster_saved'));
+    }
     function isLight(hex) {
       const h = (hex || '#000').replace('#', ''); const n = parseInt(h.length === 3 ? h.split('').map((c) => c + c).join('') : h, 16);
       return (0.2126 * ((n >> 16) & 255) + 0.7152 * ((n >> 8) & 255) + 0.0722 * (n & 255)) > 150;
@@ -1920,7 +1976,7 @@
       if (typeof loadPodFromCloud !== 'function') return;
       const res = await loadPodFromCloud(slug); if (!res || !res.pod) return;
       const json = res.pod.components_json || {}; const c = json.card || json;
-      applyCardData(c, slug, true);
+      applyCardData(c, slug, true); editLoaded = true;
     }
     // 저장된 카드 데이터(클라우드 또는 임시 저장)를 메이커 화면에 채운다
     function applyCardData(c, slug, fromCloud) {
