@@ -32,6 +32,10 @@
       "destination": "/admin-star"
     },
     {
+      "source": "/admin/print",
+      "destination": "/admin-print"
+    },
+    {
       "source": "/maker",
       "destination": "/maker"
     },

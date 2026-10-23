@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="robots" content="noindex">
+  <title>TOOMCARD | 인쇄 파일 내보내기</title>
+  <link rel="icon" type="image/x-icon" href="/assets/favicon.ico">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&family=Noto+Sans+KR:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/tokens.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/js/supabase.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="/js/card-core.js"></script>
+  <script src="/js/card-export.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; }
+    body { background: #07050d; color: #fff; font-family: 'Noto Sans KR', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+    a { color: inherit; text-decoration: none; }
+    .bar { position: sticky; top: 0; z-index: 10; display: flex; align-items: center; justify-content: space-between; padding: calc(12px + env(safe-area-inset-top, 0px)) 16px 12px; background: rgba(7,5,13,.92); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255,255,255,.08); }
+    .logo { font: 900 16px 'Montserrat', sans-serif; } .logo small { color: #ffd978; margin-left: 8px; font: 800 11px 'Montserrat', sans-serif; letter-spacing: .1em; }
+    .auth { appearance: none; border: 1px solid rgba(255,255,255,.2); background: rgba(255,255,255,.06); color: #fff; font-weight: 700; font-size: 12px; padding: 7px 11px; border-radius: 99px; cursor: pointer; }
+    .wrap { max-width: 820px; margin: 0 auto; padding: 18px 16px 80px; display: flex; flex-direction: column; gap: 16px; }
+    .msg { text-align: center; color: rgba(255,255,255,.6); padding: 40px 0; line-height: 1.6; }
+    h1 { font-size: 22px; font-weight: 900; } .sub { color: rgba(255,255,255,.6); font-size: 13.5px; line-height: 1.6; margin-top: 6px; }
+    .row { display: flex; gap: 8px; flex-wrap: wrap; }
+    input[type=text] { flex: 1; min-width: 160px; padding: 12px 14px; border-radius: 12px; border: 1px solid rgba(255,255,255,.18); background: rgba(255,255,255,.05); color: #fff; font: 600 16px 'Noto Sans KR', sans-serif; outline: none; }
+    input[type=text]:focus { border-color: #ffd978; }
+    .btn { appearance: none; border: 0; padding: 12px 18px; border-radius: 12px; font: 900 14px 'Noto Sans KR', sans-serif; cursor: pointer; background: #ffd978; color: #000; }
+    .btn.ghost { background: rgba(255,255,255,.08); color: #fff; border: 1px solid rgba(255,255,255,.18); }
+    .btn[disabled] { opacity: .45; cursor: default; }
+    .opts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    @media (max-width: 560px) { .opts { grid-template-columns: 1fr; } }
+    label.chk { display: flex; align-items: center; gap: 8px; font-size: 13.5px; color: rgba(255,255,255,.75); }
+    .info { font-size: 12.5px; line-height: 1.7; color: rgba(255,255,255,.6); padding: 12px 14px; border-radius: 14px; border: 1px solid rgba(255,217,120,.3); background: rgba(255,217,120,.06); }
+    .prev { display: flex; gap: 22px; justify-content: center; flex-wrap: wrap; }
+    .face { text-align: center; font-size: 12.5px; color: rgba(255,255,255,.65); }
+    .face .box { position: relative; width: 250px; margin: 0 auto 8px; border-radius: 6px; overflow: hidden; background: #000; box-shadow: 0 16px 40px rgba(0,0,0,.6); }
+    .face canvas { display: block; width: 100%; height: auto; }
+    .guide { position: absolute; inset: 0; pointer-events: none; display: none; }
+    body.guides .guide { display: block; }
+    .guide i { position: absolute; border: 1.5px dashed; }
+    .guide .trim { border-color: #ff5d5d; } .guide .safe { border-color: #6ee7a8; }
+    .acts { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+    .name { color: #fff; font-weight: 800; }
+  </style>
+</head>
+<body>
+  <header class="bar"><a href="/dashboard" class="logo">TOOMCARD<small>PRINT FILES</small></a><button class="auth" id="authBtn" type="button">로그인</button></header>
+  <main class="wrap" id="app"><div class="msg">불러오는 중…</div></main>
+  <script>
+    const $ = (id) => document.getElementById(id);
+    let user = null, current = null;
+
+    function normSlug(v) { return String(v || '').trim().replace(/^https?:\/\/[^/]+\//i, '').replace(/[?#].*$/, '').replace(/^\//, '').replace(/\/$/, ''); }
+    async function loadCard(raw) {
+      const slug = normSlug(raw); if (!slug) return null;
+      try {
+        const r = await loadPodFromCloud(slug);
+        if (r && r.pod) { const cj = r.pod.components_json || {}, c = Object.assign({}, cj.card || cj); c.slug = r.pod.slug; return { card: c, from: 'DB' }; }
+      } catch (e) {}
+      let dec = slug; try { dec = decodeURIComponent(slug); } catch (e) {}
+      for (const s of Array.from(new Set([slug, dec]))) {
+        try { const res = await fetch('/cards/' + encodeURIComponent(s) + '.json'); if (res.ok) { const c = await res.json(); c.slug = c.slug || s; return { card: c, from: '파일' }; } } catch (e) {}
+      }
+      return null;
+    }
+    function publicUrl(slug) { return 'https://toomcard.com/' + String(slug).split('/').map(encodeURIComponent).join('/'); }
+
+    function render() {
+      $('app').innerHTML = `
+        <div><h1>인쇄 파일 내보내기</h1>
+          <p class="sub">카드 주소를 넣으면 제작처에 보낼 앞면·뒷면 이미지가 만들어져요. 크기는 <b>60 × 91.6 mm</b>(재단 54 × 85.6 mm, 사방 3 mm 여백), 300 dpi입니다.</p></div>
+        <div class="row"><input type="text" id="slugIn" placeholder="예: a/mina, 조윤서, toomcard.com/a/mina" autocomplete="off" autocapitalize="off"><button class="btn" id="loadBtn" type="button">불러오기</button></div>
+        <div class="opts">
+          <input type="text" id="phoneIn" placeholder="전화 (선택 · 주문서에서 복사)" autocomplete="off">
+          <input type="text" id="emailIn" placeholder="이메일 (선택 · 주문서에서 복사)" autocomplete="off">
+        </div>
+        <label class="chk"><input type="checkbox" id="guideChk"> 미리보기에 재단선(빨강)·안전선(초록) 보기 (저장 파일에는 들어가지 않아요)</label>
+        <div id="result"></div>`;
+      $('loadBtn').onclick = go;
+      $('slugIn').addEventListener('keydown', (e) => { if (e.key === 'Enter') go(); });
+      ['phoneIn', 'emailIn'].forEach((id) => $(id).addEventListener('change', () => { if (current) draw(); }));
+      $('guideChk').onchange = () => document.body.classList.toggle('guides', $('guideChk').checked);
+      const q = new URLSearchParams(location.search).get('slug'); if (q) { $('slugIn').value = q; go(); }
+    }
+    async function go() {
+      const v = $('slugIn').value; if (!normSlug(v)) return;
+      $('result').innerHTML = '<div class="msg">불러오는 중…</div>'; $('loadBtn').disabled = true;
+      const r = await loadCard(v); $('loadBtn').disabled = false;
+      if (!r) { $('result').innerHTML = '<div class="msg">카드를 찾지 못했어요. 주소를 다시 확인해 주세요.</div>'; current = null; return; }
+      current = r; draw();
+    }
+    async function draw() {
+      const { card, from } = current, url = publicUrl(card.slug);
+      $('result').innerHTML = '<div class="msg">이미지를 만드는 중…</div>';
+      try { if (document.fonts && document.fonts.ready) await document.fonts.ready; } catch (e) {}
+      const extra = { phone: $('phoneIn').value.trim(), email: $('emailIn').value.trim() };
+      const [f, b] = await Promise.all([TCExport.front(card), TCExport.back(card, url, extra)]);
+      current.canvases = { f, b };
+      const pct = (px, tot) => (px / tot * 100) + '%';
+      const guides = `<div class="guide"><i class="trim" style="left:${pct(TCExport.BLEED_PX, TCExport.W)};right:${pct(TCExport.BLEED_PX, TCExport.W)};top:${pct(TCExport.BLEED_PX, TCExport.H)};bottom:${pct(TCExport.BLEED_PX, TCExport.H)}"></i><i class="safe" style="left:${pct(TCExport.SAFE_PX, TCExport.W)};right:${pct(TCExport.SAFE_PX, TCExport.W)};top:${pct(TCExport.SAFE_PX, TCExport.H)};bottom:${pct(TCExport.SAFE_PX, TCExport.H)}"></i></div>`;
+      $('result').innerHTML = `
+        <div class="info"><span class="name">${esc(card.name || card.slug)}</span> · ${esc(card.slug)} · 불러온 곳: ${from}<br>QR 주소: ${esc(url)}<br>전화·이메일이 비어 있으면(이젠스타 카드 등 비공개) 위 칸에 주문서의 값을 넣으면 뒷면에 들어가요.</div>
+        <div class="prev"><div class="face"><div class="box" id="boxF">${guides}</div>앞면</div><div class="face"><div class="box" id="boxB">${guides}</div>뒷면</div></div>
+        <div class="acts"><button class="btn" id="dlF" type="button">앞면 PNG 저장</button><button class="btn" id="dlB" type="button">뒷면 PNG 저장</button><button class="btn ghost" id="dlAll" type="button">둘 다 저장</button></div>`;
+      $('boxF').prepend(f); $('boxB').prepend(b);
+      const base = String(card.slug).replace(/\//g, '-');
+      const save = (cv, side) => cv.toBlob((blob) => { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `${base}-${side}-60x91.6mm-300dpi.png`; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000); }, 'image/png');
+      $('dlF').onclick = () => save(f, 'front'); $('dlB').onclick = () => save(b, 'back');
+      $('dlAll').onclick = () => { save(f, 'front'); setTimeout(() => save(b, 'back'), 400); };
+    }
+    function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch])); }
+
+    async function init() {
+      user = await getCurrentUser();
+      $('authBtn').textContent = user ? '로그아웃' : '로그인';
+      $('authBtn').onclick = () => (user ? signOutUser() : signInWithGoogle());
+      if (!user) { $('app').innerHTML = '<div class="msg">관리자 계정으로 로그인해 주세요.</div>'; return; }
+      let admin = false; try { const r = await supabaseClient.rpc('tc_is_admin'); admin = !!(r && r.data === true); } catch (e) {}
+      if (!admin) { $('app').innerHTML = '<div class="msg">관리자 계정이 아니에요.</div>'; return; }
+      render();
+    }
+    if (supabaseClient && supabaseClient.auth) supabaseClient.auth.onAuthStateChange((ev, s) => { if (ev === 'SIGNED_IN' && s && !user) init(); });
+    init();
+  </script>
+</body>
+</html>
