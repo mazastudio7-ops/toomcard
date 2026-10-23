@@ -63,7 +63,7 @@
             <div class="nm">${esc(c.name || r.slug)}</div><div class="ro">${esc([c.role, c.company].filter(Boolean).join(' · '))}</div>
             <div class="meta"><span class="tg">${TAG[(c.star || {}).tag] || '-'}</span>${flags}${rep}<span class="tg">${new Date(r.submitted_at).toLocaleDateString()}</span></div>
             <div class="links">${cardLinks(c).map(esc).join('<br>') || '<i>링크 없음</i>'}</div>
-            <a class="view" href="/${encodeURIComponent(r.slug)}" target="_blank">카드 열어보기 →</a>
+            <a class="view" href="/${String(r.slug).split('/').map(encodeURIComponent).join('/')}" target="_blank">카드 열어보기 →</a>
             <div class="acts"><button class="ok" data-d="approved">승인</button><button class="no" data-d="rejected">거절</button></div>
           </div></div>`;
       }).join('');

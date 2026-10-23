@@ -20,7 +20,7 @@
   function tile(row) {
     const c = row.card || {}, bg = (c.front && c.front.bg) || {};
     const st = bg.type === 'image' && bg.src ? `background-image:url('${esc(bg.src)}')` : (bg.type === 'color' ? `background:linear-gradient(160deg,${esc(bg.color || '#3b1a6e')},#07050d)` : '');
-    return `<a class="stile" href="/${encodeURIComponent(row.slug)}?from=star" style="${st}" data-slug="${esc(row.slug)}">
+    return `<a class="stile" href="/${String(row.slug).split('/').map(encodeURIComponent).join('/')}?from=star" style="${st}" data-slug="${esc(row.slug)}">
       ${c.tag && TAG[c.tag] ? `<span class="tg">${esc(T(TAG[c.tag]))}</span>` : ''}
       <span class="who"><b>${esc(c.name || '')}</b><span>${esc(c.role || '')}</span></span>
       <button type="button" class="lk ${liked(row.slug) ? 'on' : ''}" data-like="${esc(row.slug)}">♥ ${Number(row.likes) || 0}</button></a>`;

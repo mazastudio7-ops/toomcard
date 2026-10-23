@@ -164,6 +164,10 @@
     .btn-secondary i { width: 14px; height: 14px; }
     .url-preview { display: flex; align-items: center; height: 38px; padding: 0 11px; border-radius: var(--tc-radius-sm); background: rgba(255,255,255,0.04); border: 1px solid var(--tc-border); font: 600 12.5px ui-monospace, monospace; color: var(--tc-text-muted); overflow: hidden; }
     .url-preview span { color: var(--tc-text-subtle); }
+    .url-preview select { background: transparent; border: none; outline: none; color: var(--tc-accent); font: inherit; font-weight: 800; padding: 0 2px; cursor: pointer; -webkit-appearance: none; appearance: none; text-align: center; min-width: 1.4em; }
+    .url-preview select option { background: #14101f; color: #fff; }
+    .slug-msg { margin-top: 6px; font-size: 12px; line-height: 1.45; color: var(--tc-text-muted); min-height: 16px; }
+    .slug-msg.ok { color: #8affb8; } .slug-msg.warn { color: #ffb86b; }
     .url-preview input { flex: 1; min-width: 0; background: transparent; border: none; outline: none; color: var(--tc-text); font: inherit; }
     .age-check { display: flex; align-items: flex-start; gap: 10px; padding: 11px 12px; border-radius: var(--tc-radius-sm); background: rgba(255,255,255,0.04); border: 1px solid var(--tc-border); cursor: pointer; }
     .age-check input { width: 18px; height: 18px; margin-top: 1px; accent-color: var(--tc-accent); flex-shrink: 0; cursor: pointer; }
@@ -678,7 +682,8 @@
         <div class="section-title"><i data-lucide="globe"></i><span data-i18n="maker.sec_publish">발행</span></div>
         <div class="field">
           <label><span data-i18n="maker.slug">명함 주소</span> <span style="font-weight:600;opacity:.6;" data-i18n="maker.slug_hint">비워두면 자동 생성</span></label>
-          <div class="url-preview"><span>toomcard.com/</span><input id="fSlug" placeholder="alex" data-i18n-placeholder="maker.slug_ph"></div>
+          <div class="url-preview"><span>toomcard.com/</span><select id="fLetter" aria-label="a"></select><span id="slashSp">/</span><input id="fSlug" placeholder="alex" data-i18n-placeholder="maker.slug_ph" autocapitalize="off" autocomplete="off"></div>
+          <div class="slug-msg" id="slugMsg"></div>
         </div>
         <!-- 스타(자랑 피드): 켜면 검토 후 홈 스타 탭에 올라간다. 전화·이메일은 기본 비공개 -->
         <div class="star-box">
@@ -825,10 +830,47 @@
       'frosted-acrylic': { color: '#8d99ae', text: 'center',        finish: 'glass', theme: 'frosted-acrylic' },
     };
     const $ = (id) => document.getElementById(id);
-    const t = (k) => (window.i18n ? i18n.t(k) : k);
+    const t = (k, v) => (window.i18n ? i18n.t(k, v) : k);
 
     /* ── 렌더 ───────────────────────────────────────── */
     function slugify(v) { return (v || '').toLowerCase().replace(/[^a-z0-9가-힣_-]/g, '').slice(0, 40); }
+    /* 주소: toomcard.com/<글자>/<이름> — 같은 이름은 글자(a, b, c …)로 구분한다. 글자 없는 맨 앞 주소는 관리자·예전 카드만 */
+    const LETTERS = 'abcdefghijklmnopqrstuvwxyz'.split('');
+    let rootSlug = false, letterTouched = false, slugTimer = 0, slugSeq = 0, adminOpt = false, slugOk = true;
+    $('fLetter').innerHTML = LETTERS.map((l) => `<option value="${l}">${l}</option>`).join(''); $('fLetter').value = 'a';
+    function slugName() { return slugify($('fSlug').value) || slugify($('fName').value); }
+    function curSlug() { const n = slugName(); if (!n) return ''; const l = $('fLetter').value; return (rootSlug || !l) ? n : l + '/' + n; }
+    function syncRootUI() { $('fLetter').style.display = rootSlug ? 'none' : ''; $('slashSp').style.display = rootSlug ? 'none' : ''; }
+    function setSlugInputs(slug) {
+      const m = /^([a-z])\/(.+)$/.exec(slug || ''); rootSlug = false; letterTouched = true;
+      if (m) { $('fLetter').value = m[1]; $('fSlug').value = m[2]; }
+      else if (slug) { rootSlug = true; $('fSlug').value = slug; }   // 예전 주소는 그대로 둔다
+      else { $('fLetter').value = 'a'; $('fSlug').value = ''; letterTouched = false; }
+      syncRootUI();
+    }
+    async function checkSlug() {
+      const msg = $('slugMsg'), name = slugName();
+      const say = (cls, txt) => { msg.className = 'slug-msg ' + cls; msg.textContent = txt; };
+      if (rootSlug || !$('fLetter').value || !name) { slugOk = true; say('', rootSlug ? t('maker.slug_root') : t('maker.slug_note')); return true; }
+      const seq = ++slugSeq;
+      try { await ensureCloud(); } catch (e) { return true; }
+      if (!adminOpt) { adminOpt = true; try { const r = await supabaseClient.rpc('tc_is_admin'); if (r && r.data === true) $('fLetter').insertAdjacentHTML('afterbegin', '<option value="">·</option>'); } catch (e) {} }
+      const { data, error } = await supabaseClient.from('pods').select('slug,user_id').in('slug', LETTERS.map((l) => l + '/' + name));
+      if (seq !== slugSeq) return slugOk;
+      if (error) return true;
+      let me = null; try { const u = await getCurrentUser(); me = u && u.id; } catch (e) {}
+      const taken = new Set((data || []).filter((r) => !me || r.user_id !== me).map((r) => r.slug));
+      const sel = $('fLetter'), want = sel.value + '/' + name;
+      if (!taken.has(want)) { slugOk = true; say('ok', t('maker.slug_ok', { a: want })); return true; }
+      const free = LETTERS.find((l) => !taken.has(l + '/' + name));
+      if (!free) { slugOk = false; say('warn', t('maker.slug_full')); return false; }
+      if (!letterTouched) { sel.value = free; slugOk = true; say('ok', t('maker.slug_auto', { a: want, b: free + '/' + name })); render(false, 260); return true; }
+      slugOk = false; say('warn', t('maker.slug_taken', { a: want, b: free + '/' + name })); return false;
+    }
+    function schedSlug() { clearTimeout(slugTimer); slugTimer = setTimeout(checkSlug, 500); }
+    $('fSlug').addEventListener('input', schedSlug); $('fName').addEventListener('input', schedSlug);
+    $('fLetter').addEventListener('change', () => { letterTouched = true; schedSlug(); render(false, 260); });
+    document.addEventListener('i18n:change', () => checkSlug()); document.addEventListener('DOMContentLoaded', () => checkSlug());
 
     /* ── 추가 링크 (최대 3개) ───────────────────────── */
     const MAX_EXTRA = 3;
@@ -899,7 +941,7 @@
           ctx.clearRect(0, 0, N, N); ctx.drawImage(img, x0, y0, w, h);
           const data = ctx.getImageData(0, 0, N, N), px = data.data;
           let hasAlpha = false;
-          for (let y = y0; y < y0 + h && !hasAlpha; y++) for (let x = x0; x < x0 + w; x++) { const a = px[(y * N + x) * 4 + 3]; if (a > 0 && a < 245) { hasAlpha = true; break; } }
+          for (let y = y0; y < y0 + h && !hasAlpha; y++) for (let x = x0; x < x0 + w; x++) { const a = px[(y * N + x) * 4 + 3]; if (a < 245) { hasAlpha = true; break; } }
           if (!hasAlpha) {
             const at = (x, y) => { const i = (y * N + x) * 4; return [px[i], px[i + 1], px[i + 2]]; };
             const cs = [at(x0 + 1, y0 + 1), at(x0 + w - 2, y0 + 1), at(x0 + 1, y0 + h - 2), at(x0 + w - 2, y0 + h - 2)];
@@ -978,7 +1020,7 @@
         firstName: card.name, lastName: '', formattedName: card.name, org: card.company,
         title: card.role, tel: card.phone, email: card.email, url: web || ''
       };
-      const slug = slugify($('fSlug').value) || slugify(card.name);
+      const slug = curSlug() || slugify(card.name);
       card.slug = slug;
       card.id = slug;
       return card;
@@ -1025,7 +1067,7 @@
     function saveDraft() {
       try {
         const c = collect();
-        const d = { v: 1, at: Date.now(), slugInput: $('fSlug').value, card: c, orig: typeof photoOrig === 'string' ? photoOrig : '' };
+        const d = { v: 1, at: Date.now(), slugInput: $('fSlug').value, slugLetter: rootSlug ? '' : $('fLetter').value, card: c, orig: typeof photoOrig === 'string' ? photoOrig : '' };
         try { localStorage.setItem(DRAFT_KEY, JSON.stringify(d)); }
         catch (e) { d.orig = ''; localStorage.setItem(DRAFT_KEY, JSON.stringify(d)); }   // 용량이 모자라면 원본 사진은 빼고
       } catch (e) {}
@@ -1107,7 +1149,7 @@
       if (currentBgId === 'solid') solidMemory = card.front.bg;
       renderBgGrid(); syncAdjustUI(); render();
     }
-    function readImage(file, maxW, cb) {
+    function readImage(file, maxW, cb, keepAlpha) {
       const reader = new FileReader();
       reader.onload = (e) => {
         const img = new Image();
@@ -1116,7 +1158,7 @@
           const scale = Math.min(1, maxW / img.width);
           c.width = Math.round(img.width * scale); c.height = Math.round(img.height * scale);
           c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
-          cb(c.toDataURL('image/jpeg', 0.86));
+          cb(keepAlpha && /image\/(png|gif|webp)/.test(file.type) ? c.toDataURL('image/png') : c.toDataURL('image/jpeg', 0.86));
         };
         img.src = e.target.result;
       };
@@ -1306,7 +1348,7 @@
     syncStarUI();
     $('logoFile').addEventListener('change', (e) => {
       const f = e.target.files[0]; if (!f) return;
-      readImage(f, 400, (dataUrl) => { card.logo = { src: dataUrl, alt: card.company }; card.avatar = dataUrl; setLogo(true); render(); });
+      readImage(f, 400, (dataUrl) => { card.logo = { src: dataUrl, alt: card.company }; card.avatar = dataUrl; setLogo(true); render(); }, true);
     });
 
     /* ── 글자 · 마감 · 뒷면 ─────────────────────────── */
@@ -1782,6 +1824,8 @@
         toast(t('maker.publishing'));
         const consent = { ageConfirmed: true, lang: (window.i18n && i18n.lang) || 'ko', at: new Date().toISOString() };
         const { pub, priv } = splitPrivate(c);
+        if (!(await checkSlug())) { btn.disabled = false; toast(t('maker.slug_pick')); return; }
+        c.slug = curSlug() || c.slug; c.id = c.slug;   // 확인하면서 글자가 바뀌었을 수 있다
         const res = await syncPodToCloud(c.slug, { name: c.name, handle: c.role, bio: c.company, theme: c.theme }, { ...pub, card: pub, consent });
         btn.disabled = false;
         if (res && res.error) { toast(t('maker.publish_fail') + ' ' + res.error); return; }
@@ -1814,7 +1858,7 @@
     /* ── 배경화면 저장: 앞면 레이어를 1080×1920 PNG로 ── */
     function saveWallpaper() {
       const c = collect();
-      try { const sl = ($('fSlug').value || '').trim(); if (sl) localStorage.setItem('tc_wp_' + sl, '1'); } catch (e) {}
+      try { const sl = curSlug(); if (sl) localStorage.setItem('tc_wp_' + sl, '1'); } catch (e) {}
       const W = 1080, H = 1920;
       const cv = document.createElement('canvas'); cv.width = W; cv.height = H;
       const ctx = cv.getContext('2d');
@@ -1889,7 +1933,7 @@
       if (ss[0]) { $('fSocialType').value = ss[0].type; $('fSocialUrl').value = ss[0].url; }
       if (ss[1]) { $('fSocial2Type').value = ss[1].type; $('fSocial2Url').value = ss[1].url; }
       setKind(c.kind || (fromCloud ? 'business' : 'personal'));   // 예전 카드는 모두 비즈니스
-      $('fTags').value = (c.moatTags || []).join(', '); $('fSlug').value = slug || '';
+      $('fTags').value = (c.moatTags || []).join(', '); setSlugInputs(slug); checkSlug();
       // 예전 그라데이션 카드는 단색(부드러운 그라데이션)으로 읽는다
       if (card.front.bg.type === 'gradient') card.front.bg = { type: 'color', color: card.front.bg.from || DEFAULT_SOLID, shade: 0, soft: true };
       const knownPlate = CURATED_BG.find((b) => b.type === 'image' && b.src === card.front.bg.src);
@@ -1974,7 +2018,7 @@
       const backFromLogin = /access_token|refresh_token/.test(location.hash) || params.has('code');
       const draft = (!edit && !sample && !params.get('preset')) ? loadDraft() : null;
       if (draft) {
-        applyCardData(draft.card, draft.slugInput, false);
+        applyCardData(draft.card, (draft.slugInput && draft.slugLetter) ? draft.slugLetter + '/' + draft.slugInput : draft.slugInput, false);
         if (draft.orig && currentBgId === 'upload') photoOrig = draft.orig;
         if (backFromLogin) { if (isMobile()) { currentTab = ''; openTab('publish'); } toast(t('maker.draft_back')); }
         else setTimeout(() => toastAction(t('maker.draft_loaded'), t('maker.draft_new'), () => { clearDraft(); location.replace('/maker'); }), 600);
