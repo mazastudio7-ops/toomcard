@@ -207,10 +207,12 @@
     function show(which) { ['vOut', 'vNone', 'vMine'].forEach((id) => { $(id).hidden = id !== which; }); }
 
     function cardOf(p) { return (p.components_json && p.components_json.card) || {}; }
+    /* 앞면 배경: front.bg 가 이미지·색이 아니면 plateCardImage(마자 플레이트 등)를 쓴다 */
+    function frontBg(c) { const b = (c.front && c.front.bg) || {}; return (b.type === 'image' || b.type === 'color') ? b : (c.plateCardImage ? { type: 'image', src: c.plateCardImage } : b); }
     function isDefaultSrc(src) { return !src || /^\/assets\//.test(src); }
 
     function todos(p) {
-      const c = cardOf(p), slug = p.slug, bg = (c.front && c.front.bg) || {};
+      const c = cardOf(p), slug = p.slug, bg = frontBg(c);
       const hasPhoto = bg.type === 'image' && !isDefaultSrc(bg.src);
       const hasLogo = !!((c.emblem && (c.emblem.img || c.emblem.source === 'logo')) || (c.logo && /^data:/.test(c.logo.src || '')));
       return [
@@ -246,7 +248,7 @@
 
     function renderMine() {
       const c = cardOf(main), slug = main.slug;
-      const bg = (c.front && c.front.bg) || {}, plate = bg.type === 'image' && /^\/assets\/.*_front_plate/.test(bg.src || '');
+      const bg = frontBg(c), plate = bg.type === 'image' && /^\/assets\/.*_front_plate/.test(bg.src || '');
       $('pcBg').style.background = '';
       if (bg.type === 'image' && bg.src) $('pcBg').style.backgroundImage = `url('${bg.src}')`;
       else if (bg.type === 'color') $('pcBg').style.background = `linear-gradient(160deg, ${bg.color || '#3b1a6e'}, #07050d)`;
@@ -260,7 +262,7 @@
       renderTodos();
       const row = $('cardsRow');
       row.innerHTML = pods.map((p) => {
-        const cc = cardOf(p), bg = (cc.front && cc.front.bg) || {};
+        const cc = cardOf(p), bg = frontBg(cc);
         const th = bg.type === 'image' && bg.src ? `background-image:url('${bg.src}')` : (bg.type === 'color' ? `background:linear-gradient(160deg, ${bg.color || '#3b1a6e'}, #07050d)` : `background-image:url('/assets/toomcard_front_plate.jpg')`);
         const ini = (cc.name || p.slug || '?').trim().charAt(0).toUpperCase();
         return `<a class="mini${main && p.slug === main.slug ? ' sel' : ''}" href="#" data-slug="${p.slug}"><div class="th" style="${th}">${bg.type === 'color' ? ini : ''}</div><small>${(cc.name || p.slug)}</small></a>`;
