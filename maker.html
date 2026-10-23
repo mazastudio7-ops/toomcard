@@ -166,6 +166,7 @@
     .url-preview span { color: var(--tc-text-subtle); }
     .url-preview select { background: transparent; border: none; outline: none; color: var(--tc-accent); font: inherit; font-weight: 800; padding: 0 2px; cursor: pointer; -webkit-appearance: none; appearance: none; text-align: center; min-width: 1.4em; }
     .url-preview select option { background: #14101f; color: #fff; }
+    .field-hint { display: block; margin-top: 6px; font-size: 11.5px; line-height: 1.45; color: var(--tc-text-muted); }
     .slug-msg { margin-top: 6px; font-size: 12px; line-height: 1.45; color: var(--tc-text-muted); min-height: 16px; }
     .slug-msg.ok { color: #8affb8; } .slug-msg.warn { color: #ffb86b; }
     .url-preview input { flex: 1; min-width: 0; background: transparent; border: none; outline: none; color: var(--tc-text); font: inherit; }
@@ -410,15 +411,20 @@
           <button type="button" data-kind="business" data-i18n="maker.kind_business">비즈니스</button>
         </div>
         <p class="seg-hint"><span class="per-only" data-i18n="maker.kind_personal_hint">학생, 크리에이터, 누구나. 회사 없이 나를 소개해요.</span><span class="biz-only" data-i18n="maker.kind_business_hint">회사·직함이 들어가는 업무용 명함이에요.</span></p>
-        <div class="row-2">
-          <div class="field"><label><span data-i18n="maker.name">이름</span><span class="req">*</span></label><input class="input" id="fName" placeholder="홍길동"></div>
-          <div class="field"><label><span class="biz-only" data-i18n="maker.role">직함</span><span class="per-only" data-i18n="maker.intro">한 줄 소개</span></label><input class="input" id="fRole" placeholder="대표"></div>
-        </div>
         <div class="field"><label><span class="biz-only"><span data-i18n="maker.company">회사 / 브랜드</span><span class="req">*</span></span><span class="per-only"><span data-i18n="maker.affiliation">소속</span> <span style="font-weight:600;opacity:.6;" data-i18n="common.optional">선택</span></span></label><input class="input" id="fCompany" placeholder="TOOMCARD"></div>
         <div class="field"><label data-i18n="maker.slogan">슬로건 한 줄</label><input class="input" id="fSlogan" placeholder="오늘의 만남을 내일의 비즈니스로"></div>
         <div class="row-2">
+          <div class="field"><label><span class="biz-only" data-i18n="maker.role">직함</span><span class="per-only" data-i18n="maker.intro">한 줄 소개</span></label><input class="input" id="fRole" placeholder="대표"></div>
+          <div class="field"><label><span data-i18n="maker.name">이름</span><span class="req">*</span></label><input class="input" id="fName" placeholder="홍길동"></div>
+        </div>
+        <div class="row-2">
           <div class="field"><label data-i18n="maker.phone">전화번호</label><input class="input" id="fPhone" type="tel" placeholder="+82 10-1234-5678"></div>
           <div class="field"><label data-i18n="maker.email">이메일</label><input class="input" id="fEmail" type="email" placeholder="me@company.com"></div>
+        </div>
+        <div class="field">
+          <label data-i18n="maker.tags">내 분야 알약 (쉼표로 구분, 최대 3)</label>
+          <input class="input" id="fTags" placeholder="브랜딩, 디자인, 컨설팅">
+          <small class="field-hint" data-i18n="maker.tags_hint">전화번호 아래에 작은 알약 모양으로 나와요. 예: 일러스트, 사진, 여행</small>
         </div>
         <div class="field"><label data-i18n="maker.website">웹사이트</label><input class="input" id="fWebsite" type="url" placeholder="https://"></div>
         <div class="field">
@@ -456,10 +462,6 @@
           <label data-i18n="maker.more_links">추가 링크</label>
           <div id="extraLinks"></div>
           <button type="button" class="btn-secondary" id="addLinkBtn" onclick="addExtraLink()"><i data-lucide="plus"></i><span data-i18n="maker.add_link">링크 추가</span></button>
-        </div>
-        <div class="field">
-          <label data-i18n="maker.tags">키워드 태그 (쉼표로 구분, 최대 3)</label>
-          <input class="input" id="fTags" placeholder="브랜딩, 디자인, 컨설팅">
         </div>
       </section>
 
@@ -1970,6 +1972,15 @@
       return (0.2126 * ((n >> 16) & 255) + 0.7152 * ((n >> 8) & 255) + 0.0722 * (n & 255)) > 150;
     }
 
+
+    /* 입력 칸에 커서를 두면 카드에서 그 줄이 반짝인다 (뒷면 정보 순서 = 카드에 보이는 순서) */
+    (function () {
+      const HL = { fCompany: '#backCompany', fSlogan: '#backSlogan', fRole: '.profile-row', fName: '.profile-row', fPhone: '#contactLine', fEmail: '#contactLine', fTags: '#backMoatTags', fWebsite: '#insideActionDockBack', fSocialType: '#insideActionDockBack', fSocialUrl: '#insideActionDockBack', fSocial2Type: '#insideActionDockBack', fSocial2Url: '#insideActionDockBack' };
+      const send = (sel) => { const f = $('preview'); if (f && f.contentWindow) f.contentWindow.postMessage({ action: 'hl', sel }, '*'); };
+      const sec = $('secInfo'); if (!sec) return;
+      sec.addEventListener('focusin', (e) => { const el = e.target; const sel = HL[el.id] || (el.closest && el.closest('#extraLinks') ? '#insideActionDockBack' : ''); if (!sel) return; flip('show_back'); send(sel); });
+      sec.addEventListener('focusout', () => send(''));
+    })();
     /* ── 편집 모드 (?edit=slug) ─────────────────────── */
     async function loadForEdit(slug) {
       try { await ensureCloud(); } catch (e) { return; }

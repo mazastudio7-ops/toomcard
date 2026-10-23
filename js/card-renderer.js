@@ -1108,6 +1108,11 @@ window.addEventListener('message', (event) => {
     });
     return;
   }
+  if (action === 'hl') {
+    document.querySelectorAll('.tc-hl').forEach((e) => e.classList.remove('tc-hl'));
+    const t = event.data.sel && document.querySelector(event.data.sel); if (t) t.classList.add('tc-hl');
+    return;
+  }
   if (action === 'show_back') {
     scene.classList.add('flipped');
   } else if (action === 'show_front') {
