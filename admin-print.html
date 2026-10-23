@@ -112,11 +112,17 @@
     }
     function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch])); }
 
+    // 문제가 생기면 빈 화면 대신 이유를 보여 준다
+    window.addEventListener('error', (e) => { const a = $('app'); if (a && /불러오는 중/.test(a.textContent)) a.innerHTML = '<div class="msg">화면을 불러오지 못했어요.<br><small>' + esc(e.message) + '</small></div>'; });
+    setTimeout(() => { const a = $('app'); if (a && /불러오는 중/.test(a.textContent)) a.innerHTML = '<div class="msg">로그인 확인이 오래 걸려요.<br>페이지를 새로 고침하거나, 다른 탭을 닫고 다시 열어 주세요.<br><a href="/dashboard" style="color:#ffd978">대시보드에서 먼저 로그인하기 →</a></div>'; }, 8000);
     async function init() {
+      try { await init2(); } catch (e) { $('app').innerHTML = '<div class="msg">화면을 불러오지 못했어요.<br><small>' + esc(e && e.message || e) + '</small></div>'; }
+    }
+    async function init2() {
       user = await getCurrentUser();
       $('authBtn').textContent = user ? '로그아웃' : '로그인';
       $('authBtn').onclick = () => (user ? signOutUser() : signInWithGoogle());
-      if (!user) { $('app').innerHTML = '<div class="msg">관리자 계정으로 로그인해 주세요.</div>'; return; }
+      if (!user) { $('app').innerHTML = '<div class="msg">관리자 계정으로 로그인해 주세요.<br><small>로그인 후 이 화면으로 돌아오지 않으면, 먼저 <a href="/dashboard" style="color:#ffd978">대시보드</a>에서 로그인한 뒤 이 주소를 다시 열어 주세요.</small></div>'; return; }
       let admin = false; try { const r = await supabaseClient.rpc('tc_is_admin'); admin = !!(r && r.data === true); } catch (e) {}
       if (!admin) { $('app').innerHTML = '<div class="msg">관리자 계정이 아니에요.</div>'; return; }
       render();
