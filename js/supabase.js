@@ -311,16 +311,35 @@ async function getMyLeads() {
 }
 
 // 9-1b. 한 카드의 문의를 한 쪽(기본 30건)씩만 불러온다 (문의가 많아도 한 번에 전부 내려받지 않는다)
-async function getLeadsPage(slugs, from = 0, size = 30) {
+async function getLeadsPage(slugs, from = 0, size = 30, opts = {}) {
   const list = Array.isArray(slugs) ? slugs : [slugs];
-  const { data, count, error } = await supabaseClient
+  let q = supabaseClient
     .from('leads')
-    .select('id,target_slug,phone,metadata,created_at', { count: 'exact' })
-    .in('target_slug', list)
-    .order('created_at', { ascending: false })
-    .range(from, from + size - 1);
+    .select('id,target_slug,phone,metadata,created_at,status,note,followup_at', { count: 'exact' })
+    .in('target_slug', list);
+  if (opts.status && opts.status !== 'all') q = q.eq('status', opts.status);
+  if (opts.followupDue) q = q.not('followup_at', 'is', null).lte('followup_at', new Date().toISOString()).not('status', 'in', '(won,hold)');
+  const t = String(opts.q || '').trim().replace(/[%,()]/g, ' ').slice(0, 60);
+  if (t) q = q.or(`phone.ilike.%${t}%,metadata->>name.ilike.%${t}%,metadata->>email.ilike.%${t}%,metadata->>memo.ilike.%${t}%,note.ilike.%${t}%`);
+  const { data, count, error } = await q.order('created_at', { ascending: false }).range(from, from + size - 1);
   if (error) { console.error('getLeadsPage', error); return null; }
   return { rows: data || [], total: count || 0 };
+}
+
+// 문의 상태·메모·다시 연락 날짜 저장 (카드 주인 또는 회사 관리자)
+async function updateLead(id, status, note, followupAt) {
+  if (!supabaseClient) return false;
+  const { error } = await supabaseClient.rpc('tc_lead_update', { p_id: id, p_status: status, p_note: note || '', p_followup: followupAt || null });
+  if (error) { console.error('updateLead', error); return false; }
+  return true;
+}
+
+// 오늘까지 다시 연락해야 하는 문의 수 (대시보드 배지용)
+async function countLeadsFollowupDue(slugs) {
+  const list = Array.isArray(slugs) ? slugs : [slugs];
+  const { count, error } = await supabaseClient.from('leads').select('id', { count: 'exact', head: true })
+    .in('target_slug', list).not('followup_at', 'is', null).lte('followup_at', new Date().toISOString()).not('status', 'in', '(won,hold)');
+  return error ? 0 : (count || 0);
 }
 
 // 9-1c. CSV 용: 여러 쪽(1000건씩)을 이어서 모두 가져온다 (눌렀을 때만 실행)
