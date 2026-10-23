@@ -8,7 +8,7 @@
     '.sm-burger svg{width:20px;height:20px}' +
     '.sm-veil{display:block;position:fixed;inset:0;z-index:99998;background:rgba(0,0,0,.6);opacity:0;pointer-events:none;transition:opacity .25s}' +
     '.sm-veil.open{opacity:1;pointer-events:auto}' +
-    '.sm-drawer{display:flex;flex-direction:column;gap:4px;position:fixed;top:0;right:0;bottom:0;width:min(300px,84vw);z-index:99999;padding:16px 16px 30px;background:#0d0a17;border-left:1px solid rgba(255,255,255,.1);transform:translateX(100%);transition:transform .3s cubic-bezier(.2,.8,.2,1);overflow-y:auto;font-family:"Noto Sans KR",system-ui,sans-serif}' +
+    '.sm-drawer{display:flex;flex-direction:column;gap:4px;position:fixed;top:0;right:0;bottom:0;width:min(300px,84vw);z-index:99999;padding:calc(16px + env(safe-area-inset-top, 0px)) 16px 30px;background:#0d0a17;border-left:1px solid rgba(255,255,255,.1);transform:translateX(100%);transition:transform .3s cubic-bezier(.2,.8,.2,1);overflow-y:auto;font-family:"Noto Sans KR",system-ui,sans-serif}' +
     '.sm-drawer.open{transform:none}' +
     '.sm-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;font:800 12px Montserrat,sans-serif;letter-spacing:.14em;color:rgba(255,255,255,.5)}' +
     '.sm-head button{width:36px;height:36px;border-radius:10px;border:1px solid rgba(255,255,255,.14);background:transparent;color:#fff;font-size:20px;cursor:pointer}' +
