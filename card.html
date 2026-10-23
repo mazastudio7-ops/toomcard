@@ -386,6 +386,8 @@
     }
 
 
+    .back-flip-pill { position: absolute; top: 12px; right: 12px; z-index: 6; appearance: none; font: 800 10.5px 'Montserrat', sans-serif; letter-spacing: .12em; color: #ffd978; background: rgba(8,6,14,.7); border: 1px solid rgba(255,217,120,.55); border-radius: 99px; padding: 7px 12px; cursor: pointer; backdrop-filter: blur(8px); }
+    body.in-simulator .back-flip-pill { display: none; }
     .plate-flip-pill {
       position: absolute;
       bottom: 20px;
@@ -1868,6 +1870,7 @@
              BACK (뒷면)
              ========================================= -->
         <div class="card-face back">
+          <button type="button" class="back-flip-pill" onclick="event.stopPropagation(); toggleCardFlip(event);" aria-label="Front">FRONT ↺</button>
           <!-- 거대 동적 워터마크 -->
           <div class="watermark-dynamic" id="watermarkContainerBack" aria-hidden="true"></div>
 
