@@ -953,8 +953,17 @@
       if (error) return true;
       let me = null; try { const u = await getCurrentUser(); me = u && u.id; } catch (e) {}
       const taken = new Set((data || []).filter((r) => !me || r.user_id !== me).map((r) => r.slug));
-      const sel = $('fLetter'), want = sel.value + '/' + name;
+      const sel = $('fLetter');
+      if (!document.body.classList.contains('is-admin')) sel.value = 'a';   // 일반 사용자는 항상 a/아이디 (인스타그램처럼 아이디 하나로 구분)
+      const want = sel.value + '/' + name;
       if (!taken.has(want)) { slugOk = true; say('ok', t('maker.slug_ok', { a: want })); return true; }
+      if (!document.body.classList.contains('is-admin')) {
+        // 이미 있는 아이디: 글자를 바꾸지 않고 비슷한 아이디를 추천한다
+        const cands = [name + '2', name + '3', name + '_', name + '.kr', name + '1'].map((x) => x.slice(0, 20));
+        let freeIds = [];
+        try { const { data: d2 } = await supabaseClient.from('pods').select('slug').in('slug', cands.map((x) => 'a/' + x)); const used = new Set((d2 || []).map((r) => r.slug)); freeIds = cands.filter((x) => !used.has('a/' + x)).slice(0, 3); } catch (e) {}
+        slugOk = false; say('warn', t('maker.slug_taken_id', { a: name, b: freeIds.join(', ') || name + Math.floor(Math.random() * 900 + 100) })); return false;
+      }
       const free = LETTERS.find((l) => !taken.has(l + '/' + name));
       if (!free) { slugOk = false; say('warn', t('maker.slug_full')); return false; }
       if (!letterTouched) { sel.value = free; slugOk = true; say('ok', t('maker.slug_auto', { a: want, b: free + '/' + name })); render(false, 260); return true; }
