@@ -12,7 +12,7 @@ fs.mkdirSync(OUT, { recursive: true });
 
 // 가족 이름: 곰 = 툼돌이, 고양이 = 툼냥이, 토끼 = 툼깡이 (깡총깡총)
 const FAMILIES = {
-  bear:  { file: 'ai_bear_stickers.jpg',  cols: 4, rows: 3, ko: '툼돌이', en: 'Toomdol the Bear', de: 'Toomdol der Bär', emoji: '🐻',
+  bear:  { file: 'ai_bear_stickers.jpg',  cols: 4, rows: 3, extra: [['big_bear_cropped.png', '코코아 툼돌이 (대표)', 'Cocoa Toomdol (main)', 'Kakao-Toomdol (Hauptfigur)']], ko: '툼돌이', en: 'Toomdol the Bear', de: 'Toomdol der Bär', emoji: '🐻',
            poses: [['커피 한 잔', 'Coffee', 'Kaffee'], ['일하는 중', 'Working', 'Bei der Arbeit'], ['꿀잠', 'Fast asleep', 'Tiefschlaf'], ['독서', 'Reading', 'Lesen'],
                    ['하트', 'Heart', 'Herz'], ['소파 휴식', 'Sofa break', 'Sofa-Pause'], ['팬케이크', 'Pancakes', 'Pfannkuchen'], ['화분 키우기', 'Plant care', 'Pflanzenpflege'],
                    ['킥보드', 'Scooter', 'Roller'], ['음악 감상', 'Music', 'Musik'], ['공부', 'Studying', 'Lernen'], ['낮잠', 'Nap', 'Nickerchen']] },
@@ -54,6 +54,13 @@ async function cutout(buf) {
   const manifest = { families: {}, stickers: [] };
   for (const [fam, f] of Object.entries(FAMILIES)) {
     manifest.families[fam] = { ko: f.ko, en: f.en, de: f.de, emoji: f.emoji };
+    // 시트 밖에 따로 있는 큰 그림 (대표 모습)은 00번으로 맨 앞에
+    for (const [i, [file, ko, en, de]] of (f.extra || []).entries()) {
+      const id = `${fam}-${String(i).padStart(2, '0')}`;
+      const cut = await cutout(await sharp(path.join(SRC, file)).flatten({ background: '#fff' }).png().toBuffer());
+      await sharp(cut).trim().resize(768, 768, { fit: 'inside', withoutEnlargement: true }).png({ compressionLevel: 9 }).toFile(path.join(OUT, id + '.png'));
+      manifest.stickers.push({ id, family: fam, ko, en, de }); console.log(id, ko);
+    }
     const cw = Math.floor(1024 / f.cols), ch = Math.floor(1024 / f.rows), k = 10;
     for (let i = 0; i < (f.count || f.cols * f.rows); i++) {
       const c = i % f.cols, r = Math.floor(i / f.cols);

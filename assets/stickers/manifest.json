@@ -21,6 +21,13 @@
  },
  "stickers": [
   {
+   "id": "bear-00",
+   "family": "bear",
+   "ko": "코코아 툼돌이 (대표)",
+   "en": "Cocoa Toomdol (main)",
+   "de": "Kakao-Toomdol (Hauptfigur)"
+  },
+  {
    "id": "bear-01",
    "family": "bear",
    "ko": "커피 한 잔",

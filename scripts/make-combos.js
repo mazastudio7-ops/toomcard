@@ -8,7 +8,7 @@ const W = 832, H = 1334;
 const SIZE = { xs: 240, sm: 400, md: 560, lg: 720, xl: 900 };
 
 const COMBOS = [
-  ['bear_onyx',      'bear-01',  'plate:onyx',      'lg'],
+  ['bear_onyx',      'bear-00',  'plate:onyx',      'lg'],
   ['bear_aurora',    'bear-09',  'plate:aurora',    'lg'],
   ['cat_champagne',  'cat-08',   'plate:champagne', 'md'],
   ['cat_forest',     'cat-12',   'plate:forest',    'md'],
