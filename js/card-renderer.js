@@ -184,7 +184,8 @@ function renderSparseBack(data, items) {
   const box = document.getElementById('backSparse'), scene = document.getElementById('cardScene');
   if (!box) return;
   const socialsShown = (items || []).filter((it) => it.kind === 'social').length;
-  const sparse = (data.backLayout || 'default') === 'default' && socialsShown <= 1 && (items || []).length <= 2;
+  // 뒷면은 기본(로고 · 이름 · 연락처 · 버튼 2개)이 원칙. 숫자 줄·빈 SNS 자리 패널은 끔 (명함에 SNS·링크 정보를 늘어놓을 이유가 없다)
+  const sparse = false && socialsShown <= 1;
   box.hidden = !sparse; if (scene) scene.classList.toggle('back-sparse-on', sparse);
   if (!sparse) return;
   const have = {}; (data.socials || []).forEach((s) => { if (s && s.url && s.type) have[s.type] = s.url; });
