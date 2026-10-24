@@ -14,12 +14,31 @@
     },
     "api/forest.js": {
       "includeFiles": "js/tree.js"
+    },
+    "api/find.js": {
+      "includeFiles": "cards/demo.*.json"
     }
   },
   "rewrites": [
     {
       "source": "/",
       "destination": "/"
+    },
+    {
+      "source": "/find",
+      "destination": "/api/find"
+    },
+    {
+      "source": "/find/all/:sido",
+      "destination": "/api/find?sido=:sido"
+    },
+    {
+      "source": "/find/:ind",
+      "destination": "/api/find?ind=:ind"
+    },
+    {
+      "source": "/find/:ind/:sido",
+      "destination": "/api/find?ind=:ind&sido=:sido"
     },
     {
       "source": "/forest",

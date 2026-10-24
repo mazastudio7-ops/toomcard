@@ -14,7 +14,11 @@
     :root { --bg: #0b0b10; --line: rgba(255,255,255,.1); --mut: rgba(255,255,255,.55); --gold: #ffd978; }
     * { box-sizing: border-box; }
     body { margin: 0; background: var(--bg); color: #fff; font-family: 'Noto Sans KR', sans-serif; }
-    .top { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; max-width: 1100px; margin: 0 auto; }
+    .top { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 14px 16px; max-width: 1100px; margin: 0 auto; }
+    .pnav { display: flex; gap: 2px; padding: 3px; border-radius: 12px; background: rgba(255,255,255,.05); border: 1px solid var(--line); }
+    .pnav a { padding: 7px 11px; border-radius: 9px; color: rgba(255,255,255,.72); text-decoration: none; font-size: 13px; font-weight: 800; white-space: nowrap; }
+    .pnav a[aria-current="page"] { background: var(--gold); color: #1a1205; }
+    @media (max-width: 760px) { .pnav { order: 10; width: 100%; } .pnav a { flex: 1; text-align: center; padding: 8px 2px; font-size: 12px; } }
     .top a.logo { color: #fff; text-decoration: none; font: 900 15px Montserrat, sans-serif; letter-spacing: .08em; }
     .top a.mk { padding: 9px 16px; border-radius: 99px; background: var(--gold); color: #1a1205; font-weight: 900; text-decoration: none; font-size: 13.5px; }
     .wrap { max-width: 1100px; margin: 0 auto; padding: 10px 16px 80px; }
@@ -37,7 +41,7 @@
   </style>
 </head>
 <body>
-  <div class="top"><a class="logo" href="/">TOOMCARD</a><div style="display:flex;gap:10px;align-items:center"><div class="lang" id="lang"><button type="button" data-l="ko" aria-pressed="true">한국어</button><button type="button" data-l="en">EN</button><button type="button" data-l="de">DE</button></div><a class="mk" href="/maker" id="mk">🐻 내 명함에 쓰기</a></div></div>
+  <div class="top"><a class="logo" href="/">TOOMCARD</a><nav class="pnav"><a href="/">🪪 명함</a><a href="/link">🔗 멀티링크</a><a href="/minihome">🏠 미니홈</a><a href="/friends" aria-current="page">🐻 툼 프렌즈</a><a href="/find">🔎 찾기</a></nav><div style="display:flex;gap:10px;align-items:center"><div class="lang" id="lang"><button type="button" data-l="ko" aria-pressed="true">한국어</button><button type="button" data-l="en">EN</button><button type="button" data-l="de">DE</button></div><a class="mk" href="/maker" id="mk">🐻 내 명함에 쓰기</a></div></div>
   <div class="wrap">
     <div class="hero"><h1 id="h1">🐻🐱🐰 툼 프렌즈</h1><p id="h1p">툼카드의 캐릭터 친구들이에요. 마음에 드는 모습을 누르면 그 친구가 그려진 명함을 바로 만들 수 있어요. 미니홈·멀티링크에도 쓸 수 있어요.</p></div>
     <div id="fams"></div>

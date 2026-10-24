@@ -219,6 +219,9 @@
     /* 미리보기는 항상 실제 폰 크기(카드 330×529)로 그린 뒤 transform으로 맞춘다 → 글자 줄바꿈까지 실제 명함과 같다 */
     .car-card { position: absolute; left: 50%; top: 50%; width: 354px; height: 553px; margin: -276.5px 0 0 -177px; transform: scale(var(--k, 1)); transform-origin: 50% 50%; z-index: 5; }
     .car-card iframe { display: block; width: 100%; height: 100%; border: none; border-radius: 24px; background: transparent; }
+    /* 멀티링크·미니홈 모드: 명함 대신 실제 페이지가 폰 모양 안에 그대로 보인다 */
+    body.kind-page #preview, body.kind-page .car-stack, body.kind-page .car-nav, body.kind-page .car-label { display: none !important; }
+    body.kind-page #pagePreview { display: block; background: #0b0b10; border: 1px solid rgba(255,255,255,.14); box-shadow: 0 30px 70px rgba(0,0,0,.55); }
     .car-stack { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
     .car-stack.cover { z-index: 6; }   /* 넘기는 동안 썸네일이 실제 카드를 덮는다 */
     .car-card iframe { -webkit-backface-visibility: hidden; backface-visibility: hidden; }
@@ -823,7 +826,7 @@
         <button type="button" class="car-nav prev" onclick="goDesign(designIdx - 1, -1)" aria-label="Previous">‹</button>
         <div class="car-track" id="carTrack">
           <div class="car-stack" id="carStack"></div>
-          <div class="car-card" id="carCard"><iframe id="preview" class="booting" src="/card.html?embed=simulator&maker=1&id=toomcard" title="Live preview"></iframe></div>
+          <div class="car-card" id="carCard"><iframe id="preview" class="booting" src="/card.html?embed=simulator&maker=1&id=toomcard" title="Live preview"></iframe><iframe id="pagePreview" title="Page preview" hidden></iframe></div>
         </div>
         <button type="button" class="car-nav next" onclick="goDesign(designIdx + 1, 1)" aria-label="Next">›</button>
         <button type="button" class="sug-pill l" id="sugL" hidden onclick="goDesign(designIdx - 1, -1)"></button>
@@ -1545,8 +1548,33 @@
     }
 
     let renderTimer = null, renderSeq = 0, renderedSeq = 0, renderedWaiters = [];
+    /* ── 페이지 미리보기: page.html 틀에 지금 입력한 데이터를 넣어 폰 안에 그대로 그린다 (api/page.js 와 같은 모양) ── */
+    let pageTpl = '', pageTimer = 0, lastPageDoc = '';
+    fetch('/page.html').then((r) => r.text()).then((t) => { pageTpl = t; if (document.body.classList.contains('kind-page')) updatePagePreview(); }).catch(() => {});
+    function buildPub() {
+      const c = collect(), slug = curSlug() || 'preview', pg = c.page || {}, ml = c.ml || {};
+      const links = mode === 'links';
+      return {
+        preview: true, slug, mode: links ? 'links' : 'home', kind: c.kind || 'personal',
+        hasHome: !!(pg.on || c.kind === 'minihome'), hasLinks: !!(ml.on || c.kind === 'multilink'),
+        name: c.name || t('maker.name_ph').replace(/^(예:|e\.g\.|z\. ?B\.)\s*/i, ''), company: c.company || '', role: c.role || '', industry: c.industry || '', industryText: c.industryText || '', region: c.region || null,
+        logo: (c.logo && c.logo.src && !/\/assets\/(logo_toomcard|logo_toomus|logo_setupod|toomcard_hd)/.test(c.logo.src)) ? c.logo.src : '', avatar: (c.avatar && !/\/assets\/logo_/.test(c.avatar)) ? c.avatar : '',
+        front: c.front && c.front.bg && c.front.bg.type === 'image' ? c.front.bg.src : (c.plateCardImage || ''),
+        socials: (c.socials || []).filter((s) => s && s.url && !['kakao', 'whatsapp', 'telegram'].includes(s.type)).slice(0, 8),
+        website: c.primaryAction && c.primaryAction.url && c.primaryAction.url !== '#' ? c.primaryAction.url : '', phone: c.phone || '', star: false,
+        page: { title: pg.title || '', intro: pg.intro || '', gallery: (pg.gallery || []).slice(0, 12), items: (pg.items || []).slice(0, 20), address: pg.address || '', mapUrl: pg.mapUrl || '', hours: pg.hours || '', reviews: (pg.reviews || []).slice(0, 10), news: (pg.news || []).slice(0, 10), blocks: links ? (ml.blocks || []).slice(0, 20) : (pg.blocks || []).slice(0, 20), mlTitle: ml.title || '' }
+      };
+    }
+    function updatePagePreview() {
+      if (!pageTpl) return;
+      const fr = $('pagePreview'); if (!fr) return;
+      const doc = pageTpl.replace('<head>', '<head><base href="' + location.origin + '/">').replace('<!--DATA-->', '<script>window.PAGE_DATA = ' + JSON.stringify(buildPub()).replace(/</g, '\\u003c') + ';<\/script>');
+      if (doc === lastPageDoc) return;
+      lastPageDoc = doc; fr.srcdoc = doc;
+    }
     function render(immediate, delay) {
       clearTimeout(renderTimer);
+      if (document.body.classList.contains('kind-page')) { clearTimeout(pageTimer); pageTimer = setTimeout(updatePagePreview, immediate ? 0 : 350); }
       const send = () => {
         const frame = $('preview');
         renderSeq += 1;

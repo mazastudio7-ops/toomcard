@@ -11,14 +11,15 @@ async function rpc(name, body) {
 
 module.exports = async (req, res) => {
   const B = 'https://toomcard.com';
-  const urls = new Set([B + '/', B + '/forest']);
+  const urls = new Set([B + '/', B + '/forest', B + '/find', B + '/link', B + '/minihome', B + '/friends']);
   try {
     const [regions, trees] = await Promise.all([rpc('tc_forest_regions'), rpc('tc_forest', {})]);
     for (const r of regions) {
       const s = encodeURIComponent(r.sido);
       urls.add(`${B}/forest/${s}`);
       if (r.city) urls.add(`${B}/forest/${s}/${encodeURIComponent(r.city)}`);
-      if (r.industry) urls.add(`${B}/forest/${s}${r.city ? '/' + encodeURIComponent(r.city) : ''}?ind=${r.industry}`);
+      if (r.industry) { urls.add(`${B}/forest/${s}${r.city ? '/' + encodeURIComponent(r.city) : ''}?ind=${r.industry}`); urls.add(`${B}/find/${r.industry}`); urls.add(`${B}/find/${r.industry}/${s}`); }
+      urls.add(`${B}/find/all/${s}`);
     }
     for (const t of trees) {
       const p = '/' + String(t.slug).split('/').map(encodeURIComponent).join('/');

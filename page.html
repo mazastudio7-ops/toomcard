@@ -238,7 +238,7 @@
       } catch (e) {}
     }
     // 큰 사진을 기다리지 않고 바로 숫자·나무를 불러온다
-    setTimeout(async () => {
+    if (!D.preview) setTimeout(async () => {
       try {
         await lib();
         if (typeof recordPageView === 'function') recordPageView(D.slug);

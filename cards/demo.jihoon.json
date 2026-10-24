@@ -13,37 +13,143 @@
   "slogan": "오늘 마신 커피, 내일의 영상",
   "phone": "",
   "email": "jihoon@toomcard.com",
-  "moatTags": ["브이로그", "카페", "영상 편집"],
-  "logo": { "src": "", "alt": "" },
-  "emblem": { "on": true, "source": "initials", "text": "", "img": "", "material": "silver", "shape": "coin", "motion": "sweep" },
-  "front": {
-    "bg": { "type": "image", "src": "/assets/sample_profile_tech.jpg", "zoom": 1, "x": 50, "y": 30, "brightness": 1, "filter": "none", "blur": 0, "tint": "" },
-    "text": { "layout": "bottom-left", "showLogo": false, "tone": "auto" },
-    "finish": "matte", "qr": "subtle", "frame": "full", "frameTone": "dark", "look": "clean"
+  "moatTags": [
+    "브이로그",
+    "카페",
+    "영상 편집"
+  ],
+  "logo": {
+    "src": "",
+    "alt": ""
   },
-  "primaryAction": { "url": "https://toomcard.com/demo.jihoon/links", "label": "링크 모음", "icon": "globe" },
+  "emblem": {
+    "on": true,
+    "source": "initials",
+    "text": "",
+    "img": "",
+    "material": "silver",
+    "shape": "coin",
+    "motion": "sweep"
+  },
+  "front": {
+    "bg": {
+      "type": "image",
+      "src": "/assets/sample_profile_tech.jpg",
+      "zoom": 1,
+      "x": 50,
+      "y": 30,
+      "brightness": 1,
+      "filter": "none",
+      "blur": 0,
+      "tint": ""
+    },
+    "text": {
+      "layout": "bottom-left",
+      "showLogo": false,
+      "tone": "auto"
+    },
+    "finish": "matte",
+    "qr": "subtle",
+    "frame": "full",
+    "frameTone": "dark",
+    "look": "clean"
+  },
+  "primaryAction": {
+    "url": "https://toomcard.com/demo.jihoon/links",
+    "label": "링크 모음",
+    "icon": "globe"
+  },
   "socials": [
-    { "type": "instagram", "url": "https://instagram.com/toomcard", "label": "Instagram" },
-    { "type": "youtube", "url": "https://youtube.com/@toomcard", "label": "YouTube" },
-    { "type": "tiktok", "url": "https://tiktok.com/@toomcard", "label": "TikTok" }
+    {
+      "type": "instagram",
+      "url": "https://instagram.com/toomcard",
+      "label": "Instagram"
+    },
+    {
+      "type": "youtube",
+      "url": "https://youtube.com/@toomcard",
+      "label": "YouTube"
+    },
+    {
+      "type": "tiktok",
+      "url": "https://tiktok.com/@toomcard",
+      "label": "TikTok"
+    }
   ],
   "links": [],
   "backLayout": "default",
-  "star": { "on": false, "tag": "" },
-  "page": { "on": false },
+  "star": {
+    "on": false,
+    "tag": ""
+  },
+  "page": {
+    "on": false
+  },
   "ml": {
     "on": true,
     "title": "지훈의 추천 링크",
     "blocks": [
-      { "type": "title", "title": "이번 주 영상" },
-      { "type": "link", "icon": "▶", "title": "성수동 카페 투어 브이로그", "desc": "새 영상 · 12분", "url": "https://youtube.com/@toomcard" },
-      { "type": "title", "title": "영상에 나온 장비" },
-      { "type": "product", "title": "휴대용 핸드드립 세트", "price": "39,000원", "desc": "여행용으로 쓰는 그 세트", "url": "https://toomcard.com/link", "image": "/assets/stickers/cat-08.png", "shop": "쿠팡 파트너스" },
-      { "type": "product", "title": "브이로그용 미니 삼각대", "price": "18,900원", "desc": "카페 테이블용", "url": "https://toomcard.com/link", "image": "/assets/stickers/bear-02.png", "shop": "쿠팡 파트너스" },
-      { "type": "title", "title": "SNS" },
-      { "type": "link", "icon": "📷", "title": "Instagram", "desc": "@jihoon.cafe", "url": "https://instagram.com/toomcard" },
-      { "type": "link", "icon": "🎵", "title": "TikTok", "desc": "숏폼은 여기", "url": "https://tiktok.com/@toomcard" },
-      { "type": "text", "text": "협업·광고 문의는 아래 '연락 남기기'로 보내 주세요. 보통 하루 안에 답해요." }
+      {
+        "type": "title",
+        "title": "이번 주 영상"
+      },
+      {
+        "type": "link",
+        "icon": "▶",
+        "title": "성수동 카페 투어 브이로그",
+        "desc": "새 영상 · 12분",
+        "url": "https://youtube.com/@toomcard"
+      },
+      {
+        "type": "title",
+        "title": "영상에 나온 장비"
+      },
+      {
+        "type": "product",
+        "title": "휴대용 핸드드립 세트",
+        "price": "39,000원",
+        "desc": "여행용으로 쓰는 그 세트",
+        "url": "https://toomcard.com/link",
+        "image": "/assets/stickers/cat-08.png",
+        "shop": "쿠팡 파트너스"
+      },
+      {
+        "type": "product",
+        "title": "브이로그용 미니 삼각대",
+        "price": "18,900원",
+        "desc": "카페 테이블용",
+        "url": "https://toomcard.com/link",
+        "image": "/assets/stickers/bear-02.png",
+        "shop": "쿠팡 파트너스"
+      },
+      {
+        "type": "title",
+        "title": "SNS"
+      },
+      {
+        "type": "link",
+        "icon": "📷",
+        "title": "Instagram",
+        "desc": "@jihoon.cafe",
+        "url": "https://instagram.com/toomcard"
+      },
+      {
+        "type": "link",
+        "icon": "🎵",
+        "title": "TikTok",
+        "desc": "숏폼은 여기",
+        "url": "https://tiktok.com/@toomcard"
+      },
+      {
+        "type": "text",
+        "text": "협업·광고 문의는 아래 '연락 남기기'로 보내 주세요. 보통 하루 안에 답해요."
+      }
     ]
-  }
+  },
+  "region": {
+    "sido": "서울",
+    "city": "성동구",
+    "forest": false
+  },
+  "industryText": "영상 크리에이터"
 }
