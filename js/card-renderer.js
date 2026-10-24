@@ -173,22 +173,26 @@ function applyBackLayout(data) {
   if (mode !== 'default') scene.classList.add(`back-${mode}`);
 }
 
-// 정보가 적은 카드(소개·알약·링크가 거의 없음): 뒷면 가운데에 QR 을 넣어 비어 보이지 않게 한다
+// 정보가 적은 카드: 뒷면이 비어 보이지 않게 기본 SNS 아이콘 줄을 항상 보여 준다.
+// 넣은 채널은 그대로 열리고, 안 넣은 채널은 흐리게 보이며 누르면 미니홈(있으면) 또는 문의 창으로 간다.
+const SPARSE_SNS = ['kakao', 'instagram', 'tiktok', 'youtube', 'threads', 'x'];
 function renderSparseBack(data, items) {
   const box = document.getElementById('backSparse'), scene = document.getElementById('cardScene');
   if (!box) return;
-  const sparse = (data.backLayout || 'default') === 'default' && !String(data.slogan || '').trim() && !(data.moatTags || []).length && (items || []).length <= 1;
+  const socialsShown = (items || []).filter((it) => it.kind === 'social').length;
+  const sparse = (data.backLayout || 'default') === 'default' && socialsShown <= 1 && (items || []).length <= 2;
   box.hidden = !sparse; if (scene) scene.classList.toggle('back-sparse-on', sparse);
   if (!sparse) return;
-  // 미니홈 소개 첫 줄을 한 줄 소개로 (소개가 비어 있을 때만)
-  const slog = document.getElementById('backSlogan');
-  if (slog && !slog.textContent.trim() && data.page && data.page.on && data.page.intro) slog.textContent = String(data.page.intro).split('\n')[0].slice(0, 60);
-  const target = document.getElementById('backSparseQr');
-  const url = qrBaseUrl();
-  if (target.dataset.url === url) return;
-  target.innerHTML = ''; target.dataset.url = url;
-  if (typeof QRCode === 'undefined') return;
-  try { new QRCode(target, { text: url, width: 156, height: 156, colorDark: '#0c0a14', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M }); } catch (e) {}
+  const have = {}; (data.socials || []).forEach((s) => { if (s && s.url && s.type) have[s.type] = s.url; });
+  const slug = String(data.slug || data.id || (typeof getCardSlug === 'function' ? getCardSlug() : '') || '');
+  const fallback = (data.page && data.page.on && slug) ? '/' + slug.split('/').map(encodeURIComponent).join('/') + '/page' : '';
+  box.innerHTML = SPARSE_SNS.map((type) => {
+    const url = have[type];
+    if (url) return `<a class="sico" href="${safeHref(url)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" title="${escHtml(type)}" aria-label="${escHtml(type)}">${getSocialIconSvg(type)}</a>`;
+    if (fallback) return `<a class="sico ghost" href="${escHtml(fallback)}" onclick="event.stopPropagation()" title="${escHtml(t('card.minihome'))}" aria-label="${escHtml(t('card.minihome'))}">${getSocialIconSvg(type)}</a>`;
+    return `<a class="sico ghost" href="#" onclick="event.preventDefault(); event.stopPropagation(); document.getElementById('leadModal').classList.add('active');" title="${escHtml(t('card.leave_contact'))}" aria-label="${escHtml(t('card.leave_contact'))}">${getSocialIconSvg(type)}</a>`;
+  }).join('');
+  if (window.lucide) window.lucide.createIcons();
 }
 function renderActionDocks(data) {
   const dockFront = document.getElementById('insideActionDockFront');
