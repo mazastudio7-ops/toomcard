@@ -289,6 +289,15 @@
     .blk-row .two { display: grid; grid-template-columns: 56px 1fr; gap: 6px; }
     .blk-row .gitems { display: flex; flex-direction: column; gap: 4px; }
     .blk-row .gitems .g { display: grid; grid-template-columns: 44px 1fr 1fr; gap: 4px; }
+    .res-more { display: flex; flex-direction: column; gap: 6px; margin: 10px 0 6px; text-align: left; }
+    .rm-row { display: grid; grid-template-columns: 70px 1fr auto; align-items: center; gap: 6px; font-size: 12px; }
+    .rm-row span { color: var(--tc-text-subtle); font-weight: 700; } .rm-row a { color: #ffd978; word-break: break-all; text-decoration: none; font-weight: 700; }
+    .rm-copy { appearance: none; border: 1px solid var(--tc-border); background: none; color: var(--tc-text-muted); border-radius: 8px; padding: 5px 8px; font: 700 11px var(--tc-font-body); cursor: pointer; }
+    .rm-next { margin-top: 6px; padding: 10px; border-radius: 12px; border: 1px dashed rgba(255,217,120,.45); display: flex; flex-direction: column; gap: 6px; }
+    .rm-next b { font-size: 12.5px; } .rm-add { appearance: none; text-align: left; border: 0; background: rgba(255,217,120,.1); color: #ffd978; border-radius: 10px; padding: 9px 10px; font: 800 12.5px var(--tc-font-body); cursor: pointer; }
+    .addon-head { margin: 14px 0 6px; display: flex; flex-direction: column; gap: 3px; }
+    .addon-head b { font-size: 14px; } .addon-head small { font-size: 11.5px; color: var(--tc-text-subtle); line-height: 1.5; }
+    #mlBox { margin-bottom: 10px; }
     .pg-gal { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 8px; }
     .pg-gal:empty { display: none; }
     .pg-gal div { position: relative; aspect-ratio: 1; border-radius: 10px; overflow: hidden; background: rgba(255,255,255,.06); }
@@ -321,11 +330,10 @@
     body.kind-page .panel .section[data-tab="text"], body.kind-page .panel .section[data-tab="logo"], body.kind-page .panel .section[data-tab="finish"],
     body.kind-page .tool-btn[data-face="back"], body.kind-page #fxField, body.kind-page #lookField, body.kind-page .photo-perks { display: none !important; }
     body.kind-page .tabbar { grid-template-columns: repeat(3, 1fr); }
-    body.kind-multilink .biz-only, body.kind-multilink .per-only, body.kind-multilink #pageBox .toggle .switch,
-    body.kind-minihome .per-only, body.kind-minihome #pageBox .toggle .switch { display: none; }
-    body.kind-multilink #pageBox, body.kind-minihome #pageBox { border-color: rgba(255,217,120,.6); }
+    body.kind-multilink .biz-only, body.kind-multilink .per-only, body.kind-minihome .per-only { display: none; }
     /* 멀티링크는 블록 중심: 홍보용 칸(소개·갤러리·상품표·소식·위치·후기)은 숨긴다 */
-    body.kind-multilink .pg-home { display: none; }
+    body.kind-multilink #mlBox .toggle .switch, body.kind-minihome #pageBox .toggle .switch { display: none; }
+    body.kind-multilink #mlBox, body.kind-minihome #pageBox { border-color: rgba(255,217,120,.6); }
 
     /* ── 모바일: 큰 캐러셀 + 하단 탭 + 시트 ───────── */
     @media (max-width: 980px) {
@@ -539,13 +547,13 @@
           <div id="extraLinks"></div>
           <button type="button" class="btn-secondary" id="addLinkBtn" onclick="addExtraLink()"><i data-lucide="plus"></i><span data-i18n="maker.add_link">링크 추가</span></button>
         </div>
-        <!-- 미니 홈페이지: 소개·사진·상품·소식·위치·후기 → toomcard.com/아이디/page -->
-        <div class="star-box" id="pageBox">
-          <div class="toggle"><span><b data-i18n="maker.page_on">미니 홈페이지 만들기</b><small class="star-desc" data-i18n="maker.page_desc">소개·사진·상품·위치·후기를 한 페이지에. 명함 뒷면과 이젠스타에 "미니홈 보기"가 생겨요.</small></span><button class="switch" id="pageSwitch" role="switch" aria-checked="false"></button></div>
-          <div id="pageOpts" hidden>
-            <div class="field"><label data-i18n="maker.page_title">미니홈 제목</label><input class="input" id="pgTitle" maxlength="40" placeholder="예: 성주참외 배미자네" data-i18n-placeholder="maker.page_title_ph"></div>
-            <div class="field pg-home"><label data-i18n="maker.page_intro">소개 글</label><textarea class="input" id="pgIntro" rows="5" maxlength="2000" placeholder="우리 농장은…" data-i18n-placeholder="maker.page_intro_ph"></textarea></div>
-            <div class="field"><label data-i18n="maker.page_blocks">블록 (최대 20) — 링크·그리드·유튜브·제목·글</label>
+        <div class="addon-head"><b data-i18n="maker.addon_title">명함에 더 붙이기</b><small data-i18n="maker.addon_desc">명함 하나에 멀티링크·미니홈을 자유롭게 붙일 수 있어요. 따로따로 보내도 되고, 명함 뒷면에 버튼으로도 생겨요.</small></div>
+        <!-- 멀티링크: 링크·상품·유튜브 블록만 있는 페이지 → toomcard.com/아이디/links (명함·미니홈과 자유롭게 같이 쓴다) -->
+        <div class="star-box" id="mlBox">
+          <div class="toggle"><span><b data-i18n="maker.ml_on">멀티링크 만들기</b><small class="star-desc" data-i18n="maker.ml_desc">SNS·상품·유튜브 링크를 한 페이지에. 인스타 프로필 링크로 쓰기 좋아요.</small></span><button class="switch" id="mlSwitch" role="switch" aria-checked="false"></button></div>
+          <div id="mlOpts" hidden>
+            <div class="field"><label data-i18n="maker.ml_title">멀티링크 제목</label><input class="input" id="mlTitle" maxlength="40" placeholder="예: 민호의 추천 링크" data-i18n-placeholder="maker.ml_title_ph"></div>
+            <div class="field"><label data-i18n="maker.page_blocks">블록 (최대 20) — 상품·링크·그리드·유튜브·제목·글</label>
               <div id="pgBlocks"></div>
               <div class="chips" style="margin-top:6px">
                 <button type="button" class="chip" data-blk="product">🛒 <span data-i18n="maker.blk_product">상품</span></button>
@@ -555,6 +563,15 @@
                 <button type="button" class="chip" data-blk="title">T <span data-i18n="maker.blk_title">제목</span></button>
                 <button type="button" class="chip" data-blk="text">¶ <span data-i18n="maker.blk_text">글</span></button>
               </div>
+            <p class="photo-off" style="display:block" id="mlUrl"></p>
+          </div>
+        </div>
+        <!-- 미니 홈페이지: 소개·사진·상품·소식·위치·후기 → toomcard.com/아이디/page -->
+        <div class="star-box" id="pageBox">
+          <div class="toggle"><span><b data-i18n="maker.page_on">미니 홈페이지 만들기</b><small class="star-desc" data-i18n="maker.page_desc">소개·사진·상품·위치·후기를 한 페이지에. 명함 뒷면과 이젠스타에 "미니홈 보기"가 생겨요.</small></span><button class="switch" id="pageSwitch" role="switch" aria-checked="false"></button></div>
+          <div id="pageOpts" hidden>
+            <div class="field"><label data-i18n="maker.page_title">미니홈 제목</label><input class="input" id="pgTitle" maxlength="40" placeholder="예: 성주참외 배미자네" data-i18n-placeholder="maker.page_title_ph"></div>
+            <div class="field pg-home"><label data-i18n="maker.page_intro">소개 글</label><textarea class="input" id="pgIntro" rows="5" maxlength="2000" placeholder="우리 농장은…" data-i18n-placeholder="maker.page_intro_ph"></textarea></div>
             </div>
             <div class="field pg-home"><label data-i18n="maker.page_gallery">사진 (최대 8장)</label>
               <div class="pg-gal" id="pgGal"></div>
@@ -822,6 +839,7 @@
           <div class="title" data-i18n="maker.published_title">3D 명함이 발행되었습니다!</div>
           <a class="link" id="resultLink" target="_blank"></a>
           <div id="resultQr"></div>
+          <div class="res-more" id="resMore"></div>
           <button class="btn-secondary" onclick="copyLink()"><i data-lucide="copy"></i><span data-i18n="common.copy_link">링크 복사</span></button>
           <button class="btn-secondary" onclick="shareLink()"><i data-lucide="share-2"></i><span data-i18n="common.share_other">다른 앱 공유</span></button>
         </div>
@@ -949,7 +967,9 @@
       if (isPage && typeof flip === 'function') flip('show_front');
       const fr = $('preview'); if (fr && fr.contentWindow) fr.contentWindow.postMessage({ action: 'page_mode', on: isPage }, '*');
       const fb = $('faceBadge'); if (fb) fb.hidden = isPage;
-      if (kind === 'multilink' || kind === 'minihome') { card.page = Object.assign({ on: true }, card.page || {}, { on: true }); if (typeof syncPageUI === 'function') syncPageUI(); }   // 멀티링크는 미니홈이 곧 본체
+      if (kind === 'minihome') { card.page = Object.assign({ on: true }, card.page || {}, { on: true }); }
+      if (kind === 'multilink') { card.ml = Object.assign({ on: true }, card.ml || {}, { on: true }); }
+      if (typeof syncPageUI === 'function') syncPageUI(); if (typeof syncMlUI === 'function') syncMlUI();
       document.querySelectorAll('#kindSeg button').forEach((b) => b.setAttribute('aria-pressed', b.dataset.kind === kind ? 'true' : 'false'));
       Object.entries(KIND_PH[kind === 'business' || kind === 'minihome' ? 'business' : 'personal']).forEach(([id, key]) => { const el = document.getElementById(id); if (el) el.placeholder = t(key); });
       if (typeof render === 'function') render();
@@ -1041,7 +1061,7 @@
     function schedSlug() { clearTimeout(slugTimer); slugTimer = setTimeout(checkSlug, 500); }
     $('fSlug').addEventListener('input', schedSlug);
     document.addEventListener('i18n:change', () => checkSlug()); document.addEventListener('DOMContentLoaded', () => checkSlug());
-    document.addEventListener('DOMContentLoaded', () => { if (!new URLSearchParams(location.search).get('edit')) setTimeout(suggestIdFromLogin, 1200); syncPageUI(); });
+    document.addEventListener('DOMContentLoaded', () => { if (!new URLSearchParams(location.search).get('edit')) setTimeout(suggestIdFromLogin, 1200); syncPageUI(); syncMlUI(); });
 
     /* ── 추가 링크 (최대 3개) ───────────────────────── */
     const MAX_EXTRA = 3;
@@ -1067,10 +1087,34 @@
 
     /* ── 미니 홈페이지 (card.page) ─────────────────────── */
     const PG = { gallery: [] };
+    function syncMlUI() {
+      const p = card.ml || (card.ml = { on: false });
+      if (kind === 'multilink') p.on = true;
+      $('mlSwitch').setAttribute('aria-checked', String(!!p.on)); $('mlOpts').hidden = !p.on;
+      $('mlUrl').textContent = p.on ? ('toomcard.com/' + (curSlug() || '…') + (kind === 'multilink' ? '' : '/links')) : '';
+    }
+    document.addEventListener('click', (e) => {
+      const cp = e.target.closest && e.target.closest('.rm-copy'); if (cp) { navigator.clipboard.writeText(cp.dataset.u).then(() => toast(t('common.copied') || '복사했어요')); return; }
+      const ad = e.target.closest && e.target.closest('.rm-add'); if (!ad) return;
+      if (ad.dataset.add === 'ml') { card.ml = Object.assign({}, card.ml, { on: true }); syncMlUI(); } else { card.page = Object.assign({}, card.page, { on: true }); syncPageUI(); }
+      openTab('info'); setTimeout(() => { const box = $(ad.dataset.add === 'ml' ? 'mlBox' : 'pageBox'); if (box) box.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 200);
+    });
+    $('mlSwitch').addEventListener('click', () => { card.ml = Object.assign({ on: false }, card.ml, { on: !(card.ml && card.ml.on) }); syncMlUI(); render(false, 260); });
+    function collectMl() {
+      const p = card.ml || { on: false }; if (kind === 'multilink') p.on = true; if (!p.on) return { on: false };
+      return { on: true, title: $('mlTitle').value.trim().slice(0, 40), blocks: blkCollect().filter((b) => b.type).slice(0, 20) };
+    }
+    function applyMl(ml, legacyBlocks) {
+      card.ml = Object.assign({ on: false }, ml || {});
+      $('mlTitle').value = card.ml.title || '';
+      BLK.list = (card.ml.blocks || legacyBlocks || []).slice(0, 20); blkRender(); syncMlUI();
+    }
     function syncPageUI() {
       const p = card.page || (card.page = { on: false });
       $('pageSwitch').setAttribute('aria-checked', String(!!p.on)); $('pageOpts').hidden = !p.on;
-      $('pgUrl').textContent = p.on ? ('toomcard.com/' + (curSlug() || '…') + '/page') : '';
+      if (kind === 'minihome') p.on = true;
+      $('pageSwitch').setAttribute('aria-checked', String(!!p.on)); $('pageOpts').hidden = !p.on;
+      $('pgUrl').textContent = p.on ? ('toomcard.com/' + (curSlug() || '…') + (kind === 'minihome' ? '' : '/page')) : '';
     }
     $('pageSwitch').addEventListener('click', () => { card.page = Object.assign({ on: false }, card.page, { on: !(card.page && card.page.on) }); syncPageUI(); render(false, 260); });
     function pgGalRender() { $('pgGal').innerHTML = PG.gallery.map((u, i) => `<div><img src="${u}" alt=""><button type="button" data-i="${i}" aria-label="remove">×</button></div>`).join(''); $('pgGalBtn').hidden = PG.gallery.length >= 8; }
@@ -1161,10 +1205,10 @@
       blkRender();
     });
     function collectPage() {
-      const p = card.page || { on: false }; if (kind === 'multilink' || kind === 'minihome') p.on = true; if (!p.on) return { on: false };
+      const p = card.page || { on: false }; if (kind === 'minihome') p.on = true; if (!p.on) return { on: false };
       const rows = (id) => [...$(id).children];
       const g = (r, c) => { const el = r.querySelector('.' + c); return el ? el.value.trim() : ''; };
-      return { on: true, title: $('pgTitle').value.trim().slice(0, 40), intro: $('pgIntro').value.trim().slice(0, 2000), gallery: PG.gallery.slice(0, 8), blocks: blkCollect().filter((b) => b.type).slice(0, 20),
+      return { on: true, title: $('pgTitle').value.trim().slice(0, 40), intro: $('pgIntro').value.trim().slice(0, 2000), gallery: PG.gallery.slice(0, 8),
         items: rows('pgItems').map((r) => ({ name: g(r, 'p-name').slice(0, 40), price: g(r, 'p-price').slice(0, 20), note: g(r, 'p-note').slice(0, 60) })).filter((x) => x.name).slice(0, 10),
         news: rows('pgNews').map((r) => ({ date: g(r, 'p-date').slice(0, 10), title: g(r, 'p-title').slice(0, 60), text: g(r, 'p-text').slice(0, 600) })).filter((x) => x.title || x.text).slice(0, 5),
         address: $('pgAddr').value.trim().slice(0, 120), mapUrl: /^https:\/\//.test($('pgMap').value.trim()) ? $('pgMap').value.trim().slice(0, 300) : '', hours: $('pgHours').value.trim().slice(0, 80),
@@ -1174,7 +1218,7 @@
       card.page = Object.assign({ on: false }, p || {});
       $('pgTitle').value = card.page.title || ''; $('pgIntro').value = card.page.intro || ''; $('pgAddr').value = card.page.address || ''; $('pgMap').value = card.page.mapUrl || ''; $('pgHours').value = card.page.hours || '';
       PG.gallery = (card.page.gallery || []).slice(0, 8); pgGalRender();
-      BLK.list = (card.page.blocks || []).slice(0, 20); blkRender();
+      syncMlUI();
       $('pgItems').innerHTML = ''; (card.page.items || []).forEach((v) => pgRow($('pgItems'), 'item', v));
       $('pgNews').innerHTML = ''; (card.page.news || []).forEach((v) => pgRow($('pgNews'), 'news', v));
       $('pgRv').innerHTML = ''; (card.page.reviews || []).forEach((v) => pgRow($('pgRv'), 'rv', v));
@@ -1349,6 +1393,7 @@
         .map((r) => ({ label: r.querySelector('.x-label').value.trim(), url: r.querySelector('.x-url').value.trim() }))
         .filter((l) => l.url).slice(0, MAX_EXTRA);
       card.page = collectPage();
+      card.ml = collectMl();
       card.emblem.text = $('emText').value.trim() || autoEmblemText();
       $('emText').placeholder = autoEmblemText();
       card.logo.alt = card.company;
@@ -2246,6 +2291,14 @@
         $('resultLink').textContent = publishedUrl; $('resultLink').href = publishedUrl;
         $('resultQr').innerHTML = '';
         try { new QRCode($('resultQr'), { text: publishedUrl, width: 104, height: 104, correctLevel: QRCode.CorrectLevel.M }); } catch (e) {}
+        // 만든 것 모두 보여 주기 + 다음에 붙일 것 안내 (명함 → 멀티링크 → 미니홈을 자유롭게)
+        const base = `${location.origin}/${c.slug}`, isPageKind = c.kind === 'multilink' || c.kind === 'minihome';
+        const made = [], next = [];
+        if (!isPageKind) made.push([t('maker.res_card'), publishedUrl]);
+        if (c.ml && c.ml.on) made.push([t('maker.res_links'), c.kind === 'multilink' ? base : base + '/links']); else next.push(['ml', t('maker.res_add_links')]);
+        if (c.page && c.page.on) made.push([t('maker.res_home'), c.kind === 'minihome' ? base : base + '/page']); else next.push(['page', t('maker.res_add_home')]);
+        $('resMore').innerHTML = made.map(([l, u]) => `<div class="rm-row"><span>${l}</span><a href="${u}" target="_blank">${u.replace(location.origin + '/', 'toomcard.com/').split('?')[0]}</a><button type="button" class="rm-copy" data-u="${u}">${t('common.copy_link')}</button></div>`).join('')
+          + (next.length ? `<div class="rm-next"><b>${t('maker.res_next')}</b>${next.map(([k, l]) => `<button type="button" class="rm-add" data-add="${k}">＋ ${l}</button>`).join('')}</div>` : '');
         $('result').classList.add('show'); clearDraft();
         if (typeof gtag === 'function') gtag('event', 'card_published', { event_category: 'conversion', card_name: c.slug });
         toast(t(c.star && c.star.on ? 'maker.star_pending' : 'maker.published_title'));
@@ -2408,6 +2461,7 @@
       if (ss[1]) { $('fSocial2Type').value = ss[1].type; $('fSocial2Url').value = ss[1].url; }
       setExtraSns(ss.slice(2));
       applyPage(c.page);
+      applyMl(c.ml, c.kind === 'multilink' && c.page ? c.page.blocks : null);
       setKind(c.kind || (fromCloud ? 'business' : 'personal'));   // 예전 카드는 모두 비즈니스
       $('fTags').value = (c.moatTags || []).join(', '); setSlugInputs(slug, !!fromCloud); checkSlug(); syncLogoShapeUI();
       // 예전 그라데이션 카드는 단색(부드러운 그라데이션)으로 읽는다

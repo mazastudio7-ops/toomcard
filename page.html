@@ -24,6 +24,9 @@
     .head .lg { width: 72px; height: 72px; border-radius: 18px; object-fit: cover; background: #1a1430; border: 2px solid rgba(255,217,120,.6); flex: none; }
     .head h1 { margin: 0; font-size: 22px; font-weight: 900; line-height: 1.2; }
     .head .sub { color: var(--mut); font-size: 13.5px; margin-top: 3px; }
+    .swrow { display: flex; gap: 6px; flex-wrap: wrap; padding: 10px 20px 0; }
+    .swrow:empty { display: none; }
+    .swrow a { font-size: 12px; font-weight: 800; padding: 6px 12px; border-radius: 99px; text-decoration: none; color: #fff; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.18); }
     .chips { display: flex; gap: 6px; flex-wrap: wrap; padding: 12px 20px 0; }
     .chip { font-size: 12px; font-weight: 700; padding: 5px 11px; border-radius: 99px; background: rgba(255,217,120,.1); color: var(--gold); border: 1px solid rgba(255,217,120,.3); }
     section { padding: 22px 20px 0; }
@@ -97,6 +100,7 @@
     <div class="hero" id="hero"><a class="back" id="backCard" href="#">← 명함 보기</a><img id="heroImg" alt="" hidden></div>
     <div class="head"><img class="lg" id="logo" alt="" hidden><div class="lg ini" id="ini" hidden></div><div><h1 id="title"></h1><div class="sub" id="sub"></div></div></div>
     <div class="chips" id="chips"></div>
+    <div class="swrow" id="switchRow"></div>
     <section id="secIntro" hidden><div class="intro" id="intro"></div></section>
     <div id="blocks"></div>
     <section id="secGal" hidden><h2 data-t="gal">사진</h2><div class="gal" id="gal"></div></section>
@@ -133,21 +137,28 @@
     const safe = (u) => /^(https?:\/\/|mailto:|tel:)/i.test(String(u || '')) ? String(u) : '#';
     const lang = (navigator.language || 'ko').slice(0, 2);
     const L = {
-      ko: { gal: '사진', items: '상품 · 가격', news: '소식', loc: '찾아오는 길', rv: '후기', sns: 'SNS · 링크', made: 'TOOMCARD로 만든 미니홈', coupang: '쿠팡 파트너스', coupangDisc: '이 페이지는 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받을 수 있습니다.', mine: '나도 만들기', ask: '문의 · 예약하기', askLink: '연락 남기기', call: '전화', askTitle: '문의 · 예약', askDesc: '남기신 내용은 이 분에게만 전달돼요.', fName: '이름', fPhone: '전화번호', fEmail: '이메일', fWhen: '언제 필요하세요?', tNow: '🔥 지금', tSoon: '1~3개월 안', tBrowse: '그냥 둘러봄', fMemo: '문의 내용', send: '보내기', cancel: '닫기', back: '← 명함 보기', need: '전화번호나 이메일 중 하나는 남겨 주세요.', sent: '전달됐어요! 곧 연락이 갈 거예요.', dup: '이미 접수됐어요.', fail: '잠시 후 다시 시도해 주세요.', map: '지도 열기', hours: '영업시간' },
-      en: { gal: 'Photos', items: 'Products & prices', news: 'News', loc: 'Location', rv: 'Reviews', sns: 'Social & links', made: 'Mini site by TOOMCARD', coupang: 'Coupang Partners', coupangDisc: 'As a Coupang Partners affiliate, this page may earn a commission from qualifying purchases.', mine: 'Make mine', ask: 'Inquire · Book', askLink: 'Leave a message', call: 'Call', askTitle: 'Inquiry · Booking', askDesc: 'Your message goes only to this person.', fName: 'Name', fPhone: 'Phone', fEmail: 'Email', fWhen: 'When do you need it?', tNow: '🔥 Now', tSoon: 'In 1–3 months', tBrowse: 'Just looking', fMemo: 'Message', send: 'Send', cancel: 'Close', back: '← Card', need: 'Leave a phone number or an email.', sent: 'Sent! They will get back to you.', dup: 'Already received.', fail: 'Please try again shortly.', map: 'Open map', hours: 'Hours' },
-      de: { gal: 'Fotos', items: 'Produkte & Preise', news: 'Neuigkeiten', loc: 'Anfahrt', rv: 'Bewertungen', sns: 'Social & Links', made: 'Mini-Seite von TOOMCARD', coupang: 'Coupang Partners', coupangDisc: 'Als Coupang-Partners-Affiliate kann diese Seite eine Provision erhalten.', mine: 'Eigene erstellen', ask: 'Anfrage · Buchen', askLink: 'Nachricht hinterlassen', call: 'Anrufen', askTitle: 'Anfrage · Buchung', askDesc: 'Deine Nachricht geht nur an diese Person.', fName: 'Name', fPhone: 'Telefon', fEmail: 'E-Mail', fWhen: 'Wann brauchst du es?', tNow: '🔥 Jetzt', tSoon: 'In 1–3 Monaten', tBrowse: 'Nur schauen', fMemo: 'Nachricht', send: 'Senden', cancel: 'Schließen', back: '← Karte', need: 'Bitte Telefonnummer oder E-Mail angeben.', sent: 'Gesendet! Du hörst bald von ihnen.', dup: 'Bereits eingegangen.', fail: 'Bitte gleich noch einmal versuchen.', map: 'Karte öffnen', hours: 'Öffnungszeiten' }
+      ko: { gal: '사진', items: '상품 · 가격', news: '소식', loc: '찾아오는 길', rv: '후기', sns: 'SNS · 링크', made: 'TOOMCARD로 만든 미니홈', madeLinks: 'TOOMCARD 멀티링크', coupang: '쿠팡 파트너스', coupangDisc: '이 페이지는 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받을 수 있습니다.', mine: '나도 만들기', ask: '문의 · 예약하기', askLink: '연락 남기기', swCard: '🪪 명함', swHome: '🏠 미니홈', swLinks: '🔗 링크 모음', call: '전화', askTitle: '문의 · 예약', askDesc: '남기신 내용은 이 분에게만 전달돼요.', fName: '이름', fPhone: '전화번호', fEmail: '이메일', fWhen: '언제 필요하세요?', tNow: '🔥 지금', tSoon: '1~3개월 안', tBrowse: '그냥 둘러봄', fMemo: '문의 내용', send: '보내기', cancel: '닫기', back: '← 명함 보기', need: '전화번호나 이메일 중 하나는 남겨 주세요.', sent: '전달됐어요! 곧 연락이 갈 거예요.', dup: '이미 접수됐어요.', fail: '잠시 후 다시 시도해 주세요.', map: '지도 열기', hours: '영업시간' },
+      en: { gal: 'Photos', items: 'Products & prices', news: 'News', loc: 'Location', rv: 'Reviews', sns: 'Social & links', made: 'Mini site by TOOMCARD', madeLinks: 'Multilink by TOOMCARD', coupang: 'Coupang Partners', coupangDisc: 'As a Coupang Partners affiliate, this page may earn a commission from qualifying purchases.', mine: 'Make mine', ask: 'Inquire · Book', askLink: 'Leave a message', swCard: '🪪 Card', swHome: '🏠 Mini site', swLinks: '🔗 Links', call: 'Call', askTitle: 'Inquiry · Booking', askDesc: 'Your message goes only to this person.', fName: 'Name', fPhone: 'Phone', fEmail: 'Email', fWhen: 'When do you need it?', tNow: '🔥 Now', tSoon: 'In 1–3 months', tBrowse: 'Just looking', fMemo: 'Message', send: 'Send', cancel: 'Close', back: '← Card', need: 'Leave a phone number or an email.', sent: 'Sent! They will get back to you.', dup: 'Already received.', fail: 'Please try again shortly.', map: 'Open map', hours: 'Hours' },
+      de: { gal: 'Fotos', items: 'Produkte & Preise', news: 'Neuigkeiten', loc: 'Anfahrt', rv: 'Bewertungen', sns: 'Social & Links', made: 'Mini-Seite von TOOMCARD', madeLinks: 'Multilink von TOOMCARD', coupang: 'Coupang Partners', coupangDisc: 'Als Coupang-Partners-Affiliate kann diese Seite eine Provision erhalten.', mine: 'Eigene erstellen', ask: 'Anfrage · Buchen', askLink: 'Nachricht hinterlassen', swCard: '🪪 Karte', swHome: '🏠 Mini-Seite', swLinks: '🔗 Links', call: 'Anrufen', askTitle: 'Anfrage · Buchung', askDesc: 'Deine Nachricht geht nur an diese Person.', fName: 'Name', fPhone: 'Telefon', fEmail: 'E-Mail', fWhen: 'Wann brauchst du es?', tNow: '🔥 Jetzt', tSoon: 'In 1–3 Monaten', tBrowse: 'Nur schauen', fMemo: 'Nachricht', send: 'Senden', cancel: 'Schließen', back: '← Karte', need: 'Bitte Telefonnummer oder E-Mail angeben.', sent: 'Gesendet! Du hörst bald von ihnen.', dup: 'Bereits eingegangen.', fail: 'Bitte gleich noch einmal versuchen.', map: 'Karte öffnen', hours: 'Öffnungszeiten' }
     };
     const T = (k) => (L[lang] || L.ko)[k] || L.ko[k] || k;
     document.querySelectorAll('[data-t]').forEach((el) => { el.textContent = T(el.dataset.t); });
     document.documentElement.lang = L[lang] ? lang : 'ko';
     const cardUrl = '/' + String(D.slug || '').split('/').map(encodeURIComponent).join('/');
     $('backCard').href = cardUrl; $('backCard').textContent = T('back');
-    if (D.kind === 'multilink' || D.kind === 'minihome') $('backCard').hidden = true;   // 멀티링크·미니홈은 명함이 따로 없다
-    if (D.kind === 'multilink') { ['secIntro', 'secGal', 'secItems', 'secNews', 'secLoc', 'secRv'].forEach((id) => { $(id).remove(); }); }   // 멀티링크는 블록·SNS만
+    if (D.kind === 'multilink' || D.kind === 'minihome') $('backCard').hidden = true;   // 페이지 종류는 명함이 따로 없다
+    if (D.mode === 'links') { ['secIntro', 'secGal', 'secItems', 'secNews', 'secLoc', 'secRv'].forEach((id) => { const el = $(id); if (el) el.remove(); }); }   // 멀티링크는 블록·SNS만
+    // 같은 사람의 다른 페이지로 가는 작은 버튼 (명함 · 미니홈 · 멀티링크를 자유롭게 오간다)
+    const sw = [];
+    if (D.kind !== 'multilink' && D.kind !== 'minihome') sw.push(`<a href="${cardUrl}">${T('swCard')}</a>`);
+    if (D.mode === 'links' && D.hasHome) sw.push(`<a href="${cardUrl}${D.kind === 'minihome' ? '' : '/page'}">${T('swHome')}</a>`);
+    if (D.mode !== 'links' && D.hasLinks) sw.push(`<a href="${cardUrl}${D.kind === 'multilink' ? '' : '/links'}">${T('swLinks')}</a>`);
+    if (sw.length) $('switchRow').innerHTML = sw.join('');
+    if (D.mode === 'links') { const mk = document.querySelector('[data-t="made"]'); if (mk) mk.textContent = T('madeLinks'); }
     if (D.front) { $('heroImg').src = D.front; $('heroImg').hidden = false; }
     if (D.logo || D.avatar) { $('logo').src = D.logo || D.avatar; $('logo').hidden = false; }
     else { const n = String(D.name || '').trim(); if (n) { $('ini').textContent = /[A-Za-z]/.test(n) ? n.split(/[\s.]+/).filter(Boolean).slice(0, 2).map((w) => w[0]).join('').toUpperCase() : Array.from(n)[0]; $('ini').hidden = false; } }
-    $('title').textContent = P.title || D.company || D.name;
+    $('title').textContent = D.mode === 'links' ? (P.mlTitle || D.name) : (P.title || D.company || D.name);
     $('sub').textContent = [D.name !== (P.title || D.company || D.name) ? D.name : '', D.role].filter(Boolean).join(' · ');
     const chips = [];
     if (D.region && (D.region.sido || D.region.city)) chips.push('📍 ' + [D.region.sido, D.region.city].filter(Boolean).join(' '));
@@ -178,7 +189,7 @@
     if (P.reviews && P.reviews.length && has('secRv')) { $('rv').innerHTML = P.reviews.map((r) => `<div class="rv"><div class="who">${esc(r.name || '')}</div><p>${esc(r.text || '')}</p></div>`).join(''); $('secRv').hidden = false; }
     const sns = (D.socials || []).map((s) => `<a href="${safe(s.url)}" target="_blank" rel="noopener">${esc(s.label || s.type)}</a>`).concat(D.website ? [`<a href="${safe(D.website)}" target="_blank" rel="noopener">🌐 Website</a>`] : []);
     if (sns.length) { $('sns').innerHTML = sns.join(''); $('secSns').hidden = false; }
-    if (D.kind === 'multilink') $('askBtn').textContent = T('askLink');
+    if (D.mode === 'links') $('askBtn').textContent = T('askLink');
     if (D.phone) { $('callBtn').href = 'tel:' + String(D.phone).replace(/[^\d+]/g, ''); $('callBtn').hidden = false; }
     document.querySelectorAll('.gal img').forEach((im) => im.addEventListener('click', () => { $('lbImg').src = im.src; $('lb').classList.add('on'); }));
     $('lb').addEventListener('click', () => $('lb').classList.remove('on'));

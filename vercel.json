@@ -123,6 +123,14 @@
       "destination": "/sw.js"
     },
     {
+      "source": "/:slug/links",
+      "destination": "/api/page?slug=:slug&mode=links"
+    },
+    {
+      "source": "/:company/:slug/links",
+      "destination": "/api/page?slug=:company/:slug&mode=links"
+    },
+    {
       "source": "/:slug/page",
       "destination": "/api/page?slug=:slug"
     },

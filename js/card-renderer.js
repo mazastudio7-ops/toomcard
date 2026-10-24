@@ -132,6 +132,11 @@ function collectLinks(data) {
     const slug = (data.slug || data.id || (typeof getCardSlug === 'function' ? getCardSlug() : '') || '');
     if (slug) items.push({ kind: 'web', url: '/' + String(slug).split('/').map(encodeURIComponent).join('/') + '/page', label: t('card.minihome'), icon: 'home', same: true });
   }
+  // 멀티링크가 켜져 있으면 "링크 모음" 버튼
+  if (data.ml && data.ml.on) {
+    const slug2 = (data.slug || data.id || (typeof getCardSlug === 'function' ? getCardSlug() : '') || '');
+    if (slug2) items.push({ kind: 'web', url: '/' + String(slug2).split('/').map(encodeURIComponent).join('/') + '/links', label: t('card.links_btn'), icon: 'link-2', same: true });
+  }
   if (personal) { items.push(...socials); if (site) items.push(site); }
   else { if (site) items.push(site); items.push(...socials); }
   items.push(...extras);
@@ -184,7 +189,8 @@ function renderSparseBack(data, items) {
   if (!sparse) return;
   const have = {}; (data.socials || []).forEach((s) => { if (s && s.url && s.type) have[s.type] = s.url; });
   const slug = String(data.slug || data.id || (typeof getCardSlug === 'function' ? getCardSlug() : '') || '');
-  const pageUrl = (data.page && data.page.on && slug) ? '/' + slug.split('/').map(encodeURIComponent).join('/') + '/page' : '';
+  const base = slug ? '/' + slug.split('/').map(encodeURIComponent).join('/') : '';
+  const pageUrl = !base ? '' : (data.ml && data.ml.on ? base + '/links' : (data.page && data.page.on ? base + '/page' : ''));
   const nSns = Object.keys(have).length, nLinks = (data.links || []).filter((l) => l && l.url).length, nTags = (data.moatTags || []).length;
   const stat = (label, val, href) => `<a class="bp-st" ${href ? `href="${escHtml(href)}" onclick="event.stopPropagation()"` : 'href="#" onclick="event.preventDefault(); event.stopPropagation(); document.getElementById(\'leadModal\').classList.add(\'active\');"'}><span>${escHtml(label)}</span><b>${escHtml(val)}</b></a>`;
   const icons = SPARSE_SNS.map((type) => {
