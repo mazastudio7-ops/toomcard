@@ -31,10 +31,6 @@
     "label": "TOOMCARD 바로가기",
     "icon": "sparkles"
   },
-  "affiliateAction": {
-    "url": "https://link.coupang.com/a/hU0XFYJxfg",
-    "label": "추천 아이템 / 파트너 링크 🛍️"
-  },
   "socials": [
     {
       "type": "kakao",
@@ -64,5 +60,6 @@
     "ogTitle": "Andrew K 대표 (CEO) | MAZA",
     "ogDescription": "AI 자동화 & 디지털 자산의 새로운 기준 | MAZA 3D 디지털 명함",
     "ogImage": "https://toomcard.com/assets/maza_card_minimal.jpg"
-  }
+  },
+  "familyPromo": true
 }

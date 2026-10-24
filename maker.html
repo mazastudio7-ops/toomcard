@@ -510,7 +510,10 @@
           <input class="input" id="fTags" placeholder="브랜딩, 디자인, 컨설팅">
           <small class="field-hint" data-i18n="maker.tags_hint">전화번호 아래에 작은 알약 모양으로 나와요. 예: 일러스트, 사진, 여행</small>
         </div>
-        <div class="field"><label data-i18n="maker.website">웹사이트</label><input class="input" id="fWebsite" type="url" placeholder="https://"></div>
+        <div class="field"><label data-i18n="maker.website">홈페이지 · 블로그 주소</label><input class="input" id="fWebsite" type="url" placeholder="https://" data-i18n-placeholder="maker.website_ph"><p class="photo-off" data-i18n="maker.website_note">뒷면에 "홈페이지" 버튼으로 나와요.</p></div>
+        <div class="field"><label><span data-i18n="maker.ad">홍보 링크</span> <span style="font-weight:600;opacity:.6;" data-i18n="common.optional">선택</span></label>
+          <div style="display:flex; gap:8px;"><input class="input" id="fAdLabel" maxlength="30" placeholder="예: 이달의 추천 상품" data-i18n-placeholder="maker.ad_label_ph" style="flex:0 0 42%"><input class="input" id="fAdUrl" type="url" placeholder="https://" style="flex:1"></div>
+          <p class="photo-off" data-i18n="maker.ad_note">명함 아래에 작은 띠로 나와요. 쿠팡 파트너스 링크, 이벤트 페이지, 내 멀티링크 등 무엇이든 돼요.</p></div>
         <div class="field">
           <label data-i18n="maker.social">소셜 채널 (최대 2개)</label>
           <div class="row-social">
@@ -681,8 +684,14 @@
 
       <!-- 3-1. 로고 엠블럼 -->
       <section class="section" id="secLogo" data-tab="logo" data-side="back">
-        <div class="section-title"><i data-lucide="badge-check"></i><span data-i18n="maker.sec_logo">로고 엠블럼</span></div>
-        <p class="section-hint" data-i18n="maker.emblem_hint">이름이나 로고를 진짜 금속 엠블럼처럼 만들어 뒷면에 달아요.</p>
+        <div class="section-title" style="margin-top:0"><i data-lucide="image-plus"></i><span data-i18n="maker.sec_mylogo">내 로고 · 프로필 사진</span></div>
+        <p class="section-hint" data-i18n="maker.mylogo_hint">올리면 뒷면 위쪽에 바로 보여요. 움직이는 GIF·WebP도 그대로 움직여요 (3MB 이하).</p>
+        <div class="field"><input type="file" id="logoFile" accept="image/*" class="input" style="padding-top:8px;"></div>
+        <div class="field"><label data-i18n="maker.logo_shape">로고 모양</label><div class="chips" id="logoShapeChips"><button class="chip" type="button" data-shape="" aria-pressed="true" data-i18n="maker.logo_shape_auto">자동</button><button class="chip" type="button" data-shape="square" aria-pressed="false" data-i18n="maker.logo_shape_square">사각</button><button class="chip" type="button" data-shape="circle" aria-pressed="false" data-i18n="maker.logo_shape_circle">원</button></div></div>
+        <div class="toggle"><span data-i18n="maker.show_logo">앞면에도 로고 표시</span><button class="switch" id="logoSwitch" role="switch" aria-checked="false"></button></div>
+        <div class="hr"></div>
+        <div class="section-title"><i data-lucide="badge-check"></i><span data-i18n="maker.sec_logo">금속 엠블럼</span></div>
+        <p class="section-hint" data-i18n="maker.emblem_hint">로고가 없을 때 이름 이니셜로 금속 엠블럼을 만들어 뒷면에 달아요. 로고를 올리면 자동으로 꺼져요.</p>
         <div class="toggle"><span data-i18n="maker.emblem_on">엠블럼 쓰기</span><button class="switch" id="emblemSwitch" role="switch" aria-checked="true"></button></div>
         <div id="emblemControls" style="display:flex; flex-direction:column; gap:14px;">
           <div class="field">
@@ -725,11 +734,6 @@
             </div></div>
         </div>
         <button type="button" class="btn-secondary" id="gifBtn" style="margin-top:2px"><i data-lucide="download"></i><span data-i18n="maker.gif_save">로고를 GIF로 저장</span></button>
-        <p class="photo-off" data-i18n="maker.gif_note">카톡 프로필·인스타·유튜브에 올려 보세요. 움직이는 로고가 됩니다.</p>
-        <div class="hr"></div>
-        <div class="toggle"><span data-i18n="maker.show_logo">앞면에도 로고 표시</span><button class="switch" id="logoSwitch" role="switch" aria-checked="false"></button></div>
-        <div class="field"><label data-i18n="maker.logo_upload">로고 / 프로필 사진 (선택)</label><input type="file" id="logoFile" accept="image/*" class="input" style="padding-top:8px;"><p class="photo-off" data-i18n="maker.logo_anim_hint">움직이는 GIF·WebP도 그대로 움직여요 (3MB 이하).</p></div>
-        <div class="field"><label data-i18n="maker.logo_shape">로고 모양</label><div class="chips" id="logoShapeChips"><button class="chip" type="button" data-shape="" aria-pressed="true" data-i18n="maker.logo_shape_auto">자동</button><button class="chip" type="button" data-shape="square" aria-pressed="false" data-i18n="maker.logo_shape_square">사각</button><button class="chip" type="button" data-shape="circle" aria-pressed="false" data-i18n="maker.logo_shape_circle">원</button></div></div>
         <div class="hr"></div>
         <button type="button" class="btn-secondary" onclick="openOrderModal()"><i data-lucide="sparkles"></i><span data-i18n="maker.order_btn">내 로고 3D로 제작 신청</span></button>
         <p class="photo-off" data-i18n="maker.order_note">전문 디자이너가 움직이는 3D 로고(GIF·영상)를 만들어 드려요. 견적은 신청 후 안내해요.</p>
@@ -1445,6 +1449,8 @@
       card.moatTags = $('fTags').value.split(',').map((s) => s.trim()).filter(Boolean).slice(0, 3);
       const web = $('fWebsite').value.trim();
       card.primaryAction = web ? { url: web, label: t('common.website'), icon: 'globe' } : null;
+      const adUrl = $('fAdUrl').value.trim();
+      card.affiliateAction = adUrl ? { url: adUrl, label: $('fAdLabel').value.trim().slice(0, 30) || t('maker.ad_default') } : null;
       card.socials = [['fSocialType', 'fSocialUrl'], ['fSocial2Type', 'fSocial2Url']]
         .map(([ty, u]) => ({ type: $(ty).value, url: $(u).value.trim(), label: $(ty).selectedOptions[0].text }))
         .concat([...document.querySelectorAll('#extraSns .sns-row')].map((r) => ({ type: r.querySelector('select').value, url: r.querySelector('input').value.trim(), label: r.querySelector('select').selectedOptions[0].text })))
@@ -1794,7 +1800,7 @@
     const ANIM_LOGO_MAX = 700 * 1024;   // 움직이는 로고 최대 크기 (카드 데이터에 함께 저장되므로 작게)
     $('logoFile').addEventListener('change', (e) => {
       const f = e.target.files[0]; if (!f) return;
-      const put = (dataUrl) => { card.logo = { src: dataUrl, alt: card.company }; card.avatar = dataUrl; setLogo(true); render(); };
+      const put = (dataUrl) => { card.logo = { src: dataUrl, alt: card.company }; card.avatar = dataUrl; card.emblem.on = false; syncEmblemUI(); setLogo(true); render(true); setTimeout(() => flip('show_back'), 450); toast(t('maker.logo_shown')); };
       // 움직이는 로고(GIF·WebP)는 캔버스를 거치면 첫 장면으로 멈춘다. 용량이 작으면 원본 그대로 쓴다.
       if (/^image\/(gif|webp|apng)$/.test(f.type)) {
         if (f.size > ANIM_LOGO_MAX) {
@@ -2519,6 +2525,7 @@
       $('fRegionSido').value = (c.region && c.region.sido) || ''; $('fRegionCity').value = (c.region && c.region.city) || ''; $('fForest').checked = !!(c.region && c.region.forest); $('fIndustry').value = c.industry || ''; $('fIndustryText').value = c.industryText || ''; $('fIndustryText').hidden = c.industry !== 'other';
       $('fSlogan').value = c.slogan || ''; $('fPhone').value = c.phone || ''; $('fEmail').value = c.email || '';
       $('fWebsite').value = (c.primaryAction && c.primaryAction.url) || '';
+      $('fAdUrl').value = (c.affiliateAction && c.affiliateAction.url) || ''; $('fAdLabel').value = (c.affiliateAction && c.affiliateAction.label) || '';
       const ss = (c.socials || []).filter((s) => s.url);
       if (ss[0]) { $('fSocialType').value = ss[0].type; $('fSocialUrl').value = ss[0].url; }
       if (ss[1]) { $('fSocial2Type').value = ss[1].type; $('fSocial2Url').value = ss[1].url; }

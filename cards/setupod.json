@@ -33,10 +33,6 @@
     "label": "공식 웹사이트",
     "icon": "sparkles"
   },
-  "affiliateAction": {
-    "url": "https://link.coupang.com/a/hU0XFYJxfg",
-    "label": "추천 아이템 / 파트너 링크 🛍️"
-  },
   "socials": [
     {
       "type": "kakao",
@@ -68,5 +64,6 @@
     "ogTitle": "Andrew K 대표 | SETUPOD",
     "ogDescription": "내 도메인에 즉시 연결하는 턴키 디지털 비즈니스 플랫폼 | SETUPOD 공식 3D 디지털 명함",
     "ogImage": "https://toomcard.com/assets/setupod_card_minimal.jpg"
-  }
+  },
+  "familyPromo": true
 }

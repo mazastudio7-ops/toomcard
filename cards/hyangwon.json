@@ -31,10 +31,6 @@
     "label": "공식 웹사이트",
     "icon": "globe"
   },
-  "affiliateAction": {
-    "url": "https://link.coupang.com/a/hU0XFYJxfg",
-    "label": "추천 아이템 / 파트너 링크 🛍️"
-  },
   "socials": [
     {
       "type": "kakao",
@@ -66,5 +62,6 @@
     "ogTitle": "이향원 이사(Director) | TOOMCARD 3D 디지털 명함",
     "ogDescription": "종이 명함의 시대를 끝내는 살아 움직이는 3D 스마트 명함 · 탭하여 연락처 저장 및 프로필 확인",
     "ogImage": "https://toomcard.com/assets/toomcard_og_hyangwon.jpg"
-  }
+  },
+  "familyPromo": true
 }

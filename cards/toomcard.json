@@ -59,5 +59,6 @@
     "ogTitle": "TOOMCARD 공식 카드",
     "ogDescription": "오늘의 짧은 만남을 내일의 거대한 비즈니스로 잇는 스마트 카드 | TOOMCARD",
     "ogImage": "/assets/toomcard_front_plate.png"
-  }
+  },
+  "familyPromo": true
 }

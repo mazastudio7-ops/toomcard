@@ -263,6 +263,7 @@
         <button type="button" class="lb-btn" id="linkCopy" data-k="copy">복사</button>
         <button type="button" class="lb-btn ghost" id="renBtn" data-k="rn">링크 주소 바꾸기</button>
       </div>
+      <div class="linkbox" id="addonBox" hidden></div>
       <div class="ptabs" id="ptabs" role="tablist">
         <button type="button" class="ptab on" data-pane="sum"><span data-k="pSum">요약</span></button>
         <button type="button" class="ptab" data-pane="leads"><span data-k="pLeads">문의</span><b class="pbadge" id="tabLeadN" hidden></b></button>
@@ -464,6 +465,11 @@
       $('pcName').textContent = c.name || ''; $('pcRole').textContent = c.role || '';
       $('cardLink').href = `/${slug}`;
       $('linkUrl').textContent = 'toomcard.com/' + slug; $('linkUrl').href = `/${slug}`;
+      // 붙여 둔 미니홈·링크 모음은 여기서 바로 연다 (어디서 보는지 몰라 헤매지 않게)
+      const cc = cardOf(main), ab = $('addonBox'), addons = [];
+      if ((cc.page && cc.page.on) || cc.kind === 'minihome') addons.push(`<a class="lb-btn ghost" href="/${slug}${cc.kind === 'minihome' ? '' : '/page'}" target="_blank" rel="noopener">🏠 ${T('pmHomeT')} · toomcard.com/${slug}${cc.kind === 'minihome' ? '' : '/page'}</a>`);
+      if ((cc.ml && cc.ml.on) || cc.kind === 'multilink') addons.push(`<a class="lb-btn ghost" href="/${slug}${cc.kind === 'multilink' ? '' : '/links'}" target="_blank" rel="noopener">🔗 ${T('pmMlT')} · toomcard.com/${slug}${cc.kind === 'multilink' ? '' : '/links'}</a>`);
+      ab.innerHTML = addons.join(''); ab.hidden = !addons.length;
       $('mName').textContent = c.name || T('noname');
       $('mRole').textContent = [c.role, c.company].filter(Boolean).join(' · ');
       $('editBtn').href = `/maker?edit=${encodeURIComponent(slug)}`;

@@ -1613,6 +1613,7 @@ function populateCardFromCloud(cloud, company) {
     icon: 'globe'
   };
   const affiliateAction = innerCard.affiliateAction || null;
+  const familyPromo = !!innerCard.familyPromo;
   const socials = innerCard.socials || [
     { type: 'kakao', url: 'https://open.kakao.com', label: '카카오톡 상담', color: '#ffd978' },
     { type: 'instagram', url: 'https://instagram.com', label: '인스타그램', color: '#f472b6' }
@@ -1635,6 +1636,7 @@ function populateCardFromCloud(cloud, company) {
     moatTags: moatTags,
     primaryAction: primaryAction,
     affiliateAction: affiliateAction,
+    familyPromo: familyPromo,
     socials: socials,
     logo: innerCard.logo || {
       src: p.avatar_url || '/assets/logo_toomcard_hd.webp',
@@ -1877,7 +1879,16 @@ function renderFamilyPromo(data) {
   const link = document.getElementById('affiliateBannerLink');
   const label = document.getElementById('affiliateBannerLabel');
   clearInterval(familyTimer);
-  if (!box || !link || !label || !(data.affiliateAction || data.promo)) { if (box) box.style.display = 'none'; return; }
+  if (!box || !link || !label) return;
+  if (!data.familyPromo) {
+    // 사용자 카드: 본인이 넣은 홍보 링크(쿠팡 파트너스·이벤트·멀티링크)를 그대로 보여 준다
+    const ad = data.affiliateAction;
+    if (!ad || !ad.url) { box.style.display = 'none'; return; }
+    const ico = link.querySelector('span'); if (ico) ico.textContent = '🔗';
+    const tg = link.querySelector('div:last-child span'); if (tg) tg.textContent = 'AD';
+    link.href = safeHref(ad.url); link.rel = 'noopener noreferrer sponsored'; label.textContent = ad.label || t('card.ad_default');
+    box.style.display = 'block'; return;
+  }
   const lang = (document.documentElement.lang || 'ko').slice(0, 2);
   const icon = link.querySelector('span');
   const tag = link.querySelector('div:last-child span');

@@ -59,5 +59,6 @@
     "ogTitle": "Andrew K | TOOMUS 대표",
     "ogDescription": "무한한 가능성을 연결하는 비즈니스 플랫폼 | TOOMUS 공식 디지털 명함",
     "ogImage": "/assets/toomus_card_minimal.jpg"
-  }
+  },
+  "familyPromo": true
 }
