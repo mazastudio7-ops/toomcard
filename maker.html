@@ -944,7 +944,7 @@
       socials: [], links: [], backLayout: 'default',
       star: { on: false, tag: '' }, privacy: { phone: false, email: false },
       emblem: { on: true, source: 'initials', text: '', img: '', material: 'gold', shape: 'coin', motion: 'sweep' },
-      front: { bg: { type: 'image', src: '/assets/toomcard_front_plate.jpg' }, text: { layout: 'none', showLogo: false, tone: 'auto' }, finish: 'metal', qr: 'subtle', frame: 'full', frameTone: 'dark', look: 'clean' }
+      front: { bg: { type: 'image', src: '/assets/plate_onyx.jpg' }, text: { layout: 'bottom-left', showLogo: false, tone: 'auto' }, finish: 'metal', qr: 'subtle', frame: 'full', frameTone: 'dark', look: 'clean' }
     };
     let card = JSON.parse(JSON.stringify(DEFAULT_CARD));
     // 일반(personal) / 비즈니스(business): 입력칸 이름·필수 항목·뒷면 구성이 달라진다
@@ -980,13 +980,24 @@
 
     const DEFAULT_SOLID = '#3b1a6e';
     const SOLID_COLORS = ['#1c1c22', '#0e1a3d', '#3b1a6e', '#064e3b', '#831843', '#c9b79c', '#f4f4f6', '#e9c46a', '#d4a373', '#e76f8e', '#3a86ff', '#2a9d8f', '#8d99ae'];
+    // 누구나 쓰는 플레이트 (scripts/make-plates.js 로 그린다) + 단색.
+    // 브랜드 플레이트(brand: true)는 관리자, 또는 이미 그 플레이트로 만든 카드를 고칠 때만 보인다.
     const CURATED_BG = [
-      { id: 'toomcard', type: 'image', src: '/assets/toomcard_front_plate.jpg', tag: 'METAL' },
-      { id: 'toomus',   type: 'image', src: '/assets/toomus_front_plate.jpg',   tag: 'GOLD' },
-      { id: 'setupod',  type: 'image', src: '/assets/setupod_front_plate.jpg',  tag: 'NEON' },
-      { id: 'maza',     type: 'image', src: '/assets/maza_front_plate.jpg',     tag: 'VIOLET' },
-      { id: 'solid',    type: 'color', color: DEFAULT_SOLID, shade: 0, soft: true, tag: 'SOLID' },
+      { id: 'onyx',      type: 'image', src: '/assets/plate_onyx.jpg',      tag: 'ONYX' },
+      { id: 'champagne', type: 'image', src: '/assets/plate_champagne.jpg', tag: 'GOLD' },
+      { id: 'aurora',    type: 'image', src: '/assets/plate_aurora.jpg',    tag: 'AURORA' },
+      { id: 'marble',    type: 'image', src: '/assets/plate_marble.jpg',    tag: 'MARBLE' },
+      { id: 'forest',    type: 'image', src: '/assets/plate_forest.jpg',    tag: 'FOREST' },
+      { id: 'rose',      type: 'image', src: '/assets/plate_rose.jpg',      tag: 'ROSE' },
+      { id: 'ocean',     type: 'image', src: '/assets/plate_ocean.jpg',     tag: 'OCEAN' },
+      { id: 'solid',     type: 'color', color: DEFAULT_SOLID, shade: 0, soft: true, tag: 'SOLID' },
+      { id: 'toomcard',  type: 'image', src: '/assets/toomcard_front_plate.jpg', tag: 'TOOMCARD', brand: true },
+      { id: 'toomus',    type: 'image', src: '/assets/toomus_front_plate.jpg',   tag: 'TOOMUS', brand: true },
+      { id: 'setupod',   type: 'image', src: '/assets/setupod_front_plate.jpg',  tag: 'SETUPOD', brand: true },
+      { id: 'maza',      type: 'image', src: '/assets/maza_front_plate.jpg',     tag: 'MAZA', brand: true },
     ];
+    let ownPlateId = '';   // 고치는 카드가 원래 쓰던 브랜드 플레이트 (그 카드에서는 계속 보인다)
+    const plateOk = (b) => !b.brand || isAdminUser || b.id === ownPlateId;
     const THEMES = [
       ['obsidian', '옵시디언', '#475569'], ['navy-gold', '골드 네이비', '#ffd54f'], ['violet', '바이올렛', '#a855f7'],
       ['white-minimal', '화이트', '#ffffff'], ['emerald', '에메랄드', '#10b981'], ['frosted-acrylic', '프로스티드', '#38bdf8'],
@@ -995,12 +1006,25 @@
     // 디자인(캐러셀·시작점): 배경 + 글자 위치 + 마감 + 뒷면 색을 한 번에.
     // 브랜드 플레이트 3장은 샘플이고, 단색은 색·밝기를 마음대로 바꾼다.
     const DESIGNS = [
-      { key: 'toomcard', label: 'TOOMCARD', bgId: 'toomcard', text: 'none', finish: 'metal', theme: 'obsidian', logo: '/assets/logo_toomcard_hd.gif' },
-      { key: 'toomus',   label: 'TOOMUS',   bgId: 'toomus',   text: 'none', finish: 'metal', theme: 'navy-gold', logo: '/assets/logo_toomus.gif' },
-      { key: 'setupod',  label: 'SETUPOD',  bgId: 'setupod',  text: 'none', finish: 'glass', theme: 'violet', logo: '/assets/logo_setupod.gif' },
-      { key: 'maza',     label: 'MAZA',     bgId: 'maza',     text: 'none', finish: 'metal', theme: 'violet', logo: '/assets/logo_maza.gif' },
-      { key: 'solid',    labelKey: 'maker.solid', bgId: 'solid', text: 'bottom-left', finish: 'metal', theme: 'obsidian' },
+      { key: 'onyx',      label: 'ONYX',      bgId: 'onyx',      text: 'bottom-left',   finish: 'metal', theme: 'obsidian' },
+      { key: 'champagne', label: 'CHAMPAGNE', bgId: 'champagne', text: 'bottom-left',   finish: 'metal', theme: 'warm-sand' },
+      { key: 'aurora',    label: 'AURORA',    bgId: 'aurora',    text: 'center',        finish: 'glass', theme: 'violet' },
+      { key: 'marble',    label: 'MARBLE',    bgId: 'marble',    text: 'bottom-left',   finish: 'matte', theme: 'white-minimal' },
+      { key: 'forest',    label: 'FOREST',    bgId: 'forest',    text: 'bottom-left',   finish: 'metal', theme: 'emerald' },
+      { key: 'rose',      label: 'ROSE',      bgId: 'rose',      text: 'bottom-center', finish: 'glass', theme: 'rosegold' },
+      { key: 'ocean',     label: 'OCEAN',     bgId: 'ocean',     text: 'bottom-left',   finish: 'metal', theme: 'navy-gold' },
+      { key: 'solid',     labelKey: 'maker.solid', bgId: 'solid', text: 'bottom-left', finish: 'metal', theme: 'obsidian' },
+      { key: 'toomcard', label: 'TOOMCARD', bgId: 'toomcard', text: 'none', finish: 'metal', theme: 'obsidian', logo: '/assets/logo_toomcard_hd.gif', brand: true },
+      { key: 'toomus',   label: 'TOOMUS',   bgId: 'toomus',   text: 'none', finish: 'metal', theme: 'navy-gold', logo: '/assets/logo_toomus.gif', brand: true },
+      { key: 'setupod',  label: 'SETUPOD',  bgId: 'setupod',  text: 'none', finish: 'glass', theme: 'violet', logo: '/assets/logo_setupod.gif', brand: true },
+      { key: 'maza',     label: 'MAZA',     bgId: 'maza',     text: 'none', finish: 'metal', theme: 'violet', logo: '/assets/logo_maza.gif', brand: true },
     ];
+    function markAdmin() {   // 관리자: 브랜드 플레이트·로고까지 보여 준다
+      if (isAdminUser) return;
+      isAdminUser = true; document.body.classList.add('is-admin');
+      renderBgGrid(); renderStartChips(); renderCarousel();
+    }
+    const designOk = (d) => !d.brand || isAdminUser || d.bgId === ownPlateId;
     // 예전 주소(?preset=...)와 templates.html 링크 호환: 단색 + 마감 + 뒷면 색으로 바꿔 연다
     const LEGACY_PRESETS = {
       obsidian:          { color: '#1c1c22', text: 'bottom-left',   finish: 'metal', theme: 'obsidian' },
@@ -1044,7 +1068,7 @@
       if (name.length < ID_MIN) { slugOk = false; say('warn', t('maker.slug_short')); return false; }
       const seq = ++slugSeq;
       try { await ensureCloud(); } catch (e) { slugOk = true; return true; }
-      if (!adminOpt) { adminOpt = true; try { const r = await supabaseClient.rpc('tc_is_admin'); isAdminUser = !!(r && r.data === true); if (isAdminUser) document.body.classList.add('is-admin'); } catch (e) {} }
+      if (!adminOpt) { adminOpt = true; try { const r = await supabaseClient.rpc('tc_is_admin'); if (r && r.data === true) markAdmin(); } catch (e) {} }
       let me = null; try { const u = await getCurrentUser(); me = u && u.id; } catch (e) {}
       const [{ data: pods }, { data: rs }] = await Promise.all([
         supabaseClient.from('pods').select('slug,user_id').ilike('slug', name),
@@ -1492,7 +1516,7 @@
     function flip(action) { if (action === 'show_back' || action === 'show_front') { curFace = action === 'show_back' ? 'back' : 'front'; markFace(); } if (typeof setSide === 'function' && innerWidth > 980 && (action === 'show_back' || action === 'show_front')) setSide(action === 'show_back' ? 'back' : 'front', true); const f = $('preview'); if (f && f.contentWindow) f.contentWindow.postMessage({ action }, '*'); }
 
     /* ── 배경 ───────────────────────────────────────── */
-    let currentBgId = 'toomcard';
+    let currentBgId = 'onyx';
     function thumbStyle(bg) {
       if (bg.type === 'image') return `background-image:url('${bg.src}')`;
       if (bg.type === 'gradient') return `background:linear-gradient(${bg.angle}deg, ${bg.from}, ${bg.to})`;
@@ -1503,7 +1527,7 @@
     function renderBgGrid() {
       const grid = $('bgGrid');
       grid.querySelectorAll('.bg-thumb:not(.upload)').forEach((n) => n.remove());
-      CURATED_BG.forEach((item) => {
+      CURATED_BG.filter(plateOk).forEach((item) => {
         const bg = item.id === 'solid' ? Object.assign({ id: 'solid', tag: 'SOLID' }, solidMemory || makeSolid(DEFAULT_SOLID)) : item;
         const d = document.createElement('div');
         d.className = 'bg-thumb'; d.setAttribute('style', thumbStyle(bg)); d.dataset.id = bg.id;
@@ -1811,10 +1835,10 @@
         box.appendChild(b);
       });
     }
-    const START_ALIAS = { 'toomcard-plate': 'toomcard', editorial: 'white-minimal' };
+    const START_ALIAS = { 'toomcard-plate': 'onyx', toomcard: 'onyx', editorial: 'white-minimal' };
     function applyStart(key) {
       key = START_ALIAS[key] || key;
-      const d = DESIGNS.find((x) => x.key === key);
+      const d = DESIGNS.filter(designOk).find((x) => x.key === key);
       const legacy = LEGACY_PRESETS[key];
       const s = d || legacy; if (!s) return;
       if (d && d.key === 'solid') setBg(solidMemory || makeSolid(DEFAULT_SOLID), 'solid');
@@ -1875,7 +1899,7 @@
     const FRAMES = ['full', 'rim', 'matte', 'arch', 'round', 'polaroid', 'film', 'magazine'];
     const BAND_FRAMES = ['matte', 'arch', 'round', 'polaroid', 'film'];   // 사진 밑에 이름 띠가 생기는 틀
     function designs() {
-      const list = DESIGNS.map((d) => ({
+      const list = DESIGNS.filter(designOk).map((d) => ({
         key: d.key, label: d.labelKey ? t(d.labelKey) : d.label,
         bg: d.key === 'solid' ? (solidMemory || makeSolid(DEFAULT_SOLID)) : CURATED_BG.find((b) => b.id === d.bgId)
       }));
@@ -2475,6 +2499,7 @@
       if (card.front.bg.type === 'gradient') card.front.bg = { type: 'color', color: card.front.bg.from || DEFAULT_SOLID, shade: 0, soft: true };
       const knownPlate = CURATED_BG.find((b) => b.type === 'image' && b.src === card.front.bg.src);
       currentBgId = card.front.bg.type === 'color' ? 'solid' : (knownPlate ? knownPlate.id : 'upload');
+      ownPlateId = knownPlate && knownPlate.brand ? knownPlate.id : ''; renderBgGrid();
       if (currentBgId === 'solid') solidMemory = card.front.bg;
       card.front = Object.assign({ frame: 'full', frameTone: 'dark', look: 'clean' }, card.front);
       setBackLayout(c.backLayout); setExtraLinks(c.links);
@@ -2488,7 +2513,15 @@
       pressOnly($('finishChips'), 'finish', card.front.finish); $('qrSwitch').setAttribute('aria-checked', card.front.qr === 'subtle' ? 'true' : 'false');
       if (currentBgId === 'upload') { uploadedPhoto = card.front.bg.src; photoBg = card.front.bg; sugOrig = null; makeSuggestions('photo'); }
       designIdx = Math.max(0, designs().findIndex((d) => d.key === (currentBgId === 'upload' ? 'frame:' + card.front.frame : currentBgId)));
-      renderBgGrid(); renderThemeChips(); renderStartChips(); renderCarousel(); syncAdjustUI(); render();
+      renderBgGrid(); renderThemeChips(); renderStartChips(); renderCarousel(); syncAdjustUI();
+    (async () => {   // 관리자만 브랜드 플레이트·로고(TOOMCARD·TOOMUS·SETUPOD·MAZA)를 고를 수 있다
+      try {
+        if (typeof supabaseClient === 'undefined' || !supabaseClient) return;
+        const { data: { session } } = await supabaseClient.auth.getSession(); if (!session) return;
+        const r = await supabaseClient.rpc('tc_is_admin');
+        if (r && r.data === true) { adminOpt = true; markAdmin(); }
+      } catch (e) {}
+    })(); render();
     }
 
     /* ── 유틸 ───────────────────────────────────────── */
@@ -2551,7 +2584,7 @@
       const startTab = params.get('tab');
       if (params.get('nfc')) setTimeout(openNfcWait, 800);
       const sample = params.get('sample');
-      const SAMPLES = { creator: { src: '/assets/sample_profile_creator.jpg', frame: 'arch' }, ceo: { src: '/assets/sample_profile_ceo.jpg', frame: 'polaroid', tone: 'light' }, tech: { src: '/assets/sample_profile_tech.jpg', frame: 'magazine' }, film: { src: '/assets/sample_profile_tech.jpg', frame: 'film' } };
+      const SAMPLES = { creator: { src: '/assets/sample_profile_creator.jpg', frame: 'arch' }, ceo: { src: '/assets/sample_profile_ceo.jpg', frame: 'polaroid', tone: 'light' }, tech: { src: '/assets/sample_profile_tech.jpg', frame: 'magazine' }, film: { src: '/assets/sample_profile_film.jpg', frame: 'film' } };
       const goTab = (n) => { if (!n) return; if (isMobile()) { currentTab = ''; openTab(n); } else if (typeof setSide === 'function') setSide(['logo', 'finish', 'publish', 'info'].includes(n) ? 'back' : 'front'); };
       const backFromLogin = /access_token|refresh_token/.test(location.hash) || params.has('code');
       const draft = (!edit && !sample && !params.get('preset')) ? loadDraft() : null;

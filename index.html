@@ -405,17 +405,17 @@
       <button class="chip" data-f="color" aria-pressed="false" data-i18n="home.cat_color">단색</button>
     </div>
     <div class="grid" id="grid">
-      <a class="tile" data-cat="brand" href="/maker.html?preset=toomcard" style="background-image:url(/assets/toomcard_front_plate.jpg)"><i class="go">→</i></a>
+      <a class="tile" data-cat="brand" href="/maker.html?preset=onyx" style="background-image:url(/assets/plate_onyx.jpg)"><span class="nm">정하린</span><i class="go">→</i></a>
       <a class="tile fr-arch" data-cat="photo" href="/maker?sample=creator"><span class="ph" style="background-image:url(/assets/sample_profile_creator.jpg)"></span><span class="nm">김하늘</span><i class="go">→</i></a>
-      <a class="tile" data-cat="brand" href="/maker.html?preset=setupod" style="background-image:url(/assets/setupod_front_plate.jpg)"><i class="go">→</i></a>
+      <a class="tile" data-cat="brand" href="/maker.html?preset=aurora" style="background-image:url(/assets/plate_aurora.jpg)"><span class="nm">Noah Kim</span><i class="go">→</i></a>
       <a class="tile" data-cat="color" href="/maker.html?preset=obsidian" style="background:linear-gradient(160deg,#1c1c22,color-mix(in srgb,#1c1c22 55%,#000))"><b class="ini">A</b><span class="nm">Alex Rivera</span><i class="go">→</i></a>
-      <a class="tile" data-cat="brand" href="/maker.html?preset=maza" style="background-image:url(/assets/maza_front_plate.jpg)"><i class="go">→</i></a>
-      <a class="tile fr-polaroid" data-cat="photo" href="/maker?sample=ceo"><span class="ph" style="background-image:url(/assets/sample_profile_ceo.jpg)"></span><span class="nm">Daniel Park</span><i class="go">→</i></a>
-      <a class="tile" data-cat="brand" href="/maker.html?preset=toomus" style="background-image:url(/assets/toomus_front_plate.jpg)"><i class="go">→</i></a>
+      <a class="tile" data-cat="brand" href="/maker.html?preset=champagne" style="background-image:url(/assets/plate_champagne.jpg)"><span class="nm">최유나</span><i class="go">→</i></a>
+      <a class="tile fr-polaroid" data-cat="photo" href="/maker?sample=ceo"><span class="ph" style="background-image:url(/assets/sample_profile_ceo.jpg)"></span><span class="nm">박도윤</span><i class="go">→</i></a>
+      <a class="tile" data-cat="brand" href="/maker.html?preset=forest" style="background-image:url(/assets/plate_forest.jpg)"><span class="nm">Jonas Becker</span><i class="go">→</i></a>
       <a class="tile" data-cat="color" href="/maker.html?preset=violet" style="background:linear-gradient(160deg,#3b1a6e,color-mix(in srgb,#3b1a6e 55%,#000))"><b class="ini">M</b><span class="nm">Mina Choi</span><i class="go">→</i></a>
-      <a class="tile fr-magazine" data-cat="photo" href="/maker?sample=tech" style="background-image:url(/assets/sample_profile_tech.jpg)"><b class="mast">TOOMCARD</b><span class="nm">Jisoo Han</span><i class="go">→</i></a>
+      <a class="tile fr-magazine" data-cat="photo" href="/maker?sample=tech" style="background-image:url(/assets/sample_profile_tech.jpg)"><b class="mast">TOOMCARD</b><span class="nm">한지훈</span><i class="go">→</i></a>
       <a class="tile" data-cat="color" href="/maker.html?preset=navy-gold" style="background:linear-gradient(160deg,#0e1a3d,color-mix(in srgb,#0e1a3d 55%,#000))"><b class="ini">L</b><span class="nm">Lukas Weber</span><i class="go">→</i></a>
-      <a class="tile fr-film" data-cat="photo" href="/maker?sample=film"><span class="ph" style="background-image:url(/assets/sample_profile_tech.jpg)"></span><span class="nm">Minho Lee</span><i class="go">→</i></a>
+      <a class="tile fr-film" data-cat="photo" href="/maker?sample=film"><span class="ph" style="background-image:url(/assets/sample_profile_film.jpg)"></span><span class="nm">이서연</span><i class="go">→</i></a>
       <a class="tile" data-cat="color" href="/maker.html?preset=emerald" style="background:linear-gradient(160deg,#064e3b,color-mix(in srgb,#064e3b 55%,#000))"><b class="ini">S</b><span class="nm">Sora Kim</span><i class="go">→</i></a>
       <a class="tile light" data-cat="color" href="/maker.html?preset=warm-sand" style="background:linear-gradient(160deg,#c9b79c,color-mix(in srgb,#c9b79c 55%,#000))"><b class="ini">E</b><span class="nm">Emma Hoffmann</span><i class="go">→</i></a>
     </div>
@@ -477,11 +477,11 @@
       window.h2T = function (k, f) { try { return window.i18n ? i18n.t(k) : f; } catch (e) { return f; } };
       var P = '<span class="ph" style="background-image:url(/assets/';
       var LOOKS = [
-        { n: 'TOOMCARD', cls: '', st: 'background-image:url(/assets/toomcard_front_plate.jpg)', html: '', href: '/maker.html?preset=toomcard' },
+        { n: 'ONYX', cls: '', st: 'background-image:url(/assets/plate_onyx.jpg)', html: '<span class="nm">정하린</span>', href: '/maker.html?preset=onyx' },
         { n: '아치', cls: 'fr-arch', st: '', html: P + 'sample_profile_creator.jpg)"></span><span class="nm">김하늘</span>', href: '/maker?sample=creator' },
-        { n: '폴라로이드', cls: 'fr-polaroid', st: '', html: P + 'sample_profile_ceo.jpg)"></span><span class="nm">Daniel Park</span>', href: '/maker?sample=ceo' },
-        { n: '필름', cls: 'fr-film', st: '', html: P + 'sample_profile_tech.jpg)"></span><span class="nm">Minho Lee</span>', href: '/maker?sample=film' },
-        { n: '매거진', cls: 'fr-magazine', st: 'background-image:url(/assets/sample_profile_tech.jpg)', html: '<b class="mast">TOOMCARD</b><span class="nm">Jisoo Han</span>', href: '/maker?sample=tech' },
+        { n: '폴라로이드', cls: 'fr-polaroid', st: '', html: P + 'sample_profile_ceo.jpg)"></span><span class="nm">박도윤</span>', href: '/maker?sample=ceo' },
+        { n: '필름', cls: 'fr-film', st: '', html: P + 'sample_profile_film.jpg)"></span><span class="nm">이서연</span>', href: '/maker?sample=film' },
+        { n: '매거진', cls: 'fr-magazine', st: 'background-image:url(/assets/sample_profile_tech.jpg)', html: '<b class="mast">TOOMCARD</b><span class="nm">한지훈</span>', href: '/maker?sample=tech' },
         { n: '단색', cls: '', st: 'background:linear-gradient(160deg,#3b1a6e,color-mix(in srgb,#3b1a6e 55%,#000))', html: '<b class="ini">M</b><span class="nm">Mina Choi</span>', href: '/maker.html?preset=violet' }
       ];
       var N = LOOKS.length, cur = 0, userTouched = false, pauseUntil = 0;
@@ -546,14 +546,14 @@
       var $ = function (id) { return document.getElementById(id); };
       var P = '<span class="ph" style="background-image:url(/assets/';
       var SC = [
-        { k: 'TOOMCARD', t: '로고가 빛나는 브랜드 카드', d: '움직이는 로고와 함께 시작하는 기본 카드', cls: '', st: 'background-image:url(/assets/toomcard_front_plate.jpg)', html: '', href: '/maker.html?preset=toomcard', amb: '255,217,120' },
+        { k: 'ONYX', t: '묵직한 블랙 메탈', d: '브러시드 메탈 위에 이름만 또렷하게', cls: '', st: 'background-image:url(/assets/plate_onyx.jpg)', html: '<span class="nm">정하린</span>', href: '/maker.html?preset=onyx', amb: '200,200,215' },
         { k: '아치', t: '사진이 아치 속에 서요', d: '부드러운 곡선 프레임에 이름을 담아요', cls: 'fr-arch', st: '', html: P + 'sample_profile_creator.jpg)"></span><span class="nm">김하늘</span>', href: '/maker?sample=creator', amb: '167,139,250' },
-        { k: 'SETUPOD', t: '움직이는 로고 카드', d: '브랜드 로고에 금빛이 스치는 카드', cls: '', st: 'background-image:url(/assets/setupod_front_plate.jpg)', html: '', href: '/maker.html?preset=setupod', amb: '110,190,255' },
+        { k: 'AURORA', t: '밤하늘 오로라', d: '보랏빛·청록빛이 번지는 유리 카드', cls: '', st: 'background-image:url(/assets/plate_aurora.jpg)', html: '<span class="nm">Noah Kim</span>', href: '/maker.html?preset=aurora', amb: '110,190,255' },
         { k: '단색', t: '사진 없이도 멋지게', d: '색 하나와 이니셜만으로 완성하는 카드', cls: '', st: 'background:linear-gradient(160deg,#1c1c22,color-mix(in srgb,#1c1c22 55%,#000))', html: '<b class="ini">A</b><span class="nm">Alex Rivera</span>', href: '/maker.html?preset=obsidian', amb: '190,190,215' },
-        { k: '폴라로이드', t: '인화한 한 장처럼', d: '따뜻한 필름 감성의 사진 카드', cls: 'fr-polaroid', st: '', html: P + 'sample_profile_ceo.jpg)"></span><span class="nm">Daniel Park</span>', href: '/maker?sample=ceo', amb: '255,200,150' },
-        { k: 'MAZA', t: '브랜드 플레이트', d: '사업용으로 어울리는 묵직한 카드', cls: '', st: 'background-image:url(/assets/maza_front_plate.jpg)', html: '', href: '/maker.html?preset=maza', amb: '255,120,150' },
-        { k: '매거진', t: '잡지 표지처럼', d: '큰 사진 위에 이름이 올라가는 카드', cls: 'fr-magazine', st: 'background-image:url(/assets/sample_profile_tech.jpg)', html: '<b class="mast">TOOMCARD</b><span class="nm">Jisoo Han</span>', href: '/maker?sample=tech', amb: '120,255,200' },
-        { k: '필름', t: '영화 필름 한 컷', d: '필름 테두리가 감싸는 시네마 카드', cls: 'fr-film', st: '', html: P + 'sample_profile_tech.jpg)"></span><span class="nm">Minho Lee</span>', href: '/maker?sample=film', amb: '230,230,230' }
+        { k: '폴라로이드', t: '인화한 한 장처럼', d: '따뜻한 필름 감성의 사진 카드', cls: 'fr-polaroid', st: '', html: P + 'sample_profile_ceo.jpg)"></span><span class="nm">박도윤</span>', href: '/maker?sample=ceo', amb: '255,200,150' },
+        { k: 'CHAMPAGNE', t: '샴페인 골드', d: '사업용으로 어울리는 금빛 메탈 카드', cls: '', st: 'background-image:url(/assets/plate_champagne.jpg)', html: '<span class="nm">최유나</span>', href: '/maker.html?preset=champagne', amb: '255,217,120' },
+        { k: '매거진', t: '잡지 표지처럼', d: '큰 사진 위에 이름이 올라가는 카드', cls: 'fr-magazine', st: 'background-image:url(/assets/sample_profile_tech.jpg)', html: '<b class="mast">TOOMCARD</b><span class="nm">한지훈</span>', href: '/maker?sample=tech', amb: '120,255,200' },
+        { k: '필름', t: '영화 필름 한 컷', d: '필름 테두리가 감싸는 시네마 카드', cls: 'fr-film', st: '', html: P + 'sample_profile_film.jpg)"></span><span class="nm">이서연</span>', href: '/maker?sample=film', amb: '230,230,230' }
       ];
       var T = window.h2T || function (k, f) { return f; };
       var N = SC.length, cur = 0, el = 0, DUR = 4600, running = !reduce, visible = true, hover = false;

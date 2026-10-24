@@ -244,9 +244,9 @@
       <h1 data-k="none_t">첫 카드를 만들어 볼까요?<br><span class="gold">30초면 돼요</span></h1>
       <p class="sub" data-k="none_s">사진 한 장과 이름만 있으면 끝. 마음에 드는 모양으로 시작하세요.</p>
       <div class="starters">
-        <a href="/maker?preset=toomcard" style="background-image:url(/assets/toomcard_front_plate.jpg)"></a>
+        <a href="/maker?preset=onyx" style="background-image:url(/assets/plate_onyx.jpg)"></a>
         <a href="/maker?sample=creator" style="background-image:url(/assets/sample_profile_creator.jpg)"></a>
-        <a href="/maker?preset=setupod" style="background-image:url(/assets/setupod_front_plate.jpg)"></a>
+        <a href="/maker?preset=aurora" style="background-image:url(/assets/plate_aurora.jpg)"></a>
       </div>
       <a class="btn" href="/maker" data-k="first">내 카드 만들기</a>
     </section>
@@ -459,7 +459,7 @@
       $('pcBg').style.background = '';
       if (bg.type === 'image' && bg.src) $('pcBg').style.backgroundImage = `url('${bg.src}')`;
       else if (bg.type === 'color') $('pcBg').style.background = `linear-gradient(160deg, ${bg.color || '#3b1a6e'}, #07050d)`;
-      else $('pcBg').style.backgroundImage = `url('/assets/toomcard_front_plate.jpg')`;
+      else $('pcBg').style.backgroundImage = `url('/assets/plate_onyx.jpg')`;
       $('pcTx').hidden = plate || !(bg.type === 'image' || bg.type === 'color');
       $('pcName').textContent = c.name || ''; $('pcRole').textContent = c.role || '';
       $('cardLink').href = `/${slug}`;
@@ -471,7 +471,7 @@
       const row = $('cardsRow');
       row.innerHTML = pods.map((p) => {
         const cc = cardOf(p), bg = frontBg(cc);
-        const th = bg.type === 'image' && bg.src ? `background-image:url('${bg.src}')` : (bg.type === 'color' ? `background:linear-gradient(160deg, ${bg.color || '#3b1a6e'}, #07050d)` : `background-image:url('/assets/toomcard_front_plate.jpg')`);
+        const th = bg.type === 'image' && bg.src ? `background-image:url('${bg.src}')` : (bg.type === 'color' ? `background:linear-gradient(160deg, ${bg.color || '#3b1a6e'}, #07050d)` : `background-image:url('/assets/plate_onyx.jpg')`);
         const ini = (cc.name || p.slug || '?').trim().charAt(0).toUpperCase();
         return `<a class="mini${main && p.slug === main.slug ? ' sel' : ''}" href="#" data-slug="${p.slug}"><div class="th" style="${th}">${bg.type === 'color' ? ini : ''}</div><small>${(cc.name || p.slug)}</small></a>`;
       }).join('') + `<a class="mini add" href="/maker"><div class="th">+</div><small>${T('add')}</small></a>`;

@@ -638,19 +638,9 @@ function populateCard(data) {
   // 소셜 모달 바인딩
   renderSocialModal(data);
 
-  // 수익화 슬롯 (쿠팡 파트너스 / 추천 링크) 바인딩
-  const affContainer = document.getElementById('affiliateBannerContainer');
-  const affLink = document.getElementById('affiliateBannerLink');
-  const affLabel = document.getElementById('affiliateBannerLabel');
-  if (affContainer && affLink && data.affiliateAction && data.affiliateAction.url) {
-    affLink.href = data.affiliateAction.url;
-    if (affLabel && data.affiliateAction.label) {
-      affLabel.innerText = data.affiliateAction.label;
-    }
-    affContainer.style.display = 'block';
-  } else if (affContainer) {
-    affContainer.style.display = 'none';
-  }
+  // 패밀리 홍보 슬롯: 우리(TOOMUS) 카드에만 — 예전 쿠팡 링크(affiliateAction) 자리에 우리 사업을 돌아가며 보여 준다.
+  //   사용자 카드에는 절대 나오지 않는다 (affiliateAction 이나 promo 가 있는 카드만).
+  renderFamilyPromo(data);
 
   // Lucide Icons 다시 렌더링
   if (window.lucide) {
@@ -1871,3 +1861,37 @@ async function initCardEngine() {
 }
 
 window.addEventListener('DOMContentLoaded', initCardEngine);
+
+// TOOMUS 패밀리 홍보 (MAZA · MazaFlip · SETUPOD · 웹 플래너 · US Tools)
+const FAMILY_PROMO = [
+  { ic: '🌐', name: 'MAZA', url: 'https://mazastudio.kr', ko: '디지털 자산 빌드 & 플립', en: 'Build & flip digital assets', de: 'Digitale Assets bauen & verkaufen' },
+  { ic: '🏷️', name: 'MazaFlip', url: 'https://mazaflip.com', ko: '바로 쓰는 브랜드 도메인', en: 'Brandable domain names', de: 'Markenfähige Domains' },
+  { ic: '🚀', name: 'SETUPOD', url: 'https://setupod.com', ko: '내 도메인에 꽂는 턴키 웹 비즈니스', en: 'Turnkey web business on your domain', de: 'Schlüsselfertiges Web-Business' },
+  { ic: '🗓️', name: 'MAZA Planner', url: 'https://mazapost.com', ko: '일정·목표·할 일을 한 화면에', en: 'Plans, goals and to-dos on one screen', de: 'Termine, Ziele, To-dos auf einen Blick' },
+  { ic: '🇺🇸', name: 'MAZA US Tools', url: 'https://mazaus.com', ko: '아마존 FBA 마진·미국 세금 계산기', en: 'Amazon FBA margin & US tax calculators', de: 'Amazon-FBA- & US-Steuerrechner' }
+];
+let familyTimer = 0;
+function renderFamilyPromo(data) {
+  const box = document.getElementById('affiliateBannerContainer');
+  const link = document.getElementById('affiliateBannerLink');
+  const label = document.getElementById('affiliateBannerLabel');
+  clearInterval(familyTimer);
+  if (!box || !link || !label || !(data.affiliateAction || data.promo)) { if (box) box.style.display = 'none'; return; }
+  const lang = (document.documentElement.lang || 'ko').slice(0, 2);
+  const icon = link.querySelector('span');
+  const tag = link.querySelector('div:last-child span');
+  if (tag) tag.textContent = 'TOOMUS';
+  link.rel = 'noopener';
+  let i = Math.floor(Math.random() * FAMILY_PROMO.length);
+  const show = () => {
+    const p = FAMILY_PROMO[i % FAMILY_PROMO.length];
+    link.href = p.url + '?utm_source=toomcard&utm_medium=card&utm_campaign=family';
+    label.style.opacity = '0';
+    setTimeout(() => { if (icon) icon.textContent = p.ic; label.textContent = `${p.name} · ${p[lang] || p.ko}`; label.style.opacity = '1'; }, 200);
+    i += 1;
+  };
+  label.style.transition = 'opacity .2s';
+  show();
+  familyTimer = setInterval(show, 4500);
+  box.style.display = 'block';
+}
