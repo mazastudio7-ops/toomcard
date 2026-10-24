@@ -217,6 +217,13 @@
    "de": "Musik"
   },
   {
+   "id": "cat-17",
+   "family": "cat",
+   "ko": "외출",
+   "en": "Going out",
+   "de": "Unterwegs"
+  },
+  {
    "id": "bunny-01",
    "family": "bunny",
    "ko": "당근 수확",
