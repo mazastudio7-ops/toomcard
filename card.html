@@ -410,7 +410,16 @@
     .lt-chip { appearance: none; font: 700 13px 'Noto Sans KR', sans-serif; color: rgba(255,255,255,.8); background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.18); border-radius: 99px; padding: 9px 14px; cursor: pointer; }
     .lt-chip.on { color: #1a1205; background: #ffd978; border-color: #ffd978; }
     .btn-minihome { border-color: rgba(255,217,120,.6) !important; color: #ffd978 !important; }
+    .back-sparse { display: flex; flex-direction: column; gap: 8px; margin: 2px 0 10px; }
     .back-sparse[hidden] { display: none; }
+    .bp-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; padding: 8px 4px; border-radius: 14px; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1); }
+    .bp-st { display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; color: #fff; }
+    .bp-st span { font-size: 10.5px; color: rgba(255,255,255,.55); white-space: nowrap; }
+    .bp-st b { font: 900 17px 'Montserrat', 'Noto Sans KR', sans-serif; color: #ffd978; }
+    .back-sparse .inside-social-icons { margin: 0; }
+    .bp-empty { display: flex; align-items: center; gap: 8px; padding: 9px 10px; border-radius: 12px; border: 1px dashed rgba(255,255,255,.22); font-size: 11.5px; color: rgba(255,255,255,.6); }
+    .bp-ico { color: #ffd978; font-size: 14px; } .bp-txt { flex: 1; min-width: 0; line-height: 1.4; }
+    .bp-cta { flex: none; padding: 7px 11px; border-radius: 99px; background: #fff; color: #1a1205; font-weight: 800; font-size: 11.5px; text-decoration: none; white-space: nowrap; }
     .sico.ghost { opacity: .42; filter: grayscale(.4); }
     .sico.ghost:active { opacity: .8; }
     .owner-hint { display: block; margin-top: 8px; text-align: center; font-size: 12px; font-weight: 800; color: #ffd978; text-decoration: none; border: 1px dashed rgba(255,217,120,.5); border-radius: 10px; padding: 8px; }
@@ -1932,7 +1941,7 @@
               <div class="back-company-name" id="backCompany"></div>
               <div class="back-company-slogan" id="backSlogan"></div>
               <!-- 정보가 적은 카드: 기본 SNS 아이콘 줄을 항상 보여 준다 (안 넣은 건 흐리게, 누르면 미니홈·문의로) -->
-              <div class="inside-social-icons back-sparse" id="backSparse" hidden></div>
+              <div class="back-sparse" id="backSparse" hidden></div>
 
               <div class="profile-row">
                 <span class="role-title" id="roleTitle"></span>

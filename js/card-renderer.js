@@ -173,8 +173,7 @@ function applyBackLayout(data) {
   if (mode !== 'default') scene.classList.add(`back-${mode}`);
 }
 
-// 정보가 적은 카드: 뒷면이 비어 보이지 않게 기본 SNS 아이콘 줄을 항상 보여 준다.
-// 넣은 채널은 그대로 열리고, 안 넣은 채널은 흐리게 보이며 누르면 미니홈(있으면) 또는 문의 창으로 간다.
+// 정보가 적은 카드: 뒷면을 "프로필 화면"처럼 구성한다 — 숫자 줄 · SNS 아이콘 줄 · 비어 있는 자리 안내 (카드 앱의 내 정보 화면 방식)
 const SPARSE_SNS = ['kakao', 'instagram', 'tiktok', 'youtube', 'threads', 'x'];
 function renderSparseBack(data, items) {
   const box = document.getElementById('backSparse'), scene = document.getElementById('cardScene');
@@ -185,13 +184,22 @@ function renderSparseBack(data, items) {
   if (!sparse) return;
   const have = {}; (data.socials || []).forEach((s) => { if (s && s.url && s.type) have[s.type] = s.url; });
   const slug = String(data.slug || data.id || (typeof getCardSlug === 'function' ? getCardSlug() : '') || '');
-  const fallback = (data.page && data.page.on && slug) ? '/' + slug.split('/').map(encodeURIComponent).join('/') + '/page' : '';
-  box.innerHTML = SPARSE_SNS.map((type) => {
+  const pageUrl = (data.page && data.page.on && slug) ? '/' + slug.split('/').map(encodeURIComponent).join('/') + '/page' : '';
+  const nSns = Object.keys(have).length, nLinks = (data.links || []).filter((l) => l && l.url).length, nTags = (data.moatTags || []).length;
+  const stat = (label, val, href) => `<a class="bp-st" ${href ? `href="${escHtml(href)}" onclick="event.stopPropagation()"` : 'href="#" onclick="event.preventDefault(); event.stopPropagation(); document.getElementById(\'leadModal\').classList.add(\'active\');"'}><span>${escHtml(label)}</span><b>${escHtml(val)}</b></a>`;
+  const icons = SPARSE_SNS.map((type) => {
     const url = have[type];
     if (url) return `<a class="sico" href="${safeHref(url)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" title="${escHtml(type)}" aria-label="${escHtml(type)}">${getSocialIconSvg(type)}</a>`;
-    if (fallback) return `<a class="sico ghost" href="${escHtml(fallback)}" onclick="event.stopPropagation()" title="${escHtml(t('card.minihome'))}" aria-label="${escHtml(t('card.minihome'))}">${getSocialIconSvg(type)}</a>`;
+    if (pageUrl) return `<a class="sico ghost" href="${escHtml(pageUrl)}" onclick="event.stopPropagation()" title="${escHtml(t('card.minihome'))}" aria-label="${escHtml(t('card.minihome'))}">${getSocialIconSvg(type)}</a>`;
     return `<a class="sico ghost" href="#" onclick="event.preventDefault(); event.stopPropagation(); document.getElementById('leadModal').classList.add('active');" title="${escHtml(t('card.leave_contact'))}" aria-label="${escHtml(t('card.leave_contact'))}">${getSocialIconSvg(type)}</a>`;
   }).join('');
+  const emptyCta = pageUrl
+    ? `<a class="bp-cta" href="${escHtml(pageUrl)}" onclick="event.stopPropagation()">${escHtml(t('card.minihome'))}</a>`
+    : `<a class="bp-cta" href="#" onclick="event.preventDefault(); event.stopPropagation(); document.getElementById('leadModal').classList.add('active');">${escHtml(t('card.leave_contact'))}</a>`;
+  box.innerHTML = `
+    <div class="bp-stats">${stat(t('card.bp_sns'), String(nSns), pageUrl)}${stat(t('card.bp_links'), String(nLinks), pageUrl)}${stat(t('card.bp_tags'), String(nTags), pageUrl)}${stat(t('card.bp_home'), pageUrl ? t('card.bp_yes') : t('card.bp_no'), pageUrl)}</div>
+    <div class="inside-social-icons">${icons}</div>
+    <div class="bp-empty"><span class="bp-ico">✦</span><span class="bp-txt">${escHtml(t('card.bp_empty'))}</span>${emptyCta}</div>`;
   if (window.lucide) window.lucide.createIcons();
 }
 function renderActionDocks(data) {
