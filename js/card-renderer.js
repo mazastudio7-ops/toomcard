@@ -1867,6 +1867,7 @@ const FAMILY_PROMO = [
   { ic: '🌐', name: 'MAZA', url: 'https://mazastudio.kr', ko: '디지털 자산 빌드 & 플립', en: 'Build & flip digital assets', de: 'Digitale Assets bauen & verkaufen' },
   { ic: '🏷️', name: 'MazaFlip', url: 'https://mazaflip.com', ko: '바로 쓰는 브랜드 도메인', en: 'Brandable domain names', de: 'Markenfähige Domains' },
   { ic: '🚀', name: 'SETUPOD', url: 'https://setupod.com', ko: '내 도메인에 꽂는 턴키 웹 비즈니스', en: 'Turnkey web business on your domain', de: 'Schlüsselfertiges Web-Business' },
+  { ic: '🔎', name: 'MAZA Name Check', url: 'https://mazastory.com', ko: '도메인 이름 무료 점검 (속어·상표·발음)', en: 'Free domain name check: slang, trademarks, sound', de: 'Kostenloser Domain-Check: Slang, Marken, Aussprache' },
   { ic: '🗓️', name: 'MAZA Planner', url: 'https://mazapost.com', ko: '일정·목표·할 일을 한 화면에', en: 'Plans, goals and to-dos on one screen', de: 'Termine, Ziele, To-dos auf einen Blick' },
   { ic: '🇺🇸', name: 'MAZA US Tools', url: 'https://mazaus.com', ko: '아마존 FBA 마진·미국 세금 계산기', en: 'Amazon FBA margin & US tax calculators', de: 'Amazon-FBA- & US-Steuerrechner' }
 ];
