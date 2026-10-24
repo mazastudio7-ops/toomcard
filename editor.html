@@ -14,6 +14,7 @@
     /* 페이지 에디터: 멀티링크·미니홈 공용. 왼쪽에 블록을 쌓고 오른쪽 폰에 실제 페이지가 바로 보인다. */
     :root { --bg: #0b0b10; --panel: #121218; --line: rgba(255,255,255,.1); --mut: rgba(255,255,255,.55); --gold: #ffd978; --sat: env(safe-area-inset-top); }
     * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
     body { margin: 0; background: var(--bg); color: #fff; font-family: 'Noto Sans KR', sans-serif; }
     .top { position: sticky; top: 0; z-index: 20; display: flex; align-items: center; gap: 10px; padding: calc(10px + var(--sat)) 16px 10px; background: rgba(11,11,16,.9); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
     .top .logo { color: #fff; text-decoration: none; font: 900 15px Montserrat, sans-serif; letter-spacing: .08em; }
