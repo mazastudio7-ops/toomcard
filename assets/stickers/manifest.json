@@ -17,6 +17,12 @@
    "en": "Toomkkang the Bunny",
    "de": "Toomkkang der Hase",
    "emoji": "🐰"
+  },
+  "pals": {
+   "ko": "툼 친구들",
+   "en": "TOOM Pals",
+   "de": "TOOM-Freunde",
+   "emoji": "🌈"
   }
  },
  "stickers": [
@@ -257,6 +263,146 @@
    "ko": "버블티",
    "en": "Bubble tea",
    "de": "Bubble Tea"
+  },
+  {
+   "id": "pals-01",
+   "family": "pals",
+   "ko": "분홍 토끼 꿀잠",
+   "en": "Pink bunny asleep",
+   "de": "Rosa Hase schläft"
+  },
+  {
+   "id": "pals-02",
+   "family": "pals",
+   "ko": "파랑 토끼 독서",
+   "en": "Blue bunny reading",
+   "de": "Blauer Hase liest"
+  },
+  {
+   "id": "pals-03",
+   "family": "pals",
+   "ko": "노랑 곰 라떼",
+   "en": "Yellow bear latte",
+   "de": "Gelber Bär mit Latte"
+  },
+  {
+   "id": "pals-04",
+   "family": "pals",
+   "ko": "크림 고양이 인사",
+   "en": "Cream cat hello",
+   "de": "Creme-Katze winkt"
+  },
+  {
+   "id": "pals-05",
+   "family": "pals",
+   "ko": "분홍 토끼 하트",
+   "en": "Pink bunny heart",
+   "de": "Rosa Hase mit Herz"
+  },
+  {
+   "id": "pals-06",
+   "family": "pals",
+   "ko": "베이지 곰 낮잠",
+   "en": "Beige bear nap",
+   "de": "Beiger Bär döst"
+  },
+  {
+   "id": "pals-07",
+   "family": "pals",
+   "ko": "회색 고양이 노트북",
+   "en": "Gray cat laptop",
+   "de": "Graue Katze am Laptop"
+  },
+  {
+   "id": "pals-08",
+   "family": "pals",
+   "ko": "노랑 곰 이불 낮잠",
+   "en": "Yellow bear snoozing",
+   "de": "Gelber Bär unter der Decke"
+  },
+  {
+   "id": "pals-09",
+   "family": "pals",
+   "ko": "파랑 토끼 인사",
+   "en": "Blue bunny hello",
+   "de": "Blauer Hase winkt"
+  },
+  {
+   "id": "pals-10",
+   "family": "pals",
+   "ko": "분홍 곰 커피",
+   "en": "Pink bear coffee",
+   "de": "Rosa Bär mit Kaffee"
+  },
+  {
+   "id": "pals-11",
+   "family": "pals",
+   "ko": "크림 고양이 독서",
+   "en": "Cream cat reading",
+   "de": "Creme-Katze liest"
+  },
+  {
+   "id": "pals-12",
+   "family": "pals",
+   "ko": "베이지 곰 꿀잠",
+   "en": "Beige bear asleep",
+   "de": "Beiger Bär schläft"
+  },
+  {
+   "id": "pals-13",
+   "family": "pals",
+   "ko": "회색 토끼 노트북",
+   "en": "Gray bunny laptop",
+   "de": "Grauer Hase am Laptop"
+  },
+  {
+   "id": "pals-14",
+   "family": "pals",
+   "ko": "크림 토끼 인사",
+   "en": "Cream bunny hello",
+   "de": "Creme-Hase winkt"
+  },
+  {
+   "id": "pals-15",
+   "family": "pals",
+   "ko": "노랑 곰 하트",
+   "en": "Yellow bear heart",
+   "de": "Gelber Bär mit Herz"
+  },
+  {
+   "id": "pals-16",
+   "family": "pals",
+   "ko": "분홍 고양이 독서",
+   "en": "Pink cat reading",
+   "de": "Rosa Katze liest"
+  },
+  {
+   "id": "pals-17",
+   "family": "pals",
+   "ko": "갈색 토끼 노트북",
+   "en": "Brown bunny laptop",
+   "de": "Brauner Hase am Laptop"
+  },
+  {
+   "id": "pals-18",
+   "family": "pals",
+   "ko": "베이지 곰 하트",
+   "en": "Beige bear heart",
+   "de": "Beiger Bär mit Herz"
+  },
+  {
+   "id": "pals-19",
+   "family": "pals",
+   "ko": "분홍 고양이 인사",
+   "en": "Pink cat hello",
+   "de": "Rosa Katze winkt"
+  },
+  {
+   "id": "pals-20",
+   "family": "pals",
+   "ko": "파랑 곰 꿀잠",
+   "en": "Blue bear asleep",
+   "de": "Blauer Bär schläft"
   }
  ]
 }
