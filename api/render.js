@@ -116,7 +116,7 @@ module.exports = async (req, res) => {
 
   // 0. 주소를 영문으로 바꾼 카드: 예전 주소로 들어오면 새 주소로 영구 이동 (이미 보낸 링크·QR 이 계속 열린다)
   try {
-    const keys = Array.from(new Set([cleanSlug, decodedSlug].filter((k) => k && /[가-힣]/.test(k))));
+    const keys = Array.from(new Set([cleanSlug, decodedSlug].filter((k) => k && (/[가-힣]/.test(k) || /^[a-z]\/[^/]+$/.test(k)))));   // 한글 주소·예전 글자 주소(a/이름)
     for (const k of keys) {
       const ar = await fetch(`${SUPABASE_URL}/rest/v1/tc_slug_alias?select=new_slug&old_slug=eq.${encodeURIComponent(k)}&limit=1`, { headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}` } });
       const rows = await ar.json();
@@ -211,6 +211,19 @@ module.exports = async (req, res) => {
       }
     }
 
+    // 없는 주소: 별칭(바뀐 아이디)이면 새 주소로, 아니면 404
+    if (!cardFound) {
+      try {
+        const ar = await fetch(`${SUPABASE_URL}/rest/v1/tc_slug_alias?select=new_slug&old_slug=eq.${encodeURIComponent(cleanSlug)}&limit=1`, { headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}` } });
+        const rows = await ar.json();
+        if (Array.isArray(rows) && rows[0] && rows[0].new_slug) {
+          const qs = new URLSearchParams((reqUrl.split('?')[1] || '')); qs.delete('slug'); qs.delete('company'); qs.delete('path'); const q = qs.toString();
+          res.setHeader('Location', '/' + String(rows[0].new_slug).split('/').map(encodeURIComponent).join('/') + (q ? '?' + q : ''));
+          res.setHeader('Cache-Control', 's-maxage=300');
+          return res.status(301).send('');
+        }
+      } catch (e) {}
+    }
     // 없는 주소는 샘플 카드 대신 404 (검색엔진 중복·사용자 혼란 방지)
     if (!cardFound) {
       const nf = `<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex"><title>명함을 찾을 수 없어요 | TOOMCARD</title>
