@@ -10,7 +10,7 @@
       "includeFiles": "cards/**"
     },
     "api/page.js": {
-      "includeFiles": "page.html"
+      "includeFiles": "{page.html,cards/demo.*.json}"
     },
     "api/forest.js": {
       "includeFiles": "js/tree.js"

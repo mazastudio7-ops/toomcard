@@ -188,7 +188,9 @@
     $('sub').textContent = [D.name !== (P.title || D.company || D.name) ? D.name : '', D.role].filter(Boolean).join(' · ');
     const chips = [];
     if (D.region && (D.region.sido || D.region.city)) chips.push('📍 ' + [D.region.sido, D.region.city].filter(Boolean).join(' '));
-    if (D.industryText || D.industry) chips.push(D.industryText || D.industry);
+    const IND = { insurance: ['보험', 'Insurance', 'Versicherung'], farm: ['농산물·농가', 'Farm', 'Hof'], stay: ['숙박·펜션', 'Stay', 'Unterkunft'], realestate: ['부동산', 'Real estate', 'Immobilien'], auto: ['자동차', 'Auto', 'Auto'], finance: ['금융·대출', 'Finance', 'Finanzen'], legal: ['법률', 'Legal', 'Recht'], tax: ['세무·회계', 'Tax', 'Steuern'], medical: ['의료·건강', 'Health', 'Gesundheit'], education: ['교육', 'Education', 'Bildung'], beauty: ['뷰티', 'Beauty', 'Beauty'], food: ['요식·카페', 'Food & café', 'Gastro'], it: ['IT·개발', 'IT', 'IT'] };
+    const li = { ko: 0, en: 1, de: 2 }[L[lang] ? lang : 'ko'];
+    if (D.industryText || D.industry) chips.push(D.industryText || (IND[D.industry] ? IND[D.industry][li] : D.industry));
     $('chips').innerHTML = chips.map((c) => `<span class="chip">${esc(c)}</span>`).join('');
     const has = (id) => !!$(id);
     if (P.intro && has('secIntro')) { $('intro').textContent = P.intro; $('secIntro').hidden = false; }

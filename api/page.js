@@ -21,6 +21,10 @@ module.exports = async (req, res) => {
     const cj = Array.isArray(rows) && rows[0] && rows[0].components_json;
     card = cj ? (cj.card || cj) : null;
   } catch (e) {}
+  // 공식 데모 카드(cards/demo.*.json)는 DB 에 없어도 연다
+  if (!card && /^demo\.[a-z0-9.]+$/.test(slug)) {
+    try { const f = path.join(process.cwd(), 'cards', slug + '.json'); if (fs.existsSync(f)) card = JSON.parse(fs.readFileSync(f, 'utf8')); } catch (e) {}
+  }
   // 별칭(바뀐 아이디)이면 새 주소의 미니홈으로
   if (!card) {
     try {
