@@ -1438,13 +1438,13 @@
 
     .plate-subtle-qr {
       position: absolute; top: 5%; right: 6%; z-index: 4;
-      width: 30px; height: 30px; padding: 5px; box-sizing: border-box; border-radius: 9px; background: rgba(0,0,0,0.18); opacity: 0.7; cursor: pointer;
+      width: 62px; height: 62px; padding: 5px; box-sizing: border-box; border-radius: 10px; background: rgba(255,255,255,0.9); opacity: 0.82; cursor: pointer;
       transition: opacity 0.2s ease;
     }
     .plate-subtle-qr[hidden] { display: none; }
     .has-subtle-qr .plate-qr-toggle-pill { display: none !important; }
     .plate-subtle-qr:hover { opacity: 1; }
-    .plate-subtle-qr svg { width: 100%; height: 100%; display: block; }
+    .plate-subtle-qr svg, .plate-subtle-qr canvas, .plate-subtle-qr img { width: 100% !important; height: 100% !important; display: block; } .plate-subtle-qr canvas { display: none; }
 
     /* ── 로고 엠블럼: 자동 3D 메탈 (재질 4 · 모양 3 · 움직임 4) ───────────────
        모양(마스크)은 글자나 로고에서 만들고, 금속 그라데이션·베벨·빛은 전부 CSS */

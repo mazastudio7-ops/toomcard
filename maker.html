@@ -675,9 +675,10 @@
       <section class="section" id="secLogo" data-tab="logo" data-side="back">
         <div class="section-title" style="margin-top:0"><i data-lucide="image-plus"></i><span data-i18n="maker.sec_mylogo">내 로고 · 프로필 사진</span></div>
         <p class="section-hint" data-i18n="maker.mylogo_hint">올리면 뒷면 위쪽에 바로 보여요. 움직이는 GIF·WebP도 그대로 움직여요 (3MB 이하).</p>
-        <div class="field"><input type="file" id="logoFile" accept="image/*" class="input" style="padding-top:8px;"></div>
-        <div class="field"><label data-i18n="maker.logo_shape">로고 모양</label><div class="chips" id="logoShapeChips"><button class="chip" type="button" data-shape="" aria-pressed="true" data-i18n="maker.logo_shape_auto">자동</button><button class="chip" type="button" data-shape="square" aria-pressed="false" data-i18n="maker.logo_shape_square">사각</button><button class="chip" type="button" data-shape="circle" aria-pressed="false" data-i18n="maker.logo_shape_circle">원</button></div></div>
+        <div class="field"><label data-i18n="maker.logo_shape">로고 모양</label><div class="chips" id="logoShapeChips"><button class="chip" type="button" data-shape="" data-i18n="maker.logo_shape_auto">자동</button><button class="chip" type="button" data-shape="square" aria-pressed="true" data-i18n="maker.logo_shape_square">사각</button><button class="chip" type="button" data-shape="circle" aria-pressed="false" data-i18n="maker.logo_shape_circle">원</button></div></div>
+        <div class="field"><label data-i18n="maker.logo_file">로고 · 프로필 사진 파일</label><input type="file" id="logoFile" accept="image/*" class="input" style="padding-top:8px;"><small class="field-hint" data-i18n="maker.logo_file_hint">내 컴퓨터·폰에 있는 로고나 사진을 골라 주세요. 없으면 안 올려도 돼요.</small></div>
         <div class="toggle"><span data-i18n="maker.show_logo">앞면에도 로고 표시</span><button class="switch" id="logoSwitch" role="switch" aria-checked="false"></button></div>
+        <small class="field-hint" data-i18n="maker.show_logo_hint">켜면 카드가 앞면으로 돌아가서 이름 옆에 로고가 보여요.</small>
         <details class="more-opt"><summary data-i18n="maker.logo_more">로고가 없을 때 · 엠블럼 꾸미기 · 3D 제작</summary>
         <div class="section-title"><i data-lucide="badge-check"></i><span data-i18n="maker.sec_logo">금속 엠블럼</span></div>
         <p class="section-hint" data-i18n="maker.emblem_hint">로고가 없을 때 이름 이니셜로 금속 엠블럼을 만들어 뒷면에 달아요. 로고를 올리면 자동으로 꺼져요.</p>
@@ -764,6 +765,7 @@
           </div>
         </div>
         <div class="toggle"><span data-i18n="maker.qr_subtle">앞면에 옅은 QR 깔기</span><button class="switch" id="qrSwitch" role="switch" aria-checked="true"></button></div>
+        <small class="field-hint" data-i18n="maker.qr_hint">켜면 앞면 오른쪽 위에 진짜 QR이 작게 찍혀요. 폰으로 스캔하면 내 명함이 열려요.</small>
         <div class="field">
           <label data-i18n="maker.back_layout">뒷면 모양</label>
           <div class="chips" id="backLayoutChips">
@@ -944,6 +946,7 @@
       layout: 'plate', theme: 'obsidian', edition: 'TITANIUM PRO',
       name: '', role: '', company: '', slogan: '', phone: '', email: '',
       moatTags: [],
+      logoShape: 'square',   // 로고·프로필 사진은 기본 사각 (원은 직접 고를 때만)
       logo: { src: '', alt: '' },   // 기본 로고 없음 — 로고를 안 올리면 이름 이니셜 엠블럼을 쓴다
       primaryAction: { url: '', label: '', icon: 'globe' },
       socials: [], links: [], backLayout: 'default',

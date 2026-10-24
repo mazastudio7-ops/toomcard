@@ -1220,13 +1220,16 @@ function renderFrontLayers(data) {
   if (subtleQr) {
     if (front.qr === 'subtle') {
       subtleQr.hidden = false;
-      const dark = !(overlay && overlay.classList.contains('tone-dark'));
-      const qrKey = 'icon|' + dark;
+      // 진짜로 찍히는 작은 QR (흰 바탕 타일 위). 누르면 큰 QR이 뜬다.
+      let qrUrl = location.origin + location.pathname;
+      try { const sl = (typeof cardData !== 'undefined' && cardData && (cardData.slug || cardData.id)) || ''; if (sl) qrUrl = location.origin + '/' + String(sl).split('/').map(encodeURIComponent).join('/'); } catch (err) {}
+      const qrKey = 'real|' + qrUrl;
       if (subtleQr.dataset.qrKey !== qrKey) {
-        // 빽빽한 진짜 QR 대신 또렷한 QR 모양 아이콘 하나만 둔다. 누르면 진짜 QR이 크게 뜬다.
-        subtleQr.dataset.qrKey = qrKey;
-        const c = dark ? '#fff' : '#000';
-        subtleQr.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M14 14h2.5v2.5H14zM18.5 14H21M14 19h2.5M18.5 18.5H21V21h-2.5z"/></svg>`;
+        if (typeof QRCode === 'undefined') { setTimeout(() => { try { subtleQr.dataset.qrKey = ''; renderFrontLayers(data); } catch (err) {} }, 600); }
+        else {
+          subtleQr.dataset.qrKey = qrKey; subtleQr.innerHTML = '';
+          try { new QRCode(subtleQr, { text: qrUrl, width: 120, height: 120, colorDark: '#0c0a14', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M }); } catch (err) { console.warn(err); }
+        }
       }
     } else {
       subtleQr.hidden = true;
