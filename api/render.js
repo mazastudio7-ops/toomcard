@@ -211,8 +211,8 @@ module.exports = async (req, res) => {
       }
     }
 
-    // 멀티링크 카드: 명함 대신 미니홈(블록 페이지)이 바로 열린다 (뒷면 없음)
-    if (cardFound && loadedCardObj && loadedCardObj.kind === 'multilink' && !(req.query && req.query.view === 'card')) {
+    // 멀티링크·미니홈 카드: 명함 대신 페이지가 바로 열린다 (뒷면 없음)
+    if (cardFound && loadedCardObj && ['multilink', 'minihome'].includes(loadedCardObj.kind) && !(req.query && req.query.view === 'card')) {
       return require('./page.js')(Object.assign({}, req, { query: Object.assign({}, req.query, { slug: cleanSlug }) }), res);
     }
 

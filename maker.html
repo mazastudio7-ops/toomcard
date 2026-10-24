@@ -309,12 +309,18 @@
     .seg { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; border-radius: 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--tc-border); }
     .seg button { appearance: none; border: none; border-radius: 9px; padding: 9px 0; background: transparent; color: var(--tc-text-muted); font: 800 13px var(--tc-font-body); cursor: pointer; }
     .seg button[aria-pressed="true"] { background: var(--tc-accent); color: #000; }
-    #kindSeg { grid-template-columns: 1fr 1fr 1fr; }
+    #kindSeg { grid-template-columns: 1fr 1fr 1fr 1fr; }
+    #kindSeg button { padding: 9px 2px; font-size: 12.5px; }
     .seg-hint { font-size: 11.5px; color: var(--tc-text-subtle); margin-top: -2px; }
     body.kind-personal .biz-only, body.kind-business .per-only { display: none; }
     body:not(.kind-multilink) .ml-only { display: none; }
-    body.kind-multilink .biz-only, body.kind-multilink .per-only, body.kind-multilink #pageBox .toggle .switch { display: none; }
-    body.kind-multilink #pageBox { border-color: rgba(255,217,120,.6); }
+    body:not(.kind-minihome) .mh-only { display: none; }
+    body.kind-minihome .seg-hint .biz-only { display: none; }
+    body.kind-multilink .biz-only, body.kind-multilink .per-only, body.kind-multilink #pageBox .toggle .switch,
+    body.kind-minihome .per-only, body.kind-minihome #pageBox .toggle .switch { display: none; }
+    body.kind-multilink #pageBox, body.kind-minihome #pageBox { border-color: rgba(255,217,120,.6); }
+    /* 멀티링크는 블록 중심: 홍보용 칸(소개·갤러리·상품표·소식·위치·후기)은 숨긴다 */
+    body.kind-multilink .pg-home { display: none; }
 
     /* ── 모바일: 큰 캐러셀 + 하단 탭 + 시트 ───────── */
     @media (max-width: 980px) {
@@ -459,8 +465,9 @@
           <button type="button" data-kind="personal" aria-pressed="true" data-i18n="maker.kind_personal">일반</button>
           <button type="button" data-kind="business" data-i18n="maker.kind_business">비즈니스</button>
           <button type="button" data-kind="multilink" data-i18n="maker.kind_multilink">멀티링크</button>
+          <button type="button" data-kind="minihome" data-i18n="maker.kind_minihome">미니홈</button>
         </div>
-        <p class="seg-hint"><span class="per-only" data-i18n="maker.kind_personal_hint">학생, 크리에이터, 누구나. 회사 없이 나를 소개해요.</span><span class="biz-only" data-i18n="maker.kind_business_hint">회사·직함이 들어가는 업무용 명함이에요.</span><span class="ml-only" data-i18n="maker.kind_multilink_hint">명함 없이 앞면 사진 + 링크·상품 블록 페이지가 바로 열려요. 뒷면을 꾸밀 필요가 없어요.</span></p>
+        <p class="seg-hint"><span class="per-only" data-i18n="maker.kind_personal_hint">학생, 크리에이터, 누구나. 회사 없이 나를 소개해요.</span><span class="biz-only" data-i18n="maker.kind_business_hint">회사·직함이 들어가는 업무용 명함이에요.</span><span class="ml-only" data-i18n="maker.kind_multilink_hint">명함 없이 앞면 사진 + 링크·상품 블록 페이지가 바로 열려요. 뒷면을 꾸밀 필요가 없어요.</span><span class="mh-only" data-i18n="maker.kind_minihome_hint">펜션·농가·가게용 홍보 페이지가 바로 열려요. 사진·소개·상품·위치·후기·예약 문의를 한 페이지에.</span></p>
         <div class="field"><label><span class="biz-only"><span data-i18n="maker.company">회사 / 브랜드</span><span class="req">*</span></span><span class="per-only"><span data-i18n="maker.affiliation">소속</span> <span style="font-weight:600;opacity:.6;" data-i18n="common.optional">선택</span></span></label><input class="input" id="fCompany" placeholder="TOOMCARD"></div>
         <div class="field biz-only"><label><span data-i18n="maker.industry">업종</span> <span style="font-weight:600;opacity:.6;" data-i18n="common.optional">선택</span></label>
           <select class="select" id="fIndustry"><option value="" data-i18n="maker.industry_none">선택 안 함</option><option value="insurance" data-i18n="ind.insurance">보험</option><option value="farm" data-i18n="ind.farm">농산물·농가</option><option value="stay" data-i18n="ind.stay">숙박·펜션</option><option value="realestate" data-i18n="ind.realestate">부동산</option><option value="auto" data-i18n="ind.auto">자동차</option><option value="finance" data-i18n="ind.finance">금융·대출</option><option value="legal" data-i18n="ind.legal">법률</option><option value="tax" data-i18n="ind.tax">세무·회계</option><option value="medical" data-i18n="ind.medical">의료·건강</option><option value="education" data-i18n="ind.education">교육</option><option value="beauty" data-i18n="ind.beauty">뷰티</option><option value="food" data-i18n="ind.food">요식·카페</option><option value="it" data-i18n="ind.it">IT·개발</option><option value="other" data-i18n="ind.other">기타 (직접 입력)</option></select>
@@ -532,7 +539,7 @@
           <div class="toggle"><span><b data-i18n="maker.page_on">미니 홈페이지 만들기</b><small class="star-desc" data-i18n="maker.page_desc">소개·사진·상품·위치·후기를 한 페이지에. 명함 뒷면과 이젠스타에 "미니홈 보기"가 생겨요.</small></span><button class="switch" id="pageSwitch" role="switch" aria-checked="false"></button></div>
           <div id="pageOpts" hidden>
             <div class="field"><label data-i18n="maker.page_title">미니홈 제목</label><input class="input" id="pgTitle" maxlength="40" placeholder="예: 성주참외 배미자네" data-i18n-placeholder="maker.page_title_ph"></div>
-            <div class="field"><label data-i18n="maker.page_intro">소개 글</label><textarea class="input" id="pgIntro" rows="5" maxlength="2000" placeholder="우리 농장은…" data-i18n-placeholder="maker.page_intro_ph"></textarea></div>
+            <div class="field pg-home"><label data-i18n="maker.page_intro">소개 글</label><textarea class="input" id="pgIntro" rows="5" maxlength="2000" placeholder="우리 농장은…" data-i18n-placeholder="maker.page_intro_ph"></textarea></div>
             <div class="field"><label data-i18n="maker.page_blocks">블록 (최대 20) — 링크·그리드·유튜브·제목·글</label>
               <div id="pgBlocks"></div>
               <div class="chips" style="margin-top:6px">
@@ -544,18 +551,18 @@
                 <button type="button" class="chip" data-blk="text">¶ <span data-i18n="maker.blk_text">글</span></button>
               </div>
             </div>
-            <div class="field"><label data-i18n="maker.page_gallery">사진 (최대 8장)</label>
+            <div class="field pg-home"><label data-i18n="maker.page_gallery">사진 (최대 8장)</label>
               <div class="pg-gal" id="pgGal"></div>
               <button type="button" class="btn-secondary" id="pgGalBtn"><i data-lucide="image-plus"></i><span data-i18n="maker.page_gallery_add">사진 추가</span></button>
               <input type="file" id="pgGalFile" accept="image/*" multiple hidden>
               <p class="photo-off" data-i18n="maker.page_gallery_note">사진은 저장소에 올라가요 (로그인 필요). 자동으로 가볍게 줄여요.</p>
             </div>
-            <div class="field"><label data-i18n="maker.page_items">상품 · 가격 (최대 10)</label><div id="pgItems"></div><button type="button" class="btn-secondary" id="pgItemBtn"><i data-lucide="plus"></i><span data-i18n="maker.page_items_add">상품 추가</span></button></div>
-            <div class="field"><label data-i18n="maker.page_news">소식 (최대 5)</label><div id="pgNews"></div><button type="button" class="btn-secondary" id="pgNewsBtn"><i data-lucide="plus"></i><span data-i18n="maker.page_news_add">소식 추가</span></button></div>
-            <div class="field"><label data-i18n="maker.page_address">주소</label><input class="input" id="pgAddr" maxlength="120" placeholder="경북 성주군 …" data-i18n-placeholder="maker.page_address_ph"></div>
-            <div class="field"><label data-i18n="maker.page_map">지도 링크 (네이버·카카오 지도 공유 주소)</label><input class="input" id="pgMap" type="url" placeholder="https://"></div>
-            <div class="field"><label data-i18n="maker.page_hours">영업시간</label><input class="input" id="pgHours" maxlength="80" placeholder="예: 매일 9:00~18:00" data-i18n-placeholder="maker.page_hours_ph"></div>
-            <div class="field"><label data-i18n="maker.page_reviews">후기 (최대 5)</label><div id="pgRv"></div><button type="button" class="btn-secondary" id="pgRvBtn"><i data-lucide="plus"></i><span data-i18n="maker.page_reviews_add">후기 추가</span></button></div>
+            <div class="field pg-home"><label data-i18n="maker.page_items">상품 · 가격 (최대 10)</label><div id="pgItems"></div><button type="button" class="btn-secondary" id="pgItemBtn"><i data-lucide="plus"></i><span data-i18n="maker.page_items_add">상품 추가</span></button></div>
+            <div class="field pg-home"><label data-i18n="maker.page_news">소식 (최대 5)</label><div id="pgNews"></div><button type="button" class="btn-secondary" id="pgNewsBtn"><i data-lucide="plus"></i><span data-i18n="maker.page_news_add">소식 추가</span></button></div>
+            <div class="field pg-home"><label data-i18n="maker.page_address">주소</label><input class="input" id="pgAddr" maxlength="120" placeholder="경북 성주군 …" data-i18n-placeholder="maker.page_address_ph"></div>
+            <div class="field pg-home"><label data-i18n="maker.page_map">지도 링크 (네이버·카카오 지도 공유 주소)</label><input class="input" id="pgMap" type="url" placeholder="https://"></div>
+            <div class="field pg-home"><label data-i18n="maker.page_hours">영업시간</label><input class="input" id="pgHours" maxlength="80" placeholder="예: 매일 9:00~18:00" data-i18n-placeholder="maker.page_hours_ph"></div>
+            <div class="field pg-home"><label data-i18n="maker.page_reviews">후기 (최대 5)</label><div id="pgRv"></div><button type="button" class="btn-secondary" id="pgRvBtn"><i data-lucide="plus"></i><span data-i18n="maker.page_reviews_add">후기 추가</span></button></div>
             <p class="photo-off" style="display:block" id="pgUrl"></p>
           </div>
         </div>
@@ -922,13 +929,14 @@
       business: { fName: 'maker.name_ph', fRole: 'maker.role_ph', fCompany: 'maker.company_ph', fSlogan: 'maker.b_slogan_ph', fTags: 'maker.b_tags_ph' }
     };
     function setKind(k) {
-      kind = k === 'business' ? 'business' : (k === 'multilink' ? 'multilink' : 'personal');
+      kind = ['business', 'multilink', 'minihome'].includes(k) ? k : 'personal';
       document.body.classList.toggle('kind-business', kind === 'business');
       document.body.classList.toggle('kind-personal', kind === 'personal');
       document.body.classList.toggle('kind-multilink', kind === 'multilink');
-      if (kind === 'multilink') { card.page = Object.assign({ on: true }, card.page || {}, { on: true }); if (typeof syncPageUI === 'function') syncPageUI(); }   // 멀티링크는 미니홈이 곧 본체
+      document.body.classList.toggle('kind-minihome', kind === 'minihome');
+      if (kind === 'multilink' || kind === 'minihome') { card.page = Object.assign({ on: true }, card.page || {}, { on: true }); if (typeof syncPageUI === 'function') syncPageUI(); }   // 멀티링크는 미니홈이 곧 본체
       document.querySelectorAll('#kindSeg button').forEach((b) => b.setAttribute('aria-pressed', b.dataset.kind === kind ? 'true' : 'false'));
-      Object.entries(KIND_PH[kind === 'multilink' ? 'personal' : kind]).forEach(([id, key]) => { const el = document.getElementById(id); if (el) el.placeholder = t(key); });
+      Object.entries(KIND_PH[kind === 'business' || kind === 'minihome' ? 'business' : 'personal']).forEach(([id, key]) => { const el = document.getElementById(id); if (el) el.placeholder = t(key); });
       if (typeof render === 'function') render();
     }
     let publishedUrl = '';
@@ -1138,7 +1146,7 @@
       blkRender();
     });
     function collectPage() {
-      const p = card.page || { on: false }; if (kind === 'multilink') p.on = true; if (!p.on) return { on: false };
+      const p = card.page || { on: false }; if (kind === 'multilink' || kind === 'minihome') p.on = true; if (!p.on) return { on: false };
       const rows = (id) => [...$(id).children];
       const g = (r, c) => { const el = r.querySelector('.' + c); return el ? el.value.trim() : ''; };
       return { on: true, title: $('pgTitle').value.trim().slice(0, 40), intro: $('pgIntro').value.trim().slice(0, 2000), gallery: PG.gallery.slice(0, 8), blocks: blkCollect().filter((b) => b.type).slice(0, 20),
@@ -1310,6 +1318,7 @@
       card.industryText = (kind === 'business' && card.industry === 'other') ? $('fIndustryText').value.trim().slice(0, 20) : '';
       // 워터마크: 비즈니스는 회사명, 일반은 소속이 있으면 소속, 없으면 이름
       card.companyWatermark = kind === 'business' ? card.company : (card.company || card.name);
+      card.industry = (kind === 'business' || kind === 'minihome') ? $('fIndustry').value : card.industry;
       card.slogan = $('fSlogan').value.trim();
       card.phone = $('fPhone').value.trim();
       card.email = $('fEmail').value.trim();

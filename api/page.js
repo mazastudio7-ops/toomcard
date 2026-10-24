@@ -30,7 +30,7 @@ module.exports = async (req, res) => {
     return res.status(404).send('');
   }
   const page = card.page || {};
-  if (!page.on && card.kind !== 'multilink') { res.setHeader('Location', '/' + slug.split('/').map(encodeURIComponent).join('/')); return res.status(302).send(''); }
+  if (!page.on && !['multilink', 'minihome'].includes(card.kind)) { res.setHeader('Location', '/' + slug.split('/').map(encodeURIComponent).join('/')); return res.status(302).send(''); }
 
   // 이젠스타에 올린 카드는 미니홈에서도 실명 대신 대화명/가린 이름
   const mask = (n) => { const t = String(n || '').trim(); return t ? t.charAt(0) + '○'.repeat(Math.max(1, Math.min(t.length - 1, 2))) : ''; };
