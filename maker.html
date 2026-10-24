@@ -435,9 +435,16 @@
         <p class="seg-hint"><span class="per-only" data-i18n="maker.kind_personal_hint">학생, 크리에이터, 누구나. 회사 없이 나를 소개해요.</span><span class="biz-only" data-i18n="maker.kind_business_hint">회사·직함이 들어가는 업무용 명함이에요.</span></p>
         <div class="field"><label><span class="biz-only"><span data-i18n="maker.company">회사 / 브랜드</span><span class="req">*</span></span><span class="per-only"><span data-i18n="maker.affiliation">소속</span> <span style="font-weight:600;opacity:.6;" data-i18n="common.optional">선택</span></span></label><input class="input" id="fCompany" placeholder="TOOMCARD"></div>
         <div class="field biz-only"><label><span data-i18n="maker.industry">업종</span> <span style="font-weight:600;opacity:.6;" data-i18n="common.optional">선택</span></label>
-          <select class="select" id="fIndustry"><option value="" data-i18n="maker.industry_none">선택 안 함</option><option value="insurance" data-i18n="ind.insurance">보험</option><option value="realestate" data-i18n="ind.realestate">부동산</option><option value="auto" data-i18n="ind.auto">자동차</option><option value="finance" data-i18n="ind.finance">금융·대출</option><option value="legal" data-i18n="ind.legal">법률</option><option value="tax" data-i18n="ind.tax">세무·회계</option><option value="medical" data-i18n="ind.medical">의료·건강</option><option value="education" data-i18n="ind.education">교육</option><option value="beauty" data-i18n="ind.beauty">뷰티</option><option value="food" data-i18n="ind.food">요식·카페</option><option value="it" data-i18n="ind.it">IT·개발</option><option value="other" data-i18n="ind.other">기타 (직접 입력)</option></select>
+          <select class="select" id="fIndustry"><option value="" data-i18n="maker.industry_none">선택 안 함</option><option value="insurance" data-i18n="ind.insurance">보험</option><option value="farm" data-i18n="ind.farm">농산물·농가</option><option value="stay" data-i18n="ind.stay">숙박·펜션</option><option value="realestate" data-i18n="ind.realestate">부동산</option><option value="auto" data-i18n="ind.auto">자동차</option><option value="finance" data-i18n="ind.finance">금융·대출</option><option value="legal" data-i18n="ind.legal">법률</option><option value="tax" data-i18n="ind.tax">세무·회계</option><option value="medical" data-i18n="ind.medical">의료·건강</option><option value="education" data-i18n="ind.education">교육</option><option value="beauty" data-i18n="ind.beauty">뷰티</option><option value="food" data-i18n="ind.food">요식·카페</option><option value="it" data-i18n="ind.it">IT·개발</option><option value="other" data-i18n="ind.other">기타 (직접 입력)</option></select>
           <input class="input" id="fIndustryText" placeholder="예: 펫 케어" data-i18n-placeholder="maker.industry_custom_ph" hidden style="margin-top:8px">
           <p class="photo-off" data-i18n="maker.industry_note">받는 분 폰에 "보험 · 회사명"처럼 저장돼서, 나중에 "보험"만 검색해도 내가 나와요.</p>
+        </div>
+        <div class="field biz-only"><label><span data-i18n="maker.region">지역</span> <span style="font-weight:600;opacity:.6;" data-i18n="common.optional">선택</span></label>
+          <div style="display:flex; gap:8px;">
+            <select class="select" id="fRegionSido" style="flex:0 0 38%"><option value="" data-i18n="maker.region_none">시·도</option><option value="서울">서울</option><option value="부산">부산</option><option value="대구">대구</option><option value="인천">인천</option><option value="광주">광주</option><option value="대전">대전</option><option value="울산">울산</option><option value="세종">세종</option><option value="경기">경기</option><option value="강원">강원</option><option value="충북">충북</option><option value="충남">충남</option><option value="전북">전북</option><option value="전남">전남</option><option value="경북">경북</option><option value="경남">경남</option><option value="제주">제주</option></select>
+            <input class="input" id="fRegionCity" placeholder="예: 성주군" data-i18n-placeholder="maker.region_city_ph" maxlength="20" style="flex:1">
+          </div>
+          <p class="photo-off" data-i18n="maker.region_note">지역을 넣으면 "지역·업종별 소개" 목록에 올라갈 수 있어요.</p>
         </div>
         <div class="field"><label data-i18n="maker.slogan">슬로건 한 줄</label><input class="input" id="fSlogan" placeholder="오늘의 만남을 내일의 비즈니스로"></div>
         <div class="row-2">
@@ -722,6 +729,10 @@
         <div class="star-box">
           <div class="toggle"><span><b data-i18n="maker.star_on">이젠스타에 올리기</b><small class="star-desc" data-i18n="maker.star_desc">검토 후 홈 '이젠스타' 탭에 올라가요. 좋아요를 받고 내 링크를 홍보할 수 있어요.</small></span><button class="switch" id="starSwitch" role="switch" aria-checked="false" type="button"></button></div>
           <div id="starOpts" hidden>
+            <div class="field"><label data-i18n="maker.star_nick">이젠스타 대화명</label>
+              <input class="input" id="fStarNick" maxlength="20" placeholder="예: 성주참외농부" data-i18n-placeholder="maker.star_nick_ph" autocomplete="off">
+              <p class="photo-off" style="display:block" data-i18n="maker.star_nick_note">이젠스타에는 실명 대신 이 이름이 보여요. 비워 두면 이름이 "박○○"처럼 가려져요.</p>
+            </div>
             <div class="field"><label data-i18n="maker.star_tag">분야</label>
               <div class="chips" id="starTags">
                 <button class="chip" type="button" data-tag="student" data-i18n="maker.tag_student">학생</button>
@@ -1105,6 +1116,7 @@
       else toast(t('maker.order_fail'));
     }
 
+    $('fRegionSido').addEventListener('change', () => render(false, 260)); $('fRegionCity').addEventListener('input', () => render(false, 260));
     $('fIndustry').addEventListener('change', () => { $('fIndustryText').hidden = $('fIndustry').value !== 'other'; render(false, 260); });
     $('fIndustryText').addEventListener('input', () => render(false, 260));
     function collect() {
@@ -1112,6 +1124,7 @@
       card.role = $('fRole').value.trim();
       card.company = $('fCompany').value.trim();
       card.kind = kind;
+      card.region = kind === 'business' ? { sido: $('fRegionSido').value, city: $('fRegionCity').value.trim().slice(0, 20) } : null;
       card.industry = kind === 'business' ? $('fIndustry').value : '';
       card.industryText = (kind === 'business' && card.industry === 'other') ? $('fIndustryText').value.trim().slice(0, 20) : '';
       // 워터마크: 비즈니스는 회사명, 일반은 소속이 있으면 소속, 없으면 이름
@@ -1979,10 +1992,12 @@
       const s = card.star || (card.star = { on: false, tag: '' });
       const pv = card.privacy || (card.privacy = { phone: false, email: false });
       $('starSwitch').setAttribute('aria-checked', String(!!s.on));
+      if (document.activeElement !== $('fStarNick')) $('fStarNick').value = s.nick || '';
       $('starOpts').hidden = !s.on;
       document.querySelectorAll('#starTags .chip').forEach((c) => c.setAttribute('aria-pressed', String(c.dataset.tag === s.tag)));
     }
     $('starSwitch').addEventListener('click', () => { card.star = Object.assign({ tag: '' }, card.star, { on: !(card.star && card.star.on) }); if (card.star.on && !card.star.tag) card.star.tag = kind === 'business' ? 'biz' : 'creator'; syncStarUI(); });
+    $('fStarNick').addEventListener('input', () => { card.star = Object.assign({ on: false, tag: '' }, card.star, { nick: $('fStarNick').value.trim().slice(0, 20) }); });
     $('starTags').addEventListener('click', (e) => { const b = e.target.closest('.chip'); if (!b) return; card.star.tag = b.dataset.tag; syncStarUI(); });
     // 이젠스타에 올린 카드는 비공개 항목(전화·이메일)을 공개 데이터에서 빼서 따로 저장한다
     function splitPrivate(c) {
@@ -2179,7 +2194,7 @@
       card = Object.assign(JSON.parse(JSON.stringify(DEFAULT_CARD)), c);
       if (!c.front) card.front = { bg: { type: 'image', src: c.plateCardImage || DEFAULT_CARD.front.bg.src }, text: { layout: 'none', showLogo: false, tone: 'auto' }, finish: 'metal', qr: 'off' };
       $('fName').value = c.name || ''; $('fRole').value = c.role || ''; $('fCompany').value = c.company || '';
-      $('fIndustry').value = c.industry || ''; $('fIndustryText').value = c.industryText || ''; $('fIndustryText').hidden = c.industry !== 'other';
+      $('fRegionSido').value = (c.region && c.region.sido) || ''; $('fRegionCity').value = (c.region && c.region.city) || ''; $('fIndustry').value = c.industry || ''; $('fIndustryText').value = c.industryText || ''; $('fIndustryText').hidden = c.industry !== 'other';
       $('fSlogan').value = c.slogan || ''; $('fPhone').value = c.phone || ''; $('fEmail').value = c.email || '';
       $('fWebsite').value = (c.primaryAction && c.primaryAction.url) || '';
       const ss = (c.socials || []).filter((s) => s.url);

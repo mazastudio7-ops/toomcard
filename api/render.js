@@ -208,6 +208,14 @@ module.exports = async (req, res) => {
     const htmlPath = path.join(process.cwd(), 'card.html');
     let html = fs.readFileSync(htmlPath, 'utf8');
 
+    // 이젠스타에 올린 카드를 일반 주소로 열면(보낸 공유 키 ?k= 없이) 실명 대신 대화명/가린 이름만 HTML 에 넣는다
+    if (loadedCardObj && loadedCardObj.star && loadedCardObj.star.on && !(req.query && req.query.k)) {
+      const mask = (n) => { const t = String(n || '').trim(); return t ? t.charAt(0) + '○'.repeat(Math.max(1, Math.min(t.length - 1, 2))) : ''; };
+      const shown = String(loadedCardObj.star.nick || '').trim() || mask(loadedCardObj.name);
+      loadedCardObj = Object.assign({}, loadedCardObj, { name: shown, phone: '', email: '', vcard: Object.assign({}, loadedCardObj.vcard || {}, { firstName: shown, lastName: '', formattedName: shown, tel: '', email: '' }) });
+      title = shown; subtitle = `${loadedCardObj.role || ''} · 이젠스타`.trim();
+    }
+
     // 4. Determine Dynamic OG Meta Tags
     const isCeo = slugsToTry.some(s => s === 'ceo' || s === 'andrew' || s === '대표');
     const isHyangwon = slugsToTry.some(s => s === 'hyangwon' || s === '이향원' || s === 'hyanwon' || s === 'won');

@@ -321,10 +321,14 @@ function isPublicStarView(d) {
     return !new URLSearchParams(location.search).get('k');
   } catch (e) { return false; }
 }
+// 이젠스타 공개 이름: 대화명이 있으면 대화명, 없으면 "박○○"처럼 가린다
+function maskName(n) { const s = String(n || '').trim(); return s ? s.charAt(0) + '○'.repeat(Math.max(1, Math.min(s.length - 1, 2))) : ''; }
+function starDisplayName(d) { return (d && d.star && String(d.star.nick || '').trim()) || maskName(d && d.name); }
 function sanitizeForPublicStar(d) {
   const out = Object.assign({}, d);
+  out.name = starDisplayName(d);
   out.phone = ''; out.email = '';
-  out.vcard = Object.assign({}, d.vcard, { tel: '', email: '' });
+  out.vcard = Object.assign({}, d.vcard, { tel: '', email: '', firstName: out.name, lastName: '', formattedName: out.name });
   out.socials = (d.socials || []).filter((s) => s && !CONTACT_SOCIAL_TYPES.includes(s.type) && !isContactUrl(s.url));
   out.links = (d.links || []).filter((l) => l && !isContactUrl(l.url));
   if (out.primaryAction && isContactUrl(out.primaryAction.url)) out.primaryAction = null;
@@ -542,9 +546,11 @@ function populateCard(data) {
   const phoneValue = document.getElementById('phoneValue');
   const emailValue = document.getElementById('emailValue');
   const contactDot = document.getElementById('contactDot');
-  if (phoneValue) phoneValue.innerText = data.phone || '';
-  if (emailValue) emailValue.innerText = data.email || '';
-  if (contactDot) contactDot.hidden = !(data.phone && data.email);
+  const starMask = document.body.classList.contains('star-public');
+  // 이젠스타 공개 보기: 실제 명함과 같은 모양으로, 전화·이메일 자리는 가려서 보여 준다
+  if (phoneValue) { phoneValue.innerText = starMask ? '🔒 ●●●-●●●●-●●●●' : (data.phone || ''); phoneValue.classList.toggle('masked', starMask); }
+  if (emailValue) { emailValue.innerText = starMask ? '●●●●@●●●●.com' : (data.email || ''); emailValue.classList.toggle('masked', starMask); }
+  if (contactDot) contactDot.hidden = starMask ? false : !(data.phone && data.email);
 
   // 해자 태그 (Moat Tags) 바인딩
   const frontMoatTags = document.getElementById('frontMoatTags');

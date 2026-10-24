@@ -409,6 +409,13 @@
     body.star-public .star-back { display: inline-block; }
     .lt-chip { appearance: none; font: 700 13px 'Noto Sans KR', sans-serif; color: rgba(255,255,255,.8); background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.18); border-radius: 99px; padding: 9px 14px; cursor: pointer; }
     .lt-chip.on { color: #1a1205; background: #ffd978; border-color: #ffd978; }
+    .owner-bar { display: none; position: fixed; z-index: 70; top: calc(10px + env(safe-area-inset-top, 0px)); right: 12px; gap: 6px; }
+    .owner-bar.on { display: flex; }
+    .owner-bar a { padding: 8px 12px; border-radius: 99px; font: 800 12px 'Noto Sans KR', sans-serif; text-decoration: none; color: #1a1205; background: #ffd978; box-shadow: 0 4px 14px rgba(0,0,0,.4); }
+    .owner-bar a.g { color: #ffd978; background: rgba(8,6,14,.78); border: 1px solid rgba(255,217,120,.5); backdrop-filter: blur(8px); }
+    body.in-simulator .owner-bar, body.maker-embed .owner-bar { display: none !important; }
+    #phoneValue.masked, #emailValue.masked { opacity: .55; letter-spacing: .04em; }
+    body.star-public #contactLine { display: flex !important; }
     .tc-hl { outline: 2px solid #ffd978; outline-offset: 5px; border-radius: 10px; box-shadow: 0 0 26px rgba(255,217,120,.55); transition: box-shadow .2s, outline-color .2s; }
     .back-flip-pill { position: absolute; top: 12px; right: 12px; z-index: 6; appearance: none; font: 800 10.5px 'Montserrat', sans-serif; letter-spacing: .12em; color: #ffd978; background: rgba(8,6,14,.7); border: 1px solid rgba(255,217,120,.55); border-radius: 99px; padding: 7px 12px; cursor: pointer; backdrop-filter: blur(8px); }
     body.in-simulator .back-flip-pill { display: none; }
@@ -1790,6 +1797,7 @@
   </style>
 </head>
 <body>
+  <div class="owner-bar" id="ownerBar"><a href="/dashboard" data-i18n="card.owner_dash">⚙ 내 대시보드</a><a class="g" id="ownerEdit" href="/maker" data-i18n="card.owner_edit">✏️ 수정</a></div>
   <a class="star-back" href="/#stars" onclick="if (document.referrer && history.length > 1 && new URL(document.referrer).origin === location.origin) { history.back(); return false; }" data-i18n="card.star_back">← 이젠스타</a>
 
   <div class="container">
@@ -2246,6 +2254,24 @@
 
     // 1. Service Worker 등록
     if ('serviceWorker' in navigator) {
+      // 내 카드를 내가 열면 대시보드·수정으로 바로 가는 버튼을 보여 준다 (로그인 정보가 없으면 아무것도 하지 않는다)
+      window.addEventListener('load', async () => {
+        try {
+          if (window.__MAKER || window.self !== window.top) return;
+          let logged = false; try { logged = !!localStorage.getItem('sb-omlcbrslzvdtqwbszgvg-auth-token'); } catch (e) {}
+          if (!logged || typeof supabaseClient === 'undefined' || !supabaseClient) return;
+          const { data: { session } } = await supabaseClient.auth.getSession();
+          if (!session) return;
+          const slug = typeof getCardSlug === 'function' ? getCardSlug() : '';
+          if (!slug) return;
+          const { data } = await supabaseClient.from('pods').select('user_id').eq('slug', slug).maybeSingle();
+          if (data && data.user_id === session.user.id) {
+            document.getElementById('ownerEdit').href = '/maker?edit=' + encodeURIComponent(slug);
+            document.getElementById('ownerBar').classList.add('on');
+            if (window.i18n && i18n.apply) i18n.apply(document.getElementById('ownerBar'));
+          }
+        } catch (e) {}
+      });
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('/sw.js').catch(() => {});
       });
