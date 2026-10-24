@@ -492,7 +492,8 @@
             <select class="select" id="fRegionSido" style="flex:0 0 38%"><option value="" data-i18n="maker.region_none">시·도</option><option value="서울">서울</option><option value="부산">부산</option><option value="대구">대구</option><option value="인천">인천</option><option value="광주">광주</option><option value="대전">대전</option><option value="울산">울산</option><option value="세종">세종</option><option value="경기">경기</option><option value="강원">강원</option><option value="충북">충북</option><option value="충남">충남</option><option value="전북">전북</option><option value="전남">전남</option><option value="경북">경북</option><option value="경남">경남</option><option value="제주">제주</option></select>
             <input class="input" id="fRegionCity" placeholder="예: 성주군" data-i18n-placeholder="maker.region_city_ph" maxlength="20" style="flex:1">
           </div>
-          <p class="photo-off" data-i18n="maker.region_note">지역을 넣으면 "지역·업종별 소개" 목록에 올라갈 수 있어요.</p>
+          <label style="display:flex;align-items:center;gap:8px;margin-top:10px;font-size:13.5px;font-weight:700;cursor:pointer"><input type="checkbox" id="fForest" style="width:18px;height:18px;accent-color:#7ccf6a"> <span data-i18n="maker.forest">🌳 동네 숲에 내 나무 심기</span></label>
+          <p class="photo-off" data-i18n="maker.region_note">켜면 toomcard.com/forest 에서 같은 지역·업종 사람들과 함께 보여요. 전화번호는 나오지 않아요.</p>
         </div>
         <div class="field"><label data-i18n="maker.slogan">슬로건 한 줄</label><input class="input" id="fSlogan" placeholder="오늘의 만남을 내일의 비즈니스로"></div>
         <div class="row-2">
@@ -1372,7 +1373,7 @@
       card.role = $('fRole').value.trim();
       card.company = $('fCompany').value.trim();
       card.kind = kind;
-      card.region = kind === 'business' ? { sido: $('fRegionSido').value, city: $('fRegionCity').value.trim().slice(0, 20) } : null;
+      card.region = (kind === 'business' || kind === 'minihome') ? { sido: $('fRegionSido').value, city: $('fRegionCity').value.trim().replace(/\s+/g, '').slice(0, 20), forest: $('fForest').checked && !!$('fRegionSido').value } : null;
       card.industry = kind === 'business' ? $('fIndustry').value : '';
       card.industryText = (kind === 'business' && card.industry === 'other') ? $('fIndustryText').value.trim().slice(0, 20) : '';
       // 워터마크: 비즈니스는 회사명, 일반은 소속이 있으면 소속, 없으면 이름
@@ -2453,7 +2454,7 @@
       card = Object.assign(JSON.parse(JSON.stringify(DEFAULT_CARD)), c);
       if (!c.front) card.front = { bg: { type: 'image', src: c.plateCardImage || DEFAULT_CARD.front.bg.src }, text: { layout: 'none', showLogo: false, tone: 'auto' }, finish: 'metal', qr: 'off' };
       $('fName').value = c.name || ''; $('fRole').value = c.role || ''; $('fCompany').value = c.company || '';
-      $('fRegionSido').value = (c.region && c.region.sido) || ''; $('fRegionCity').value = (c.region && c.region.city) || ''; $('fIndustry').value = c.industry || ''; $('fIndustryText').value = c.industryText || ''; $('fIndustryText').hidden = c.industry !== 'other';
+      $('fRegionSido').value = (c.region && c.region.sido) || ''; $('fRegionCity').value = (c.region && c.region.city) || ''; $('fForest').checked = !!(c.region && c.region.forest); $('fIndustry').value = c.industry || ''; $('fIndustryText').value = c.industryText || ''; $('fIndustryText').hidden = c.industry !== 'other';
       $('fSlogan').value = c.slogan || ''; $('fPhone').value = c.phone || ''; $('fEmail').value = c.email || '';
       $('fWebsite').value = (c.primaryAction && c.primaryAction.url) || '';
       const ss = (c.socials || []).filter((s) => s.url);

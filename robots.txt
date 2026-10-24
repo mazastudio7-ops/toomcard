@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /dashboard
+Disallow: /maker
+Disallow: /team
+Disallow: /admin
+Disallow: /api/
+
+Sitemap: https://toomcard.com/sitemap.xml

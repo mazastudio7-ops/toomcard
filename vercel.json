@@ -11,12 +11,31 @@
     },
     "api/page.js": {
       "includeFiles": "page.html"
+    },
+    "api/forest.js": {
+      "includeFiles": "js/tree.js"
     }
   },
   "rewrites": [
     {
       "source": "/",
       "destination": "/"
+    },
+    {
+      "source": "/forest",
+      "destination": "/api/forest"
+    },
+    {
+      "source": "/forest/:sido",
+      "destination": "/api/forest?sido=:sido"
+    },
+    {
+      "source": "/forest/:sido/:city",
+      "destination": "/api/forest?sido=:sido&city=:city"
+    },
+    {
+      "source": "/sitemap.xml",
+      "destination": "/api/sitemap"
     },
     {
       "source": "/home2",
