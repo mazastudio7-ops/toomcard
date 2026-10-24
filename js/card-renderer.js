@@ -314,7 +314,8 @@ function renderActionBar(data) {
   else if (lang === 'de') target = wa || sms || kk;
   else target = sms || wa || kk;
   if (!target) {
-    const s = (data.socials || []).find((x) => x.url && x.type !== 'social_modal');
+    // 메시지 버튼은 대화 앱일 때만 (인스타·유튜브 같은 곳은 말풍선 아이콘이 어긋나서 아래 링크 버튼에만 둔다)
+    const s = (data.socials || []).find((x) => x.url && ['telegram', 'line', 'discord', 'wechat', 'signal', 'messenger'].includes(x.type));
     if (s) target = { href: s.url, label: s.label || t('common.message') };
   }
 

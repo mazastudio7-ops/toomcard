@@ -446,6 +446,7 @@
     @media (max-width: 980px) { .toast { bottom: calc(var(--tabbar-h, 62px) + 78px + env(safe-area-inset-bottom)); max-width: calc(100vw - 32px); } }
     .toast-act { margin-left: 12px; appearance: none; border: 0; border-radius: 99px; padding: 6px 12px; background: var(--tc-accent); color: #000; font: 800 12.5px var(--tc-font-body); cursor: pointer; }
     .more-opt { margin-top: 6px; border-top: 1px solid var(--tc-border); padding-top: 10px; } .more-opt > summary { cursor: pointer; font-weight: 800; font-size: 13.5px; color: var(--tc-text-subtle); padding: 4px 0 10px; list-style: none; } .more-opt > summary::before { content: '+ '; } .more-opt[open] > summary::before { content: '− '; } .more-opt[open] { display: flex; flex-direction: column; gap: 14px; }
+    .sns-chips { display: flex; flex-wrap: wrap; gap: 6px; } .sns-chips button { appearance: none; border: 1px solid var(--tc-border); background: rgba(255,255,255,.05); color: var(--tc-text); border-radius: 99px; padding: 8px 13px; font: 800 13px var(--tc-font-body); cursor: pointer; } .sns-chips button[aria-pressed="true"] { background: var(--tc-accent); color: #000; border-color: var(--tc-accent); }
     .car-thumb { overflow: hidden; }
     /* 폰도 날개 없이 카드 하나만 (디자인은 '앞면' 줄에서 고른다) */
     @media (max-width: 980px) { .car-stack, .car-nav, .car-label, .sug-pill { display: none !important; } }
@@ -1086,6 +1087,7 @@
     $('fSlug').addEventListener('input', () => { const v = $('fSlug').value, c = slugify(v); if (v !== c) { $('fSlug').value = c; const m = $('slugMsg'); m.className = 'slug-msg warn'; m.textContent = t('maker.slug_en_only'); } });
     // 로그인돼 있고 아이디가 비어 있으면 구글 이메일 앞부분을 제안한다 (새 카드일 때만)
     async function suggestIdFromLogin() {
+      return;   // 이메일 앞부분을 공개 주소로 미리 채우지 않는다 (사용자가 직접 정한다)
       try { if ($('fSlug').value || lockedSlug || editLoaded) return; await ensureCloud(); const u = await getCurrentUser(); const local = u && u.email ? slugify(u.email.split('@')[0]) : ''; if (local && local.length >= ID_MIN && !$('fSlug').value) { $('fSlug').value = local; checkSlug(); } } catch (e) {}
     }
     async function checkSlug() {
@@ -2537,6 +2539,38 @@
     }
     /* ── PC: 테슬라식 단계. 섹션을 단계 안으로 옮기고 한 번에 하나만 연다 ── */
     const snsSlotSet = new Set();
+    function mountSnsChipsMobile() {   // 폰: '연결' 시트 맨 위에 같은 SNS 자리 칩
+      if (!isMobile() || document.getElementById('snsChips')) return;
+      const first = document.querySelector('#secInfo > .conn'); if (!first) return;
+      const { chips, hint } = makeSnsChips(); first.parentNode.insertBefore(hint, first); first.parentNode.insertBefore(chips, hint);
+      chips.classList.add('conn'); hint.classList.add('conn'); syncSnsChips();
+    }
+    /* SNS 자리 칩: 고르면 뒷면에 빈 자리가 생기고 주소는 나중에 넣어도 된다 (PC 단계와 폰 연결 시트가 함께 쓴다) */
+    function makeSnsChips() {
+      const chips = document.createElement('div'); chips.className = 'sns-chips'; chips.id = 'snsChips';
+      const SLOTS = [['kakao', 'KakaoTalk'], ['whatsapp', 'WhatsApp'], ['instagram', 'Instagram'], ['youtube', 'YouTube'], ['tiktok', 'TikTok'], ['threads', 'Threads'], ['x', 'X'], ['linkedin', 'LinkedIn'], ['web', t('common.website')]];
+      chips.innerHTML = SLOTS.map(([v, l]) => `<button type="button" data-slot="${v}" aria-pressed="false">${l}</button>`).join('');
+      const hint = document.createElement('p'); hint.className = 'photo-off'; hint.style.display = 'block'; hint.textContent = t('maker.st_sns_hint');
+      chips.addEventListener('click', (e) => {
+        const b = e.target.closest('[data-slot]'); if (!b) return; const v = b.dataset.slot;
+        if (v === 'web') { $('fWebsite').focus(); return; }
+        const rowsOf = () => [...[['fSocialType', 'fSocialUrl'], ['fSocial2Type', 'fSocial2Url']].map(([a, b]) => ({ sel: $(a), inp: $(b), fixed: true })), ...[...document.querySelectorAll('#extraSns .sns-row')].map((r) => ({ sel: r.querySelector('select'), inp: r.querySelector('input'), el: r }))];
+        if (snsSlotSet.has(v) || rowsOf().some((r) => r.sel.value === v && r.inp.value.trim())) {
+          if (rowsOf().some((r) => r.sel.value === v && r.inp.value.trim())) { toast(t('maker.sns_has_url')); return; }   // 주소가 들어 있으면 칩으로 끄지 않는다
+          snsSlotSet.delete(v); rowsOf().filter((r) => r.sel.value === v && !r.inp.value.trim() && r.el).forEach((r) => r.el.remove()); if (typeof syncAddSnsBtn === 'function') syncAddSnsBtn();
+        } else {
+          snsSlotSet.add(v);
+          if (!rowsOf().some((r) => r.sel.value === v)) {   // 이 종류 칸이 아직 없을 때만: 비어 있는 고정 칸을 쓰거나, 없으면 칸을 하나 더 만든다
+            const taken = new Set(rowsOf().filter((r) => r.sel.value !== v && (r.inp.value.trim() || snsSlotSet.has(r.sel.value))).map((r) => r.sel.value));
+            const free = rowsOf().find((r) => r.fixed && !r.inp.value.trim() && !taken.has(r.sel.value) && [...r.sel.options].some((o) => o.value === v));
+            if (free) free.sel.value = v; else if (typeof addSocialRow === 'function') addSocialRow(v, '');
+            syncSnsPh();
+          }
+        }
+        syncSnsChips(); render(true);
+      });
+      return { chips, hint };
+    }
     function buildSteps() {
       if (isMobile() || document.getElementById('steps')) return;
       const left = document.querySelector('.panel-left'); if (!left) return;
@@ -2558,29 +2592,8 @@
       const info = $('secInfo'); $('stB_info').appendChild(info);
       const conn = [...info.querySelectorAll(':scope > .conn')], ad = [...info.querySelectorAll(':scope > .adfield')], adv = [...info.querySelectorAll(':scope > .adv')].filter((el) => !el.querySelector('#fCompany'));   // 회사/브랜드는 정보 입력에 둔다
       // ④ SNS 자리: 칩으로 고르고(주소는 나중에), 밑에 주소 칸
-      const chips = document.createElement('div'); chips.className = 'sns-chips'; chips.id = 'snsChips';
-      const SLOTS = [['kakao', 'KakaoTalk'], ['whatsapp', 'WhatsApp'], ['instagram', 'Instagram'], ['youtube', 'YouTube'], ['tiktok', 'TikTok'], ['threads', 'Threads'], ['x', 'X'], ['linkedin', 'LinkedIn'], ['web', t('common.website')]];
-      chips.innerHTML = SLOTS.map(([v, l]) => `<button type="button" data-slot="${v}" aria-pressed="false">${l}</button>`).join('');
-      const hint = document.createElement('p'); hint.className = 'photo-off'; hint.style.display = 'block'; hint.textContent = t('maker.st_sns_hint');
+      const { chips, hint } = makeSnsChips();
       $('stB_sns').append(chips, hint, ...conn);
-      chips.addEventListener('click', (e) => {
-        const b = e.target.closest('[data-slot]'); if (!b) return; const v = b.dataset.slot;
-        if (v === 'web') { $('fWebsite').focus(); return; }
-        const rowsOf = () => [...[['fSocialType', 'fSocialUrl'], ['fSocial2Type', 'fSocial2Url']].map(([a, b]) => ({ sel: $(a), inp: $(b), fixed: true })), ...[...document.querySelectorAll('#extraSns .sns-row')].map((r) => ({ sel: r.querySelector('select'), inp: r.querySelector('input'), el: r }))];
-        if (snsSlotSet.has(v) || rowsOf().some((r) => r.sel.value === v && r.inp.value.trim())) {
-          if (rowsOf().some((r) => r.sel.value === v && r.inp.value.trim())) { toast(t('maker.sns_has_url')); return; }   // 주소가 들어 있으면 칩으로 끄지 않는다
-          snsSlotSet.delete(v); rowsOf().filter((r) => r.sel.value === v && !r.inp.value.trim() && r.el).forEach((r) => r.el.remove()); if (typeof syncAddSnsBtn === 'function') syncAddSnsBtn();
-        } else {
-          snsSlotSet.add(v);
-          if (!rowsOf().some((r) => r.sel.value === v)) {   // 이 종류 칸이 아직 없을 때만: 비어 있는 고정 칸을 쓰거나, 없으면 칸을 하나 더 만든다
-            const taken = new Set(rowsOf().filter((r) => r.sel.value !== v && (r.inp.value.trim() || snsSlotSet.has(r.sel.value))).map((r) => r.sel.value));
-            const free = rowsOf().find((r) => r.fixed && !r.inp.value.trim() && !taken.has(r.sel.value) && [...r.sel.options].some((o) => o.value === v));
-            if (free) free.sel.value = v; else if (typeof addSocialRow === 'function') addSocialRow(v, '');
-            syncSnsPh();
-          }
-        }
-        syncSnsChips(); render(true);
-      });
       $('stB_ad').append(...ad);
       { const nx = $('stB_image').querySelector('.step-next'); const ff = $('frameChips').closest('.field'); if (ff) $('stB_image').insertBefore(ff, nx || null); $('stB_image').insertBefore($('secText'), nx || null); }   // 틀·앞면 글자 위치는 앞면을 만지는 단계에서
       // 고급 옵션 안에서도 앞면 항목을 만지면 카드가 앞면으로, 뒷면 항목이면 뒷면으로 돌아간다
@@ -2644,7 +2657,7 @@
     });
     $('kindSeg').addEventListener('click', (e) => { const b = e.target.closest('button[data-kind]'); if (b) setKind(b.dataset.kind); });
     (() => { const p = new URLSearchParams(location.search); setKind(p.get('kind') || 'personal'); setMode(p.get('mode') || 'card'); })();
-    renderBgGrid(); renderThemeChips(); renderStartChips(); renderCarousel(); syncAdjustUI(); buildSteps(); syncSnsPh(); ['fSocialType', 'fSocial2Type'].forEach((id) => $(id).addEventListener('change', syncSnsPh)); document.addEventListener('i18n:change', syncSnsPh);
+    renderBgGrid(); renderThemeChips(); renderStartChips(); renderCarousel(); syncAdjustUI(); buildSteps(); mountSnsChipsMobile(); syncSnsPh(); ['fSocialType', 'fSocial2Type'].forEach((id) => $(id).addEventListener('change', syncSnsPh)); document.addEventListener('i18n:change', syncSnsPh);
     function preloadDesigns() {
       THEMES.forEach(([key]) => { const l = document.createElement('link'); l.rel = 'preload'; l.as = 'style'; l.href = `/themes/${key}.css`; document.head.appendChild(l); });
       CURATED_BG.filter((b) => b.type === 'image').forEach((b) => { const img = new Image(); img.src = b.src; });
