@@ -174,7 +174,7 @@
   // 엠블럼 글자: 영문은 이니셜 2자, 한글·한자는 첫 글자 (뷰어와 메이커가 같이 쓴다)
   function emblemAutoText(s) {
     s = String(s || '').trim();
-    if (!s) return 'T';
+    if (!s) return '';   // 이름이 없으면 비워 둔다 (툼카드 'T'를 남의 카드에 찍지 않는다)
     if (/[A-Za-z]/.test(s)) return s.split(/[\s\-_.]+/).filter(Boolean).slice(0, 2).map(function (w) { return w[0]; }).join('').toUpperCase();
     return Array.from(s)[0];
   }

@@ -447,7 +447,7 @@ function populateCard(data) {
       backLogoImg.src = pUrl;
       backLogoImg.alt = data.name || data.company;
     }
-  } else if (data.logo === false || (data.logo && data.logo.src === "")) {
+  } else if (data.logo === false || (data.logo && (data.logo.src === "" || isBrandDefaultLogo(data)))) {
     const fContainer = document.querySelector('.card-medallion-area') || document.querySelector('.front-logo-container');
     if (fContainer) fContainer.style.display = 'none';
   } else if (data.logo) {
@@ -984,13 +984,22 @@ function emblemAutoText(s) {
   return (window.TCCore && TCCore.emblemAutoText) ? TCCore.emblemAutoText(s) : (Array.from(String(s || 'T').trim())[0] || 'T').toUpperCase();
 }
 
+// 툼카드·투머스 기본 로고가 남의 카드에 찍히지 않게: 브랜드 카드가 아니면 기본 로고는 '없음'으로 본다
+const BRAND_SLUGS = ['toomcard', 'toomus', 'ceo', 'andrew', 'hyangwon'];
+function isBrandDefaultLogo(d) {
+  const src = String((d.logo && d.logo.src) || '');
+  if (!/\/assets\/(logo_toomcard|logo_toomus|toomcard_hd)/.test(src)) return false;
+  const slug = String(d.slug || d.id || '');
+  return !(BRAND_SLUGS.includes(slug) || /^(TOOMCARD|TOOMUS)$/i.test(String(d.company || '').trim()));
+}
 function normalizeEmblem(data) {
   const e = data.emblem;
   if (!e || e.on === false) return null;   // 예전 카드(엠블럼 없음)는 기존 로고 그대로
   const pick = (k, d) => (EMBLEM_OPTS[k].includes(e[k]) ? e[k] : d);
   const source = (e.source === 'logo' && e.img) ? 'logo' : 'initials';
   const base = data.kind === 'business' ? (data.company || data.name) : (data.name || data.company);
-  const text = Array.from((e.text || '').trim()).slice(0, 3).join('') || emblemAutoText(base);
+  let text = Array.from((e.text || '').trim()).slice(0, 3).join('');
+  if (!text || (text === 'T' && base && emblemAutoText(base) !== 'T')) text = emblemAutoText(base);   // 예전 기본값 'T'(툼카드)는 본인 이니셜로
   return { source, text, img: e.img || '', material: pick('material', 'gold'), shape: pick('shape', 'coin'), motion: pick('motion', 'sweep') };
 }
 
