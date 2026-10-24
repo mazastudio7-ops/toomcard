@@ -193,7 +193,8 @@ function renderSparseBack(data, items) {
   const pageUrl = !base ? '' : (data.ml && data.ml.on ? base + '/links' : (data.page && data.page.on ? base + '/page' : ''));
   const nSns = Object.keys(have).length, nLinks = (data.links || []).filter((l) => l && l.url).length, nTags = (data.moatTags || []).length;
   const stat = (label, val, href) => `<a class="bp-st" ${href ? `href="${escHtml(href)}" onclick="event.stopPropagation()"` : 'href="#" onclick="event.preventDefault(); event.stopPropagation(); document.getElementById(\'leadModal\').classList.add(\'active\');"'}><span>${escHtml(label)}</span><b>${escHtml(val)}</b></a>`;
-  const icons = SPARSE_SNS.map((type) => {
+  const slots = (data.snsSlots && data.snsSlots.length) ? [...new Set(data.snsSlots.concat(Object.keys(have)))].slice(0, 8) : SPARSE_SNS;   // 메이커에서 고른 자리 (주소는 나중에)
+  const icons = slots.map((type) => {
     const url = have[type];
     if (url) return `<a class="sico" href="${safeHref(url)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" title="${escHtml(type)}" aria-label="${escHtml(type)}">${getSocialIconSvg(type)}</a>`;
     if (pageUrl) return `<a class="sico ghost" href="${escHtml(pageUrl)}" onclick="event.stopPropagation()" title="${escHtml(t('card.minihome'))}" aria-label="${escHtml(t('card.minihome'))}">${getSocialIconSvg(type)}</a>`;
