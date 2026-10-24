@@ -2542,7 +2542,7 @@
       const left = document.querySelector('.panel-left'); if (!left) return;
       const defs = [['design', 'maker.st_design', 'maker.st_design_s'], ['image', 'maker.st_image', 'maker.st_image_s'], ['info', 'maker.st_info', ''], ['sns', 'maker.st_sns', 'maker.st_sns_s'], ['ad', 'maker.st_ad', 'maker.st_ad_s'], ['adv', 'maker.st_adv', 'maker.row_adv_sub']];
       const box = document.createElement('div'); box.className = 'steps'; box.id = 'steps';
-      box.innerHTML = defs.map(([k, tk, sk], i) => `<div class="step" data-step="${k}"><button type="button" class="step-h"><span class="n">${i + 1}</span><span><b>${t(tk)}</b><small id="stS_${k}">${sk ? t(sk) : ''}</small></span><em>›</em></button><div class="step-b" id="stB_${k}"></div></div>`).join('')
+      box.innerHTML = defs.map(([k, tk, sk], i) => `<div class="step" data-step="${k}"><button type="button" class="step-h"><span class="n">${i + 1}</span><span><b data-i18n="${tk}">${t(tk)}</b><small id="stS_${k}">${sk ? t(sk) : ''}</small></span><em>›</em></button><div class="step-b" id="stB_${k}"></div></div>`).join('')
         + `<button type="button" class="step-done" id="stepDone">${t('maker.st_done')}</button>`;
       left.insertBefore(box, left.querySelector('.section'));
       // ① 디자인: 모달 열기 버튼 (플레이트 격자 + 툼 프렌즈를 모달로 옮긴다)
@@ -2593,6 +2593,7 @@
       $('stepDone').addEventListener('click', () => { document.body.classList.add('done'); flip('show_front'); setTimeout(renderCarousel, 320); const pr = document.querySelector('.panel-right'); if (pr) pr.scrollTop = 0; });
       document.body.classList.add('steps');
       openStep('design'); syncSteps();
+      document.addEventListener('i18n:change', () => { const st = (id, key) => { const el = document.getElementById(id); if (el) el.textContent = t(key); }; st('stS_image', 'maker.st_image_s'); st('stS_adv', 'maker.row_adv_sub'); const dp = document.querySelector('#dpick span'); if (dp) dp.innerHTML = `<b>${t('maker.st_design_btn')}</b><small>${t('maker.st_design_hint')}</small>`; const ss = document.getElementById('stS_sns'); syncSteps(); });
     }
     function openStep(k) { document.querySelectorAll('#steps .step').forEach((x) => x.classList.toggle('open', x.dataset.step === k)); if (['info', 'sns', 'ad', 'adv'].includes(k)) flip('show_back'); else flip('show_front'); }
     function markStep(k) { const s = document.querySelector(`#steps .step[data-step="${k}"]`); if (s) s.classList.add('ok'); }
