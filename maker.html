@@ -49,15 +49,6 @@
     .modes { display: flex; gap: 3px; padding: 3px; border-radius: 12px; background: rgba(255,255,255,.06); border: 1px solid var(--tc-border); }
     .modes button { appearance: none; border: 0; border-radius: 9px; padding: 7px 12px; background: transparent; color: var(--tc-text-muted); font: 800 12.5px var(--tc-font-body); cursor: pointer; white-space: nowrap; }
     .modes button[aria-pressed="true"] { background: var(--tc-accent); color: #000; }
-    /* 모드별로 자기 것만 보여 준다: f-card = 명함에서만, f-nolinks = 멀티링크에서는 숨김 */
-    body.mode-links .f-card, body.mode-home .f-card, body.mode-links .f-nolinks { display: none !important; }
-    body:not(.mode-links) #mlBox, body:not(.mode-home) #pageBox { display: none !important; }
-    body.mode-links #mlBox .toggle, body.mode-home #pageBox .toggle { display: none; }
-    body.mode-links #mlBox, body.mode-home #pageBox { border: 0; padding: 0; background: none; }
-    #mlBox, #pageBox, #addonSum { display: none !important; }   /* 페이지 편집은 /editor 로 옮겼다 */
-    #addonSum { display: flex; flex-direction: column; gap: 6px; margin-top: 12px; }
-    #addonSum a { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; border-radius: 12px; background: rgba(255,255,255,.05); border: 1px solid var(--tc-border); color: var(--tc-text); text-decoration: none; font-size: 13px; font-weight: 700; }
-    #addonSum a span { color: var(--tc-accent); font-size: 12px; }
     .studio-header {
       position: sticky; top: 0; z-index: 20;
       display: flex; align-items: center; justify-content: space-between; gap: 12px;
@@ -219,11 +210,6 @@
     /* 미리보기는 항상 실제 폰 크기(카드 330×529)로 그린 뒤 transform으로 맞춘다 → 글자 줄바꿈까지 실제 명함과 같다 */
     .car-card { position: absolute; left: 50%; top: 50%; width: 354px; height: 553px; margin: -276.5px 0 0 -177px; transform: scale(var(--k, 1)); transform-origin: 50% 50%; z-index: 5; }
     .car-card iframe { display: block; width: 100%; height: 100%; border: none; border-radius: 24px; background: transparent; }
-    /* 멀티링크·미니홈 모드: 명함 대신 실제 페이지가 폰 모양 안에 그대로 보인다 */
-    body.kind-page #preview, body.kind-page .car-stack, body.kind-page .car-nav, body.kind-page .car-label { display: none !important; }
-    body.kind-page #pagePreview { display: block; background: #0b0b10; border: 1px solid rgba(255,255,255,.14); box-shadow: 0 30px 70px rgba(0,0,0,.55); }
-    .car-stack { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
-    .car-stack.cover { z-index: 6; }   /* 넘기는 동안 썸네일이 실제 카드를 덮는다 */
     .car-card iframe { -webkit-backface-visibility: hidden; backface-visibility: hidden; }
     .car-thumb {
       position: absolute; top: 50%; left: 50%;
@@ -303,14 +289,6 @@
     .sns-row { display: grid; grid-template-columns: 110px 1fr 34px; gap: 8px; margin-top: 8px; }
     .idfield .url-preview { border-color: rgba(255,217,120,.45); }
     #fLetter, #slashSp { display: none !important; }
-    .blk-row { position: relative; padding: 10px 10px 10px 12px; margin-bottom: 8px; border-radius: 12px; border: 1px solid var(--tc-border); background: rgba(255,255,255,.03); display: flex; flex-direction: column; gap: 6px; }
-    .blk-row .bh { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--tc-text-subtle); }
-    .blk-row .bh b { color: #ffd978; }
-    .blk-row .bh .sp { flex: 1; }
-    .blk-row .bh button { background: none; border: 1px solid var(--tc-border); color: var(--tc-text-subtle); border-radius: 7px; width: 26px; height: 24px; cursor: pointer; font-size: 13px; }
-    .blk-row .two { display: grid; grid-template-columns: 56px 1fr; gap: 6px; }
-    .blk-row .gitems { display: flex; flex-direction: column; gap: 4px; }
-    .blk-row .gitems .g { display: grid; grid-template-columns: 44px 1fr 1fr; gap: 4px; }
     .res-more { display: flex; flex-direction: column; gap: 6px; margin: 10px 0 6px; text-align: left; }
     .rm-row { display: grid; grid-template-columns: 70px 1fr auto; align-items: center; gap: 6px; font-size: 12px; }
     .rm-row span { color: var(--tc-text-subtle); font-weight: 700; } .rm-row a { color: #ffd978; word-break: break-all; text-decoration: none; font-weight: 700; }
@@ -319,15 +297,6 @@
     .rm-next b { font-size: 12.5px; } .rm-add { appearance: none; text-align: left; border: 0; background: rgba(255,217,120,.1); color: #ffd978; border-radius: 10px; padding: 9px 10px; font: 800 12.5px var(--tc-font-body); cursor: pointer; }
     .addon-head { margin: 14px 0 6px; display: flex; flex-direction: column; gap: 3px; }
     .addon-head b { font-size: 14px; } .addon-head small { font-size: 11.5px; color: var(--tc-text-subtle); line-height: 1.5; }
-    #mlBox { margin-bottom: 10px; }
-    .pg-gal { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 8px; }
-    .pg-gal:empty { display: none; }
-    .pg-gal div { position: relative; aspect-ratio: 1; border-radius: 10px; overflow: hidden; background: rgba(255,255,255,.06); }
-    .pg-gal img { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .pg-gal button { position: absolute; top: 4px; right: 4px; width: 22px; height: 22px; border-radius: 50%; border: 0; background: rgba(0,0,0,.65); color: #fff; font-size: 14px; line-height: 22px; cursor: pointer; }
-    .pg-row { display: grid; grid-template-columns: 1fr 90px 34px; gap: 6px; margin-bottom: 6px; }
-    .pg-row.n3 { grid-template-columns: 1fr; } .pg-row.n3 .x-del { grid-column: 1; justify-self: end; width: 34px; }
-    .pg-row textarea { grid-column: 1; }
     .extra-row { display: grid; grid-template-columns: 92px 1fr 34px; gap: 8px; margin-bottom: 8px; }
     .x-del { background: none; border: 1px solid var(--tc-border); border-radius: 8px; color: var(--tc-text-subtle); font-size: 16px; cursor: pointer; }
     #addLinkBtn[hidden] { display: none; }
@@ -344,20 +313,6 @@
     #kindSeg button { padding: 9px 2px; font-size: 12.5px; }
     .seg-hint { font-size: 11.5px; color: var(--tc-text-subtle); margin-top: -2px; }
     body.kind-personal .biz-only, body.kind-business .per-only { display: none; }
-    body:not(.kind-multilink) .ml-only { display: none; }
-    body:not(.kind-minihome) .mh-only { display: none; }
-    body.kind-minihome .seg-hint .biz-only { display: none; }
-    /* 멀티링크·미니홈 = 페이지: 명함 꾸미기(글자·로고·마감·뒷면)는 숨기고 정보 · 대표 사진 · 발행만 남긴다 */
-    body.kind-page .tabbar [data-tab="text"], body.kind-page .tabbar [data-tab="logo"], body.kind-page .tabbar [data-tab="finish"],
-    body.kind-page .panel .section[data-tab="text"], body.kind-page .panel .section[data-tab="logo"], body.kind-page .panel .section[data-tab="finish"],
-    body.kind-page .tool-btn[data-face="back"], body.kind-page #fxField, body.kind-page #lookField, body.kind-page .photo-perks { display: none !important; }
-    body.kind-page .tabbar { grid-template-columns: repeat(3, 1fr); }
-    body.kind-multilink .rg-field, body.kind-multilink .biz-only, body.kind-multilink .per-only, body.kind-minihome .per-only { display: none; }
-    /* 멀티링크는 블록 중심: 홍보용 칸(소개·갤러리·상품표·소식·위치·후기)은 숨긴다 */
-    body.kind-multilink #mlBox .toggle .switch, body.kind-minihome #pageBox .toggle .switch { display: none; }
-    body.kind-multilink #mlBox, body.kind-minihome #pageBox { border-color: rgba(255,217,120,.6); }
-
-    /* ── 모바일: 큰 캐러셀 + 하단 탭 + 시트 ───────── */
     @media (max-width: 980px) {
       :root { --tabbar-h: 62px; --sheet-h: calc(var(--app-h, 100dvh) * 0.5); }
       body { overflow: hidden; }
@@ -572,47 +527,6 @@
           <div id="extraLinks"></div>
           <button type="button" class="btn-secondary" id="addLinkBtn" onclick="addExtraLink()"><i data-lucide="plus"></i><span data-i18n="maker.add_link">링크 추가</span></button>
         </div>
-        <div id="addonSum" class="f-card"></div>
-        <!-- 멀티링크: 링크·상품·유튜브 블록만 있는 페이지 → toomcard.com/아이디/links (명함·미니홈과 자유롭게 같이 쓴다) -->
-        <div class="star-box" id="mlBox">
-          <div class="toggle"><span><b data-i18n="maker.ml_on">멀티링크 만들기</b><small class="star-desc" data-i18n="maker.ml_desc">SNS·상품·유튜브 링크를 한 페이지에. 인스타 프로필 링크로 쓰기 좋아요.</small></span><button class="switch" id="mlSwitch" role="switch" aria-checked="false"></button></div>
-          <div id="mlOpts" hidden>
-            <div class="field"><label data-i18n="maker.ml_title">멀티링크 제목</label><input class="input" id="mlTitle" maxlength="40" placeholder="예: 민호의 추천 링크" data-i18n-placeholder="maker.ml_title_ph"></div>
-            <div class="field"><label data-i18n="maker.page_blocks">블록 (최대 20) — 상품·링크·그리드·유튜브·제목·글</label>
-              <div id="pgBlocks"></div>
-              <div class="chips" style="margin-top:6px">
-                <button type="button" class="chip" data-blk="product">🛒 <span data-i18n="maker.blk_product">상품</span></button>
-                <button type="button" class="chip" data-blk="link">🔗 <span data-i18n="maker.blk_link">링크</span></button>
-                <button type="button" class="chip" data-blk="grid">▦ <span data-i18n="maker.blk_grid">그리드</span></button>
-                <button type="button" class="chip" data-blk="youtube">▶ <span data-i18n="maker.blk_youtube">유튜브</span></button>
-                <button type="button" class="chip" data-blk="title">T <span data-i18n="maker.blk_title">제목</span></button>
-                <button type="button" class="chip" data-blk="text">¶ <span data-i18n="maker.blk_text">글</span></button>
-              </div>
-            <p class="photo-off" style="display:block" id="mlUrl"></p>
-          </div>
-        </div>
-        <!-- 미니 홈페이지: 소개·사진·상품·소식·위치·후기 → toomcard.com/아이디/page -->
-        <div class="star-box" id="pageBox">
-          <div class="toggle"><span><b data-i18n="maker.page_on">미니 홈페이지 만들기</b><small class="star-desc" data-i18n="maker.page_desc">소개·사진·상품·위치·후기를 한 페이지에. 명함 뒷면과 이젠스타에 "미니홈 보기"가 생겨요.</small></span><button class="switch" id="pageSwitch" role="switch" aria-checked="false"></button></div>
-          <div id="pageOpts" hidden>
-            <div class="field"><label data-i18n="maker.page_title">미니홈 제목</label><input class="input" id="pgTitle" maxlength="40" placeholder="예: 성주참외 배미자네" data-i18n-placeholder="maker.page_title_ph"></div>
-            <div class="field pg-home"><label data-i18n="maker.page_intro">소개 글</label><textarea class="input" id="pgIntro" rows="5" maxlength="2000" placeholder="우리 농장은…" data-i18n-placeholder="maker.page_intro_ph"></textarea></div>
-            </div>
-            <div class="field pg-home"><label data-i18n="maker.page_gallery">사진 (최대 8장)</label>
-              <div class="pg-gal" id="pgGal"></div>
-              <button type="button" class="btn-secondary" id="pgGalBtn"><i data-lucide="image-plus"></i><span data-i18n="maker.page_gallery_add">사진 추가</span></button>
-              <input type="file" id="pgGalFile" accept="image/*" multiple hidden>
-              <p class="photo-off" data-i18n="maker.page_gallery_note">사진은 저장소에 올라가요 (로그인 필요). 자동으로 가볍게 줄여요.</p>
-            </div>
-            <div class="field pg-home"><label data-i18n="maker.page_items">상품 · 가격 (최대 10)</label><div id="pgItems"></div><button type="button" class="btn-secondary" id="pgItemBtn"><i data-lucide="plus"></i><span data-i18n="maker.page_items_add">상품 추가</span></button></div>
-            <div class="field pg-home"><label data-i18n="maker.page_news">소식 (최대 5)</label><div id="pgNews"></div><button type="button" class="btn-secondary" id="pgNewsBtn"><i data-lucide="plus"></i><span data-i18n="maker.page_news_add">소식 추가</span></button></div>
-            <div class="field pg-home"><label data-i18n="maker.page_address">주소</label><input class="input" id="pgAddr" maxlength="120" placeholder="경북 성주군 …" data-i18n-placeholder="maker.page_address_ph"></div>
-            <div class="field pg-home"><label data-i18n="maker.page_map">지도 링크 (네이버·카카오 지도 공유 주소)</label><input class="input" id="pgMap" type="url" placeholder="https://"></div>
-            <div class="field pg-home"><label data-i18n="maker.page_hours">영업시간</label><input class="input" id="pgHours" maxlength="80" placeholder="예: 매일 9:00~18:00" data-i18n-placeholder="maker.page_hours_ph"></div>
-            <div class="field pg-home"><label data-i18n="maker.page_reviews">후기 (최대 5)</label><div id="pgRv"></div><button type="button" class="btn-secondary" id="pgRvBtn"><i data-lucide="plus"></i><span data-i18n="maker.page_reviews_add">후기 추가</span></button></div>
-            <p class="photo-off" style="display:block" id="pgUrl"></p>
-          </div>
-        </div>
       </section>
 
       <!-- 2. 앞면 배경 (데스크톱 전용 썸네일) -->
@@ -826,7 +740,7 @@
         <button type="button" class="car-nav prev" onclick="goDesign(designIdx - 1, -1)" aria-label="Previous">‹</button>
         <div class="car-track" id="carTrack">
           <div class="car-stack" id="carStack"></div>
-          <div class="car-card" id="carCard"><iframe id="preview" class="booting" src="/card.html?embed=simulator&maker=1&id=toomcard" title="Live preview"></iframe><iframe id="pagePreview" title="Page preview" hidden></iframe></div>
+          <div class="car-card" id="carCard"><iframe id="preview" class="booting" src="/card.html?embed=simulator&maker=1&id=toomcard" title="Live preview"></iframe></div>
         </div>
         <button type="button" class="car-nav next" onclick="goDesign(designIdx + 1, 1)" aria-label="Next">›</button>
         <button type="button" class="sug-pill l" id="sugL" hidden onclick="goDesign(designIdx - 1, -1)"></button>
@@ -984,46 +898,17 @@
       personal: { fName: 'maker.p_name_ph', fRole: 'maker.p_intro_ph', fCompany: 'maker.p_aff_ph', fSlogan: 'maker.p_slogan_ph', fTags: 'maker.p_tags_ph' },
       business: { fName: 'maker.name_ph', fRole: 'maker.role_ph', fCompany: 'maker.company_ph', fSlogan: 'maker.b_slogan_ph', fTags: 'maker.b_tags_ph' }
     };
-    // 모드: 명함(card) · 멀티링크(links) · 미니홈(home). 엔진은 하나, 화면은 셋. 데이터는 같은 카드에 들어간다.
-    let mode = 'card', hasCardBody = false;   // hasCardBody: 명함(앞·뒷면)이 있는 카드인가. 없으면 멀티링크·미니홈이 대표 주소가 된다
+    // 멀티링크·미니홈은 /editor 에서 만든다. 여기로 들어오면 넘겨 준다. 명함은 일반·비즈니스 둘뿐.
     const MODE_OF_KIND = { multilink: 'links', minihome: 'home' };
-    function setMode(m, opts) {
-      if (['links', 'home'].includes(m)) { const p = new URLSearchParams(location.search); location.replace('/editor?mode=' + m + (p.get('edit') ? '&edit=' + encodeURIComponent(p.get('edit')) : '')); return; }   // 멀티링크·미니홈은 페이지 에디터에서
-      mode = 'card';
-      document.body.classList.toggle('mode-card', mode === 'card'); document.body.classList.toggle('mode-links', mode === 'links'); document.body.classList.toggle('mode-home', mode === 'home');
-      if (mode === 'links') { card.ml = Object.assign({ on: true }, card.ml || {}, { on: true }); if (!hasCardBody) kind = 'multilink'; }
-      else if (mode === 'home') { card.page = Object.assign({ on: true }, card.page || {}, { on: true }); if (!hasCardBody) kind = 'minihome'; }
-      else { hasCardBody = true; if (!['personal', 'business'].includes(kind)) kind = 'personal'; }
-      const isPage = mode !== 'card';
-      document.body.classList.toggle('kind-page', isPage);
-      document.querySelectorAll('[data-i18n="maker.tab_photo"]').forEach((el) => { el.textContent = t(isPage ? 'maker.tab_hero' : 'maker.tab_photo'); });
-      document.querySelectorAll('[data-i18n="maker.cta_photo"], [data-i18n="maker.pick_photo"]').forEach((el) => { el.textContent = t(isPage ? 'maker.cta_hero' : el.dataset.i18n); });
-      document.querySelectorAll('[data-i18n="maker.sec_photo"]').forEach((el) => { el.textContent = t(isPage ? 'maker.sec_hero' : 'maker.sec_photo'); });
-      document.querySelectorAll('[data-i18n="maker.front"]').forEach((el) => { el.textContent = t(isPage ? 'maker.hero' : 'maker.front'); });
-      if (isPage && typeof flip === 'function') flip('show_front');
-      const fr = $('preview'); if (fr && fr.contentWindow) fr.contentWindow.postMessage({ action: 'page_mode', on: isPage }, '*');
-      const fb = $('faceBadge'); if (fb) fb.hidden = isPage;
-      const mb = $('modeBadge'); if (mb) mb.textContent = mode === 'links' ? t('maker.mode_links') : mode === 'home' ? t('maker.mode_home') : 'STUDIO';
-      try { const u = new URL(location.href); if (mode === 'card') u.searchParams.delete('mode'); else u.searchParams.set('mode', mode); history.replaceState(null, '', u); } catch (e) {}
-      setKind(kind);
-      if (!(opts && opts.keepTab) && typeof openTab === 'function' && isMobile()) { currentTab = ''; openTab('info'); }
-    }
-    function syncAddonSum() { return;
-      const box = $('addonSum'); if (!box) return;
-      const slug = curSlug() || '…', rows = [];
-      if (card.ml && card.ml.on) rows.push(`<a href="#" data-mode="links">🔗 ${t('maker.mode_links')} · toomcard.com/${slug}/links<span>${t('maker.addon_edit')}</span></a>`);
-      if (card.page && card.page.on) rows.push(`<a href="#" data-mode="home">🏠 ${t('maker.mode_home')} · toomcard.com/${slug}/page<span>${t('maker.addon_edit')}</span></a>`);
-      box.innerHTML = rows.join('');
+    function setMode(m) {
+      if (['links', 'home'].includes(m)) { const p = new URLSearchParams(location.search); location.replace('/editor?mode=' + m + (p.get('edit') ? '&edit=' + encodeURIComponent(p.get('edit')) : '')); return; }
+      if (!['personal', 'business'].includes(kind)) { kind = 'personal'; setKind(kind); }   // 페이지만 있던 카드에 명함을 붙인다
     }
     function setKind(k) {
-      kind = ['business', 'multilink', 'minihome'].includes(k) ? k : 'personal';
+      kind = k === 'business' ? 'business' : (['multilink', 'minihome'].includes(k) ? k : 'personal');
       document.body.classList.toggle('kind-business', kind === 'business');
       document.body.classList.toggle('kind-personal', kind === 'personal');
-      document.body.classList.toggle('kind-multilink', kind === 'multilink');
-      document.body.classList.toggle('kind-minihome', kind === 'minihome');
-      if (kind === 'minihome') { card.page = Object.assign({ on: true }, card.page || {}, { on: true }); }
-      if (kind === 'multilink') { card.ml = Object.assign({ on: true }, card.ml || {}, { on: true }); }
-      if (typeof syncPageUI === 'function') syncPageUI(); if (typeof syncMlUI === 'function') syncMlUI(); if (typeof syncAddonSum === 'function') syncAddonSum();
+
       document.querySelectorAll('#kindSeg button').forEach((b) => b.setAttribute('aria-pressed', b.dataset.kind === kind ? 'true' : 'false'));
       Object.entries(KIND_PH[kind === 'business' || kind === 'minihome' ? 'business' : 'personal']).forEach(([id, key]) => { const el = document.getElementById(id); if (el) el.placeholder = t(key); });
       if (typeof render === 'function') render();
@@ -1168,12 +1053,10 @@
     }
     function schedSlug() { clearTimeout(slugTimer); slugTimer = setTimeout(checkSlug, 500); }
     $('fSlug').addEventListener('input', schedSlug);
-    $('fSlug').addEventListener('input', () => { if (typeof syncAddonSum === 'function') syncAddonSum(); });
     document.addEventListener('i18n:change', () => checkSlug()); document.addEventListener('DOMContentLoaded', () => checkSlug());
     document.addEventListener('DOMContentLoaded', () => {
       if (!new URLSearchParams(location.search).get('edit')) setTimeout(suggestIdFromLogin, 1200);
       else { const s = document.querySelector('#btnPublish span'); s.setAttribute('data-i18n', 'maker.save_edit'); s.textContent = t('maker.save_edit'); }   // 고치는 중이면 "저장하기"
-      syncPageUI(); syncMlUI();
     });
 
     /* ── 추가 링크 (최대 3개) ───────────────────────── */
@@ -1198,119 +1081,16 @@
     function syncAddSnsBtn() { $('addSnsBtn').hidden = $('extraSns').children.length >= MAX_SNS_EXTRA; }
     function setExtraSns(list) { $('extraSns').innerHTML = ''; (list || []).slice(0, MAX_SNS_EXTRA).forEach((s) => addSocialRow(s.type, s.url)); syncAddSnsBtn(); }
 
-    /* ── 미니 홈페이지 (card.page) ─────────────────────── */
-    const PG = { gallery: [] };
-    function syncMlUI() { return;
-      const p = card.ml || (card.ml = { on: false });
-      if (kind === 'multilink') p.on = true;
-      $('mlSwitch').setAttribute('aria-checked', String(!!p.on)); $('mlOpts').hidden = !p.on;
-      $('mlUrl').textContent = p.on ? ('toomcard.com/' + (curSlug() || '…') + (kind === 'multilink' ? '' : '/links')) : '';
-    }
+    /* 페이지(멀티링크·미니홈) 데이터는 /editor 가 관리한다. 명함 저장 때는 그대로 넘긴다 */
+    function collectMl() { return JSON.parse(JSON.stringify(card.ml || { on: false })); }
+    function applyMl(ml) { card.ml = Object.assign({ on: false }, ml || {}); }
+    function collectPage() { return JSON.parse(JSON.stringify(card.page || { on: false })); }
+    function applyPage(p) { card.page = Object.assign({ on: false }, p || {}); }
     document.addEventListener('click', (e) => {
       const cp = e.target.closest && e.target.closest('.rm-copy'); if (cp) { navigator.clipboard.writeText(cp.dataset.u).then(() => toast(t('common.copied') || '복사했어요')); return; }
       const ad = e.target.closest && e.target.closest('.rm-add'); if (!ad) return;
       location.href = '/editor?mode=' + (ad.dataset.add === 'ml' ? 'links' : 'home') + '&edit=' + encodeURIComponent(curSlug());
     });
-    $('mlSwitch').addEventListener('click', () => { card.ml = Object.assign({ on: false }, card.ml, { on: !(card.ml && card.ml.on) }); syncMlUI(); render(false, 260); });
-    function collectMl() { return JSON.parse(JSON.stringify(card.ml || { on: false })); }   // 페이지 데이터는 /editor 가 관리한다. 여기서는 그대로 둔다
-    function applyMl(ml, legacyBlocks) { card.ml = Object.assign({ on: false }, ml || {}); }
-    function syncPageUI() { return;
-      const p = card.page || (card.page = { on: false });
-      $('pageSwitch').setAttribute('aria-checked', String(!!p.on)); $('pageOpts').hidden = !p.on;
-      if (kind === 'minihome') p.on = true;
-      $('pageSwitch').setAttribute('aria-checked', String(!!p.on)); $('pageOpts').hidden = !p.on;
-      $('pgUrl').textContent = p.on ? ('toomcard.com/' + (curSlug() || '…') + (kind === 'minihome' ? '' : '/page')) : '';
-    }
-    $('pageSwitch').addEventListener('click', () => { card.page = Object.assign({ on: false }, card.page, { on: !(card.page && card.page.on) }); syncPageUI(); render(false, 260); });
-    function pgGalRender() { $('pgGal').innerHTML = PG.gallery.map((u, i) => `<div><img src="${u}" alt=""><button type="button" data-i="${i}" aria-label="remove">×</button></div>`).join(''); $('pgGalBtn').hidden = PG.gallery.length >= 8; }
-    $('pgGal').addEventListener('click', (e) => { const b = e.target.closest('button'); if (!b) return; PG.gallery.splice(Number(b.dataset.i), 1); pgGalRender(); });
-    $('pgGalBtn').addEventListener('click', () => $('pgGalFile').click());
-    function shrinkToBlob(file, maxW) { return new Promise((res) => { const fr = new FileReader(); fr.onload = (e) => { const im = new Image(); im.onload = () => { const c = document.createElement('canvas'); const sc = Math.min(1, maxW / Math.max(im.width, im.height)); c.width = Math.round(im.width * sc); c.height = Math.round(im.height * sc); c.getContext('2d').drawImage(im, 0, 0, c.width, c.height); c.toBlob((b) => res(b), 'image/jpeg', 0.84); }; im.src = e.target.result; }; fr.readAsDataURL(file); }); }
-    $('pgGalFile').addEventListener('change', async (e) => {
-      const files = [...e.target.files].slice(0, 8 - PG.gallery.length); e.target.value = ''; if (!files.length) return;
-      try {
-        await ensureCloud(); const u = await getCurrentUser();
-        if (!u) { toast(t('maker.logo_anim_login')); try { openAuthModal(); } catch (er) {} return; }
-        toast(t('maker.page_uploading'));
-        for (const f of files) {
-          const blob = await shrinkToBlob(f, 1400);
-          const path = `${u.id}/page-${Date.now()}-${Math.random().toString(36).slice(2, 7)}.jpg`;
-          const up = await supabaseClient.storage.from('card-assets').upload(path, blob, { contentType: 'image/jpeg', cacheControl: '31536000' });
-          if (up.error) throw up.error;
-          PG.gallery.push(supabaseClient.storage.from('card-assets').getPublicUrl(path).data.publicUrl);
-        }
-        pgGalRender(); toast(t('maker.page_uploaded'));
-      } catch (er) { console.warn(er); toast(t('maker.logo_anim_fail')); }
-    });
-    function pgRow(box, kind, v) {
-      const row = document.createElement('div'); row.className = 'pg-row' + (kind === 'item' ? '' : ' n3');
-      const mk = (cls, ph, val, tag) => { const el = document.createElement(tag || 'input'); el.className = 'input ' + cls; el.placeholder = ph; el.value = val || ''; if (tag === 'textarea') el.rows = 2; return el; };
-      const x = document.createElement('button'); x.type = 'button'; x.className = 'x-del'; x.textContent = '×'; x.addEventListener('click', () => row.remove());
-      if (kind === 'item') row.append(mk('p-name', t('maker.page_item_name'), v && v.name), mk('p-price', t('maker.page_item_price'), v && v.price), x, mk('p-note', t('maker.page_item_note'), v && v.note));
-      else if (kind === 'news') row.append(mk('p-date', 'YYYY-MM-DD', v && v.date), mk('p-title', t('maker.page_news_title'), v && v.title), mk('p-text', t('maker.page_news_text'), v && v.text, 'textarea'), x);
-      else row.append(mk('p-name', t('maker.page_rv_name'), v && v.name), mk('p-text', t('maker.page_rv_text'), v && v.text, 'textarea'), x);
-      box.appendChild(row);
-    }
-    $('pgItemBtn').addEventListener('click', () => { if ($('pgItems').children.length < 10) pgRow($('pgItems'), 'item'); });
-    $('pgNewsBtn').addEventListener('click', () => { if ($('pgNews').children.length < 5) pgRow($('pgNews'), 'news'); });
-    $('pgRvBtn').addEventListener('click', () => { if ($('pgRv').children.length < 5) pgRow($('pgRv'), 'rv'); });
-    /* 블록 편집: 세텁팟 멀티링크처럼 블록을 순서대로 쌓는다 */
-    const BLK = { list: [] };
-    const BLK_NAMES = { product: 'maker.blk_product', link: 'maker.blk_link', grid: 'maker.blk_grid', youtube: 'maker.blk_youtube', title: 'maker.blk_title', text: 'maker.blk_text' };
-    function blkRender() {
-      const box = $('pgBlocks'); box.innerHTML = '';
-      BLK.list.forEach((b, i) => {
-        const row = document.createElement('div'); row.className = 'blk-row'; row.dataset.i = i;
-        const head = `<div class="bh"><b>${t(BLK_NAMES[b.type] || b.type)}</b><span class="sp"></span><button type="button" data-mv="-1" title="up">↑</button><button type="button" data-mv="1" title="down">↓</button><button type="button" data-del="1" title="remove">×</button></div>`;
-        let body = '';
-        if (b.type === 'title') body = `<input class="input b-text" maxlength="40" placeholder="${t('maker.blk_title_ph')}" value="${(b.text || '').replace(/"/g, '&quot;')}">`;
-        else if (b.type === 'text') body = `<textarea class="input b-text" rows="3" maxlength="1000" placeholder="${t('maker.blk_text_ph')}">${(b.text || '').replace(/</g, '&lt;')}</textarea>`;
-        else if (b.type === 'product') body = `<input class="input b-url" type="url" placeholder="https://link.coupang.com/… · https://smartstore.naver.com/…" value="${(b.url || '').replace(/"/g, '&quot;')}"><div class="two"><input class="input b-price" maxlength="20" placeholder="${t('maker.blk_price')}" value="${(b.price || '').replace(/"/g, '&quot;')}"><input class="input b-title" maxlength="60" placeholder="${t('maker.blk_product_title')}" value="${(b.title || '').replace(/"/g, '&quot;')}"></div><div class="bh" style="gap:8px"><button type="button" class="btn-secondary b-fetch" style="width:auto;height:auto;padding:6px 10px;font-size:12px">${t('maker.blk_fetch')}</button><button type="button" class="btn-secondary b-photo" style="width:auto;height:auto;padding:6px 10px;font-size:12px">${t('maker.blk_photo')}</button><span class="b-img-note">${b.image ? '🖼 ' + t('maker.blk_img_ok') : ''}</span></div>`;
-        else if (b.type === 'link') body = `<div class="two"><input class="input b-icon" maxlength="2" placeholder="🔗" value="${(b.icon || '').replace(/"/g, '&quot;')}"><input class="input b-title" maxlength="40" placeholder="${t('maker.blk_link_title')}" value="${(b.title || '').replace(/"/g, '&quot;')}"></div><input class="input b-desc" maxlength="60" placeholder="${t('maker.blk_link_desc')}" value="${(b.desc || '').replace(/"/g, '&quot;')}"><input class="input b-url" type="url" placeholder="https://" value="${(b.url || '').replace(/"/g, '&quot;')}">`;
-        else if (b.type === 'youtube') body = `<input class="input b-title" maxlength="40" placeholder="${t('maker.blk_title_ph')}" value="${(b.title || '').replace(/"/g, '&quot;')}"><input class="input b-url" type="url" placeholder="https://youtu.be/…" value="${(b.url || '').replace(/"/g, '&quot;')}">`;
-        else if (b.type === 'grid') body = `<div class="gitems">${(b.items && b.items.length ? b.items : [{}, {}]).slice(0, 8).map((it) => `<div class="g"><input class="input gi-icon" maxlength="2" placeholder="🔗" value="${(it.icon || '').replace(/"/g, '&quot;')}"><input class="input gi-title" maxlength="20" placeholder="${t('maker.blk_link_title')}" value="${(it.title || '').replace(/"/g, '&quot;')}"><input class="input gi-url" type="url" placeholder="https://" value="${(it.url || '').replace(/"/g, '&quot;')}"></div>`).join('')}</div><button type="button" class="btn-secondary b-add" style="margin-top:4px">+ ${t('maker.blk_grid_add')}</button>`;
-        row.innerHTML = head + body; box.appendChild(row);
-      });
-    }
-    function blkCollect() {
-      BLK.list = [...$('pgBlocks').children].map((row) => {
-        const b = BLK.list[Number(row.dataset.i)] || {}; const v = (c) => { const el = row.querySelector('.' + c); return el ? el.value.trim() : ''; };
-        if (b.type === 'title' || b.type === 'text') return { type: b.type, text: v('b-text') };
-        if (b.type === 'link') return { type: 'link', icon: v('b-icon'), title: v('b-title'), desc: v('b-desc'), url: v('b-url') };
-        if (b.type === 'product') return { type: 'product', url: v('b-url'), title: v('b-title'), price: v('b-price'), image: b.image || '', site: b.site || '' };
-        if (b.type === 'youtube') return { type: 'youtube', title: v('b-title'), url: v('b-url') };
-        if (b.type === 'grid') return { type: 'grid', items: [...row.querySelectorAll('.gitems .g')].map((g) => ({ icon: g.querySelector('.gi-icon').value.trim(), title: g.querySelector('.gi-title').value.trim(), url: g.querySelector('.gi-url').value.trim() })).filter((x) => x.title || x.url) };
-        return b;
-      });
-      return BLK.list;
-    }
-    document.querySelectorAll('[data-blk]').forEach((c) => c.addEventListener('click', () => { blkCollect(); if (BLK.list.length >= 20) return; BLK.list.push({ type: c.dataset.blk }); blkRender(); }));
-    $('pgBlocks').addEventListener('click', (e) => {
-      const btn = e.target.closest('button'); if (!btn) return; const row = btn.closest('.blk-row'); if (!row) return;
-      blkCollect(); const i = Number(row.dataset.i);
-      if (btn.dataset.del) BLK.list.splice(i, 1);
-      else if (btn.dataset.mv) { const j = i + Number(btn.dataset.mv); if (j < 0 || j >= BLK.list.length) return; [BLK.list[i], BLK.list[j]] = [BLK.list[j], BLK.list[i]]; }
-      else if (btn.classList.contains('b-add')) { const b = BLK.list[i]; b.items = (b.items || []).concat([{}]); }
-      else if (btn.classList.contains('b-photo')) {
-        // 쿠팡·스마트스토어는 사진을 자동으로 못 가져오니 직접 올린다 (저장소, 로그인 필요)
-        const b = BLK.list[i]; const inp = document.createElement('input'); inp.type = 'file'; inp.accept = 'image/*';
-        inp.onchange = async () => { const f = inp.files[0]; if (!f) return; try { await ensureCloud(); const u = await getCurrentUser(); if (!u) { toast(t('maker.logo_anim_login')); try { openAuthModal(); } catch (er) {} return; } toast(t('maker.page_uploading')); const blob = await shrinkToBlob(f, 800); const path = `${u.id}/prod-${Date.now()}.jpg`; const up = await supabaseClient.storage.from('card-assets').upload(path, blob, { contentType: 'image/jpeg', cacheControl: '31536000' }); if (up.error) throw up.error; b.image = supabaseClient.storage.from('card-assets').getPublicUrl(path).data.publicUrl; toast(t('maker.page_uploaded')); blkRender(); } catch (er) { console.warn(er); toast(t('maker.logo_anim_fail')); } };
-        inp.click(); return;
-      }
-      else if (btn.classList.contains('b-fetch')) {
-        const b = BLK.list[i]; if (!/^https?:\/\//.test(b.url || '')) { toast(t('maker.blk_need_url')); return; }
-        btn.disabled = true; toast(t('maker.blk_fetching'));
-        fetch('/api/unfurl?u=' + encodeURIComponent(b.url)).then((r) => r.json()).then((d) => {
-          if (d && (d.title || d.image)) { if (!b.title && d.title) b.title = d.title; if (!b.price && d.price) b.price = d.price; b.image = d.image || ''; b.site = d.site || ''; toast(t('maker.blk_fetched')); }
-          else toast(t('maker.blk_fetch_fail'));
-          blkRender();
-        }).catch(() => { toast(t('maker.blk_fetch_fail')); blkRender(); });
-        return;
-      }
-      blkRender();
-    });
-    function collectPage() { return JSON.parse(JSON.stringify(card.page || { on: false })); }
-    function applyPage(p) { card.page = Object.assign({ on: false }, p || {}); }
     function addExtraLink(label, url) {
       const box = $('extraLinks'); if (box.children.length >= MAX_EXTRA) return;
       const row = document.createElement('div'); row.className = 'extra-row';
@@ -1521,37 +1301,12 @@
     }
 
     let renderTimer = null, renderSeq = 0, renderedSeq = 0, renderedWaiters = [];
-    /* ── 페이지 미리보기: page.html 틀에 지금 입력한 데이터를 넣어 폰 안에 그대로 그린다 (api/page.js 와 같은 모양) ── */
-    let pageTpl = '', pageTimer = 0, lastPageDoc = '';
-    fetch('/page.html').then((r) => r.text()).then((t) => { pageTpl = t; if (document.body.classList.contains('kind-page')) updatePagePreview(); }).catch(() => {});
-    function buildPub() {
-      const c = collect(), slug = curSlug() || 'preview', pg = c.page || {}, ml = c.ml || {};
-      const links = mode === 'links';
-      return {
-        preview: true, slug, mode: links ? 'links' : 'home', kind: c.kind || 'personal',
-        hasHome: !!(pg.on || c.kind === 'minihome'), hasLinks: !!(ml.on || c.kind === 'multilink'),
-        name: c.name || t('maker.name_ph').replace(/^(예:|e\.g\.|z\. ?B\.)\s*/i, ''), company: c.company || '', role: c.role || '', industry: c.industry || '', industryText: c.industryText || '', region: c.region || null,
-        logo: (c.logo && c.logo.src && !/\/assets\/(logo_toomcard|logo_toomus|logo_setupod|toomcard_hd)/.test(c.logo.src)) ? c.logo.src : '', avatar: (c.avatar && !/\/assets\/logo_/.test(c.avatar)) ? c.avatar : '',
-        front: c.front && c.front.bg && c.front.bg.type === 'image' ? c.front.bg.src : (c.plateCardImage || ''),
-        socials: (c.socials || []).filter((s) => s && s.url && !['kakao', 'whatsapp', 'telegram'].includes(s.type)).slice(0, 8),
-        website: c.primaryAction && c.primaryAction.url && c.primaryAction.url !== '#' ? c.primaryAction.url : '', phone: c.phone || '', star: false,
-        page: { title: pg.title || '', intro: pg.intro || '', gallery: (pg.gallery || []).slice(0, 12), items: (pg.items || []).slice(0, 20), address: pg.address || '', mapUrl: pg.mapUrl || '', hours: pg.hours || '', reviews: (pg.reviews || []).slice(0, 10), news: (pg.news || []).slice(0, 10), blocks: links ? (ml.blocks || []).slice(0, 20) : (pg.blocks || []).slice(0, 20), mlTitle: ml.title || '' }
-      };
-    }
-    function updatePagePreview() {
-      if (!pageTpl) return;
-      const fr = $('pagePreview'); if (!fr) return;
-      const doc = pageTpl.replace('<head>', '<head><base href="' + location.origin + '/">').replace('<!--DATA-->', '<script>window.PAGE_DATA = ' + JSON.stringify(buildPub()).replace(/</g, '\\u003c') + ';<\/script>');
-      if (doc === lastPageDoc) return;
-      lastPageDoc = doc; fr.srcdoc = doc;
-    }
     function render(immediate, delay) {
       clearTimeout(renderTimer);
-      if (document.body.classList.contains('kind-page')) { clearTimeout(pageTimer); pageTimer = setTimeout(updatePagePreview, immediate ? 0 : 350); }
       const send = () => {
         const frame = $('preview');
         renderSeq += 1;
-        if (frame && frame.contentWindow) { frame.contentWindow.postMessage({ action: 'render', card: previewCard(), seq: renderSeq }, '*'); frame.contentWindow.postMessage({ action: 'page_mode', on: document.body.classList.contains('kind-page') }, '*'); }
+        if (frame && frame.contentWindow) { frame.contentWindow.postMessage({ action: 'render', card: previewCard(), seq: renderSeq }, '*'); }
       };
       if (immediate) send(); else renderTimer = setTimeout(send, delay || 80);
       scheduleDraft();
@@ -2649,8 +2404,8 @@
       applyPage(c.page);
       applyMl(c.ml, c.kind === 'multilink' && c.page ? c.page.blocks : null);
       setKind(c.kind || (fromCloud ? 'business' : 'personal'));   // 예전 카드는 모두 비즈니스
-      hasCardBody = ['personal', 'business'].includes(kind); const um = new URLSearchParams(location.search).get('mode'); setMode(um || MODE_OF_KIND[kind] || 'card', { keepTab: true });
-      $('fTags').value = (c.moatTags || []).join(', '); setSlugInputs(slug, !!fromCloud); checkSlug(); syncLogoShapeUI(); syncAddonSum();
+      setMode(new URLSearchParams(location.search).get('mode') || MODE_OF_KIND[kind] || 'card');
+      $('fTags').value = (c.moatTags || []).join(', '); setSlugInputs(slug, !!fromCloud); checkSlug(); syncLogoShapeUI();
       // 예전 그라데이션 카드는 단색(부드러운 그라데이션)으로 읽는다
       if (card.front.bg.type === 'gradient') card.front.bg = { type: 'color', color: card.front.bg.from || DEFAULT_SOLID, shade: 0, soft: true };
       const knownPlate = CURATED_BG.find((b) => b.type === 'image' && b.src === card.front.bg.src);
@@ -2710,8 +2465,7 @@
       setTimeout(() => flip('show_back'), 450);   // 바꾼 뒷면을 바로 보여준다
     });
     $('kindSeg').addEventListener('click', (e) => { const b = e.target.closest('button[data-kind]'); if (b) setKind(b.dataset.kind); });
-    $('addonSum').addEventListener('click', (e) => { const a = e.target.closest('a[data-mode]'); if (a) { e.preventDefault(); setMode(a.dataset.mode); } });
-    (() => { const p = new URLSearchParams(location.search); setKind(p.get('kind') || 'personal'); const m0 = p.get('mode') || MODE_OF_KIND[p.get('kind')] || 'card'; hasCardBody = m0 === 'card'; setMode(m0, { keepTab: true }); })();
+    (() => { const p = new URLSearchParams(location.search); setKind(p.get('kind') || 'personal'); setMode(p.get('mode') || MODE_OF_KIND[p.get('kind')] || 'card'); })();
     renderBgGrid(); renderThemeChips(); renderStartChips(); renderCarousel(); syncAdjustUI();
     function preloadDesigns() {
       THEMES.forEach(([key]) => { const l = document.createElement('link'); l.rel = 'preload'; l.as = 'style'; l.href = `/themes/${key}.css`; document.head.appendChild(l); });
