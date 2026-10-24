@@ -233,13 +233,15 @@
 
     /* ── 아이디 (새 페이지일 때만) ── */
     const slugify = (v) => (v || '').toLowerCase().replace(/[^a-z0-9.]/g, '').replace(/^\.+/, '').replace(/\.{2,}/g, '.').slice(0, 20);
-    let slugTimer = 0;
+    let slugTimer = 0, slugAdmin = null;
+    async function isSlugAdmin() { if (slugAdmin === null) { try { const r = await supabaseClient.rpc('tc_is_admin'); slugAdmin = !!(r && r.data === true); } catch (e) { slugAdmin = false; } } return slugAdmin; }   // 관리자는 짧은·예약 아이디도 가능
     async function checkSlug() {
       const m = $('slugMsg'), s = slugify($('fSlug').value); $('fSlug').value = s; slugOk = false;
       if (!s) { m.className = 'msg'; m.textContent = ''; return; }
-      if (s.length < 5) { m.className = 'msg warn'; m.textContent = t('slugBad'); return; }
+      const adm = await isSlugAdmin();
+      if (s.length < 5 && !adm) { m.className = 'msg warn'; m.textContent = t('slugBad'); return; }
       try {
-        const [{ data: pods }, { data: rs }] = await Promise.all([supabaseClient.from('pods').select('slug,user_id').ilike('slug', s), supabaseClient.from('tc_reserved_slugs').select('slug').eq('slug', s)]);
+        const [{ data: pods }, { data: rs }] = await Promise.all([supabaseClient.from('pods').select('slug,user_id').ilike('slug', s), adm ? Promise.resolve({ data: [] }) : supabaseClient.from('tc_reserved_slugs').select('slug').eq('slug', s)]);
         const mine = (pods || []).some((r) => user && r.user_id === user.id);
         if ((rs && rs.length) || ((pods || []).length && !mine)) { m.className = 'msg warn'; m.textContent = t('slugTaken'); return; }
         slugOk = true; m.className = 'msg ok'; m.textContent = t('slugOk').replace('{a}', s);
@@ -290,7 +292,7 @@
         let c = card ? JSON.parse(JSON.stringify(card)) : null;
         if (!c) {   // 아이디가 아직 없으면 여기서 만든다 (명함은 없음 → /아이디 는 이 페이지로 넘어간다)
           const name = $('fName').value.trim(); if (!name) { toast(t('needName')); $('fName').focus(); return; }
-          await checkSlug(); if (!slugOk || slugify($('fSlug').value).length < 5) { toast(t('needSlug')); $('fSlug').focus(); return; }
+          await checkSlug(); if (!slugOk || (slugify($('fSlug').value).length < 5 && !slugAdmin)) { toast(t('needSlug')); $('fSlug').focus(); return; }
           slug = slugify($('fSlug').value);
           c = { slug, id: slug, kind: 'personal', cardOn: false, name, role: '', company: '', slogan: '', phone: '', email: '', moatTags: [], logo: { src: '', alt: '' }, emblem: { on: true, source: 'initials', text: '', img: '', material: 'gold', shape: 'coin', motion: 'sweep' }, theme: 'obsidian', layout: 'plate', socials: [], links: [], backLayout: 'default', star: { on: false, tag: '' }, privacy: { phone: false, email: false },
             front: { bg: hero ? { type: 'image', src: hero } : { type: 'color', color: '#1a1a22', shade: 0, soft: true }, text: { layout: 'none', showLogo: false, tone: 'auto' }, finish: 'metal', qr: 'subtle', frame: 'full', frameTone: 'dark', look: 'clean' }, page: { on: false }, ml: { on: false } };

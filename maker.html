@@ -1088,10 +1088,10 @@
       const say = (cls, txt) => { msg.className = 'slug-msg ' + cls; msg.textContent = txt; };
       if (lockedSlug) { slugOk = true; say('', t('maker.slug_root')); return true; }
       if (!name) { slugOk = false; say('', t('maker.slug_note')); return false; }
-      if (name.length < ID_MIN) { slugOk = false; say('warn', t('maker.slug_short')); return false; }
       const seq = ++slugSeq;
-      try { await ensureCloud(); } catch (e) { slugOk = true; return true; }
+      try { await ensureCloud(); } catch (e) { slugOk = name.length >= ID_MIN; if (!slugOk) say('warn', t('maker.slug_short')); return slugOk; }
       if (!adminOpt) { adminOpt = true; try { const r = await supabaseClient.rpc('tc_is_admin'); if (r && r.data === true) markAdmin(); } catch (e) {} }
+      if (name.length < ID_MIN && !isAdminUser) { slugOk = false; say('warn', t('maker.slug_short')); return false; }   // 관리자는 짧은 아이디도 가능
       let me = null; try { const u = await getCurrentUser(); me = u && u.id; } catch (e) {}
       const [{ data: pods }, { data: rs }] = await Promise.all([
         supabaseClient.from('pods').select('slug,user_id').ilike('slug', name),
