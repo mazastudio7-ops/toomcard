@@ -617,7 +617,7 @@ function populateCard(data) {
   const phoneValue = document.getElementById('phoneValue');
   const emailValue = document.getElementById('emailValue');
   const contactDot = document.getElementById('contactDot');
-  const starMask = document.body.classList.contains('star-public');
+  const starMask = document.body.classList.contains('star-public') || data.hideContact === true;   // hideContact: 공식 카드 — 번호·이메일은 글자로 안 보이고, 버튼(전화·저장)으로만 쓴다
   // 이젠스타 공개 보기: 실제 명함과 같은 모양으로, 전화·이메일 자리는 가려서 보여 준다
   if (phoneValue) { phoneValue.innerText = starMask ? '🔒 ●●●-●●●●-●●●●' : (data.phone || ''); phoneValue.classList.toggle('masked', starMask); }
   if (emailValue) { emailValue.innerText = starMask ? '●●●●@●●●●.com' : (data.email || ''); emailValue.classList.toggle('masked', starMask); }
