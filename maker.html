@@ -313,9 +313,23 @@
     #kindSeg button { padding: 9px 2px; font-size: 12.5px; }
     .seg-hint { font-size: 11.5px; color: var(--tc-text-subtle); margin-top: -2px; }
     body.kind-personal .biz-only, body.kind-business .per-only { display: none; }
+    .rows { display: none; }
     @media (max-width: 980px) {
-      :root { --tabbar-h: 62px; --sheet-h: calc(var(--app-h, 100dvh) * 0.5); }
+      :root { --tabbar-h: 0px; --sheet-h: calc(var(--app-h, 100dvh) * 0.56); }
       body { overflow: hidden; }
+      .tabbar { display: none !important; }
+      /* 카드 밑 줄 목록 (테슬라 앱처럼): 누르면 그것만 시트로 올라온다 */
+      .stage { overflow-y: auto; -webkit-overflow-scrolling: touch; }
+      .carousel { flex: 0 0 auto; height: 50vh; min-height: 300px; }
+      .rows { display: flex; flex-direction: column; gap: 6px; padding: 6px 14px calc(16px + env(safe-area-inset-bottom)); }
+      .row { appearance: none; display: flex; align-items: center; gap: 12px; width: 100%; padding: 12px 14px; border-radius: 14px; background: rgba(255,255,255,.05); border: 1px solid var(--tc-border); color: var(--tc-text); text-align: left; cursor: pointer; font-family: inherit; }
+      .row i { font-style: normal; font-size: 18px; width: 24px; text-align: center; } .row span { flex: 1; min-width: 0; } .row b { display: block; font-size: 14px; }
+      .row small { display: block; font-size: 12px; color: var(--tc-text-subtle); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; } .row em { font-style: normal; color: var(--tc-text-subtle); }
+      .row.pub { background: rgba(255,217,120,.12); border-color: rgba(255,217,120,.45); } .row.pub b { color: var(--tc-accent); }
+      body.sheet-open .rows { display: none; }
+      body[data-sheet="info"] #secInfo .adv, body[data-sheet="info"] #secInfo .conn { display: none !important; }
+      body[data-sheet="conn"] #secInfo > :not(.conn) { display: none !important; }
+      body[data-sheet="adv"] #secInfo > :not(.adv) { display: none !important; }
       .studio-header { padding: calc(10px + var(--sat)) 14px 10px; flex-wrap: wrap; }
       .modes { order: 10; width: 100%; } .modes button { flex: 1; padding: 8px 4px; }
       .brand .badge, .link-quiet { display: none; }
@@ -324,7 +338,8 @@
         height: calc(var(--app-h, 100dvh) - var(--hdr, 59px) - var(--tabbar-h) - env(safe-area-inset-bottom));
         padding: 10px 0 8px; gap: 8px; transition: height 0.3s ease;
       }
-      body.sheet-open .stage { height: calc(var(--app-h, 100dvh) - var(--hdr, 59px) - var(--tabbar-h) - var(--sheet-h) - env(safe-area-inset-bottom)); }
+      body.sheet-open .stage { height: calc(var(--app-h, 100dvh) - var(--hdr, 59px) - var(--sheet-h) - env(safe-area-inset-bottom)); }
+      body.sheet-open .carousel { height: 100%; min-height: 0; }
       .carousel { flex: 1 1 0; min-height: 0; }
       .car-track { height: 100%; min-height: 0; }
       body.sheet-open .car-label, body.sheet-open .car-nav { display: none; }
@@ -457,13 +472,13 @@
           <button type="button" data-kind="business" data-i18n="maker.kind_business">비즈니스</button>
         </div>
         <p class="seg-hint f-card"><span class="per-only" data-i18n="maker.kind_personal_hint">학생, 크리에이터, 누구나. 회사 없이 나를 소개해요.</span><span class="biz-only" data-i18n="maker.kind_business_hint">회사·직함이 들어가는 업무용 명함이에요.</span><span class="ml-only" data-i18n="maker.kind_multilink_hint">명함 없이 앞면 사진 + 링크·상품 블록 페이지가 바로 열려요. 뒷면을 꾸밀 필요가 없어요.</span><span class="mh-only" data-i18n="maker.kind_minihome_hint">펜션·농가·가게용 홍보 페이지가 바로 열려요. 사진·소개·상품·위치·후기·예약 문의를 한 페이지에.</span></p>
-        <div class="field f-nolinks"><label><span class="biz-only"><span data-i18n="maker.company">회사 / 브랜드</span><span class="req">*</span></span><span class="per-only"><span data-i18n="maker.affiliation">소속</span> <span style="font-weight:600;opacity:.6;" data-i18n="common.optional">선택</span></span></label><input class="input" id="fCompany" placeholder="TOOMCARD"></div>
+        <div class="field f-nolinks adv"><label><span class="biz-only"><span data-i18n="maker.company">회사 / 브랜드</span><span class="req">*</span></span><span class="per-only"><span data-i18n="maker.affiliation">소속</span> <span style="font-weight:600;opacity:.6;" data-i18n="common.optional">선택</span></span></label><input class="input" id="fCompany" placeholder="TOOMCARD"></div>
         <div class="field biz-only f-nolinks"><label><span data-i18n="maker.industry">업종</span> <span style="font-weight:600;opacity:.6;" data-i18n="common.optional">선택</span></label>
           <select class="select" id="fIndustry"><option value="" data-i18n="maker.industry_none">선택 안 함</option><option value="insurance" data-i18n="ind.insurance">보험</option><option value="farm" data-i18n="ind.farm">농산물·농가</option><option value="stay" data-i18n="ind.stay">숙박·펜션</option><option value="realestate" data-i18n="ind.realestate">부동산</option><option value="auto" data-i18n="ind.auto">자동차</option><option value="finance" data-i18n="ind.finance">금융·대출</option><option value="legal" data-i18n="ind.legal">법률</option><option value="tax" data-i18n="ind.tax">세무·회계</option><option value="medical" data-i18n="ind.medical">의료·건강</option><option value="education" data-i18n="ind.education">교육</option><option value="beauty" data-i18n="ind.beauty">뷰티</option><option value="food" data-i18n="ind.food">요식·카페</option><option value="it" data-i18n="ind.it">IT·개발</option><option value="other" data-i18n="ind.other">기타 (직접 입력)</option></select>
           <input class="input" id="fIndustryText" placeholder="예: 펫 케어" data-i18n-placeholder="maker.industry_custom_ph" hidden style="margin-top:8px">
           <p class="photo-off" data-i18n="maker.industry_note">받는 분 폰에 "보험 · 회사명"처럼 저장돼서, 나중에 "보험"만 검색해도 내가 나와요.</p>
         </div>
-        <div class="field rg-field f-nolinks"><label><span data-i18n="maker.region">지역</span> <span style="font-weight:600;opacity:.6;" data-i18n="common.optional">선택</span></label>
+        <div class="field rg-field f-nolinks adv"><label><span data-i18n="maker.region">지역</span> <span style="font-weight:600;opacity:.6;" data-i18n="common.optional">선택</span></label>
           <div style="display:flex; gap:8px;">
             <select class="select" id="fRegionSido" style="flex:0 0 38%"><option value="" data-i18n="maker.region_none">시·도</option><option value="서울">서울</option><option value="부산">부산</option><option value="대구">대구</option><option value="인천">인천</option><option value="광주">광주</option><option value="대전">대전</option><option value="울산">울산</option><option value="세종">세종</option><option value="경기">경기</option><option value="강원">강원</option><option value="충북">충북</option><option value="충남">충남</option><option value="전북">전북</option><option value="전남">전남</option><option value="경북">경북</option><option value="경남">경남</option><option value="제주">제주</option></select>
             <input class="input" id="fRegionCity" placeholder="예: 성주군" data-i18n-placeholder="maker.region_city_ph" maxlength="20" style="flex:1">
@@ -471,7 +486,7 @@
           <label style="display:flex;align-items:center;gap:8px;margin-top:10px;font-size:13.5px;font-weight:700;cursor:pointer"><input type="checkbox" id="fForest" style="width:18px;height:18px;accent-color:#7ccf6a"> <span data-i18n="maker.forest">🌳 동네 숲에 내 나무 심기</span></label>
           <p class="photo-off" data-i18n="maker.region_note">켜면 toomcard.com/forest 에서 같은 지역·업종 사람들과 함께 보여요. 전화번호는 나오지 않아요.</p>
         </div>
-        <div class="field f-card"><label data-i18n="maker.slogan">슬로건 한 줄</label><input class="input" id="fSlogan" placeholder="오늘의 만남을 내일의 비즈니스로"></div>
+        <div class="field f-card adv"><label data-i18n="maker.slogan">슬로건 한 줄</label><input class="input" id="fSlogan" placeholder="오늘의 만남을 내일의 비즈니스로"></div>
         <div class="row-2">
           <div class="field f-card"><label><span class="biz-only" data-i18n="maker.role">직함</span><span class="per-only" data-i18n="maker.intro">한 줄 소개</span></label><input class="input" id="fRole" placeholder="대표"></div>
           <div class="field"><label><span data-i18n="maker.name">이름</span><span class="req">*</span></label><input class="input" id="fName" placeholder="홍길동"></div>
@@ -480,16 +495,16 @@
           <div class="field"><label data-i18n="maker.phone">전화번호</label><input class="input" id="fPhone" type="tel" placeholder="+82 10-1234-5678"></div>
           <div class="field"><label data-i18n="maker.email">이메일</label><input class="input" id="fEmail" type="email" placeholder="me@company.com"></div>
         </div>
-        <div class="field f-card">
+        <div class="field f-card adv">
           <label data-i18n="maker.tags">내 분야 알약 (쉼표로 구분, 최대 3)</label>
           <input class="input" id="fTags" placeholder="브랜딩, 디자인, 컨설팅">
           <small class="field-hint" data-i18n="maker.tags_hint">전화번호 아래에 작은 알약 모양으로 나와요. 예: 일러스트, 사진, 여행</small>
         </div>
-        <div class="field"><label data-i18n="maker.website">홈페이지 · 블로그 주소</label><input class="input" id="fWebsite" type="url" placeholder="https://" data-i18n-placeholder="maker.website_ph"><p class="photo-off" data-i18n="maker.website_note">뒷면에 "홈페이지" 버튼으로 나와요.</p></div>
-        <div class="field f-card"><label><span data-i18n="maker.ad">홍보 링크</span> <span style="font-weight:600;opacity:.6;" data-i18n="common.optional">선택</span></label>
+        <div class="field conn"><label data-i18n="maker.website">홈페이지 · 블로그 주소</label><input class="input" id="fWebsite" type="url" placeholder="https://" data-i18n-placeholder="maker.website_ph"><p class="photo-off" data-i18n="maker.website_note">뒷면에 "홈페이지" 버튼으로 나와요.</p></div>
+        <div class="field f-card adv"><label><span data-i18n="maker.ad">홍보 링크</span> <span style="font-weight:600;opacity:.6;" data-i18n="common.optional">선택</span></label>
           <div style="display:flex; gap:8px;"><input class="input" id="fAdLabel" maxlength="30" placeholder="예: 이달의 추천 상품" data-i18n-placeholder="maker.ad_label_ph" style="flex:0 0 42%"><input class="input" id="fAdUrl" type="url" placeholder="https://" style="flex:1"></div>
           <p class="photo-off" data-i18n="maker.ad_note">명함 아래에 작은 띠로 나와요. 쿠팡 파트너스 링크, 이벤트 페이지, 내 멀티링크 등 무엇이든 돼요.</p></div>
-        <div class="field">
+        <div class="field conn">
           <label data-i18n="maker.social">소셜 채널 (최대 2개)</label>
           <div class="row-social">
             <select class="select" id="fSocialType">
@@ -522,7 +537,7 @@
           <div id="extraSns"></div>
           <button type="button" class="btn-secondary" id="addSnsBtn" onclick="addSocialRow()" style="margin-top:8px"><i data-lucide="plus"></i><span data-i18n="maker.add_sns">SNS 더 추가</span></button>
         </div>
-        <div class="field f-card">
+        <div class="field f-card conn">
           <label data-i18n="maker.more_links">추가 링크</label>
           <div id="extraLinks"></div>
           <button type="button" class="btn-secondary" id="addLinkBtn" onclick="addExtraLink()"><i data-lucide="plus"></i><span data-i18n="maker.add_link">링크 추가</span></button>
@@ -530,7 +545,7 @@
       </section>
 
       <!-- 2. 앞면 배경 (데스크톱 전용 썸네일) -->
-      <section class="section desk-only" id="secBg" data-side="front">
+      <section class="section" id="secBg" data-tab="bg" data-side="front">
         <div class="section-title"><i data-lucide="image"></i><span data-i18n="maker.sec_bg">2. 앞면 배경</span></div>
         <p class="section-hint" data-i18n="maker.bg_hint">폰 배경화면 고르듯이. 내 사진이 제일 좋아요.</p>
         <div class="bg-grid" id="bgGrid">
@@ -752,6 +767,13 @@
         <button class="tool-btn" data-face="back" onclick="flip('show_back')"><i data-lucide="file-text"></i><span data-i18n="maker.back">뒷면</span></button>
         <button class="tool-btn accent" onclick="pickPhoto()"><i data-lucide="image-plus"></i><span data-i18n="maker.add_photo">내 사진 넣기</span></button>
               </div>
+      <div class="rows" id="rows">
+        <button type="button" class="row" data-row="front"><i>📷</i><span><b data-i18n="maker.row_front">앞면</b><small id="rowFront"></small></span><em>›</em></button>
+        <button type="button" class="row" data-row="info"><i>👤</i><span><b data-i18n="maker.row_info">내 정보</b><small id="rowInfo"></small></span><em>›</em></button>
+        <button type="button" class="row" data-row="conn"><i>🔗</i><span><b data-i18n="maker.row_conn">연결</b><small id="rowConn"></small></span><em>›</em></button>
+        <button type="button" class="row" data-row="adv"><i>⚙️</i><span><b data-i18n="maker.row_adv">고급 옵션</b><small data-i18n="maker.row_adv_sub">글자 위치 · 마감 · 로고 · 분야 · 지역</small></span><em>›</em></button>
+        <button type="button" class="row pub" data-row="publish"><i>🚀</i><span><b data-i18n="maker.row_publish">발행</b><small id="rowPub"></small></span><em>›</em></button>
+      </div>
     </section>
 
     <!-- ── 오른쪽: 발행 ─────────────────────────────── -->
@@ -1308,7 +1330,7 @@
         if (frame && frame.contentWindow) { frame.contentWindow.postMessage({ action: 'render', card: previewCard(), seq: renderSeq }, '*'); }
       };
       if (immediate) send(); else renderTimer = setTimeout(send, delay || 80);
-      scheduleDraft();
+      scheduleDraft(); if (typeof syncRows === 'function') syncRows();
     }
     /* ── 만들던 카드 임시 저장 (로그인하러 다녀와도, 창을 닫아도 이어서) ── */
     const DRAFT_KEY = 'tc_maker_draft2';   // 2: 예전에 다른 카드를 고치다 남은 초안은 버린다
@@ -2118,8 +2140,8 @@
     }
 
     /* ── 하단 탭 + 시트 (폰) ─────────────────────────── */
-    const TAB_GROUPS = { design: ['photo', 'text', 'logo', 'finish'] };   // 디자인 탭 하나에 사진·글자·로고·마감을 한 번에 (스크롤)
-    const TAB_TITLES = { design: 'maker.tab_design', info: 'maker.tab_info', photo: 'maker.sec_photo', text: 'maker.sec_text', logo: 'maker.sec_logo', finish: 'maker.sec_finish', publish: 'maker.sec_publish' };
+    const TAB_GROUPS = { design: ['photo', 'text', 'logo', 'finish'], front: ['photo', 'bg'], conn: ['info'], adv: ['info', 'text', 'logo', 'finish'] };   // 줄 하나 = 시트 하나
+    const TAB_TITLES = { design: 'maker.tab_design', front: 'maker.row_front', conn: 'maker.row_conn', adv: 'maker.row_adv', info: 'maker.tab_info', photo: 'maker.sec_photo', text: 'maker.sec_text', logo: 'maker.sec_logo', finish: 'maker.sec_finish', publish: 'maker.sec_publish' };
     let currentTab = '';
     function isMobile() { return window.matchMedia('(max-width: 980px)').matches; }
     // 데스크톱: 왼쪽 패널을 앞면/뒷면 탭으로 나누고 미리보기 면과 항상 같이 움직인다 (폰은 하단 탭이 대신한다)
@@ -2132,7 +2154,7 @@
 
     function openTab(name) {
       if (currentTab === name && document.body.classList.contains('sheet-open')) { closeSheet(); return; }
-      currentTab = name;
+      currentTab = name; document.body.dataset.sheet = name;
       const group = TAB_GROUPS[name] || [name];
       document.querySelectorAll('.panel .section[data-tab]').forEach((s) => s.classList.toggle('on', group.includes(s.dataset.tab)));
       document.querySelectorAll('.panel').forEach((p) => p.classList.toggle('has-on', !!p.querySelector(`.section.on`)));
@@ -2141,10 +2163,22 @@
       document.body.classList.add('sheet-open');
       document.querySelectorAll('.panel').forEach((p) => { p.scrollTop = 0; });
       setPhotoMode(group.includes('photo'));
-      if (name === 'logo') flip('show_back'); else if (group.includes('photo')) flip('show_front');   // 탭에 맞는 면을 보여준다
+      if (['logo', 'info', 'conn', 'adv'].includes(name)) flip('show_back'); else if (group.includes('photo')) flip('show_front');   // 탭에 맞는 면을 보여준다
       setTimeout(renderCarousel, 320);   // 카드가 작아진 크기에 썸네일 맞추기
     }
+    document.getElementById('rows').addEventListener('click', (e) => { const b = e.target.closest('[data-row]'); if (b) openTab(b.dataset.row); });
+    // 줄마다 지금 상태를 한 줄로 보여 준다
+    function syncRows() {
+      try {
+        const c = collect();
+        const fr = $('rowFront'); if (fr) fr.textContent = currentBgId === 'upload' ? t('maker.row_front_photo') : (card.friend && card.friend.id ? '🐻 ' + card.friend.id : ($('designName') ? $('designName').textContent : ''));
+        const ri = $('rowInfo'); if (ri) ri.textContent = [c.name, c.role, c.company].filter(Boolean).join(' · ') || t('maker.row_info_hint');
+        const rc = $('rowConn'); if (rc) { const names = (c.socials || []).map((s) => s.label || s.type).concat(c.primaryAction && c.primaryAction.url ? [t('common.website')] : []).concat((c.links || []).map((l) => l.label)).filter(Boolean); rc.textContent = names.length ? names.slice(0, 4).join(' · ') : t('maker.row_conn_hint'); }
+        const rp = $('rowPub'); if (rp) rp.textContent = curSlug() ? 'toomcard.com/' + curSlug() : t('maker.row_pub_hint');
+      } catch (e) {}
+    }
     function closeSheet() {
+      delete document.body.dataset.sheet; syncRows();
       document.body.classList.remove('sheet-open'); currentTab = '';
       if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
       window.scrollTo(0, 0);
