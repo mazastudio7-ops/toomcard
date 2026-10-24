@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>페이지 에디터 | TOOMCARD</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="/favicon.ico">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/js/supabase.js"></script>
+  <script src="/js/auth-modal.js" defer></script>
+  <style>
+    /* 페이지 에디터: 멀티링크·미니홈 공용. 왼쪽에 블록을 쌓고 오른쪽 폰에 실제 페이지가 바로 보인다. */
+    :root { --bg: #0b0b10; --panel: #121218; --line: rgba(255,255,255,.1); --mut: rgba(255,255,255,.55); --gold: #ffd978; --sat: env(safe-area-inset-top); }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: #fff; font-family: 'Noto Sans KR', sans-serif; }
+    .top { position: sticky; top: 0; z-index: 20; display: flex; align-items: center; gap: 10px; padding: calc(10px + var(--sat)) 16px 10px; background: rgba(11,11,16,.9); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+    .top .logo { color: #fff; text-decoration: none; font: 900 15px Montserrat, sans-serif; letter-spacing: .08em; }
+    .top .badge { padding: 4px 10px; border-radius: 99px; background: var(--gold); color: #1a1205; font: 900 11.5px 'Noto Sans KR', sans-serif; }
+    .top .sp { flex: 1; }
+    .top a.q { color: var(--mut); text-decoration: none; font-size: 13px; }
+    .btn { appearance: none; border: 0; border-radius: 99px; padding: 10px 18px; background: var(--gold); color: #1a1205; font: 900 13.5px 'Noto Sans KR', sans-serif; cursor: pointer; }
+    .btn.ghost { background: transparent; color: #fff; border: 1px solid rgba(255,255,255,.25); }
+    .btn.sm { padding: 7px 12px; font-size: 12.5px; }
+    .wrap { display: grid; grid-template-columns: minmax(0, 1fr) 390px; gap: 20px; max-width: 1180px; margin: 0 auto; padding: 18px 16px 120px; }
+    .panel { display: flex; flex-direction: column; gap: 16px; }
+    .box { padding: 16px; border-radius: 18px; background: var(--panel); border: 1px solid var(--line); }
+    .box h3 { margin: 0 0 10px; font-size: 14px; color: var(--gold); letter-spacing: .02em; }
+    .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; } .field label { font-size: 12.5px; font-weight: 800; color: rgba(255,255,255,.75); }
+    .input { width: 100%; padding: 11px 12px; border-radius: 12px; border: 1px solid var(--line); background: rgba(255,255,255,.05); color: #fff; font: 14px 'Noto Sans KR', sans-serif; outline: 0; }
+    .input:focus { border-color: var(--gold); } textarea.input { resize: vertical; }
+    .hint { font-size: 12px; color: var(--mut); line-height: 1.5; margin: 0; } .hint a { color: var(--gold); text-decoration: none; }
+    .url { display: flex; align-items: center; gap: 0; } .url span { padding: 11px 0 11px 12px; color: var(--mut); font-family: Montserrat, sans-serif; font-size: 13px; background: rgba(255,255,255,.05); border: 1px solid var(--line); border-right: 0; border-radius: 12px 0 0 12px; } .url .input { border-radius: 0 12px 12px 0; }
+    .msg { font-size: 12px; margin-top: 4px; min-height: 16px; } .msg.ok { color: #9fe08f; } .msg.warn { color: #ffb4a2; }
+    .hero { display: flex; gap: 12px; align-items: center; } .hero .th { width: 72px; height: 96px; border-radius: 12px; background: #1a1a22 center/cover; border: 1px solid var(--line); flex: none; }
+    .ro { display: flex; flex-wrap: wrap; gap: 6px; } .ro span { padding: 6px 10px; border-radius: 99px; background: rgba(255,255,255,.06); border: 1px solid var(--line); font-size: 12.5px; }
+    /* 블록 */
+    .blocks { display: flex; flex-direction: column; gap: 10px; }
+    .blk { padding: 12px; border-radius: 14px; background: rgba(255,255,255,.04); border: 1px solid var(--line); }
+    .blk .bh { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; } .blk .bh b { font-size: 13px; flex: 1; }
+    .blk .bh button { appearance: none; width: 28px; height: 28px; border-radius: 8px; border: 1px solid var(--line); background: transparent; color: #fff; cursor: pointer; font-size: 13px; }
+    .blk .two { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; } .blk .input + .input, .blk .two + .input, .blk .input + .two { margin-top: 6px; }
+    .blk .list { display: flex; flex-direction: column; gap: 6px; } .blk .list .r { display: grid; grid-template-columns: 1fr 1fr auto; gap: 6px; align-items: center; } .blk .list .r.one { grid-template-columns: 1fr auto; } .blk .list .r.three { grid-template-columns: 90px 1fr auto; }
+    .blk .list button, .blk .mini { appearance: none; border: 1px solid var(--line); background: transparent; color: #fff; border-radius: 8px; padding: 6px 9px; cursor: pointer; font-size: 12px; }
+    .blk .gal { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 6px; } .blk .gal div { position: relative; aspect-ratio: 1; border-radius: 10px; background: #1a1a22 center/cover; } .blk .gal div button { position: absolute; top: 3px; right: 3px; width: 20px; height: 20px; border-radius: 50%; border: 0; background: rgba(0,0,0,.7); color: #fff; font-size: 12px; cursor: pointer; }
+    .blk .pimg { display: flex; gap: 8px; align-items: center; margin-top: 6px; } .blk .pimg i { width: 44px; height: 44px; border-radius: 10px; background: #1a1a22 center/cover; flex: none; border: 1px solid var(--line); }
+    .adds { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; } .adds button { appearance: none; border: 1px solid var(--line); background: rgba(255,255,255,.05); color: #fff; border-radius: 99px; padding: 8px 12px; font-size: 12.5px; font-weight: 700; cursor: pointer; } .adds button:hover { border-color: var(--gold); }
+    /* 폰 미리보기 */
+    .prev { position: sticky; top: 72px; align-self: start; }
+    .phone { width: 100%; max-width: 390px; aspect-ratio: 9 / 17.5; border-radius: 36px; padding: 10px; background: #15151c; border: 1px solid rgba(255,255,255,.14); box-shadow: 0 30px 70px rgba(0,0,0,.55); margin: 0 auto; }
+    .phone iframe { width: 100%; height: 100%; border: 0; border-radius: 28px; background: #0f1016; }
+    .prev .cap { text-align: center; color: var(--mut); font-size: 12px; margin-top: 8px; }
+    .mtabs { display: none; }
+    @media (max-width: 900px) {
+      .wrap { grid-template-columns: 1fr; padding-bottom: 90px; }
+      .mtabs { display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; padding: 8px 12px calc(8px + env(safe-area-inset-bottom)); background: rgba(11,11,16,.95); border-top: 1px solid var(--line); gap: 8px; }
+      .mtabs button { flex: 1; } .mtabs .btn.ghost[aria-pressed="true"] { background: rgba(255,217,120,.15); border-color: var(--gold); color: var(--gold); }
+      body.show-prev .panel { display: none; } body:not(.show-prev) .prev { display: none; } .prev { position: static; }
+    }
+    .toast { position: fixed; left: 50%; bottom: calc(80px + env(safe-area-inset-bottom)); transform: translateX(-50%) translateY(20px); background: var(--gold); color: #1a1205; padding: 10px 18px; border-radius: 99px; font-weight: 800; font-size: 13.5px; opacity: 0; transition: .25s; pointer-events: none; z-index: 70; white-space: nowrap; }
+    .toast.on { opacity: 1; transform: translateX(-50%); }
+    .done { display: none; padding: 18px; border-radius: 18px; background: linear-gradient(160deg, rgba(255,217,120,.12), rgba(255,255,255,.04)); border: 1px solid rgba(255,217,120,.4); } .done.on { display: block; } .done b { display: block; font-size: 16px; margin-bottom: 8px; } .done a.l { color: var(--gold); font-weight: 800; word-break: break-all; } .done .row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+  </style>
+</head>
+<body>
+  <header class="top"><a class="logo" href="/">TOOMCARD</a><span class="badge" id="badge">페이지</span><span class="sp"></span><a class="q" href="/dashboard" data-t="dash">내 명함 관리</a><button type="button" class="btn" id="saveBtn" data-t="save">발행</button></header>
+  <main class="wrap">
+    <section class="panel">
+      <div class="done" id="done"><b data-t="doneT">발행했어요! 🎉</b><a class="l" id="doneUrl" href="#" target="_blank" rel="noopener"></a><div class="row"><button type="button" class="btn sm" id="copyBtn" data-t="copy">링크 복사</button><a class="btn sm ghost" id="doneOpen" href="#" target="_blank" rel="noopener" data-t="open">열어 보기</a><a class="btn sm ghost" href="/dashboard" data-t="dash">내 명함 관리</a></div></div>
+      <div class="box" id="boxId">
+        <h3 data-t="secId">주소</h3>
+        <div class="field" id="idField"><label><span data-t="idL">아이디</span></label><div class="url"><span>toomcard.com/</span><input class="input" id="fSlug" placeholder="my.id" maxlength="20" autocapitalize="off" autocomplete="off" spellcheck="false"></div><div class="msg" id="slugMsg"></div></div>
+        <p class="hint" id="attachHint"></p>
+      </div>
+      <div class="box">
+        <h3 data-t="secHead">위쪽</h3>
+        <div class="field"><label data-t="titleL">페이지 제목</label><input class="input" id="fTitle" maxlength="40"></div>
+        <div class="field" id="nameField"><label data-t="nameL">이름 · 상호</label><input class="input" id="fName" maxlength="40"></div>
+        <div class="field"><label data-t="heroL">대표 사진</label><div class="hero"><div class="th" id="heroTh"></div><div><button type="button" class="btn sm ghost" id="heroBtn" data-t="heroBtn">사진 올리기</button><input type="file" id="heroFile" accept="image/*" hidden><p class="hint" id="heroHint"></p></div></div></div>
+        <div class="field" id="snsField"><label data-t="snsL">SNS · 연락처 (명함에서 가져와요)</label><div class="ro" id="snsRo"></div><p class="hint" id="snsHint"></p></div>
+      </div>
+      <div class="box">
+        <h3 data-t="secBlocks">블록</h3>
+        <div class="blocks" id="blocks"></div>
+        <div class="adds" id="adds"></div>
+      </div>
+    </section>
+    <aside class="prev"><div class="phone"><iframe id="pv" title="preview"></iframe></div><div class="cap" data-t="pvCap">실제 페이지가 이렇게 보여요</div></aside>
+  </main>
+  <nav class="mtabs"><button type="button" class="btn ghost" id="tabEdit" aria-pressed="true" data-t="tabEdit">✏️ 편집</button><button type="button" class="btn ghost" id="tabPrev" data-t="tabPrev">📱 미리보기</button></nav>
+  <div class="toast" id="toast"></div>
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const T = {
+      ko: { dash: '내 명함 관리', save: '발행', saving: '발행 중…', saved: '발행했어요!', doneT: '발행했어요! 🎉', copy: '링크 복사', copied: '링크를 복사했어요', open: '열어 보기', secId: '주소', idL: '아이디', secHead: '위쪽', titleL: '페이지 제목', nameL: '이름 · 상호', heroL: '대표 사진', heroBtn: '사진 올리기', snsL: 'SNS · 연락처 (명함에서 가져와요)', secBlocks: '블록', pvCap: '실제 페이지가 이렇게 보여요', tabEdit: '✏️ 편집', tabPrev: '📱 미리보기',
+        links: '멀티링크', home: '미니홈', attached: '명함 "{n}"에 붙어요 · 주소 toomcard.com/{s}{p}', standalone: '명함 없이 이 페이지가 대표 주소가 돼요. 나중에 명함을 붙일 수 있어요.', heroAttached: '명함 앞면 사진을 써요. 바꾸려면 명함 수정에서 바꿔요.', heroNew: '세로 사진이 좋아요. 자동으로 가볍게 줄여요.', snsNone: '아직 없어요.', snsEdit: '명함에서 수정 →', login: '발행하려면 로그인이 필요해요', needName: '이름을 넣어 주세요', needSlug: '아이디를 5자 이상 정해 주세요', slugOk: 'toomcard.com/{a} 쓸 수 있어요', slugTaken: '이미 쓰는 아이디예요', slugBad: '영문 소문자·숫자·점만 5~20자', fail: '잠시 후 다시 해 주세요', uploading: '올리는 중…', uploaded: '올렸어요', fetching: '상품 정보를 가져오는 중…', fetched: '가져왔어요', fetchFail: '가져오지 못했어요. 제목과 사진을 직접 넣어 주세요.', needUrl: '먼저 주소를 넣어 주세요', pickCard: '어느 명함에 붙일까요?',
+        b_title: '제목', b_text: '글', b_link: '링크', b_product: '상품', b_youtube: '유튜브', b_grid: '그리드', b_gallery: '사진', b_items: '상품 · 가격', b_location: '위치 · 영업시간', b_reviews: '후기', b_news: '소식', b_intro: '소개',
+        ph_title: '예: 이번 주 영상', ph_text: '여기에 글을 써요', ph_link_t: '링크 이름', ph_link_d: '한 줄 설명 (선택)', ph_url: 'https://', ph_price: '가격', ph_pname: '상품·서비스 이름', ph_note: '설명 (선택)', ph_addr: '주소', ph_map: '지도 링크 (네이버·카카오 공유 주소)', ph_hours: '영업시간 (예: 매일 9:00~18:00)', ph_rvname: '이름', ph_rvtext: '후기 내용', ph_date: '2026-10-24', ph_news_t: '소식 제목', ph_news: '내용', ph_icon: '🔗',
+        add: '＋ 추가', fetch: '가져오기', photo: '사진', up: '↑', down: '↓', del: '×',
+        tpl_intro: '우리 가게를 소개해요.', tpl_links_title: '추천 링크' },
+      en: { dash: 'My cards', save: 'Publish', saving: 'Publishing…', saved: 'Published!', doneT: 'Published! 🎉', copy: 'Copy link', copied: 'Link copied', open: 'Open', secId: 'Address', idL: 'ID', secHead: 'Top', titleL: 'Page title', nameL: 'Name · business', heroL: 'Hero photo', heroBtn: 'Upload photo', snsL: 'Socials · contact (from your card)', secBlocks: 'Blocks', pvCap: 'This is how the page looks', tabEdit: '✏️ Edit', tabPrev: '📱 Preview',
+        links: 'Multilink', home: 'Mini site', attached: 'Attached to card "{n}" · toomcard.com/{s}{p}', standalone: 'No card yet: this page is your main address. You can add a card later.', heroAttached: 'Uses your card’s front photo. Change it in the card editor.', heroNew: 'A portrait photo works best. It is shrunk automatically.', snsNone: 'None yet.', snsEdit: 'Edit on card →', login: 'Sign in to publish', needName: 'Please enter a name', needSlug: 'Pick an ID (5+ characters)', slugOk: 'toomcard.com/{a} is available', slugTaken: 'That ID is taken', slugBad: 'Lowercase letters, numbers and dots, 5–20', fail: 'Please try again shortly', uploading: 'Uploading…', uploaded: 'Uploaded', fetching: 'Fetching product…', fetched: 'Done', fetchFail: 'Could not fetch. Add title and photo yourself.', needUrl: 'Enter a URL first', pickCard: 'Attach to which card?',
+        b_title: 'Heading', b_text: 'Text', b_link: 'Link', b_product: 'Product', b_youtube: 'YouTube', b_grid: 'Grid', b_gallery: 'Photos', b_items: 'Products & prices', b_location: 'Location · hours', b_reviews: 'Reviews', b_news: 'News', b_intro: 'Intro',
+        ph_title: 'e.g. This week’s video', ph_text: 'Write here', ph_link_t: 'Link name', ph_link_d: 'One line (optional)', ph_url: 'https://', ph_price: 'Price', ph_pname: 'Product or service', ph_note: 'Note (optional)', ph_addr: 'Address', ph_map: 'Map link', ph_hours: 'Hours (e.g. daily 9–18)', ph_rvname: 'Name', ph_rvtext: 'Review', ph_date: '2026-10-24', ph_news_t: 'News title', ph_news: 'Text', ph_icon: '🔗',
+        add: '＋ Add', fetch: 'Fetch', photo: 'Photo', up: '↑', down: '↓', del: '×', tpl_intro: 'Tell people about your place.', tpl_links_title: 'My links' },
+      de: { dash: 'Meine Karten', save: 'Veröffentlichen', saving: 'Wird veröffentlicht…', saved: 'Veröffentlicht!', doneT: 'Veröffentlicht! 🎉', copy: 'Link kopieren', copied: 'Link kopiert', open: 'Öffnen', secId: 'Adresse', idL: 'ID', secHead: 'Oben', titleL: 'Seitentitel', nameL: 'Name · Firma', heroL: 'Titelbild', heroBtn: 'Foto hochladen', snsL: 'Social · Kontakt (von deiner Karte)', secBlocks: 'Blöcke', pvCap: 'So sieht die Seite aus', tabEdit: '✏️ Bearbeiten', tabPrev: '📱 Vorschau',
+        links: 'Multilink', home: 'Mini-Seite', attached: 'Gehört zur Karte „{n}“ · toomcard.com/{s}{p}', standalone: 'Noch keine Karte: diese Seite ist deine Hauptadresse. Eine Karte kannst du später hinzufügen.', heroAttached: 'Nutzt das Titelfoto der Karte. Ändern im Karten-Editor.', heroNew: 'Hochformat ist ideal. Wird automatisch verkleinert.', snsNone: 'Noch nichts.', snsEdit: 'Auf der Karte ändern →', login: 'Zum Veröffentlichen anmelden', needName: 'Bitte Namen eingeben', needSlug: 'ID wählen (mind. 5 Zeichen)', slugOk: 'toomcard.com/{a} ist frei', slugTaken: 'Diese ID ist vergeben', slugBad: 'Kleinbuchstaben, Zahlen, Punkte, 5–20', fail: 'Bitte gleich noch einmal versuchen', uploading: 'Lädt hoch…', uploaded: 'Hochgeladen', fetching: 'Produkt wird geladen…', fetched: 'Fertig', fetchFail: 'Konnte nicht laden. Titel und Foto selbst eintragen.', needUrl: 'Zuerst eine URL eingeben', pickCard: 'Zu welcher Karte?',
+        b_title: 'Überschrift', b_text: 'Text', b_link: 'Link', b_product: 'Produkt', b_youtube: 'YouTube', b_grid: 'Raster', b_gallery: 'Fotos', b_items: 'Produkte & Preise', b_location: 'Standort · Zeiten', b_reviews: 'Bewertungen', b_news: 'Neuigkeiten', b_intro: 'Vorstellung',
+        ph_title: 'z. B. Video der Woche', ph_text: 'Hier schreiben', ph_link_t: 'Linkname', ph_link_d: 'Eine Zeile (optional)', ph_url: 'https://', ph_price: 'Preis', ph_pname: 'Produkt oder Leistung', ph_note: 'Hinweis (optional)', ph_addr: 'Adresse', ph_map: 'Kartenlink', ph_hours: 'Öffnungszeiten', ph_rvname: 'Name', ph_rvtext: 'Bewertung', ph_date: '2026-10-24', ph_news_t: 'Titel', ph_news: 'Text', ph_icon: '🔗',
+        add: '＋ Hinzufügen', fetch: 'Laden', photo: 'Foto', up: '↑', down: '↓', del: '×', tpl_intro: 'Stell deinen Ort vor.', tpl_links_title: 'Meine Links' }
+    };
+    let lang = (navigator.language || 'ko').slice(0, 2); try { lang = localStorage.getItem('toomcard_lang') || lang; } catch (e) {} if (!T[lang]) lang = 'ko';
+    const t = (k) => T[lang][k] || T.ko[k] || k;
+    document.querySelectorAll('[data-t]').forEach((el) => { el.textContent = t(el.dataset.t); });
+    const toast = (m) => { const el = $('toast'); el.textContent = m; el.classList.add('on'); setTimeout(() => el.classList.remove('on'), 2200); };
+    const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    const attr = (s) => String(s == null ? '' : s).replace(/"/g, '&quot;');
+
+    /* ── 상태 ── */
+    const params = new URLSearchParams(location.search);
+    const mode = params.get('mode') === 'home' ? 'home' : 'links';            // links = 멀티링크, home = 미니홈
+    let card = null, slug = params.get('edit') || '', attached = false, hasCardBody = false, blocks = [], hero = '', slugOk = false, user = null;
+    $('badge').textContent = t(mode); document.title = `${t(mode)} ${lang === 'ko' ? '에디터' : 'editor'} | TOOMCARD`;
+    if (mode === 'home') $('fTitle').placeholder = lang === 'ko' ? '예: 성주참외 배가네' : 'e.g. Becker Farm'; else $('fTitle').placeholder = lang === 'ko' ? '예: 지훈의 추천 링크' : 'e.g. My links';
+
+    const ADDS = mode === 'home' ? ['intro', 'gallery', 'items', 'location', 'reviews', 'news', 'link', 'youtube', 'title'] : ['link', 'product', 'youtube', 'grid', 'title', 'text'];
+    $('adds').innerHTML = ADDS.map((k) => `<button type="button" data-add="${k}">${t('b_' + k)}</button>`).join('');
+    const newBlock = (k) => ({ intro: { type: 'text', text: '' }, title: { type: 'title', text: '' }, text: { type: 'text', text: '' }, link: { type: 'link', icon: '', title: '', desc: '', url: '' }, product: { type: 'product', url: '', title: '', price: '', image: '' }, youtube: { type: 'youtube', title: '', url: '' }, grid: { type: 'grid', items: [{}, {}] }, gallery: { type: 'gallery', images: [] }, items: { type: 'items', list: [{}] }, location: { type: 'location', address: '', mapUrl: '', hours: '' }, reviews: { type: 'reviews', list: [{}] }, news: { type: 'news', list: [{}] } }[k]);
+    // 예전 미니홈(고정 칸 방식)을 블록으로
+    function legacyToBlocks(p) {
+      const out = [];
+      if (p.intro) out.push({ type: 'text', text: p.intro });
+      if (p.gallery && p.gallery.length) out.push({ type: 'gallery', images: p.gallery.slice(0, 8) });
+      if (p.items && p.items.length) out.push({ type: 'items', list: p.items });
+      if (p.news && p.news.length) out.push({ type: 'news', list: p.news });
+      if (p.address || p.hours || p.mapUrl) out.push({ type: 'location', address: p.address || '', mapUrl: p.mapUrl || '', hours: p.hours || '' });
+      if (p.reviews && p.reviews.length) out.push({ type: 'reviews', list: p.reviews });
+      return out;
+    }
+
+    /* ── 블록 편집 ── */
+    function renderBlocks() {
+      const box = $('blocks'); box.innerHTML = '';
+      blocks.forEach((b, i) => {
+        const el = document.createElement('div'); el.className = 'blk'; el.dataset.i = i;
+        const name = b.type === 'text' && mode === 'home' && i === 0 ? t('b_intro') : t('b_' + b.type);
+        const head = `<div class="bh"><b>${esc(name)}</b><button type="button" data-mv="-1">${t('up')}</button><button type="button" data-mv="1">${t('down')}</button><button type="button" data-del="1">${t('del')}</button></div>`;
+        let body = '';
+        if (b.type === 'title') body = `<input class="input" data-k="text" maxlength="40" placeholder="${t('ph_title')}" value="${attr(b.text)}">`;
+        else if (b.type === 'text') body = `<textarea class="input" data-k="text" rows="4" maxlength="2000" placeholder="${t('ph_text')}">${esc(b.text)}</textarea>`;
+        else if (b.type === 'link') body = `<div class="two"><input class="input" data-k="icon" maxlength="2" placeholder="${t('ph_icon')}" value="${attr(b.icon)}"><input class="input" data-k="title" maxlength="40" placeholder="${t('ph_link_t')}" value="${attr(b.title)}"></div><input class="input" data-k="desc" maxlength="60" placeholder="${t('ph_link_d')}" value="${attr(b.desc)}"><input class="input" data-k="url" type="url" placeholder="${t('ph_url')}" value="${attr(b.url)}">`;
+        else if (b.type === 'product') body = `<input class="input" data-k="url" type="url" placeholder="https://link.coupang.com/… · https://smartstore.naver.com/…" value="${attr(b.url)}"><div class="two"><input class="input" data-k="title" maxlength="60" placeholder="${t('ph_pname')}" value="${attr(b.title)}"><input class="input" data-k="price" maxlength="20" placeholder="${t('ph_price')}" value="${attr(b.price)}"></div><div class="pimg"><i style="${b.image ? `background-image:url('${attr(b.image)}')` : ''}"></i><button type="button" class="mini" data-fetch="1">${t('fetch')}</button><button type="button" class="mini" data-photo="1">${t('photo')}</button></div>`;
+        else if (b.type === 'youtube') body = `<input class="input" data-k="title" maxlength="40" placeholder="${t('ph_title')}" value="${attr(b.title)}"><input class="input" data-k="url" type="url" placeholder="https://youtu.be/…" value="${attr(b.url)}">`;
+        else if (b.type === 'grid') body = `<div class="list">${(b.items || []).map((it, j) => `<div class="r three" data-j="${j}"><input class="input" data-k="icon" maxlength="2" placeholder="${t('ph_icon')}" value="${attr(it.icon)}"><input class="input" data-k="title" maxlength="30" placeholder="${t('ph_link_t')}" value="${attr(it.title)}"><button type="button" data-rdel="1">×</button><input class="input" data-k="url" type="url" placeholder="${t('ph_url')}" value="${attr(it.url)}" style="grid-column:1/-1"></div>`).join('')}</div><button type="button" class="mini" data-radd="1" style="margin-top:6px">${t('add')}</button>`;
+        else if (b.type === 'gallery') body = `<div class="gal">${(b.images || []).map((u, j) => `<div style="background-image:url('${attr(u)}')"><button type="button" data-gdel="${j}">×</button></div>`).join('')}</div>${(b.images || []).length < 8 ? `<button type="button" class="mini" data-gadd="1">${t('add')} (${(b.images || []).length}/8)</button>` : ''}`;
+        else if (b.type === 'items') body = `<div class="list">${(b.list || []).map((it, j) => `<div class="r" data-j="${j}"><input class="input" data-k="name" maxlength="40" placeholder="${t('ph_pname')}" value="${attr(it.name)}"><input class="input" data-k="price" maxlength="20" placeholder="${t('ph_price')}" value="${attr(it.price)}"><button type="button" data-rdel="1">×</button><input class="input" data-k="note" maxlength="60" placeholder="${t('ph_note')}" value="${attr(it.note)}" style="grid-column:1/-1"></div>`).join('')}</div><button type="button" class="mini" data-radd="1" style="margin-top:6px">${t('add')}</button>`;
+        else if (b.type === 'location') body = `<input class="input" data-k="address" maxlength="120" placeholder="${t('ph_addr')}" value="${attr(b.address)}"><input class="input" data-k="mapUrl" type="url" placeholder="${t('ph_map')}" value="${attr(b.mapUrl)}"><input class="input" data-k="hours" maxlength="80" placeholder="${t('ph_hours')}" value="${attr(b.hours)}">`;
+        else if (b.type === 'reviews') body = `<div class="list">${(b.list || []).map((it, j) => `<div class="r three" data-j="${j}"><input class="input" data-k="name" maxlength="30" placeholder="${t('ph_rvname')}" value="${attr(it.name)}"><input class="input" data-k="text" maxlength="400" placeholder="${t('ph_rvtext')}" value="${attr(it.text)}"><button type="button" data-rdel="1">×</button></div>`).join('')}</div><button type="button" class="mini" data-radd="1" style="margin-top:6px">${t('add')}</button>`;
+        else if (b.type === 'news') body = `<div class="list">${(b.list || []).map((it, j) => `<div class="r three" data-j="${j}"><input class="input" data-k="date" maxlength="10" placeholder="${t('ph_date')}" value="${attr(it.date)}"><input class="input" data-k="title" maxlength="60" placeholder="${t('ph_news_t')}" value="${attr(it.title)}"><button type="button" data-rdel="1">×</button><textarea class="input" data-k="text" rows="2" maxlength="600" placeholder="${t('ph_news')}" style="grid-column:1/-1">${esc(it.text)}</textarea></div>`).join('')}</div><button type="button" class="mini" data-radd="1" style="margin-top:6px">${t('add')}</button>`;
+        el.innerHTML = head + body; box.appendChild(el);
+      });
+    }
+    // 입력칸 → 데이터 (렌더링 없이, 타이핑마다)
+    function readBlocks() {
+      [...$('blocks').children].forEach((el) => {
+        const b = blocks[Number(el.dataset.i)]; if (!b) return;
+        el.querySelectorAll(':scope > .input, :scope > .two > .input').forEach((inp) => { b[inp.dataset.k] = inp.value.trim(); });
+        if (b.list || b.items) {
+          const key = b.list ? 'list' : 'items';
+          b[key] = [...el.querySelectorAll('.list .r')].map((r) => { const o = {}; r.querySelectorAll('.input').forEach((inp) => { o[inp.dataset.k] = inp.value.trim(); }); return o; });
+        }
+      });
+    }
+    $('blocks').addEventListener('input', () => { readBlocks(); schedulePreview(); });
+    $('blocks').addEventListener('click', async (e) => {
+      const btn = e.target.closest('button'); if (!btn) return; const el = btn.closest('.blk'); if (!el) return;
+      readBlocks(); const i = Number(el.dataset.i), b = blocks[i];
+      if (btn.dataset.del) blocks.splice(i, 1);
+      else if (btn.dataset.mv) { const j = i + Number(btn.dataset.mv); if (j < 0 || j >= blocks.length) return; [blocks[i], blocks[j]] = [blocks[j], blocks[i]]; }
+      else if (btn.dataset.radd) { const key = b.list ? 'list' : 'items'; b[key] = (b[key] || []).concat([{}]); }
+      else if (btn.dataset.rdel) { const key = b.list ? 'list' : 'items'; b[key].splice(Number(btn.closest('.r').dataset.j), 1); }
+      else if (btn.dataset.gdel != null) { b.images.splice(Number(btn.dataset.gdel), 1); }
+      else if (btn.dataset.gadd) { pickFiles(true, async (files) => { for (const f of files.slice(0, 8 - b.images.length)) { const u = await uploadImage(f, 1200); if (u) b.images.push(u); } renderBlocks(); schedulePreview(); }); return; }
+      else if (btn.dataset.photo) { pickFiles(false, async (files) => { const u = await uploadImage(files[0], 800); if (u) { b.image = u; renderBlocks(); schedulePreview(); } }); return; }
+      else if (btn.dataset.fetch) {
+        if (!/^https?:\/\//.test(b.url || '')) { toast(t('needUrl')); return; }
+        btn.disabled = true; toast(t('fetching'));
+        try { const d = await fetch('/api/unfurl?u=' + encodeURIComponent(b.url)).then((r) => r.json()); if (d && (d.title || d.image)) { if (!b.title && d.title) b.title = d.title; if (!b.price && d.price) b.price = d.price; b.image = d.image || b.image || ''; toast(t('fetched')); } else toast(t('fetchFail')); } catch (er) { toast(t('fetchFail')); }
+      }
+      renderBlocks(); schedulePreview();
+    });
+    $('adds').addEventListener('click', (e) => { const btn = e.target.closest('[data-add]'); if (!btn || blocks.length >= 24) return; readBlocks(); blocks.push(newBlock(btn.dataset.add)); renderBlocks(); schedulePreview(); const last = $('blocks').lastElementChild; if (last) { last.scrollIntoView({ behavior: 'smooth', block: 'center' }); const inp = last.querySelector('.input'); if (inp) inp.focus(); } });
+
+    /* ── 사진 올리기 (저장소, 로그인 필요) ── */
+    function pickFiles(multi, cb) { const inp = document.createElement('input'); inp.type = 'file'; inp.accept = 'image/*'; inp.multiple = !!multi; inp.onchange = () => { if (inp.files.length) cb([...inp.files]); }; inp.click(); }
+    function shrink(file, maxW) { return new Promise((res) => { const fr = new FileReader(); fr.onload = (e) => { const im = new Image(); im.onload = () => { const c = document.createElement('canvas'); const sc = Math.min(1, maxW / Math.max(im.width, im.height)); c.width = Math.round(im.width * sc); c.height = Math.round(im.height * sc); c.getContext('2d').drawImage(im, 0, 0, c.width, c.height); c.toBlob((b) => res(b), 'image/jpeg', 0.84); }; im.src = e.target.result; }; fr.readAsDataURL(file); }); }
+    async function uploadImage(file, maxW) {
+      try {
+        const u = await getCurrentUser(); if (!u) { toast(t('login')); openAuthModal(); return ''; }
+        toast(t('uploading')); const blob = await shrink(file, maxW); const path = `${u.id}/pg-${Date.now()}-${Math.random().toString(36).slice(2, 6)}.jpg`;
+        const up = await supabaseClient.storage.from('card-assets').upload(path, blob, { contentType: 'image/jpeg', cacheControl: '31536000' }); if (up.error) throw up.error;
+        toast(t('uploaded')); return supabaseClient.storage.from('card-assets').getPublicUrl(path).data.publicUrl;
+      } catch (e) { console.warn(e); toast(t('fail')); return ''; }
+    }
+    $('heroBtn').addEventListener('click', () => $('heroFile').click());
+    $('heroFile').addEventListener('change', async () => { const f = $('heroFile').files[0]; if (!f) return; const blob = await shrink(f, 1080); const fr = new FileReader(); fr.onload = (e) => { hero = String(e.target.result); $('heroTh').style.backgroundImage = `url('${hero}')`; schedulePreview(); }; fr.readAsDataURL(blob); $('heroFile').value = ''; });
+
+    /* ── 미리보기: page.html 틀 + 지금 데이터 ── */
+    let tpl = '', pvTimer = 0, lastDoc = '';
+    fetch('/page.html').then((r) => r.text()).then((x) => { tpl = x; updatePreview(); });
+    function schedulePreview() { clearTimeout(pvTimer); pvTimer = setTimeout(updatePreview, 300); }
+    function buildPub() {
+      const c = card || {}; const name = $('fName').value.trim() || c.name || '';
+      const pageBlocks = blocks.map((b) => Object.assign({}, b));
+      return { preview: true, slug: slug || 'preview', mode: mode, kind: c.kind || (mode === 'home' ? 'minihome' : 'multilink'), hasHome: mode === 'home' || !!(c.page && c.page.on), hasLinks: mode === 'links' || !!(c.ml && c.ml.on),
+        name, company: c.company || '', role: c.role || '', industry: c.industry || '', industryText: c.industryText || '', region: c.region || null,
+        logo: (c.logo && c.logo.src && !/\/assets\/(logo_toomcard|logo_toomus|logo_setupod|toomcard_hd)/.test(c.logo.src)) ? c.logo.src : '', avatar: '',
+        front: hero || (c.front && c.front.bg && c.front.bg.type === 'image' ? c.front.bg.src : (c.plateCardImage || '')),
+        socials: (c.socials || []).filter((s) => s && s.url && !['kakao', 'whatsapp', 'telegram'].includes(s.type)).slice(0, 8), website: c.primaryAction && c.primaryAction.url && c.primaryAction.url !== '#' ? c.primaryAction.url : '', phone: c.phone || '', star: false,
+        page: { title: $('fTitle').value.trim(), intro: '', gallery: [], items: [], address: '', mapUrl: '', hours: '', reviews: [], news: [], blocks: pageBlocks, mlTitle: mode === 'links' ? $('fTitle').value.trim() : '' } };
+    }
+    function updatePreview() {
+      if (!tpl) return;
+      const doc = tpl.replace('<head>', '<head><base href="' + location.origin + '/">').replace('<!--DATA-->', '<script>window.PAGE_DATA = ' + JSON.stringify(buildPub()).replace(/</g, '\\u003c') + ';<\/script>');
+      if (doc === lastDoc) return; lastDoc = doc; $('pv').srcdoc = doc;
+    }
+    $('fTitle').addEventListener('input', schedulePreview); $('fName').addEventListener('input', schedulePreview);
+    $('tabEdit').addEventListener('click', () => { document.body.classList.remove('show-prev'); $('tabEdit').setAttribute('aria-pressed', 'true'); $('tabPrev').setAttribute('aria-pressed', 'false'); });
+    $('tabPrev').addEventListener('click', () => { document.body.classList.add('show-prev'); $('tabEdit').setAttribute('aria-pressed', 'false'); $('tabPrev').setAttribute('aria-pressed', 'true'); updatePreview(); });
+
+    /* ── 아이디 (새 페이지일 때만) ── */
+    const slugify = (v) => (v || '').toLowerCase().replace(/[^a-z0-9.]/g, '').replace(/^\.+/, '').replace(/\.{2,}/g, '.').slice(0, 20);
+    let slugTimer = 0;
+    async function checkSlug() {
+      const m = $('slugMsg'), s = slugify($('fSlug').value); $('fSlug').value = s; slugOk = false;
+      if (!s) { m.className = 'msg'; m.textContent = ''; return; }
+      if (s.length < 5) { m.className = 'msg warn'; m.textContent = t('slugBad'); return; }
+      try {
+        const [{ data: pods }, { data: rs }] = await Promise.all([supabaseClient.from('pods').select('slug,user_id').ilike('slug', s), supabaseClient.from('tc_reserved_slugs').select('slug').eq('slug', s)]);
+        const mine = (pods || []).some((r) => user && r.user_id === user.id);
+        if ((rs && rs.length) || ((pods || []).length && !mine)) { m.className = 'msg warn'; m.textContent = t('slugTaken'); return; }
+        slugOk = true; m.className = 'msg ok'; m.textContent = t('slugOk').replace('{a}', s);
+      } catch (e) { slugOk = true; }
+    }
+    $('fSlug').addEventListener('input', () => { clearTimeout(slugTimer); slugTimer = setTimeout(checkSlug, 450); schedulePreview(); });
+
+    /* ── 불러오기: ?edit=아이디 → 그 카드에 붙인다. 없으면 내 카드 중 하나, 그것도 없으면 새 페이지 ── */
+    function showCardInfo() {
+      const c = card || {}; attached = !!card; hasCardBody = !!card && !['multilink', 'minihome'].includes(c.kind);
+      $('idField').hidden = attached; $('nameField').hidden = hasCardBody;
+      $('attachHint').textContent = attached ? (hasCardBody ? t('attached').replace('{n}', c.name || slug).replace('{s}', slug).replace('{p}', mode === 'home' ? '/page' : '/links') : `toomcard.com/${slug}`) : t('standalone');
+      const front = c.front && c.front.bg && c.front.bg.type === 'image' ? c.front.bg.src : (c.plateCardImage || '');
+      if (hasCardBody && front) { $('heroTh').style.backgroundImage = `url('${front}')`; $('heroBtn').hidden = true; $('heroHint').textContent = t('heroAttached'); }
+      else { if (front && !hero) { hero = front; $('heroTh').style.backgroundImage = `url('${front}')`; } $('heroBtn').hidden = false; $('heroHint').textContent = t('heroNew'); }
+      const ro = (c.socials || []).filter((s) => s && s.url).map((s) => `<span>${esc(s.label || s.type)}</span>`).concat(c.phone ? [`<span>📞 ${esc(c.phone)}</span>`] : []).concat(c.primaryAction && c.primaryAction.url ? ['<span>🌐</span>'] : []);
+      $('snsRo').innerHTML = ro.join('') || `<span style="color:var(--mut)">${t('snsNone')}</span>`;
+      $('snsHint').innerHTML = attached ? `<a href="/maker?edit=${encodeURIComponent(slug)}&tab=info">${t('snsEdit')}</a>` : '';
+      $('fName').value = c.name || '';
+    }
+    function loadBlocksFrom(c) {
+      const src = mode === 'home' ? (c.page || {}) : (c.ml || {});
+      $('fTitle').value = src.title || '';
+      blocks = (src.blocks && src.blocks.length) ? JSON.parse(JSON.stringify(src.blocks)) : (mode === 'home' ? legacyToBlocks(src) : []);
+      if (!blocks.length) blocks = mode === 'home' ? [{ type: 'text', text: '' }, { type: 'gallery', images: [] }, { type: 'items', list: [{}] }, { type: 'location', address: '', mapUrl: '', hours: '' }] : [{ type: 'title', text: t('tpl_links_title') }, { type: 'link', icon: '📷', title: 'Instagram', desc: '', url: '' }, { type: 'link', icon: '▶', title: 'YouTube', desc: '', url: '' }];
+      renderBlocks();
+    }
+    async function init() {
+      try { user = await getCurrentUser(); } catch (e) {}
+      if (slug && typeof loadPodFromCloud === 'function') { const r = await loadPodFromCloud(slug); if (r && r.pod) { const j = r.pod.components_json || {}; card = j.card || j; } }
+      if (!card && user && typeof getMyPods === 'function') {
+        try { const pods = await getMyPods(); const list = (pods || []).filter((p) => p && p.slug);
+          if (list.length) { const pick = list.find((p) => p.slug === localStorage.getItem('toomcard_primary_personal_slug')) || list[0]; slug = pick.slug; const j = pick.components_json || {}; card = j.card || j; } } catch (e) {}
+      }
+      if (!card) { slug = ''; }
+      showCardInfo(); loadBlocksFrom(card || {}); updatePreview();
+    }
+    init();
+
+    /* ── 발행: 같은 카드(pods)에 ml / page 만 바꿔 저장한다 ── */
+    async function publish() {
+      readBlocks();
+      const run = async () => {
+        user = await getCurrentUser(); if (!user) { toast(t('login')); return; }
+        const title = $('fTitle').value.trim().slice(0, 40);
+        const clean = blocks.map((b) => { const o = Object.assign({}, b); if (o.list) o.list = o.list.filter((x) => Object.values(x).some(Boolean)); if (o.items) o.items = o.items.filter((x) => x.title || x.url); return o; }).filter((b) => b.type !== 'text' || b.text).slice(0, 24);
+        let c = card ? JSON.parse(JSON.stringify(card)) : null;
+        if (!c) {   // 명함 없이 새로: 이 페이지가 대표 주소
+          const name = $('fName').value.trim(); if (!name) { toast(t('needName')); $('fName').focus(); return; }
+          await checkSlug(); if (!slugOk || slugify($('fSlug').value).length < 5) { toast(t('needSlug')); $('fSlug').focus(); return; }
+          slug = slugify($('fSlug').value);
+          c = { slug, id: slug, kind: mode === 'home' ? 'minihome' : 'multilink', name, role: '', company: '', slogan: '', phone: '', email: '', moatTags: [], logo: { src: '', alt: '' }, emblem: { on: true, source: 'initials', text: '', img: '', material: 'gold', shape: 'coin', motion: 'sweep' }, theme: 'obsidian', layout: 'plate', socials: [], links: [], backLayout: 'default', star: { on: false, tag: '' }, privacy: { phone: false, email: false },
+            front: { bg: hero ? { type: 'image', src: hero } : { type: 'color', color: '#1a1a22', shade: 0, soft: true }, text: { layout: 'none', showLogo: false, tone: 'auto' }, finish: 'metal', qr: 'subtle', frame: 'full', frameTone: 'dark', look: 'clean' }, page: { on: false }, ml: { on: false } };
+        } else if (!hasCardBody && hero && hero !== ((c.front && c.front.bg && c.front.bg.src) || '')) { c.front = Object.assign({}, c.front, { bg: { type: 'image', src: hero } }); }
+        if (!hasCardBody && $('fName').value.trim()) c.name = $('fName').value.trim();
+        if (mode === 'home') c.page = { on: true, title, blocks: clean, intro: '', gallery: [], items: [], news: [], address: '', mapUrl: '', hours: '', reviews: [] };
+        else c.ml = { on: true, title, blocks: clean };
+        c.slug = slug; c.id = slug;
+        $('saveBtn').disabled = true; toast(t('saving'));
+        const consent = { ageConfirmed: true, lang, at: new Date().toISOString() };
+        const res = await syncPodToCloud(slug, { name: c.name, handle: c.role, bio: c.company, theme: c.theme }, Object.assign({}, c, { card: c, consent }));
+        $('saveBtn').disabled = false;
+        if (res && res.error) { toast(t('fail') + ' ' + res.error); return; }
+        card = c; showCardInfo();
+        const url = `${location.origin}/${slug}${hasCardBody ? (mode === 'home' ? '/page' : '/links') : ''}`;
+        $('doneUrl').textContent = url.replace(location.origin + '/', 'toomcard.com/'); $('doneUrl').href = url; $('doneOpen').href = url; $('done').classList.add('on'); $('done').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        toast(t('saved'));
+        try { history.replaceState(null, '', `/editor?mode=${mode}&edit=${encodeURIComponent(slug)}`); } catch (e) {}
+      };
+      if (typeof window.requireAuth === 'function') window.requireAuth(run); else run();
+    }
+    $('saveBtn').addEventListener('click', publish);
+    $('copyBtn').addEventListener('click', () => { navigator.clipboard.writeText($('doneUrl').href).then(() => toast(t('copied'))); });
+  </script>
+</body>
+</html>

@@ -479,7 +479,7 @@
       const mlUrl = `/${slug}${cc.kind === 'multilink' ? '' : '/links'}`, homeUrl = `/${slug}${cc.kind === 'minihome' ? '' : '/page'}`;
       const prod = (ic, name, on, url, mode, makeLabel) => `<div class="prod${on ? ' on' : ''}"><div class="ph"><b>${ic} ${name}</b><span class="st">${on ? T('prOn') : T('prOff')}</span></div>
         <small>${on ? 'toomcard.com' + url : T('prNone')}</small>
-        <div class="pb">${on ? `<a class="lb-btn ghost" href="${url}" target="_blank" rel="noopener">${T('prView')}</a><a class="lb-btn" href="/maker?edit=${es}${mode}">${T('prEdit')}</a>` : `<a class="lb-btn" href="/maker?edit=${es}${mode}">＋ ${makeLabel}</a>`}</div></div>`;
+        <div class="pb">${on ? `<a class="lb-btn ghost" href="${url}" target="_blank" rel="noopener">${T('prView')}</a><a class="lb-btn" href="${mode ? '/editor?edit=' + es + mode : '/maker?edit=' + es}">${T('prEdit')}</a>` : `<a class="lb-btn" href="${mode ? '/editor?edit=' + es + mode : '/maker?edit=' + es}">＋ ${makeLabel}</a>`}</div></div>`;
       $('prods').innerHTML = prod('🪪', T('prCard'), hasCard, `/${slug}`, '', T('prAttach')) + prod('🔗', T('prLinks'), hasMl, mlUrl, '&mode=links', T('prMake')) + prod('🏠', T('prHome'), hasHome, homeUrl, '&mode=home', T('prMake'));
       $('mName').textContent = c.name || T('noname');
       $('mRole').textContent = [c.role, c.company].filter(Boolean).join(' · ');
@@ -714,8 +714,8 @@
       const s = $('mSince'); if (since && !isNaN(since)) { s.textContent = T('since').replace('{y}', since.getFullYear()).replace('{m}', since.getMonth() + 1); s.hidden = false; } else s.hidden = true;
       // 툼카드 더 쓰기: 아직 안 한 것만 보여 준다 (현대카드 앱의 M몰 자리)
       const items = [];
-      if (!(c.page && c.page.on) && c.kind !== 'minihome') items.push({ ic: '🏠', t: T('pmHomeT'), d: T('pmHomeD'), e: T('pmFree'), href: `/maker?edit=${encodeURIComponent(main.slug)}&mode=home` });
-      if (!(c.ml && c.ml.on) && c.kind !== 'multilink') items.push({ ic: '🔗', t: T('pmMlT'), d: T('pmMlD'), e: T('pmFree'), href: `/maker?edit=${encodeURIComponent(main.slug)}&mode=links` });
+      if (!(c.page && c.page.on) && c.kind !== 'minihome') items.push({ ic: '🏠', t: T('pmHomeT'), d: T('pmHomeD'), e: T('pmFree'), href: `/editor?mode=home&edit=${encodeURIComponent(main.slug)}` });
+      if (!(c.ml && c.ml.on) && c.kind !== 'multilink') items.push({ ic: '🔗', t: T('pmMlT'), d: T('pmMlD'), e: T('pmFree'), href: `/editor?mode=links&edit=${encodeURIComponent(main.slug)}` });
       if (!(c.star && c.star.on)) items.push({ ic: '★', t: T('pmStarT'), d: T('pmStarD'), e: T('pmFree'), href: `/maker?edit=${encodeURIComponent(main.slug)}&tab=publish` });
       items.push({ ic: '💳', t: T('pmNfcT'), d: T('pmNfcD'), e: T('pmSoon'), href: '/maker?nfc=1' });
       if (!(c.socials || []).some((x) => x && x.url)) items.push({ ic: '🔗', t: T('pmSnsT'), d: T('pmSnsD'), e: T('pmFree'), href: `/maker?edit=${encodeURIComponent(main.slug)}&tab=info` });

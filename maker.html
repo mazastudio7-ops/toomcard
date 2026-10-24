@@ -54,7 +54,7 @@
     body:not(.mode-links) #mlBox, body:not(.mode-home) #pageBox { display: none !important; }
     body.mode-links #mlBox .toggle, body.mode-home #pageBox .toggle { display: none; }
     body.mode-links #mlBox, body.mode-home #pageBox { border: 0; padding: 0; background: none; }
-    body.mode-card #addonSum:empty { display: none; }
+    #mlBox, #pageBox, #addonSum { display: none !important; }   /* 페이지 편집은 /editor 로 옮겼다 */
     #addonSum { display: flex; flex-direction: column; gap: 6px; margin-top: 12px; }
     #addonSum a { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; border-radius: 12px; background: rgba(255,255,255,.05); border: 1px solid var(--tc-border); color: var(--tc-text); text-decoration: none; font-size: 13px; font-weight: 700; }
     #addonSum a span { color: var(--tc-accent); font-size: 12px; }
@@ -398,7 +398,7 @@
       .panel .section-title { display: none; }
 
       .tabbar {
-        display: grid; grid-template-columns: repeat(6, 1fr);
+        display: grid; grid-template-columns: repeat(3, 1fr);
         position: fixed; left: 0; right: 0; bottom: 0; z-index: 40;
         height: calc(var(--tabbar-h) + env(safe-area-inset-bottom)); padding-bottom: env(safe-area-inset-bottom);
         background: rgba(7,5,13,0.96); border-top: 1px solid var(--tc-border); backdrop-filter: blur(14px);
@@ -895,10 +895,7 @@
 
   <nav class="tabbar" id="tabbar">
     <button type="button" data-tab="info"><i data-lucide="user"></i><span data-i18n="maker.tab_info">정보</span></button>
-    <button type="button" data-tab="photo"><i data-lucide="sliders-horizontal"></i><span data-i18n="maker.tab_photo">사진</span></button>
-    <button type="button" data-tab="text"><i data-lucide="type"></i><span data-i18n="maker.tab_text">글자</span></button>
-    <button type="button" data-tab="logo"><i data-lucide="badge-check"></i><span data-i18n="maker.tab_logo">로고</span></button>
-    <button type="button" data-tab="finish"><i data-lucide="gem"></i><span data-i18n="maker.tab_finish">마감</span></button>
+    <button type="button" data-tab="design"><i data-lucide="palette"></i><span data-i18n="maker.tab_design">디자인</span></button>
     <button type="button" data-tab="publish" class="publish"><i data-lucide="rocket"></i><span data-i18n="maker.tab_publish">발행</span></button>
   </nav>
 
@@ -991,7 +988,8 @@
     let mode = 'card', hasCardBody = false;   // hasCardBody: 명함(앞·뒷면)이 있는 카드인가. 없으면 멀티링크·미니홈이 대표 주소가 된다
     const MODE_OF_KIND = { multilink: 'links', minihome: 'home' };
     function setMode(m, opts) {
-      mode = ['links', 'home'].includes(m) ? m : 'card';
+      if (['links', 'home'].includes(m)) { const p = new URLSearchParams(location.search); location.replace('/editor?mode=' + m + (p.get('edit') ? '&edit=' + encodeURIComponent(p.get('edit')) : '')); return; }   // 멀티링크·미니홈은 페이지 에디터에서
+      mode = 'card';
       document.body.classList.toggle('mode-card', mode === 'card'); document.body.classList.toggle('mode-links', mode === 'links'); document.body.classList.toggle('mode-home', mode === 'home');
       if (mode === 'links') { card.ml = Object.assign({ on: true }, card.ml || {}, { on: true }); if (!hasCardBody) kind = 'multilink'; }
       else if (mode === 'home') { card.page = Object.assign({ on: true }, card.page || {}, { on: true }); if (!hasCardBody) kind = 'minihome'; }
@@ -1010,7 +1008,7 @@
       setKind(kind);
       if (!(opts && opts.keepTab) && typeof openTab === 'function' && isMobile()) { currentTab = ''; openTab('info'); }
     }
-    function syncAddonSum() {
+    function syncAddonSum() { return;
       const box = $('addonSum'); if (!box) return;
       const slug = curSlug() || '…', rows = [];
       if (card.ml && card.ml.on) rows.push(`<a href="#" data-mode="links">🔗 ${t('maker.mode_links')} · toomcard.com/${slug}/links<span>${t('maker.addon_edit')}</span></a>`);
@@ -1202,7 +1200,7 @@
 
     /* ── 미니 홈페이지 (card.page) ─────────────────────── */
     const PG = { gallery: [] };
-    function syncMlUI() {
+    function syncMlUI() { return;
       const p = card.ml || (card.ml = { on: false });
       if (kind === 'multilink') p.on = true;
       $('mlSwitch').setAttribute('aria-checked', String(!!p.on)); $('mlOpts').hidden = !p.on;
@@ -1211,19 +1209,12 @@
     document.addEventListener('click', (e) => {
       const cp = e.target.closest && e.target.closest('.rm-copy'); if (cp) { navigator.clipboard.writeText(cp.dataset.u).then(() => toast(t('common.copied') || '복사했어요')); return; }
       const ad = e.target.closest && e.target.closest('.rm-add'); if (!ad) return;
-      $('result').classList.remove('show'); setMode(ad.dataset.add === 'ml' ? 'links' : 'home'); if (!isMobile() && typeof setSide === 'function') setSide('back');
+      location.href = '/editor?mode=' + (ad.dataset.add === 'ml' ? 'links' : 'home') + '&edit=' + encodeURIComponent(curSlug());
     });
     $('mlSwitch').addEventListener('click', () => { card.ml = Object.assign({ on: false }, card.ml, { on: !(card.ml && card.ml.on) }); syncMlUI(); render(false, 260); });
-    function collectMl() {
-      const p = card.ml || { on: false }; if (kind === 'multilink') p.on = true; if (!p.on) return { on: false };
-      return { on: true, title: $('mlTitle').value.trim().slice(0, 40), blocks: blkCollect().filter((b) => b.type).slice(0, 20) };
-    }
-    function applyMl(ml, legacyBlocks) {
-      card.ml = Object.assign({ on: false }, ml || {});
-      $('mlTitle').value = card.ml.title || '';
-      BLK.list = (card.ml.blocks || legacyBlocks || []).slice(0, 20); blkRender(); syncMlUI();
-    }
-    function syncPageUI() {
+    function collectMl() { return JSON.parse(JSON.stringify(card.ml || { on: false })); }   // 페이지 데이터는 /editor 가 관리한다. 여기서는 그대로 둔다
+    function applyMl(ml, legacyBlocks) { card.ml = Object.assign({ on: false }, ml || {}); }
+    function syncPageUI() { return;
       const p = card.page || (card.page = { on: false });
       $('pageSwitch').setAttribute('aria-checked', String(!!p.on)); $('pageOpts').hidden = !p.on;
       if (kind === 'minihome') p.on = true;
@@ -1318,26 +1309,8 @@
       }
       blkRender();
     });
-    function collectPage() {
-      const p = card.page || { on: false }; if (kind === 'minihome') p.on = true; if (!p.on) return { on: false };
-      const rows = (id) => [...$(id).children];
-      const g = (r, c) => { const el = r.querySelector('.' + c); return el ? el.value.trim() : ''; };
-      return { on: true, title: $('pgTitle').value.trim().slice(0, 40), intro: $('pgIntro').value.trim().slice(0, 2000), gallery: PG.gallery.slice(0, 8),
-        items: rows('pgItems').map((r) => ({ name: g(r, 'p-name').slice(0, 40), price: g(r, 'p-price').slice(0, 20), note: g(r, 'p-note').slice(0, 60) })).filter((x) => x.name).slice(0, 10),
-        news: rows('pgNews').map((r) => ({ date: g(r, 'p-date').slice(0, 10), title: g(r, 'p-title').slice(0, 60), text: g(r, 'p-text').slice(0, 600) })).filter((x) => x.title || x.text).slice(0, 5),
-        address: $('pgAddr').value.trim().slice(0, 120), mapUrl: /^https:\/\//.test($('pgMap').value.trim()) ? $('pgMap').value.trim().slice(0, 300) : '', hours: $('pgHours').value.trim().slice(0, 80),
-        reviews: rows('pgRv').map((r) => ({ name: g(r, 'p-name').slice(0, 30), text: g(r, 'p-text').slice(0, 400) })).filter((x) => x.text).slice(0, 5) };
-    }
-    function applyPage(p) {
-      card.page = Object.assign({ on: false }, p || {});
-      $('pgTitle').value = card.page.title || ''; $('pgIntro').value = card.page.intro || ''; $('pgAddr').value = card.page.address || ''; $('pgMap').value = card.page.mapUrl || ''; $('pgHours').value = card.page.hours || '';
-      PG.gallery = (card.page.gallery || []).slice(0, 8); pgGalRender();
-      syncMlUI();
-      $('pgItems').innerHTML = ''; (card.page.items || []).forEach((v) => pgRow($('pgItems'), 'item', v));
-      $('pgNews').innerHTML = ''; (card.page.news || []).forEach((v) => pgRow($('pgNews'), 'news', v));
-      $('pgRv').innerHTML = ''; (card.page.reviews || []).forEach((v) => pgRow($('pgRv'), 'rv', v));
-      syncPageUI();
-    }
+    function collectPage() { return JSON.parse(JSON.stringify(card.page || { on: false })); }
+    function applyPage(p) { card.page = Object.assign({ on: false }, p || {}); }
     function addExtraLink(label, url) {
       const box = $('extraLinks'); if (box.children.length >= MAX_EXTRA) return;
       const row = document.createElement('div'); row.className = 'extra-row';
@@ -2391,7 +2364,8 @@
     }
 
     /* ── 하단 탭 + 시트 (폰) ─────────────────────────── */
-    const TAB_TITLES = { info: 'maker.tab_info', photo: 'maker.sec_photo', text: 'maker.sec_text', logo: 'maker.sec_logo', finish: 'maker.sec_finish', publish: 'maker.sec_publish' };
+    const TAB_GROUPS = { design: ['photo', 'text', 'logo', 'finish'] };   // 디자인 탭 하나에 사진·글자·로고·마감을 한 번에 (스크롤)
+    const TAB_TITLES = { design: 'maker.tab_design', info: 'maker.tab_info', photo: 'maker.sec_photo', text: 'maker.sec_text', logo: 'maker.sec_logo', finish: 'maker.sec_finish', publish: 'maker.sec_publish' };
     let currentTab = '';
     function isMobile() { return window.matchMedia('(max-width: 980px)').matches; }
     // 데스크톱: 왼쪽 패널을 앞면/뒷면 탭으로 나누고 미리보기 면과 항상 같이 움직인다 (폰은 하단 탭이 대신한다)
@@ -2405,14 +2379,15 @@
     function openTab(name) {
       if (currentTab === name && document.body.classList.contains('sheet-open')) { closeSheet(); return; }
       currentTab = name;
-      document.querySelectorAll('.panel .section[data-tab]').forEach((s) => s.classList.toggle('on', s.dataset.tab === name));
+      const group = TAB_GROUPS[name] || [name];
+      document.querySelectorAll('.panel .section[data-tab]').forEach((s) => s.classList.toggle('on', group.includes(s.dataset.tab)));
       document.querySelectorAll('.panel').forEach((p) => p.classList.toggle('has-on', !!p.querySelector(`.section.on`)));
       document.querySelectorAll('.sheet-title').forEach((el) => { el.textContent = t(TAB_TITLES[name]); });
       document.querySelectorAll('#tabbar button').forEach((b) => b.setAttribute('aria-selected', b.dataset.tab === name ? 'true' : 'false'));
       document.body.classList.add('sheet-open');
       document.querySelectorAll('.panel').forEach((p) => { p.scrollTop = 0; });
-      setPhotoMode(name === 'photo');
-      if (name === 'logo') flip('show_back'); else if (name === 'photo' || name === 'text') flip('show_front');   // 탭에 맞는 면을 보여준다
+      setPhotoMode(group.includes('photo'));
+      if (name === 'logo') flip('show_back'); else if (group.includes('photo')) flip('show_front');   // 탭에 맞는 면을 보여준다
       setTimeout(renderCarousel, 320);   // 카드가 작아진 크기에 썸네일 맞추기
     }
     function closeSheet() {
