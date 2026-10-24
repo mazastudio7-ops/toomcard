@@ -280,8 +280,7 @@
     .tint.custom input { position: absolute; inset: -8px; width: 50px; height: 50px; opacity: 0; cursor: pointer; }
     .sns-row { display: grid; grid-template-columns: 110px 1fr 34px; gap: 8px; margin-top: 8px; }
     .idfield .url-preview { border-color: rgba(255,217,120,.45); }
-    body:not(.is-admin) #fLetter, body:not(.is-admin) #slashSp { display: none !important; }
-    body:not(.is-admin) .url-preview > span:first-child::after { content: 'a/'; }
+    #fLetter, #slashSp { display: none !important; }
     .extra-row { display: grid; grid-template-columns: 92px 1fr 34px; gap: 8px; margin-bottom: 8px; }
     .x-del { background: none; border: 1px solid var(--tc-border); border-radius: 8px; color: var(--tc-text-subtle); font-size: 16px; cursor: pointer; }
     #addLinkBtn[hidden] { display: none; }
@@ -917,61 +916,52 @@
     const t = (k, v) => (window.i18n ? i18n.t(k, v) : k);
 
     /* ── 렌더 ───────────────────────────────────────── */
-    function slugify(v) { return (v || '').toLowerCase().replace(/[^a-z0-9._-]/g, '').replace(/^[._-]+/, '').slice(0, 20); }   // 아이디는 영문·숫자만 (인스타그램처럼)
-    /* 주소: toomcard.com/<글자>/<이름> — 같은 이름은 글자(a, b, c …)로 구분한다. 글자 없는 맨 앞 주소는 관리자·예전 카드만 */
-    const LETTERS = 'abcdefghijklmnopqrstuvwxyz'.split('');
-    let lockedSlug = '', rootSlug = false, letterTouched = false, slugTimer = 0, slugSeq = 0, adminOpt = false, slugOk = true;
-    $('fLetter').innerHTML = LETTERS.map((l) => `<option value="${l}">${l}</option>`).join(''); $('fLetter').value = 'a';
+    function slugify(v) { return (v || '').toLowerCase().replace(/[^a-z0-9.]/g, '').replace(/^\.+/, '').replace(/\.{2,}/g, '.').slice(0, 20); }   // 아이디: 영문·숫자·점만 (인스타그램처럼)
+    /* 아이디 하나가 곧 주소: toomcard.com/아이디. 5~20자. 예전 글자 주소(a/이름)와 회사 주소(회사/이름)는 그대로 둔다 */
+    const ID_MIN = 5;
+    let lockedSlug = '', rootSlug = false, slugTimer = 0, slugSeq = 0, adminOpt = false, slugOk = false, isAdminUser = false;
+    $('fLetter').innerHTML = '<option value=""></option>'; $('fLetter').value = '';
     function slugName() { return slugify($('fSlug').value); }
-    function curSlug() { if (lockedSlug) return lockedSlug; const n = slugName(); if (!n) return ''; const l = $('fLetter').value; return (rootSlug || !l) ? n : l + '/' + n; }
-    function syncRootUI() { $('fLetter').style.display = rootSlug ? 'none' : ''; $('slashSp').style.display = rootSlug ? 'none' : ''; }
-    function setSlugInputs(slug) {
-      const m = /^([a-z])\/(.+)$/.exec(slug || ''); rootSlug = false; lockedSlug = ''; letterTouched = true; $('fSlug').readOnly = false;
-      if (m) { $('fLetter').value = m[1]; $('fSlug').value = m[2]; }
-      else if (slug && slug.includes('/')) { lockedSlug = slug; rootSlug = true; $('fSlug').value = slug; $('fSlug').readOnly = true; }   // 회사 카드(회사/이름)는 주소를 바꾸지 않는다
-      else if (slug) { rootSlug = true; $('fSlug').value = slug; }   // 예전 주소는 그대로 둔다
-      else { $('fLetter').value = 'a'; $('fSlug').value = ''; letterTouched = false; }
-      syncRootUI();
+    function curSlug() { if (lockedSlug) return lockedSlug; return slugName(); }
+    function syncRootUI() {}
+    function setSlugInputs(slug, published) {
+      rootSlug = false; lockedSlug = ''; $('fSlug').readOnly = false;
+      if (slug && slug.includes('/')) { lockedSlug = slug; rootSlug = true; $('fSlug').value = slug; $('fSlug').readOnly = true; }   // 예전 글자 주소·회사 주소는 메이커에서 바꾸지 않는다 (대시보드 "링크 주소 바꾸기")
+      else if (slug && published) { lockedSlug = slug; rootSlug = true; $('fSlug').value = slug; $('fSlug').readOnly = true; }   // 이미 발행한 카드의 아이디는 대시보드에서 바꾼다
+      else if (slug) { $('fSlug').value = slug; }
+      else { $('fSlug').value = ''; }
     }
-    $('fSlug').addEventListener('input', () => { const v = $('fSlug').value, c = slugify(v); if (v !== c) { $('fSlug').value = c; if (/[가-힣]/.test(v)) { const m = $('slugMsg'); m.className = 'slug-msg warn'; m.textContent = t('maker.slug_en_only'); return; } } });
+    $('fSlug').addEventListener('input', () => { const v = $('fSlug').value, c = slugify(v); if (v !== c) { $('fSlug').value = c; const m = $('slugMsg'); m.className = 'slug-msg warn'; m.textContent = t('maker.slug_en_only'); } });
     // 로그인돼 있고 아이디가 비어 있으면 구글 이메일 앞부분을 제안한다 (새 카드일 때만)
     async function suggestIdFromLogin() {
-      try { if ($('fSlug').value || lockedSlug || rootSlug || editLoaded) return; await ensureCloud(); const u = await getCurrentUser(); const local = u && u.email ? slugify(u.email.split('@')[0]) : ''; if (local && !$('fSlug').value) { $('fSlug').value = local; checkSlug(); } } catch (e) {}
+      try { if ($('fSlug').value || lockedSlug || editLoaded) return; await ensureCloud(); const u = await getCurrentUser(); const local = u && u.email ? slugify(u.email.split('@')[0]) : ''; if (local && local.length >= ID_MIN && !$('fSlug').value) { $('fSlug').value = local; checkSlug(); } } catch (e) {}
     }
     async function checkSlug() {
       const msg = $('slugMsg'), name = slugName();
       const say = (cls, txt) => { msg.className = 'slug-msg ' + cls; msg.textContent = txt; };
-      if (rootSlug) { slugOk = true; say('', t('maker.slug_root')); return true; }
+      if (lockedSlug) { slugOk = true; say('', t('maker.slug_root')); return true; }
       if (!name) { slugOk = false; say('', t('maker.slug_note')); return false; }
-      if (name.length < 3) { slugOk = false; say('warn', t('maker.slug_short')); return false; }
-      if (!$('fLetter').value) { slugOk = true; say('', t('maker.slug_root')); return true; }
+      if (name.length < ID_MIN) { slugOk = false; say('warn', t('maker.slug_short')); return false; }
       const seq = ++slugSeq;
-      try { await ensureCloud(); } catch (e) { return true; }
-      if (!adminOpt) { adminOpt = true; try { const r = await supabaseClient.rpc('tc_is_admin'); if (r && r.data === true) { document.body.classList.add('is-admin'); $('fLetter').insertAdjacentHTML('afterbegin', '<option value="">·</option>'); } } catch (e) {} }
-      const { data, error } = await supabaseClient.from('pods').select('slug,user_id').in('slug', LETTERS.map((l) => l + '/' + name));
-      if (seq !== slugSeq) return slugOk;
-      if (error) return true;
+      try { await ensureCloud(); } catch (e) { slugOk = true; return true; }
+      if (!adminOpt) { adminOpt = true; try { const r = await supabaseClient.rpc('tc_is_admin'); isAdminUser = !!(r && r.data === true); if (isAdminUser) document.body.classList.add('is-admin'); } catch (e) {} }
       let me = null; try { const u = await getCurrentUser(); me = u && u.id; } catch (e) {}
-      const taken = new Set((data || []).filter((r) => !me || r.user_id !== me).map((r) => r.slug));
-      const sel = $('fLetter');
-      if (!document.body.classList.contains('is-admin')) sel.value = 'a';   // 일반 사용자는 항상 a/아이디 (인스타그램처럼 아이디 하나로 구분)
-      const want = sel.value + '/' + name;
-      if (!taken.has(want)) { slugOk = true; say('ok', t('maker.slug_ok', { a: want })); return true; }
-      if (!document.body.classList.contains('is-admin')) {
-        // 이미 있는 아이디: 글자를 바꾸지 않고 비슷한 아이디를 추천한다
-        const cands = [name + '2', name + '3', name + '_', name + '.kr', name + '1'].map((x) => x.slice(0, 20));
-        let freeIds = [];
-        try { const { data: d2 } = await supabaseClient.from('pods').select('slug').in('slug', cands.map((x) => 'a/' + x)); const used = new Set((d2 || []).map((r) => r.slug)); freeIds = cands.filter((x) => !used.has('a/' + x)).slice(0, 3); } catch (e) {}
-        slugOk = false; say('warn', t('maker.slug_taken_id', { a: name, b: freeIds.join(', ') || name + Math.floor(Math.random() * 900 + 100) })); return false;
-      }
-      const free = LETTERS.find((l) => !taken.has(l + '/' + name));
-      if (!free) { slugOk = false; say('warn', t('maker.slug_full')); return false; }
-      if (!letterTouched) { sel.value = free; slugOk = true; say('ok', t('maker.slug_auto', { a: want, b: free + '/' + name })); render(false, 260); return true; }
-      slugOk = false; say('warn', t('maker.slug_taken', { a: want, b: free + '/' + name })); return false;
+      const [{ data: pods }, { data: rs }] = await Promise.all([
+        supabaseClient.from('pods').select('slug,user_id').ilike('slug', name),
+        isAdminUser ? Promise.resolve({ data: [] }) : supabaseClient.from('tc_reserved_slugs').select('slug').eq('slug', name)
+      ]);
+      if (seq !== slugSeq) return slugOk;
+      if (rs && rs.length) { slugOk = false; say('warn', t('maker.slug_reserved', { a: name })); return false; }
+      const mine = (pods || []).some((r) => me && r.user_id === me);
+      if (!(pods || []).length || mine) { slugOk = true; say('ok', t('maker.slug_ok', { a: name })); return true; }
+      // 이미 있는 아이디: 숫자를 붙인 아이디를 추천한다
+      const cands = [name + '2', name + '7', name + '01', name + '2026', name + '.kr'].map((x) => x.slice(0, 20));
+      let freeIds = [];
+      try { const { data: d2 } = await supabaseClient.from('pods').select('slug').in('slug', cands); const used = new Set((d2 || []).map((r) => r.slug)); freeIds = cands.filter((x) => !used.has(x)).slice(0, 3); } catch (e) {}
+      slugOk = false; say('warn', t('maker.slug_taken_id', { a: name, b: freeIds.join(', ') || name + Math.floor(Math.random() * 900 + 100) })); return false;
     }
     function schedSlug() { clearTimeout(slugTimer); slugTimer = setTimeout(checkSlug, 500); }
-    $('fSlug').addEventListener('input', schedSlug); $('fName').addEventListener('input', schedSlug);
-    $('fLetter').addEventListener('change', () => { letterTouched = true; schedSlug(); render(false, 260); });
+    $('fSlug').addEventListener('input', schedSlug);
     document.addEventListener('i18n:change', () => checkSlug()); document.addEventListener('DOMContentLoaded', () => checkSlug());
     document.addEventListener('DOMContentLoaded', () => { if (!new URLSearchParams(location.search).get('edit')) setTimeout(suggestIdFromLogin, 1200); });
 
@@ -1218,7 +1208,7 @@
     function saveDraft() {
       try {
         const c = collect();
-        const d = { v: 1, at: Date.now(), slugInput: $('fSlug').value, slugLetter: rootSlug ? '' : $('fLetter').value, card: c, orig: typeof photoOrig === 'string' ? photoOrig : '' };
+        const d = { v: 1, at: Date.now(), slugInput: $('fSlug').value, slugLetter: '', card: c, orig: typeof photoOrig === 'string' ? photoOrig : '' };
         try { localStorage.setItem(DRAFT_KEY, JSON.stringify(d)); }
         catch (e) { d.orig = ''; localStorage.setItem(DRAFT_KEY, JSON.stringify(d)); }   // 용량이 모자라면 원본 사진은 빼고
       } catch (e) {}
@@ -2223,7 +2213,7 @@
       if (ss[1]) { $('fSocial2Type').value = ss[1].type; $('fSocial2Url').value = ss[1].url; }
       setExtraSns(ss.slice(2));
       setKind(c.kind || (fromCloud ? 'business' : 'personal'));   // 예전 카드는 모두 비즈니스
-      $('fTags').value = (c.moatTags || []).join(', '); setSlugInputs(slug); checkSlug(); syncLogoShapeUI();
+      $('fTags').value = (c.moatTags || []).join(', '); setSlugInputs(slug, !!fromCloud); checkSlug(); syncLogoShapeUI();
       // 예전 그라데이션 카드는 단색(부드러운 그라데이션)으로 읽는다
       if (card.front.bg.type === 'gradient') card.front.bg = { type: 'color', color: card.front.bg.from || DEFAULT_SOLID, shade: 0, soft: true };
       const knownPlate = CURATED_BG.find((b) => b.type === 'image' && b.src === card.front.bg.src);
@@ -2309,7 +2299,7 @@
       const backFromLogin = /access_token|refresh_token/.test(location.hash) || params.has('code');
       const draft = (!edit && !sample && !params.get('preset')) ? loadDraft() : null;
       if (draft) {
-        applyCardData(draft.card, (draft.slugInput && draft.slugLetter) ? draft.slugLetter + '/' + draft.slugInput : draft.slugInput, false);
+        applyCardData(draft.card, draft.slugInput, false);
         if (draft.orig && currentBgId === 'upload') photoOrig = draft.orig;
         if (backFromLogin) { if (isMobile()) { currentTab = ''; openTab('publish'); } toast(t('maker.draft_back')); }
         else setTimeout(() => toastAction(t('maker.draft_loaded'), t('maker.draft_new'), () => { clearDraft(); location.replace('/maker'); }), 600);
