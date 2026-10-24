@@ -1,11 +1,11 @@
 {
-  "slug": "demo.seoyeon",
-  "id": "demo.seoyeon",
+  "slug": "demo.gaeul",
+  "id": "demo.gaeul",
   "demo": true,
   "kind": "business",
   "theme": "emerald",
   "layout": "plate",
-  "name": "이서연",
+  "name": "김가을",
   "role": "보험 설계사",
   "title": "보험 설계사",
   "company": "한빛생명 강남지점",
@@ -14,7 +14,7 @@
   "region": { "sido": "서울", "city": "강남구", "forest": false },
   "slogan": "처음 드는 보험, 쉬운 말로 같이 골라요",
   "phone": "010-1234-5678",
-  "email": "seoyeon@toomcard.com",
+  "email": "gaeul@toomcard.com",
   "moatTags": ["종신·건강", "자녀보험", "보험 리모델링"],
   "logo": { "src": "", "alt": "" },
   "emblem": { "on": true, "source": "initials", "text": "", "img": "", "material": "gold", "shape": "coin", "motion": "sweep" },
@@ -23,7 +23,7 @@
     "text": { "layout": "bottom-left", "showLogo": false, "tone": "auto" },
     "finish": "glass", "qr": "subtle", "frame": "full", "frameTone": "dark", "look": "clean"
   },
-  "primaryAction": { "url": "https://toomcard.com/demo.seoyeon/page", "label": "홈페이지", "icon": "globe" },
+  "primaryAction": { "url": "https://toomcard.com/demo.gaeul/page", "label": "홈페이지", "icon": "globe" },
   "socials": [
     { "type": "kakao", "url": "https://open.kakao.com/o/toomcard", "label": "KakaoTalk" },
     { "type": "instagram", "url": "https://instagram.com/toomcard", "label": "Instagram" }
@@ -33,7 +33,7 @@
   "star": { "on": false, "tag": "" },
   "page": {
     "on": true,
-    "title": "이서연 보험 상담실",
+    "title": "김가을 보험 상담실",
     "intro": "보험은 어렵게 느껴지죠. 처음 드는 분께는 꼭 필요한 것 두세 가지만, 이미 든 분께는 겹치는 걸 빼고 비는 곳만 채워 드려요.\n\n상담은 무료이고, 가입을 권하지 않는 상담도 많아요. 편하게 문의 남겨 주세요.",
     "gallery": [],
     "items": [
