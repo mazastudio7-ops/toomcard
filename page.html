@@ -199,6 +199,7 @@
     const ytId = (u) => { const m = String(u || '').match(/(?:youtu\.be\/|v=|shorts\/|embed\/)([A-Za-z0-9_-]{6,})/); return m ? m[1] : ''; };
     const blocksHtml = (P.blocks || []).map((b) => {
       if (!b || !b.type) return '';
+      if (['link', 'product', 'youtube'].includes(b.type) && !String(b.url || '').trim()) return '';   // 주소 없는 칸은 보여 주지 않는다
       if (b.type === 'title') return `<div class="blk"><h2 class="ct">${esc(b.text)}</h2></div>`;
       if (b.type === 'text') return `<div class="blk"><p class="tx">${esc(b.text)}</p></div>`;
       if (b.type === 'product') { const cp = /coupang\.com|coupa\.ng/i.test(b.url || ''); return `<div class="blk"><a class="pd" href="${safe(b.url)}" target="_blank" rel="noopener sponsored">${b.image ? `<img src="${esc(b.image)}" alt="" loading="lazy">` : '<span class="pd-ph">🛒</span>'}<span class="pd-t"><b>${esc(b.title || b.url)}</b>${b.price ? `<em>${esc(/^[0-9][0-9,.]*$/.test(b.price) ? Number(String(b.price).replace(/,/g, '')).toLocaleString() + '원' : b.price)}</em>` : ''}<small>${esc(b.site || '')}${cp ? ' · ' + T('coupang') : ''}</small></span></a>${cp ? `<p class="disc">${T('coupangDisc')}</p>` : ''}</div>`; }
