@@ -530,7 +530,7 @@
           <input class="input" id="fTags" placeholder="브랜딩, 디자인, 컨설팅">
           <small class="field-hint" data-i18n="maker.tags_hint">전화번호 아래에 작은 알약 모양으로 나와요. 예: 일러스트, 사진, 여행</small>
         </div>
-        <div class="field conn"><label data-i18n="maker.website">홈페이지 · 블로그 주소</label><input class="input" id="fWebsite" type="url" placeholder="https://" data-i18n-placeholder="maker.website_ph"><p class="photo-off" data-i18n="maker.website_note">뒷면에 "홈페이지" 버튼으로 나와요.</p></div>
+        <div class="field conn"><label data-i18n="maker.website">홈페이지 · 블로그 주소</label><input class="input" id="fWebsite" type="text" inputmode="url" autocapitalize="off" placeholder="" data-i18n-placeholder="maker.website_ph"><p class="photo-off" data-i18n="maker.website_note">뒷면에 "홈페이지" 버튼으로 나와요.</p></div>
         <div class="field f-card adfield"><label><span data-i18n="maker.ad">홍보 링크</span> <span style="font-weight:600;opacity:.6;" data-i18n="common.optional">선택</span></label>
           <div style="display:flex; gap:8px;"><input class="input" id="fAdLabel" maxlength="30" placeholder="예: 이달의 추천 상품" data-i18n-placeholder="maker.ad_label_ph" style="flex:0 0 42%"><input class="input" id="fAdUrl" type="url" placeholder="https://" style="flex:1"></div>
           <p class="photo-off" data-i18n="maker.ad_note">명함 아래에 작은 띠로 나와요. 쿠팡 파트너스 링크, 이벤트 페이지, 내 멀티링크 등 무엇이든 돼요.</p></div>
@@ -548,7 +548,7 @@
               <option value="x">X</option>
               <option value="discord">Discord</option>
             </select>
-            <input class="input" id="fSocialUrl" type="url" placeholder="https://">
+            <input class="input" id="fSocialUrl" type="text" inputmode="url" autocapitalize="off" placeholder="">
           </div>
           <div class="row-social" style="margin-top:8px;">
             <select class="select" id="fSocial2Type">
@@ -562,7 +562,7 @@
               <option value="x">X</option>
               <option value="discord">Discord</option>
             </select>
-            <input class="input" id="fSocial2Url" type="url" placeholder="https://">
+            <input class="input" id="fSocial2Url" type="text" inputmode="url" autocapitalize="off" placeholder="">
           </div>
           <div id="extraSns"></div>
           <button type="button" class="btn-secondary" id="addSnsBtn" onclick="addSocialRow()" style="margin-top:8px"><i data-lucide="plus"></i><span data-i18n="maker.add_sns">SNS 더 추가</span></button>
@@ -1124,15 +1124,30 @@
     const SOCIAL_TYPES = [['instagram', 'Instagram'], ['threads', 'Threads'], ['tiktok', 'TikTok'], ['youtube', 'YouTube'], ['x', 'X'], ['facebook', 'Facebook'], ['linkedin', 'LinkedIn'], ['blog', 'Blog'], ['github', 'GitHub'], ['discord', 'Discord'], ['kakao', 'KakaoTalk'], ['whatsapp', 'WhatsApp'], ['telegram', 'Telegram']];
     const MAX_SNS_EXTRA = 6;
     ['fSocialType', 'fSocial2Type'].forEach((id) => { const sel = $(id); SOCIAL_TYPES.forEach(([v, l]) => { if (![...sel.options].some((o) => o.value === v)) sel.add(new Option(l, v)); }); });
+    /* 주소 칸: https:// 는 안 써도 된다. 아이디만 써도 그 서비스 주소로 바꿔 준다 */
+    function socialUrl(type, raw) {
+      let v = String(raw || '').trim(); if (!v) return '';
+      if (/^(https?:|mailto:|tel:)/i.test(v)) return v;
+      if (/^\/\//.test(v)) return 'https:' + v;
+      const id = v.replace(/^@/, '');
+      if (!/[./]/.test(v)) {   // 점·슬래시가 없으면 아이디로 본다
+        const m = { instagram: 'https://instagram.com/' + id, tiktok: 'https://tiktok.com/@' + id, threads: 'https://threads.net/@' + id, youtube: 'https://youtube.com/@' + id, x: 'https://x.com/' + id, github: 'https://github.com/' + id, linkedin: 'https://linkedin.com/in/' + id, facebook: 'https://facebook.com/' + id, kakao: 'https://open.kakao.com/o/' + id, whatsapp: /^\+?[0-9 -]{6,}$/.test(v) ? 'https://wa.me/' + v.replace(/[^0-9]/g, '') : '' };
+        if (m[type]) return m[type];
+      }
+      return 'https://' + v.replace(/^\/+/, '');
+    }
+    const anyUrl = (raw) => socialUrl('', raw);
+    const snsPh = (type) => type === 'kakao' ? t('maker.sns_ph_kakao') : t('maker.sns_ph');
+    function syncSnsPh() { [['fSocialType', 'fSocialUrl'], ['fSocial2Type', 'fSocial2Url']].forEach(([s, u]) => { $(u).placeholder = snsPh($(s).value); }); document.querySelectorAll('#extraSns .sns-row').forEach((r) => { r.querySelector('input').placeholder = snsPh(r.querySelector('select').value); }); }
     function addSocialRow(type, url) {
       const box = $('extraSns'); if (box.children.length >= MAX_SNS_EXTRA) return;
       const row = document.createElement('div'); row.className = 'sns-row';
       const sel = document.createElement('select'); sel.className = 'select';
       SOCIAL_TYPES.forEach(([v, l]) => sel.add(new Option(l, v))); sel.value = type || 'threads';
-      const u = document.createElement('input'); u.className = 'input'; u.type = 'url'; u.placeholder = 'https://'; u.value = url || '';
+      const u = document.createElement('input'); u.className = 'input'; u.type = 'text'; u.inputMode = 'url'; u.autocapitalize = 'off'; u.placeholder = snsPh(sel.value); u.value = url || '';
       const x = document.createElement('button'); x.type = 'button'; x.className = 'x-del'; x.textContent = '×'; x.setAttribute('aria-label', 'remove');
       [sel, u].forEach((el) => el.addEventListener('input', () => render(false, 260)));
-      sel.addEventListener('change', () => render(false, 260));
+      sel.addEventListener('change', () => { u.placeholder = snsPh(sel.value); render(false, 260); });
       x.addEventListener('click', () => { row.remove(); syncAddSnsBtn(); render(); });
       row.append(sel, u, x); box.appendChild(row); syncAddSnsBtn();
     }
@@ -1153,7 +1168,7 @@
       const box = $('extraLinks'); if (box.children.length >= MAX_EXTRA) return;
       const row = document.createElement('div'); row.className = 'extra-row';
       const l = document.createElement('input'); l.className = 'input x-label'; l.placeholder = t('maker.link_label'); l.value = label || '';
-      const u = document.createElement('input'); u.className = 'input x-url'; u.type = 'url'; u.placeholder = 'https://'; u.value = url || '';
+      const u = document.createElement('input'); u.className = 'input x-url'; u.type = 'text'; u.inputMode = 'url'; u.autocapitalize = 'off'; u.placeholder = t('maker.sns_ph'); u.value = url || '';
       const x = document.createElement('button'); x.type = 'button'; x.className = 'x-del'; x.textContent = '×'; x.setAttribute('aria-label', 'remove');
       [l, u].forEach((el) => el.addEventListener('input', () => render(false, 260)));
       x.addEventListener('click', () => { row.remove(); syncAddLinkBtn(); render(); });
@@ -1310,16 +1325,17 @@
       card.email = $('fEmail').value.trim();
       card.title = card.role;
       card.moatTags = $('fTags').value.split(',').map((s) => s.trim()).filter(Boolean).slice(0, 3);
-      const web = $('fWebsite').value.trim();
+      const web = anyUrl($('fWebsite').value);
       card.primaryAction = web ? { url: web, label: t('common.website'), icon: 'globe' } : null;
-      const adUrl = $('fAdUrl').value.trim();
+      const adUrl = anyUrl($('fAdUrl').value);
       card.affiliateAction = adUrl ? { url: adUrl, label: $('fAdLabel').value.trim().slice(0, 30) || t('maker.ad_default') } : null;
       card.socials = [['fSocialType', 'fSocialUrl'], ['fSocial2Type', 'fSocial2Url']]
-        .map(([ty, u]) => ({ type: $(ty).value, url: $(u).value.trim(), label: $(ty).selectedOptions[0].text }))
-        .concat([...document.querySelectorAll('#extraSns .sns-row')].map((r) => ({ type: r.querySelector('select').value, url: r.querySelector('input').value.trim(), label: r.querySelector('select').selectedOptions[0].text })))
+        .map(([ty, u]) => ({ type: $(ty).value, url: socialUrl($(ty).value, $(u).value), label: $(ty).selectedOptions[0].text }))
+        .concat([...document.querySelectorAll('#extraSns .sns-row')].map((r) => ({ type: r.querySelector('select').value, url: socialUrl(r.querySelector('select').value, r.querySelector('input').value), label: r.querySelector('select').selectedOptions[0].text })))
+        .map((s) => (s.type === 'kakao' ? Object.assign(s, { label: /open\.kakao\.com/.test(s.url) ? t('maker.kakao_open') : t('maker.kakao_1on1') }) : s))
         .filter((s) => s.url).slice(0, 8);
       card.links = [...document.querySelectorAll('#extraLinks .extra-row')]
-        .map((r) => ({ label: r.querySelector('.x-label').value.trim(), url: r.querySelector('.x-url').value.trim() }))
+        .map((r) => ({ label: r.querySelector('.x-label').value.trim(), url: anyUrl(r.querySelector('.x-url').value) }))
         .filter((l) => l.url).slice(0, MAX_EXTRA);
       card.page = collectPage();
       card.ml = collectMl();
@@ -2539,12 +2555,18 @@
       chips.addEventListener('click', (e) => {
         const b = e.target.closest('[data-slot]'); if (!b) return; const v = b.dataset.slot;
         if (v === 'web') { $('fWebsite').focus(); return; }
-        if (snsSlotSet.has(v)) { snsSlotSet.delete(v); } else {
+        const rowsOf = () => [...[['fSocialType', 'fSocialUrl'], ['fSocial2Type', 'fSocial2Url']].map(([a, b]) => ({ sel: $(a), inp: $(b), fixed: true })), ...[...document.querySelectorAll('#extraSns .sns-row')].map((r) => ({ sel: r.querySelector('select'), inp: r.querySelector('input'), el: r }))];
+        if (snsSlotSet.has(v) || rowsOf().some((r) => r.sel.value === v && r.inp.value.trim())) {
+          if (rowsOf().some((r) => r.sel.value === v && r.inp.value.trim())) { toast(t('maker.sns_has_url')); return; }   // 주소가 들어 있으면 칩으로 끄지 않는다
+          snsSlotSet.delete(v); rowsOf().filter((r) => r.sel.value === v && !r.inp.value.trim() && r.el).forEach((r) => r.el.remove()); if (typeof syncAddSnsBtn === 'function') syncAddSnsBtn();
+        } else {
           snsSlotSet.add(v);
-          // 빈 주소 칸 중 하나를 이 종류로 돌려 둔다 (주소는 나중에 넣어도 자리는 보인다)
-          const sels = [['fSocialType', 'fSocialUrl'], ['fSocial2Type', 'fSocial2Url']];
-          const taken = new Set([...snsSlotSet].filter((x) => x !== v)); const free = sels.find(([s, u]) => { if ($(u).value.trim()) return false; const cur = $(s).value; if (!taken.has(cur)) return true; taken.delete(cur); return false; });
-          if (free && [...$(free[0]).options].some((o) => o.value === v)) $(free[0]).value = v; else if (typeof addSocialRow === 'function') addSocialRow(v, '');
+          if (!rowsOf().some((r) => r.sel.value === v)) {   // 이 종류 칸이 아직 없을 때만: 비어 있는 고정 칸을 쓰거나, 없으면 칸을 하나 더 만든다
+            const taken = new Set(rowsOf().filter((r) => r.sel.value !== v && (r.inp.value.trim() || snsSlotSet.has(r.sel.value))).map((r) => r.sel.value));
+            const free = rowsOf().find((r) => r.fixed && !r.inp.value.trim() && !taken.has(r.sel.value) && [...r.sel.options].some((o) => o.value === v));
+            if (free) free.sel.value = v; else if (typeof addSocialRow === 'function') addSocialRow(v, '');
+            syncSnsPh();
+          }
         }
         syncSnsChips(); render(true);
       });
@@ -2607,7 +2629,7 @@
     });
     $('kindSeg').addEventListener('click', (e) => { const b = e.target.closest('button[data-kind]'); if (b) setKind(b.dataset.kind); });
     (() => { const p = new URLSearchParams(location.search); setKind(p.get('kind') || 'personal'); setMode(p.get('mode') || 'card'); })();
-    renderBgGrid(); renderThemeChips(); renderStartChips(); renderCarousel(); syncAdjustUI(); buildSteps();
+    renderBgGrid(); renderThemeChips(); renderStartChips(); renderCarousel(); syncAdjustUI(); buildSteps(); syncSnsPh(); ['fSocialType', 'fSocial2Type'].forEach((id) => $(id).addEventListener('change', syncSnsPh)); document.addEventListener('i18n:change', syncSnsPh);
     function preloadDesigns() {
       THEMES.forEach(([key]) => { const l = document.createElement('link'); l.rel = 'preload'; l.as = 'style'; l.href = `/themes/${key}.css`; document.head.appendChild(l); });
       CURATED_BG.filter((b) => b.type === 'image').forEach((b) => { const img = new Image(); img.src = b.src; });

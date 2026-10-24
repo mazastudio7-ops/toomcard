@@ -253,7 +253,7 @@ function renderActionDocks(data) {
     // 메이커 미리보기에서만: 고른 SNS 자리 중 주소가 아직 없는 것은 점선 버튼으로 자리만 보여 준다 (발행된 명함에는 안 나온다)
     if (new URLSearchParams(location.search).get('maker') && Array.isArray(data.snsSlots)) {
       const have = new Set(items.map((it) => it.type)); const NM = { kakao: 'KakaoTalk', whatsapp: 'WhatsApp', instagram: 'Instagram', youtube: 'YouTube', tiktok: 'TikTok', threads: 'Threads', x: 'X', linkedin: 'LinkedIn' };
-      data.snsSlots.filter((v) => v !== 'web' && !have.has(v)).forEach((v) => { if (btns.length < 6) btns.push(`<span class="btn-action btn-glass" style="border-style:dashed;opacity:.6">${getSocialIconSvg(v)}<span>${escHtml(NM[v] || v)} · ${escHtml(t('card.slot_add'))}</span></span>`); });
+      data.snsSlots.filter((v) => v !== 'web' && !have.has(v)).forEach((v) => { if (btns.length < 6) btns.push(`<span class="btn-action btn-glass" style="border-style:dashed;opacity:.6">${getSocialIconSvg(v)}<span>${escHtml(v === 'kakao' ? t('maker.kakao_1on1') : (NM[v] || v))} +</span></span>`); });
     }
     if (btns.length < 2) btns.push(...fillers.slice(0, 2 - btns.length));
     for (let k = 0; k < btns.length; k += 2) html += `<div class="inside-action-row">${btns.slice(k, k + 2).join('')}</div>`;
