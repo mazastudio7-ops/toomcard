@@ -769,7 +769,7 @@
       } catch (e) {}
     }
     $('fwMeBox').addEventListener('click', () => { if (Number($('sFwMe').textContent.replace(/\D/g, '')) > 0) $('fwList').hidden = !$('fwList').hidden; });
-    $('kongBox').addEventListener('click', () => { location.href = 'https://breaoak.com'; });
+    $('kongBox').addEventListener('click', () => toast(T('kongSoon')));   // 콩 상점 주소가 정해지면 그쪽으로 보낸다
     async function loadViews() {
       loadStar(); loadLeads(); loadCharts(); renderSinceAndPromo(); loadGbAdmin(); loadFollow();
       if (demo) { $('sWeek').textContent = '37'; $('sAll').textContent = '128'; return; }
