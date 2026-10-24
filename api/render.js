@@ -252,7 +252,9 @@ module.exports = async (req, res) => {
 
     let cardTheme = loadedCardObj?.theme || 'obsidian';
     let ogImageUrl = '';
-    let ogTitle = `${title} | ${company} - TOOMCARD`;
+    // 회사명이 없는 개인 카드에는 'TOOMUS'를 붙이지 않는다
+    const hasCompany = !!(loadedCardObj && String(loadedCardObj.company || '').trim());
+    let ogTitle = hasCompany ? `${title} | ${company} - TOOMCARD` : `${title} - TOOMCARD`;
     let ogDesc = subtitle || '종이 명함의 시대를 끝내는 살아 움직이는 3D 스마트 명함';
 
     if (isCeo) {

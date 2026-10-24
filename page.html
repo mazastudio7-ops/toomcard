@@ -20,6 +20,7 @@
     .hero::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(7,5,13,.1) 30%, var(--bg) 100%); }
     .hero .back { position: absolute; z-index: 2; top: calc(10px + env(safe-area-inset-top, 0px)); left: 12px; padding: 8px 14px; border-radius: 99px; font-size: 12.5px; font-weight: 800; color: var(--gold); background: rgba(8,6,14,.72); border: 1px solid rgba(255,217,120,.5); text-decoration: none; backdrop-filter: blur(8px); }
     .head { position: relative; z-index: 2; margin-top: -64px; padding: 0 20px; display: flex; align-items: flex-end; gap: 14px; }
+    .ini { display: grid; place-items: center; font: 900 26px 'Noto Sans KR', sans-serif; color: #1a1205; background: linear-gradient(135deg, #fff3c4, #ffd978 45%, #b8862a); }
     .head .lg { width: 72px; height: 72px; border-radius: 18px; object-fit: cover; background: #1a1430; border: 2px solid rgba(255,217,120,.6); flex: none; }
     .head h1 { margin: 0; font-size: 22px; font-weight: 900; line-height: 1.2; }
     .head .sub { color: var(--mut); font-size: 13.5px; margin-top: 3px; }
@@ -75,7 +76,7 @@
   <!--DATA-->
   <div class="wrap" id="app">
     <div class="hero" id="hero"><a class="back" id="backCard" href="#">← 명함 보기</a><img id="heroImg" alt="" hidden></div>
-    <div class="head"><img class="lg" id="logo" alt="" hidden><div><h1 id="title"></h1><div class="sub" id="sub"></div></div></div>
+    <div class="head"><img class="lg" id="logo" alt="" hidden><div class="lg ini" id="ini" hidden></div><div><h1 id="title"></h1><div class="sub" id="sub"></div></div></div>
     <div class="chips" id="chips"></div>
     <section id="secIntro" hidden><div class="intro" id="intro"></div></section>
     <section id="secGal" hidden><h2 data-t="gal">사진</h2><div class="gal" id="gal"></div></section>
@@ -123,6 +124,7 @@
     $('backCard').href = cardUrl; $('backCard').textContent = T('back');
     if (D.front) { $('heroImg').src = D.front; $('heroImg').hidden = false; }
     if (D.logo || D.avatar) { $('logo').src = D.logo || D.avatar; $('logo').hidden = false; }
+    else { const n = String(D.name || '').trim(); if (n) { $('ini').textContent = /[A-Za-z]/.test(n) ? n.split(/[\s.]+/).filter(Boolean).slice(0, 2).map((w) => w[0]).join('').toUpperCase() : Array.from(n)[0]; $('ini').hidden = false; } }
     $('title').textContent = P.title || D.company || D.name;
     $('sub').textContent = [D.name, D.role].filter(Boolean).join(' · ');
     const chips = [];
