@@ -114,6 +114,8 @@
     .rc b { display: block; margin-top: 7px; font-size: 13px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .rc small { display: block; font-size: 11px; color: rgba(255,255,255,.5); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .rc .st { color: #ffd978; }
+    .entries { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+    .entries a { padding: 8px 13px; border-radius: 99px; border: 1px solid rgba(255,255,255,.16); background: rgba(255,255,255,.05); color: rgba(255,255,255,.85); text-decoration: none; font-size: 13px; font-weight: 800; }
     .nm small { display: block; font: 800 9.5px/1.2 'Montserrat', sans-serif; letter-spacing: .18em; opacity: .7; margin-bottom: 4px; text-transform: uppercase; }
     .nm em { display: block; font-style: normal; font-weight: 600; font-size: 11.5px; opacity: .75; margin-top: 3px; }
     .nm { position: absolute; left: 14px; right: 14px; bottom: 16px; font-weight: 900; font-size: 17px; text-shadow: 0 2px 12px rgba(0,0,0,0.6); }
@@ -329,6 +331,7 @@
       <div class="ctas">
         <a href="/maker.html" class="big" data-i18n="home.cta">내 사진으로 만들기</a>
         <a href="#gallery" class="ghost" data-i18n="home.browse">또는 디자인부터 고르기 ↓</a>
+        <div class="entries"><a href="/maker?mode=links">🔗 <span data-i18n="home.entry_links">멀티링크 만들기</span></a><a href="/maker?mode=home">🏠 <span data-i18n="home.entry_home">미니홈 만들기</span></a><a href="/friends">🐻 <span data-i18n="home.entry_friends">툼 프렌즈</span></a></div>
       </div>
       <a href="#stars" class="starlink" data-i18n="h2.starlink">★ 이젠스타에 오른 카드 구경하기 →</a>
       <div class="o-hint" data-i18n="h2.hint">둘레의 스타일을 눌러 보세요 — 가운데 카드가 바뀌어요</div>

@@ -46,6 +46,18 @@
 
     /* ── 헤더 ─────────────────────────────────────── */
     :root { --sat: env(safe-area-inset-top, 0px); }
+    .modes { display: flex; gap: 3px; padding: 3px; border-radius: 12px; background: rgba(255,255,255,.06); border: 1px solid var(--tc-border); }
+    .modes button { appearance: none; border: 0; border-radius: 9px; padding: 7px 12px; background: transparent; color: var(--tc-text-muted); font: 800 12.5px var(--tc-font-body); cursor: pointer; white-space: nowrap; }
+    .modes button[aria-pressed="true"] { background: var(--tc-accent); color: #000; }
+    /* 모드별로 자기 것만 보여 준다: f-card = 명함에서만, f-nolinks = 멀티링크에서는 숨김 */
+    body.mode-links .f-card, body.mode-home .f-card, body.mode-links .f-nolinks { display: none !important; }
+    body:not(.mode-links) #mlBox, body:not(.mode-home) #pageBox { display: none !important; }
+    body.mode-links #mlBox .toggle, body.mode-home #pageBox .toggle { display: none; }
+    body.mode-links #mlBox, body.mode-home #pageBox { border: 0; padding: 0; background: none; }
+    body.mode-card #addonSum:empty { display: none; }
+    #addonSum { display: flex; flex-direction: column; gap: 6px; margin-top: 12px; }
+    #addonSum a { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; border-radius: 12px; background: rgba(255,255,255,.05); border: 1px solid var(--tc-border); color: var(--tc-text); text-decoration: none; font-size: 13px; font-weight: 700; }
+    #addonSum a span { color: var(--tc-accent); font-size: 12px; }
     .studio-header {
       position: sticky; top: 0; z-index: 20;
       display: flex; align-items: center; justify-content: space-between; gap: 12px;
@@ -325,7 +337,7 @@
     .seg { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; border-radius: 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--tc-border); }
     .seg button { appearance: none; border: none; border-radius: 9px; padding: 9px 0; background: transparent; color: var(--tc-text-muted); font: 800 13px var(--tc-font-body); cursor: pointer; }
     .seg button[aria-pressed="true"] { background: var(--tc-accent); color: #000; }
-    #kindSeg { grid-template-columns: 1fr 1fr 1fr 1fr; }
+    #kindSeg { grid-template-columns: 1fr 1fr; }
     #kindSeg button { padding: 9px 2px; font-size: 12.5px; }
     .seg-hint { font-size: 11.5px; color: var(--tc-text-subtle); margin-top: -2px; }
     body.kind-personal .biz-only, body.kind-business .per-only { display: none; }
@@ -346,7 +358,8 @@
     @media (max-width: 980px) {
       :root { --tabbar-h: 62px; --sheet-h: calc(var(--app-h, 100dvh) * 0.5); }
       body { overflow: hidden; }
-      .studio-header { padding: calc(10px + var(--sat)) 14px 10px; }
+      .studio-header { padding: calc(10px + var(--sat)) 14px 10px; flex-wrap: wrap; }
+      .modes { order: 10; width: 100%; } .modes button { flex: 1; }
       .brand .badge, .link-quiet { display: none; }
       .studio { display: block; min-height: 0; }
       .stage {
@@ -450,6 +463,11 @@
       <span class="badge">STUDIO</span>
     </a>
     <div class="header-right">
+      <nav class="modes" id="modeSeg" aria-label="mode">
+        <button type="button" data-mode="card" aria-pressed="true">🪪 <span data-i18n="maker.mode_card">명함</span></button>
+        <button type="button" data-mode="links">🔗 <span data-i18n="maker.mode_links">멀티링크</span></button>
+        <button type="button" data-mode="home">🏠 <span data-i18n="maker.mode_home">미니홈</span></button>
+      </nav>
       <div data-i18n-switcher></div>
       <a href="/dashboard" class="link-quiet" data-i18n="nav.dashboard">내 명함 관리</a>
     </div>
@@ -481,20 +499,18 @@
           <div class="url-preview"><span>toomcard.com/</span><select id="fLetter" aria-label="a"></select><span id="slashSp">/</span><input id="fSlug" placeholder="my_id" data-i18n-placeholder="maker.slug_ph" autocapitalize="off" autocomplete="off" spellcheck="false" maxlength="20" inputmode="latin"></div>
           <div class="slug-msg" id="slugMsg"></div>
         </div>
-        <div class="seg" id="kindSeg">
+        <div class="seg f-card" id="kindSeg">
           <button type="button" data-kind="personal" aria-pressed="true" data-i18n="maker.kind_personal">일반</button>
           <button type="button" data-kind="business" data-i18n="maker.kind_business">비즈니스</button>
-          <button type="button" data-kind="multilink" data-i18n="maker.kind_multilink">멀티링크</button>
-          <button type="button" data-kind="minihome" data-i18n="maker.kind_minihome">미니홈</button>
         </div>
-        <p class="seg-hint"><span class="per-only" data-i18n="maker.kind_personal_hint">학생, 크리에이터, 누구나. 회사 없이 나를 소개해요.</span><span class="biz-only" data-i18n="maker.kind_business_hint">회사·직함이 들어가는 업무용 명함이에요.</span><span class="ml-only" data-i18n="maker.kind_multilink_hint">명함 없이 앞면 사진 + 링크·상품 블록 페이지가 바로 열려요. 뒷면을 꾸밀 필요가 없어요.</span><span class="mh-only" data-i18n="maker.kind_minihome_hint">펜션·농가·가게용 홍보 페이지가 바로 열려요. 사진·소개·상품·위치·후기·예약 문의를 한 페이지에.</span></p>
-        <div class="field"><label><span class="biz-only"><span data-i18n="maker.company">회사 / 브랜드</span><span class="req">*</span></span><span class="per-only"><span data-i18n="maker.affiliation">소속</span> <span style="font-weight:600;opacity:.6;" data-i18n="common.optional">선택</span></span></label><input class="input" id="fCompany" placeholder="TOOMCARD"></div>
-        <div class="field biz-only"><label><span data-i18n="maker.industry">업종</span> <span style="font-weight:600;opacity:.6;" data-i18n="common.optional">선택</span></label>
+        <p class="seg-hint f-card"><span class="per-only" data-i18n="maker.kind_personal_hint">학생, 크리에이터, 누구나. 회사 없이 나를 소개해요.</span><span class="biz-only" data-i18n="maker.kind_business_hint">회사·직함이 들어가는 업무용 명함이에요.</span><span class="ml-only" data-i18n="maker.kind_multilink_hint">명함 없이 앞면 사진 + 링크·상품 블록 페이지가 바로 열려요. 뒷면을 꾸밀 필요가 없어요.</span><span class="mh-only" data-i18n="maker.kind_minihome_hint">펜션·농가·가게용 홍보 페이지가 바로 열려요. 사진·소개·상품·위치·후기·예약 문의를 한 페이지에.</span></p>
+        <div class="field f-nolinks"><label><span class="biz-only"><span data-i18n="maker.company">회사 / 브랜드</span><span class="req">*</span></span><span class="per-only"><span data-i18n="maker.affiliation">소속</span> <span style="font-weight:600;opacity:.6;" data-i18n="common.optional">선택</span></span></label><input class="input" id="fCompany" placeholder="TOOMCARD"></div>
+        <div class="field biz-only f-nolinks"><label><span data-i18n="maker.industry">업종</span> <span style="font-weight:600;opacity:.6;" data-i18n="common.optional">선택</span></label>
           <select class="select" id="fIndustry"><option value="" data-i18n="maker.industry_none">선택 안 함</option><option value="insurance" data-i18n="ind.insurance">보험</option><option value="farm" data-i18n="ind.farm">농산물·농가</option><option value="stay" data-i18n="ind.stay">숙박·펜션</option><option value="realestate" data-i18n="ind.realestate">부동산</option><option value="auto" data-i18n="ind.auto">자동차</option><option value="finance" data-i18n="ind.finance">금융·대출</option><option value="legal" data-i18n="ind.legal">법률</option><option value="tax" data-i18n="ind.tax">세무·회계</option><option value="medical" data-i18n="ind.medical">의료·건강</option><option value="education" data-i18n="ind.education">교육</option><option value="beauty" data-i18n="ind.beauty">뷰티</option><option value="food" data-i18n="ind.food">요식·카페</option><option value="it" data-i18n="ind.it">IT·개발</option><option value="other" data-i18n="ind.other">기타 (직접 입력)</option></select>
           <input class="input" id="fIndustryText" placeholder="예: 펫 케어" data-i18n-placeholder="maker.industry_custom_ph" hidden style="margin-top:8px">
           <p class="photo-off" data-i18n="maker.industry_note">받는 분 폰에 "보험 · 회사명"처럼 저장돼서, 나중에 "보험"만 검색해도 내가 나와요.</p>
         </div>
-        <div class="field rg-field"><label><span data-i18n="maker.region">지역</span> <span style="font-weight:600;opacity:.6;" data-i18n="common.optional">선택</span></label>
+        <div class="field rg-field f-nolinks"><label><span data-i18n="maker.region">지역</span> <span style="font-weight:600;opacity:.6;" data-i18n="common.optional">선택</span></label>
           <div style="display:flex; gap:8px;">
             <select class="select" id="fRegionSido" style="flex:0 0 38%"><option value="" data-i18n="maker.region_none">시·도</option><option value="서울">서울</option><option value="부산">부산</option><option value="대구">대구</option><option value="인천">인천</option><option value="광주">광주</option><option value="대전">대전</option><option value="울산">울산</option><option value="세종">세종</option><option value="경기">경기</option><option value="강원">강원</option><option value="충북">충북</option><option value="충남">충남</option><option value="전북">전북</option><option value="전남">전남</option><option value="경북">경북</option><option value="경남">경남</option><option value="제주">제주</option></select>
             <input class="input" id="fRegionCity" placeholder="예: 성주군" data-i18n-placeholder="maker.region_city_ph" maxlength="20" style="flex:1">
@@ -502,22 +518,22 @@
           <label style="display:flex;align-items:center;gap:8px;margin-top:10px;font-size:13.5px;font-weight:700;cursor:pointer"><input type="checkbox" id="fForest" style="width:18px;height:18px;accent-color:#7ccf6a"> <span data-i18n="maker.forest">🌳 동네 숲에 내 나무 심기</span></label>
           <p class="photo-off" data-i18n="maker.region_note">켜면 toomcard.com/forest 에서 같은 지역·업종 사람들과 함께 보여요. 전화번호는 나오지 않아요.</p>
         </div>
-        <div class="field"><label data-i18n="maker.slogan">슬로건 한 줄</label><input class="input" id="fSlogan" placeholder="오늘의 만남을 내일의 비즈니스로"></div>
+        <div class="field f-card"><label data-i18n="maker.slogan">슬로건 한 줄</label><input class="input" id="fSlogan" placeholder="오늘의 만남을 내일의 비즈니스로"></div>
         <div class="row-2">
-          <div class="field"><label><span class="biz-only" data-i18n="maker.role">직함</span><span class="per-only" data-i18n="maker.intro">한 줄 소개</span></label><input class="input" id="fRole" placeholder="대표"></div>
+          <div class="field f-card"><label><span class="biz-only" data-i18n="maker.role">직함</span><span class="per-only" data-i18n="maker.intro">한 줄 소개</span></label><input class="input" id="fRole" placeholder="대표"></div>
           <div class="field"><label><span data-i18n="maker.name">이름</span><span class="req">*</span></label><input class="input" id="fName" placeholder="홍길동"></div>
         </div>
-        <div class="row-2">
+        <div class="row-2 f-nolinks">
           <div class="field"><label data-i18n="maker.phone">전화번호</label><input class="input" id="fPhone" type="tel" placeholder="+82 10-1234-5678"></div>
           <div class="field"><label data-i18n="maker.email">이메일</label><input class="input" id="fEmail" type="email" placeholder="me@company.com"></div>
         </div>
-        <div class="field">
+        <div class="field f-card">
           <label data-i18n="maker.tags">내 분야 알약 (쉼표로 구분, 최대 3)</label>
           <input class="input" id="fTags" placeholder="브랜딩, 디자인, 컨설팅">
           <small class="field-hint" data-i18n="maker.tags_hint">전화번호 아래에 작은 알약 모양으로 나와요. 예: 일러스트, 사진, 여행</small>
         </div>
         <div class="field"><label data-i18n="maker.website">홈페이지 · 블로그 주소</label><input class="input" id="fWebsite" type="url" placeholder="https://" data-i18n-placeholder="maker.website_ph"><p class="photo-off" data-i18n="maker.website_note">뒷면에 "홈페이지" 버튼으로 나와요.</p></div>
-        <div class="field"><label><span data-i18n="maker.ad">홍보 링크</span> <span style="font-weight:600;opacity:.6;" data-i18n="common.optional">선택</span></label>
+        <div class="field f-card"><label><span data-i18n="maker.ad">홍보 링크</span> <span style="font-weight:600;opacity:.6;" data-i18n="common.optional">선택</span></label>
           <div style="display:flex; gap:8px;"><input class="input" id="fAdLabel" maxlength="30" placeholder="예: 이달의 추천 상품" data-i18n-placeholder="maker.ad_label_ph" style="flex:0 0 42%"><input class="input" id="fAdUrl" type="url" placeholder="https://" style="flex:1"></div>
           <p class="photo-off" data-i18n="maker.ad_note">명함 아래에 작은 띠로 나와요. 쿠팡 파트너스 링크, 이벤트 페이지, 내 멀티링크 등 무엇이든 돼요.</p></div>
         <div class="field">
@@ -553,12 +569,12 @@
           <div id="extraSns"></div>
           <button type="button" class="btn-secondary" id="addSnsBtn" onclick="addSocialRow()" style="margin-top:8px"><i data-lucide="plus"></i><span data-i18n="maker.add_sns">SNS 더 추가</span></button>
         </div>
-        <div class="field">
+        <div class="field f-card">
           <label data-i18n="maker.more_links">추가 링크</label>
           <div id="extraLinks"></div>
           <button type="button" class="btn-secondary" id="addLinkBtn" onclick="addExtraLink()"><i data-lucide="plus"></i><span data-i18n="maker.add_link">링크 추가</span></button>
         </div>
-        <div class="addon-head"><b data-i18n="maker.addon_title">명함에 더 붙이기</b><small data-i18n="maker.addon_desc">명함 하나에 멀티링크·미니홈을 자유롭게 붙일 수 있어요. 따로따로 보내도 되고, 명함 뒷면에 버튼으로도 생겨요.</small></div>
+        <div id="addonSum" class="f-card"></div>
         <!-- 멀티링크: 링크·상품·유튜브 블록만 있는 페이지 → toomcard.com/아이디/links (명함·미니홈과 자유롭게 같이 쓴다) -->
         <div class="star-box" id="mlBox">
           <div class="toggle"><span><b data-i18n="maker.ml_on">멀티링크 만들기</b><small class="star-desc" data-i18n="maker.ml_desc">SNS·상품·유튜브 링크를 한 페이지에. 인스타 프로필 링크로 쓰기 좋아요.</small></span><button class="switch" id="mlSwitch" role="switch" aria-checked="false"></button></div>
@@ -973,15 +989,17 @@
       personal: { fName: 'maker.p_name_ph', fRole: 'maker.p_intro_ph', fCompany: 'maker.p_aff_ph', fSlogan: 'maker.p_slogan_ph', fTags: 'maker.p_tags_ph' },
       business: { fName: 'maker.name_ph', fRole: 'maker.role_ph', fCompany: 'maker.company_ph', fSlogan: 'maker.b_slogan_ph', fTags: 'maker.b_tags_ph' }
     };
-    function setKind(k) {
-      kind = ['business', 'multilink', 'minihome'].includes(k) ? k : 'personal';
-      document.body.classList.toggle('kind-business', kind === 'business');
-      document.body.classList.toggle('kind-personal', kind === 'personal');
-      document.body.classList.toggle('kind-multilink', kind === 'multilink');
-      document.body.classList.toggle('kind-minihome', kind === 'minihome');
-      const isPage = kind === 'multilink' || kind === 'minihome';
+    // 모드: 명함(card) · 멀티링크(links) · 미니홈(home). 엔진은 하나, 화면은 셋. 데이터는 같은 카드에 들어간다.
+    let mode = 'card', hasCardBody = false;   // hasCardBody: 명함(앞·뒷면)이 있는 카드인가. 없으면 멀티링크·미니홈이 대표 주소가 된다
+    const MODE_OF_KIND = { multilink: 'links', minihome: 'home' };
+    function setMode(m, opts) {
+      mode = ['links', 'home'].includes(m) ? m : 'card';
+      document.body.classList.toggle('mode-card', mode === 'card'); document.body.classList.toggle('mode-links', mode === 'links'); document.body.classList.toggle('mode-home', mode === 'home');
+      if (mode === 'links') { card.ml = Object.assign({ on: true }, card.ml || {}, { on: true }); if (!hasCardBody) kind = 'multilink'; }
+      else if (mode === 'home') { card.page = Object.assign({ on: true }, card.page || {}, { on: true }); if (!hasCardBody) kind = 'minihome'; }
+      else { hasCardBody = true; if (!['personal', 'business'].includes(kind)) kind = 'personal'; }
+      const isPage = mode !== 'card';
       document.body.classList.toggle('kind-page', isPage);
-      // 페이지 종류는 '앞면'이 아니라 '대표 사진'
       document.querySelectorAll('[data-i18n="maker.tab_photo"]').forEach((el) => { el.textContent = t(isPage ? 'maker.tab_hero' : 'maker.tab_photo'); });
       document.querySelectorAll('[data-i18n="maker.cta_photo"], [data-i18n="maker.pick_photo"]').forEach((el) => { el.textContent = t(isPage ? 'maker.cta_hero' : el.dataset.i18n); });
       document.querySelectorAll('[data-i18n="maker.sec_photo"]').forEach((el) => { el.textContent = t(isPage ? 'maker.sec_hero' : 'maker.sec_photo'); });
@@ -989,9 +1007,27 @@
       if (isPage && typeof flip === 'function') flip('show_front');
       const fr = $('preview'); if (fr && fr.contentWindow) fr.contentWindow.postMessage({ action: 'page_mode', on: isPage }, '*');
       const fb = $('faceBadge'); if (fb) fb.hidden = isPage;
+      document.querySelectorAll('#modeSeg button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.mode === mode)));
+      try { const u = new URL(location.href); if (mode === 'card') u.searchParams.delete('mode'); else u.searchParams.set('mode', mode); history.replaceState(null, '', u); } catch (e) {}
+      setKind(kind);
+      if (!(opts && opts.keepTab) && typeof openTab === 'function' && isMobile()) { currentTab = ''; openTab('info'); }
+    }
+    function syncAddonSum() {
+      const box = $('addonSum'); if (!box) return;
+      const slug = curSlug() || '…', rows = [];
+      if (card.ml && card.ml.on) rows.push(`<a href="#" data-mode="links">🔗 ${t('maker.mode_links')} · toomcard.com/${slug}/links<span>${t('maker.addon_edit')}</span></a>`);
+      if (card.page && card.page.on) rows.push(`<a href="#" data-mode="home">🏠 ${t('maker.mode_home')} · toomcard.com/${slug}/page<span>${t('maker.addon_edit')}</span></a>`);
+      box.innerHTML = rows.join('');
+    }
+    function setKind(k) {
+      kind = ['business', 'multilink', 'minihome'].includes(k) ? k : 'personal';
+      document.body.classList.toggle('kind-business', kind === 'business');
+      document.body.classList.toggle('kind-personal', kind === 'personal');
+      document.body.classList.toggle('kind-multilink', kind === 'multilink');
+      document.body.classList.toggle('kind-minihome', kind === 'minihome');
       if (kind === 'minihome') { card.page = Object.assign({ on: true }, card.page || {}, { on: true }); }
       if (kind === 'multilink') { card.ml = Object.assign({ on: true }, card.ml || {}, { on: true }); }
-      if (typeof syncPageUI === 'function') syncPageUI(); if (typeof syncMlUI === 'function') syncMlUI();
+      if (typeof syncPageUI === 'function') syncPageUI(); if (typeof syncMlUI === 'function') syncMlUI(); if (typeof syncAddonSum === 'function') syncAddonSum();
       document.querySelectorAll('#kindSeg button').forEach((b) => b.setAttribute('aria-pressed', b.dataset.kind === kind ? 'true' : 'false'));
       Object.entries(KIND_PH[kind === 'business' || kind === 'minihome' ? 'business' : 'personal']).forEach(([id, key]) => { const el = document.getElementById(id); if (el) el.placeholder = t(key); });
       if (typeof render === 'function') render();
@@ -1136,6 +1172,7 @@
     }
     function schedSlug() { clearTimeout(slugTimer); slugTimer = setTimeout(checkSlug, 500); }
     $('fSlug').addEventListener('input', schedSlug);
+    $('fSlug').addEventListener('input', () => { if (typeof syncAddonSum === 'function') syncAddonSum(); });
     document.addEventListener('i18n:change', () => checkSlug()); document.addEventListener('DOMContentLoaded', () => checkSlug());
     document.addEventListener('DOMContentLoaded', () => {
       if (!new URLSearchParams(location.search).get('edit')) setTimeout(suggestIdFromLogin, 1200);
@@ -1176,8 +1213,7 @@
     document.addEventListener('click', (e) => {
       const cp = e.target.closest && e.target.closest('.rm-copy'); if (cp) { navigator.clipboard.writeText(cp.dataset.u).then(() => toast(t('common.copied') || '복사했어요')); return; }
       const ad = e.target.closest && e.target.closest('.rm-add'); if (!ad) return;
-      if (ad.dataset.add === 'ml') { card.ml = Object.assign({}, card.ml, { on: true }); syncMlUI(); } else { card.page = Object.assign({}, card.page, { on: true }); syncPageUI(); }
-      openTab('info'); setTimeout(() => { const box = $(ad.dataset.add === 'ml' ? 'mlBox' : 'pageBox'); if (box) box.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 200);
+      $('result').classList.remove('show'); setMode(ad.dataset.add === 'ml' ? 'links' : 'home'); if (!isMobile() && typeof setSide === 'function') setSide('back');
     });
     $('mlSwitch').addEventListener('click', () => { card.ml = Object.assign({ on: false }, card.ml, { on: !(card.ml && card.ml.on) }); syncMlUI(); render(false, 260); });
     function collectMl() {
@@ -2603,7 +2639,8 @@
       applyPage(c.page);
       applyMl(c.ml, c.kind === 'multilink' && c.page ? c.page.blocks : null);
       setKind(c.kind || (fromCloud ? 'business' : 'personal'));   // 예전 카드는 모두 비즈니스
-      $('fTags').value = (c.moatTags || []).join(', '); setSlugInputs(slug, !!fromCloud); checkSlug(); syncLogoShapeUI();
+      hasCardBody = ['personal', 'business'].includes(kind); const um = new URLSearchParams(location.search).get('mode'); setMode(um || MODE_OF_KIND[kind] || 'card', { keepTab: true });
+      $('fTags').value = (c.moatTags || []).join(', '); setSlugInputs(slug, !!fromCloud); checkSlug(); syncLogoShapeUI(); syncAddonSum();
       // 예전 그라데이션 카드는 단색(부드러운 그라데이션)으로 읽는다
       if (card.front.bg.type === 'gradient') card.front.bg = { type: 'color', color: card.front.bg.from || DEFAULT_SOLID, shade: 0, soft: true };
       const knownPlate = CURATED_BG.find((b) => b.type === 'image' && b.src === card.front.bg.src);
@@ -2663,7 +2700,9 @@
       setTimeout(() => flip('show_back'), 450);   // 바꾼 뒷면을 바로 보여준다
     });
     $('kindSeg').addEventListener('click', (e) => { const b = e.target.closest('button[data-kind]'); if (b) setKind(b.dataset.kind); });
-    setKind(new URLSearchParams(location.search).get('kind') || 'personal');
+    $('modeSeg').addEventListener('click', (e) => { const b = e.target.closest('button[data-mode]'); if (b) setMode(b.dataset.mode); });
+    $('addonSum').addEventListener('click', (e) => { const a = e.target.closest('a[data-mode]'); if (a) { e.preventDefault(); setMode(a.dataset.mode); } });
+    (() => { const p = new URLSearchParams(location.search); setKind(p.get('kind') || 'personal'); const m0 = p.get('mode') || MODE_OF_KIND[p.get('kind')] || 'card'; hasCardBody = m0 === 'card'; setMode(m0, { keepTab: true }); })();
     renderBgGrid(); renderThemeChips(); renderStartChips(); renderCarousel(); syncAdjustUI();
     function preloadDesigns() {
       THEMES.forEach(([key]) => { const l = document.createElement('link'); l.rel = 'preload'; l.as = 'style'; l.href = `/themes/${key}.css`; document.head.appendChild(l); });
