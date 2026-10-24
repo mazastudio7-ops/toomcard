@@ -41,6 +41,16 @@ async function cutout(buf) {
     const x = p % w, y = (p / w) | 0;
     if (x > 0) stack.push(p - 1); if (x < w - 1) stack.push(p + 1); if (y > 0) stack.push(p - w); if (y < h - 1) stack.push(p + w);
   }
+  // 가장자리 다듬기: 바탕과 섞인 회색 테두리를 1px 깎고 부드럽게 (어두운 배경에서 계단·테두리가 안 보이게)
+  let alpha = new Float32Array(w * h); for (let i = 0; i < w * h; i++) alpha[i] = data[i * 4 + 3];
+  const box = (src) => {   // 3x3 평균 (가로 → 세로)
+    const t = new Float32Array(w * h), o = new Float32Array(w * h);
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) { const i = y * w + x; t[i] = (src[i] + src[i - (x > 0 ? 1 : 0)] + src[i + (x < w - 1 ? 1 : 0)]) / 3; }
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) { const i = y * w + x; o[i] = (t[i] + t[i - (y > 0 ? w : 0)] + t[i + (y < h - 1 ? w : 0)]) / 3; }
+    return o;
+  };
+  alpha = box(box(alpha));
+  for (let i = 0; i < w * h; i++) data[i * 4 + 3] = Math.max(0, Math.min(255, Math.round((alpha[i] - 0.45 * 255) * 2.6)));   // 바깥 1px 깎고 부드럽게
   return sharp(data, { raw: { width: w, height: h, channels: 4 } }).png().toBuffer();
 }
 
@@ -56,7 +66,7 @@ async function cutout(buf) {
       const cell = await sharp(path.join(SRC, f.file)).extract(box).png().toBuffer();
       const cut = await cutout(cell);
       const id = `${fam}-${String(i + 1).padStart(2, '0')}`;
-      await sharp(cut).trim().resize(512, 512, { fit: 'inside', withoutEnlargement: true }).png({ compressionLevel: 9, palette: true }).toFile(path.join(OUT, id + '.png'));
+      await sharp(cut).trim().resize(512, 512, { fit: 'inside', withoutEnlargement: true }).png({ compressionLevel: 9 }).toFile(path.join(OUT, id + '.png'));
       const [ko, en, de] = f.poses[i];
       manifest.stickers.push({ id, family: fam, ko, en, de });
       console.log(id, ko);
