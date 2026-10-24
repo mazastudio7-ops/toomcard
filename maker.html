@@ -405,8 +405,8 @@
       .car-card { transform: scale(var(--k, 1)) !important; }
       .panel-left .section { display: none; }
       .steps { display: flex; flex-direction: column; gap: 8px; }
-      .step { border: 1px solid var(--tc-border); border-radius: 16px; background: rgba(255,255,255,.03); overflow: hidden; }
-      .step.open { border-color: rgba(255,217,120,.5); background: rgba(255,255,255,.05); }
+      .step { border: 1px solid rgba(255,255,255,.1); border-radius: 16px; background: rgba(255,255,255,.055); backdrop-filter: blur(22px) saturate(140%); -webkit-backdrop-filter: blur(22px) saturate(140%); box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 10px 30px rgba(0,0,0,.25); overflow: hidden; }
+      .step.open { border-color: rgba(255,217,120,.45); background: rgba(255,255,255,.085); }
       .step-h { appearance: none; width: 100%; border: 0; background: transparent; color: var(--tc-text); display: flex; align-items: center; gap: 12px; padding: 13px 14px; cursor: pointer; text-align: left; font-family: inherit; }
       .step-h .n { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font: 900 12px var(--tc-font-body); background: rgba(255,255,255,.08); color: var(--tc-text-muted); flex: none; }
       .step.open .step-h .n, .step.ok .step-h .n { background: var(--tc-accent); color: #000; }
@@ -2052,6 +2052,7 @@
       setTimeout(() => stack.classList.remove('animating'), 340);
     }
     window.addEventListener('resize', () => { if (!sliding) renderCarousel(); });
+    window.addEventListener('resize', () => { if (!isMobile() && typeof buildSteps === 'function' && !document.getElementById('steps')) buildSteps(); });   // 좁게 열었다가 넓히면 단계 메뉴를 그때 만든다
 
     function pickPhoto() { flip('show_front'); $('bgFile').click(); }
 
