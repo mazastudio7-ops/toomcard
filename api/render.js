@@ -238,13 +238,11 @@ module.exports = async (req, res) => {
     // MAZA STUDIO 팀 카드: 마자 플레이트 미리보기 (카카오톡·메신저 링크 미리보기용 정적 이미지)
     if (!ogImageUrl && /^maza(-studio)?(\/|$)/i.test(cleanSlug || '')) ogImageUrl = 'https://toomcard.com/assets/og_maza.jpg';
 
-    // [옵션 1] 개인마다 이름, 직함, 회사명이 실시간 렌더링된 1200x630 동적 OG 이미지 생성
+    // 링크 미리보기 이미지: 카드의 앞면 사진으로 1200x630 을 만든다 (/api/ogimg). 카드가 없으면 기본 이미지.
     if (!ogImageUrl) {
-      const qTitle = encodeURIComponent(title || 'TOOMCARD');
-      const qCompany = encodeURIComponent(company || 'TOOMCARD');
-      const qSub = encodeURIComponent(subtitle || '3D 인터랙티브 스마트 명함');
-      const qTheme = encodeURIComponent(cardTheme || 'obsidian');
-      ogImageUrl = `https://toomcard.com/api/og?title=${qTitle}&company=${qCompany}&subtitle=${qSub}&theme=${qTheme}`;
+      ogImageUrl = loadedCardObj && cleanSlug
+        ? `https://toomcard.com/api/ogimg?s=${encodeURIComponent(cleanSlug)}`
+        : 'https://toomcard.com/assets/og_default.jpg';
     }
 
     ogTitle = esc(ogTitle); ogDesc = esc(ogDesc); ogImageUrl = esc(ogImageUrl);
@@ -252,6 +250,7 @@ module.exports = async (req, res) => {
     html = html.replace(/<meta\s+property=["']og:title["'].*?>/i, () => `<meta property="og:title" content="${ogTitle}" />`);
     html = html.replace(/<meta\s+property=["']og:description["'].*?>/i, () => `<meta property="og:description" content="${ogDesc}" />`);
     html = html.replace(/<meta\s+property=["']og:image["'].*?>/i, () => `<meta property="og:image" content="${ogImageUrl}" />`);
+    html = html.replace(/<meta\s+property=["']og:image:height["'].*?>/i, '<meta property="og:image:height" content="630">');
 
     // 개인별 맞춤 PWA Manifest 동적 교체 (앱 설치 시 내 명함 이름 및 start_url 직행)
     const dynamicManifestUrl = `/manifest/${encodeURIComponent(cleanSlug || 'toomus')}.json`;
