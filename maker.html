@@ -309,8 +309,12 @@
     .seg { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; border-radius: 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--tc-border); }
     .seg button { appearance: none; border: none; border-radius: 9px; padding: 9px 0; background: transparent; color: var(--tc-text-muted); font: 800 13px var(--tc-font-body); cursor: pointer; }
     .seg button[aria-pressed="true"] { background: var(--tc-accent); color: #000; }
+    #kindSeg { grid-template-columns: 1fr 1fr 1fr; }
     .seg-hint { font-size: 11.5px; color: var(--tc-text-subtle); margin-top: -2px; }
     body.kind-personal .biz-only, body.kind-business .per-only { display: none; }
+    body:not(.kind-multilink) .ml-only { display: none; }
+    body.kind-multilink .biz-only, body.kind-multilink .per-only, body.kind-multilink #pageBox .toggle .switch { display: none; }
+    body.kind-multilink #pageBox { border-color: rgba(255,217,120,.6); }
 
     /* ── 모바일: 큰 캐러셀 + 하단 탭 + 시트 ───────── */
     @media (max-width: 980px) {
@@ -454,8 +458,9 @@
         <div class="seg" id="kindSeg">
           <button type="button" data-kind="personal" aria-pressed="true" data-i18n="maker.kind_personal">일반</button>
           <button type="button" data-kind="business" data-i18n="maker.kind_business">비즈니스</button>
+          <button type="button" data-kind="multilink" data-i18n="maker.kind_multilink">멀티링크</button>
         </div>
-        <p class="seg-hint"><span class="per-only" data-i18n="maker.kind_personal_hint">학생, 크리에이터, 누구나. 회사 없이 나를 소개해요.</span><span class="biz-only" data-i18n="maker.kind_business_hint">회사·직함이 들어가는 업무용 명함이에요.</span></p>
+        <p class="seg-hint"><span class="per-only" data-i18n="maker.kind_personal_hint">학생, 크리에이터, 누구나. 회사 없이 나를 소개해요.</span><span class="biz-only" data-i18n="maker.kind_business_hint">회사·직함이 들어가는 업무용 명함이에요.</span><span class="ml-only" data-i18n="maker.kind_multilink_hint">명함 없이 앞면 사진 + 링크·상품 블록 페이지가 바로 열려요. 뒷면을 꾸밀 필요가 없어요.</span></p>
         <div class="field"><label><span class="biz-only"><span data-i18n="maker.company">회사 / 브랜드</span><span class="req">*</span></span><span class="per-only"><span data-i18n="maker.affiliation">소속</span> <span style="font-weight:600;opacity:.6;" data-i18n="common.optional">선택</span></span></label><input class="input" id="fCompany" placeholder="TOOMCARD"></div>
         <div class="field biz-only"><label><span data-i18n="maker.industry">업종</span> <span style="font-weight:600;opacity:.6;" data-i18n="common.optional">선택</span></label>
           <select class="select" id="fIndustry"><option value="" data-i18n="maker.industry_none">선택 안 함</option><option value="insurance" data-i18n="ind.insurance">보험</option><option value="farm" data-i18n="ind.farm">농산물·농가</option><option value="stay" data-i18n="ind.stay">숙박·펜션</option><option value="realestate" data-i18n="ind.realestate">부동산</option><option value="auto" data-i18n="ind.auto">자동차</option><option value="finance" data-i18n="ind.finance">금융·대출</option><option value="legal" data-i18n="ind.legal">법률</option><option value="tax" data-i18n="ind.tax">세무·회계</option><option value="medical" data-i18n="ind.medical">의료·건강</option><option value="education" data-i18n="ind.education">교육</option><option value="beauty" data-i18n="ind.beauty">뷰티</option><option value="food" data-i18n="ind.food">요식·카페</option><option value="it" data-i18n="ind.it">IT·개발</option><option value="other" data-i18n="ind.other">기타 (직접 입력)</option></select>
@@ -917,11 +922,13 @@
       business: { fName: 'maker.name_ph', fRole: 'maker.role_ph', fCompany: 'maker.company_ph', fSlogan: 'maker.b_slogan_ph', fTags: 'maker.b_tags_ph' }
     };
     function setKind(k) {
-      kind = k === 'business' ? 'business' : 'personal';
+      kind = k === 'business' ? 'business' : (k === 'multilink' ? 'multilink' : 'personal');
       document.body.classList.toggle('kind-business', kind === 'business');
       document.body.classList.toggle('kind-personal', kind === 'personal');
+      document.body.classList.toggle('kind-multilink', kind === 'multilink');
+      if (kind === 'multilink') { card.page = Object.assign({ on: true }, card.page || {}, { on: true }); if (typeof syncPageUI === 'function') syncPageUI(); }   // 멀티링크는 미니홈이 곧 본체
       document.querySelectorAll('#kindSeg button').forEach((b) => b.setAttribute('aria-pressed', b.dataset.kind === kind ? 'true' : 'false'));
-      Object.entries(KIND_PH[kind]).forEach(([id, key]) => { const el = document.getElementById(id); if (el) el.placeholder = t(key); });
+      Object.entries(KIND_PH[kind === 'multilink' ? 'personal' : kind]).forEach(([id, key]) => { const el = document.getElementById(id); if (el) el.placeholder = t(key); });
       if (typeof render === 'function') render();
     }
     let publishedUrl = '';
@@ -1131,7 +1138,7 @@
       blkRender();
     });
     function collectPage() {
-      const p = card.page || { on: false }; if (!p.on) return { on: false };
+      const p = card.page || { on: false }; if (kind === 'multilink') p.on = true; if (!p.on) return { on: false };
       const rows = (id) => [...$(id).children];
       const g = (r, c) => { const el = r.querySelector('.' + c); return el ? el.value.trim() : ''; };
       return { on: true, title: $('pgTitle').value.trim().slice(0, 40), intro: $('pgIntro').value.trim().slice(0, 2000), gallery: PG.gallery.slice(0, 8), blocks: blkCollect().filter((b) => b.type).slice(0, 20),

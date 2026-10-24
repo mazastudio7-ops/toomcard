@@ -211,6 +211,11 @@ module.exports = async (req, res) => {
       }
     }
 
+    // 멀티링크 카드: 명함 대신 미니홈(블록 페이지)이 바로 열린다 (뒷면 없음)
+    if (cardFound && loadedCardObj && loadedCardObj.kind === 'multilink' && !(req.query && req.query.view === 'card')) {
+      return require('./page.js')(Object.assign({}, req, { query: Object.assign({}, req.query, { slug: cleanSlug }) }), res);
+    }
+
     // 없는 주소: 별칭(바뀐 아이디)이면 새 주소로, 아니면 404
     if (!cardFound) {
       try {

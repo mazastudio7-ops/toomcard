@@ -30,14 +30,14 @@ module.exports = async (req, res) => {
     return res.status(404).send('');
   }
   const page = card.page || {};
-  if (!page.on) { res.setHeader('Location', '/' + slug.split('/').map(encodeURIComponent).join('/')); return res.status(302).send(''); }
+  if (!page.on && card.kind !== 'multilink') { res.setHeader('Location', '/' + slug.split('/').map(encodeURIComponent).join('/')); return res.status(302).send(''); }
 
   // 이젠스타에 올린 카드는 미니홈에서도 실명 대신 대화명/가린 이름
   const mask = (n) => { const t = String(n || '').trim(); return t ? t.charAt(0) + '○'.repeat(Math.max(1, Math.min(t.length - 1, 2))) : ''; };
   const starOn = card.star && card.star.on && !(req.query && req.query.k);
   const shownName = starOn ? (String(card.star.nick || '').trim() || mask(card.name)) : (card.name || '');
   const pub = {
-    slug, name: shownName, company: card.company || '', role: card.role || '', industry: card.industry || '', industryText: card.industryText || '',
+    slug, kind: card.kind || 'personal', name: shownName, company: card.company || '', role: card.role || '', industry: card.industry || '', industryText: card.industryText || '',
     region: card.region || null, logo: (card.logo && card.logo.src && !/\/assets\/(logo_toomcard|logo_toomus|logo_setupod|toomcard_hd)/.test(card.logo.src)) ? card.logo.src : '', avatar: (card.avatar && !/\/assets\/logo_/.test(card.avatar)) ? card.avatar : '',
     front: card.front && card.front.bg && card.front.bg.type === 'image' ? card.front.bg.src : (card.plateCardImage || ''),
     socials: (card.socials || []).filter((s) => s && s.url && !['kakao', 'whatsapp', 'telegram'].includes(s.type)).slice(0, 8),

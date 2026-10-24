@@ -142,6 +142,7 @@
     document.documentElement.lang = L[lang] ? lang : 'ko';
     const cardUrl = '/' + String(D.slug || '').split('/').map(encodeURIComponent).join('/');
     $('backCard').href = cardUrl; $('backCard').textContent = T('back');
+    if (D.kind === 'multilink') $('backCard').hidden = true;   // 멀티링크는 명함이 따로 없다
     if (D.front) { $('heroImg').src = D.front; $('heroImg').hidden = false; }
     if (D.logo || D.avatar) { $('logo').src = D.logo || D.avatar; $('logo').hidden = false; }
     else { const n = String(D.name || '').trim(); if (n) { $('ini').textContent = /[A-Za-z]/.test(n) ? n.split(/[\s.]+/).filter(Boolean).slice(0, 2).map((w) => w[0]).join('').toUpperCase() : Array.from(n)[0]; $('ini').hidden = false; } }
