@@ -2320,9 +2320,13 @@
         btn.disabled = false;
         if (res && res.error) { toast(t('maker.publish_fail') + ' ' + res.error); return; }
         publishedUrl = `${location.origin}/${c.slug}`;
-        if (priv) {
+        {
           // 명함 링크: 키가 붙은 주소로 열면 전화·이메일까지 보인다
-          if (await savePrivateCard(c.slug, priv)) { const k = await getMyShareKey(c.slug); if (k) publishedUrl += `?k=${k}`; }
+          // 전화·이메일을 지웠을 때도 비공개 저장소를 비운다 (안 비우면 지운 번호가 다시 나타난다)
+          let old = null; if (!priv) { try { old = await getMyPrivateCard(c.slug); } catch (e) {} }
+          if (priv || (old && Object.keys(old).length)) {
+            if (await savePrivateCard(c.slug, priv || {})) { const k = await getMyShareKey(c.slug); if (k && priv) publishedUrl += `?k=${k}`; }
+          }
         }
         $('resultLink').textContent = publishedUrl; $('resultLink').href = publishedUrl;
         $('resultQr').innerHTML = '';
