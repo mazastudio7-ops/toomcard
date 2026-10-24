@@ -8,6 +8,9 @@
     },
     "api/manifest.js": {
       "includeFiles": "cards/**"
+    },
+    "api/page.js": {
+      "includeFiles": "page.html"
     }
   },
   "rewrites": [
@@ -118,6 +121,14 @@
     {
       "source": "/sw.js",
       "destination": "/sw.js"
+    },
+    {
+      "source": "/:slug/page",
+      "destination": "/api/page?slug=:slug"
+    },
+    {
+      "source": "/:company/:slug/page",
+      "destination": "/api/page?slug=:company/:slug"
     },
     {
       "source": "/:slug",

@@ -127,6 +127,11 @@ function collectLinks(data) {
   const order = lg === 'ko' ? ['kakao', 'whatsapp', 'telegram'] : ['whatsapp', 'telegram', 'kakao'];
   const rank = (s) => { const i = order.indexOf(s.type); return i < 0 ? 9 : i; };
   socials.sort((x, y) => rank(x) - rank(y));
+  // 미니 홈페이지가 켜져 있으면 맨 앞 버튼 (이젠스타 공개 보기에서도 보인다)
+  if (data.page && data.page.on) {
+    const slug = (data.slug || data.id || (typeof getCardSlug === 'function' ? getCardSlug() : '') || '');
+    if (slug) items.push({ kind: 'web', url: '/' + String(slug).split('/').map(encodeURIComponent).join('/') + '/page', label: t('card.minihome'), icon: 'home', same: true });
+  }
   if (personal) { items.push(...socials); if (site) items.push(site); }
   else { if (site) items.push(site); items.push(...socials); }
   items.push(...extras);
@@ -135,7 +140,7 @@ function collectLinks(data) {
 
 // 사용자 입력(이름·라벨·주소)을 HTML에 넣기 전 이스케이프 + 링크는 http(s)/mailto/tel 만 허용
 function escHtml(v) { return String(v == null ? '' : v).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
-function safeHref(u) { const s = String(u || '').trim(); return /^(https?:\/\/|mailto:|tel:|sms:)/i.test(s) ? escHtml(s) : '#'; }
+function safeHref(u) { const s = String(u || '').trim(); return (/^(https?:\/\/|mailto:|tel:|sms:)/i.test(s) || /^\/[a-zA-Z0-9%._\-\/]+$/.test(s)) ? escHtml(s) : '#'; }
 function linkButtonHtml(item) {
   if (item.kind === 'social' && item.type === 'social_modal') {
     return `
@@ -147,7 +152,7 @@ function linkButtonHtml(item) {
   const icon = item.kind === 'social' ? getSocialIconSvg(item.type)
     : `<i data-lucide="${escHtml(item.icon || 'globe')}" style="width: 14px; height: 14px; color: #38bdf8;"></i>`;
   return `
-      <a href="${safeHref(item.url)}" target="_blank" rel="noopener noreferrer" class="btn-action btn-glass" onclick="event.stopPropagation()" title="${escHtml(item.label || '')}">
+      <a href="${safeHref(item.url)}" ${item.same ? '' : 'target="_blank" rel="noopener noreferrer"'} class="btn-action btn-glass${item.same ? ' btn-minihome' : ''}" onclick="event.stopPropagation()" title="${escHtml(item.label || '')}">
         ${icon}
         <span>${escHtml(item.label || '')}</span>
       </a>`;

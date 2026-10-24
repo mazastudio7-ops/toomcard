@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>TOOMCARD</title>
+  <!--META-->
+  <link rel="icon" type="image/png" href="/assets/icon-192.png">
+  <link rel="apple-touch-icon" href="/assets/icon-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root { --bg: #07050d; --card: rgba(255,255,255,.05); --line: rgba(255,255,255,.1); --gold: #ffd978; --tx: #fff; --mut: rgba(255,255,255,.6); }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--tx); font-family: 'Noto Sans KR', -apple-system, sans-serif; -webkit-font-smoothing: antialiased; }
+    a { color: inherit; }
+    .wrap { max-width: 640px; margin: 0 auto; padding: 0 0 calc(96px + env(safe-area-inset-bottom)); }
+    .hero { position: relative; height: 46vh; min-height: 280px; max-height: 420px; overflow: hidden; background: #111; }
+    .hero img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .hero::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(7,5,13,.1) 30%, var(--bg) 100%); }
+    .hero .back { position: absolute; z-index: 2; top: calc(10px + env(safe-area-inset-top, 0px)); left: 12px; padding: 8px 14px; border-radius: 99px; font-size: 12.5px; font-weight: 800; color: var(--gold); background: rgba(8,6,14,.72); border: 1px solid rgba(255,217,120,.5); text-decoration: none; backdrop-filter: blur(8px); }
+    .head { position: relative; z-index: 2; margin-top: -64px; padding: 0 20px; display: flex; align-items: flex-end; gap: 14px; }
+    .head .lg { width: 72px; height: 72px; border-radius: 18px; object-fit: cover; background: #1a1430; border: 2px solid rgba(255,217,120,.6); flex: none; }
+    .head h1 { margin: 0; font-size: 22px; font-weight: 900; line-height: 1.2; }
+    .head .sub { color: var(--mut); font-size: 13.5px; margin-top: 3px; }
+    .chips { display: flex; gap: 6px; flex-wrap: wrap; padding: 12px 20px 0; }
+    .chip { font-size: 12px; font-weight: 700; padding: 5px 11px; border-radius: 99px; background: rgba(255,217,120,.1); color: var(--gold); border: 1px solid rgba(255,217,120,.3); }
+    section { padding: 22px 20px 0; }
+    h2 { margin: 0 0 10px; font-size: 15px; font-weight: 900; letter-spacing: -.01em; display: flex; align-items: center; gap: 8px; }
+    h2::before { content: ''; width: 4px; height: 16px; border-radius: 2px; background: var(--gold); }
+    .intro { white-space: pre-wrap; line-height: 1.75; font-size: 15px; color: rgba(255,255,255,.9); }
+    .gal { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+    .gal img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 12px; display: block; cursor: zoom-in; background: #151128; }
+    .gal img:first-child { grid-column: span 3; aspect-ratio: 16/10; }
+    .items { display: flex; flex-direction: column; gap: 8px; }
+    .item { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 14px; background: var(--card); border: 1px solid var(--line); }
+    .item .nm { flex: 1; min-width: 0; font-weight: 700; }
+    .item .nm small { display: block; color: var(--mut); font-weight: 400; font-size: 12.5px; margin-top: 2px; }
+    .item .pr { font: 900 15px 'Montserrat', 'Noto Sans KR', sans-serif; color: var(--gold); white-space: nowrap; }
+    .news { display: flex; flex-direction: column; gap: 10px; }
+    .nw { padding: 12px 14px; border-radius: 14px; background: var(--card); border: 1px solid var(--line); }
+    .nw .d { font-size: 11.5px; color: var(--mut); } .nw b { display: block; margin: 2px 0 4px; } .nw p { margin: 0; white-space: pre-wrap; line-height: 1.6; font-size: 14px; }
+    .loc { padding: 14px; border-radius: 14px; background: var(--card); border: 1px solid var(--line); display: flex; flex-direction: column; gap: 8px; font-size: 14px; }
+    .loc .row { display: flex; gap: 10px; align-items: flex-start; } .loc .row span:first-child { flex: none; width: 20px; text-align: center; }
+    .mapbtn { display: inline-block; margin-top: 4px; padding: 10px 16px; border-radius: 99px; font-weight: 800; font-size: 13px; text-decoration: none; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.18); }
+    .rv { padding: 12px 14px; border-radius: 14px; background: var(--card); border: 1px solid var(--line); margin-bottom: 8px; }
+    .rv .who { font-size: 12.5px; color: var(--gold); font-weight: 800; margin-bottom: 4px; } .rv p { margin: 0; line-height: 1.6; font-size: 14px; }
+    .socials { display: flex; flex-wrap: wrap; gap: 8px; }
+    .socials a { padding: 9px 14px; border-radius: 99px; font-size: 13px; font-weight: 700; text-decoration: none; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.16); }
+    .cta { position: fixed; left: 0; right: 0; bottom: 0; padding: 10px 16px calc(12px + env(safe-area-inset-bottom)); background: linear-gradient(180deg, rgba(7,5,13,0), rgba(7,5,13,.96) 40%); display: flex; gap: 8px; justify-content: center; }
+    .cta a, .cta button { flex: 1; max-width: 300px; appearance: none; border: 0; padding: 14px; border-radius: 99px; font: 900 15px 'Noto Sans KR', sans-serif; text-align: center; text-decoration: none; cursor: pointer; }
+    .cta .p { background: var(--gold); color: #1a1205; } .cta .g { background: rgba(255,255,255,.1); color: #fff; border: 1px solid rgba(255,255,255,.2); }
+    .foot { padding: 28px 20px 0; text-align: center; font-size: 12.5px; color: var(--mut); }
+    .foot a { color: var(--gold); text-decoration: none; font-weight: 800; }
+    /* 문의 창 */
+    .ov { position: fixed; inset: 0; z-index: 50; background: rgba(4,2,10,.8); display: none; align-items: flex-end; justify-content: center; }
+    .ov.on { display: flex; }
+    .box { width: 100%; max-width: 480px; max-height: 92dvh; overflow-y: auto; background: #140d24; border-radius: 22px 22px 0 0; padding: 20px 18px calc(18px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 10px; }
+    .box h3 { margin: 0 0 2px; font-size: 17px; } .box p { margin: 0 0 6px; font-size: 13px; color: var(--mut); }
+    .box label { font-size: 12px; color: rgba(255,255,255,.7); font-weight: 600; }
+    .box input, .box textarea { width: 100%; padding: 12px; border-radius: 10px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.15); color: #fff; font: 14px 'Noto Sans KR', sans-serif; outline: 0; }
+    .tchips { display: flex; gap: 6px; flex-wrap: wrap; }
+    .tchip { appearance: none; font: 700 13px 'Noto Sans KR', sans-serif; color: rgba(255,255,255,.8); background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.18); border-radius: 99px; padding: 9px 14px; cursor: pointer; }
+    .tchip.on { color: #1a1205; background: var(--gold); border-color: var(--gold); }
+    .box .send { appearance: none; border: 0; padding: 14px; border-radius: 12px; background: var(--gold); color: #1a1205; font: 900 15px 'Noto Sans KR', sans-serif; cursor: pointer; }
+    .box .cancel { appearance: none; border: 0; background: none; color: var(--mut); font: 700 13px 'Noto Sans KR', sans-serif; cursor: pointer; }
+    .lb { position: fixed; inset: 0; z-index: 60; background: rgba(0,0,0,.92); display: none; align-items: center; justify-content: center; }
+    .lb.on { display: flex; } .lb img { max-width: 96vw; max-height: 90vh; border-radius: 12px; }
+    .toast { position: fixed; left: 50%; bottom: calc(90px + env(safe-area-inset-bottom)); transform: translateX(-50%) translateY(20px); background: #ffd978; color: #1a1205; padding: 10px 18px; border-radius: 99px; font-weight: 800; font-size: 13.5px; opacity: 0; transition: .25s; pointer-events: none; z-index: 70; white-space: nowrap; }
+    .toast.on { opacity: 1; transform: translateX(-50%); }
+    [hidden] { display: none !important; }
+  </style>
+</head>
+<body>
+  <!--DATA-->
+  <div class="wrap" id="app">
+    <div class="hero" id="hero"><a class="back" id="backCard" href="#">← 명함 보기</a><img id="heroImg" alt="" hidden></div>
+    <div class="head"><img class="lg" id="logo" alt="" hidden><div><h1 id="title"></h1><div class="sub" id="sub"></div></div></div>
+    <div class="chips" id="chips"></div>
+    <section id="secIntro" hidden><div class="intro" id="intro"></div></section>
+    <section id="secGal" hidden><h2 data-t="gal">사진</h2><div class="gal" id="gal"></div></section>
+    <section id="secItems" hidden><h2 data-t="items">상품 · 가격</h2><div class="items" id="items"></div></section>
+    <section id="secNews" hidden><h2 data-t="news">소식</h2><div class="news" id="news"></div></section>
+    <section id="secLoc" hidden><h2 data-t="loc">찾아오는 길</h2><div class="loc" id="loc"></div></section>
+    <section id="secRv" hidden><h2 data-t="rv">후기</h2><div id="rv"></div></section>
+    <section id="secSns" hidden><h2 data-t="sns">SNS · 링크</h2><div class="socials" id="sns"></div></section>
+    <div class="foot"><span data-t="made">TOOMCARD로 만든 미니홈</span> · <a href="/maker" data-t="mine">나도 만들기</a></div>
+  </div>
+  <div class="cta"><button type="button" class="p" id="askBtn" data-t="ask">문의 · 예약하기</button><a class="g" id="callBtn" href="#" data-t="call" hidden>전화</a></div>
+
+  <div class="ov" id="ov">
+    <div class="box">
+      <h3 data-t="askTitle">문의 · 예약</h3>
+      <p data-t="askDesc">남기신 내용은 이 분에게만 전달돼요.</p>
+      <label data-t="fName">이름</label><input id="fName" autocomplete="name">
+      <label data-t="fPhone">전화번호</label><input id="fPhone" type="tel" autocomplete="tel" placeholder="010-1234-5678">
+      <label data-t="fEmail">이메일</label><input id="fEmail" type="email" autocomplete="email">
+      <label data-t="fWhen">언제 필요하세요?</label>
+      <div class="tchips" id="timing"><button type="button" class="tchip" data-t="tNow" data-v="now">🔥 지금</button><button type="button" class="tchip" data-t="tSoon" data-v="soon">1~3개월 안</button><button type="button" class="tchip" data-t="tBrowse" data-v="browse">그냥 둘러봄</button></div>
+      <label data-t="fMemo">문의 내용</label><textarea id="fMemo" rows="3"></textarea>
+      <button type="button" class="send" id="sendBtn" data-t="send">보내기</button>
+      <button type="button" class="cancel" id="cancelBtn" data-t="cancel">닫기</button>
+    </div>
+  </div>
+  <div class="lb" id="lb"><img id="lbImg" alt=""></div>
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const D = window.PAGE_DATA || {}, P = D.page || {};
+    const $ = (id) => document.getElementById(id);
+    const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    const safe = (u) => /^(https?:\/\/|mailto:|tel:)/i.test(String(u || '')) ? String(u) : '#';
+    const lang = (navigator.language || 'ko').slice(0, 2);
+    const L = {
+      ko: { gal: '사진', items: '상품 · 가격', news: '소식', loc: '찾아오는 길', rv: '후기', sns: 'SNS · 링크', made: 'TOOMCARD로 만든 미니홈', mine: '나도 만들기', ask: '문의 · 예약하기', call: '전화', askTitle: '문의 · 예약', askDesc: '남기신 내용은 이 분에게만 전달돼요.', fName: '이름', fPhone: '전화번호', fEmail: '이메일', fWhen: '언제 필요하세요?', tNow: '🔥 지금', tSoon: '1~3개월 안', tBrowse: '그냥 둘러봄', fMemo: '문의 내용', send: '보내기', cancel: '닫기', back: '← 명함 보기', need: '전화번호나 이메일 중 하나는 남겨 주세요.', sent: '전달됐어요! 곧 연락이 갈 거예요.', dup: '이미 접수됐어요.', fail: '잠시 후 다시 시도해 주세요.', map: '지도 열기', hours: '영업시간' },
+      en: { gal: 'Photos', items: 'Products & prices', news: 'News', loc: 'Location', rv: 'Reviews', sns: 'Social & links', made: 'Mini site by TOOMCARD', mine: 'Make mine', ask: 'Inquire · Book', call: 'Call', askTitle: 'Inquiry · Booking', askDesc: 'Your message goes only to this person.', fName: 'Name', fPhone: 'Phone', fEmail: 'Email', fWhen: 'When do you need it?', tNow: '🔥 Now', tSoon: 'In 1–3 months', tBrowse: 'Just looking', fMemo: 'Message', send: 'Send', cancel: 'Close', back: '← Card', need: 'Leave a phone number or an email.', sent: 'Sent! They will get back to you.', dup: 'Already received.', fail: 'Please try again shortly.', map: 'Open map', hours: 'Hours' },
+      de: { gal: 'Fotos', items: 'Produkte & Preise', news: 'Neuigkeiten', loc: 'Anfahrt', rv: 'Bewertungen', sns: 'Social & Links', made: 'Mini-Seite von TOOMCARD', mine: 'Eigene erstellen', ask: 'Anfrage · Buchen', call: 'Anrufen', askTitle: 'Anfrage · Buchung', askDesc: 'Deine Nachricht geht nur an diese Person.', fName: 'Name', fPhone: 'Telefon', fEmail: 'E-Mail', fWhen: 'Wann brauchst du es?', tNow: '🔥 Jetzt', tSoon: 'In 1–3 Monaten', tBrowse: 'Nur schauen', fMemo: 'Nachricht', send: 'Senden', cancel: 'Schließen', back: '← Karte', need: 'Bitte Telefonnummer oder E-Mail angeben.', sent: 'Gesendet! Du hörst bald von ihnen.', dup: 'Bereits eingegangen.', fail: 'Bitte gleich noch einmal versuchen.', map: 'Karte öffnen', hours: 'Öffnungszeiten' }
+    };
+    const T = (k) => (L[lang] || L.ko)[k] || L.ko[k] || k;
+    document.querySelectorAll('[data-t]').forEach((el) => { el.textContent = T(el.dataset.t); });
+    document.documentElement.lang = L[lang] ? lang : 'ko';
+    const cardUrl = '/' + String(D.slug || '').split('/').map(encodeURIComponent).join('/');
+    $('backCard').href = cardUrl; $('backCard').textContent = T('back');
+    if (D.front) { $('heroImg').src = D.front; $('heroImg').hidden = false; }
+    if (D.logo || D.avatar) { $('logo').src = D.logo || D.avatar; $('logo').hidden = false; }
+    $('title').textContent = P.title || D.company || D.name;
+    $('sub').textContent = [D.name, D.role].filter(Boolean).join(' · ');
+    const chips = [];
+    if (D.region && (D.region.sido || D.region.city)) chips.push('📍 ' + [D.region.sido, D.region.city].filter(Boolean).join(' '));
+    if (D.industryText || D.industry) chips.push(D.industryText || D.industry);
+    $('chips').innerHTML = chips.map((c) => `<span class="chip">${esc(c)}</span>`).join('');
+    if (P.intro) { $('intro').textContent = P.intro; $('secIntro').hidden = false; }
+    if (P.gallery && P.gallery.length) { $('gal').innerHTML = P.gallery.map((u) => `<img src="${esc(u)}" alt="" loading="lazy">`).join(''); $('secGal').hidden = false; }
+    if (P.items && P.items.length) { $('items').innerHTML = P.items.map((it) => `<div class="item"><div class="nm">${esc(it.name)}${it.note ? `<small>${esc(it.note)}</small>` : ''}</div><div class="pr">${esc(it.price)}</div></div>`).join(''); $('secItems').hidden = false; }
+    if (P.news && P.news.length) { $('news').innerHTML = P.news.map((n) => `<div class="nw"><div class="d">${esc(n.date || '')}</div><b>${esc(n.title || '')}</b><p>${esc(n.text || '')}</p></div>`).join(''); $('secNews').hidden = false; }
+    if (P.address || P.hours || P.mapUrl) {
+      $('loc').innerHTML = (P.address ? `<div class="row"><span>📍</span><span>${esc(P.address)}</span></div>` : '') + (P.hours ? `<div class="row"><span>🕒</span><span>${esc(P.hours)}</span></div>` : '') + (P.mapUrl ? `<a class="mapbtn" href="${safe(P.mapUrl)}" target="_blank" rel="noopener">🗺 ${T('map')}</a>` : '');
+      $('secLoc').hidden = false;
+    }
+    if (P.reviews && P.reviews.length) { $('rv').innerHTML = P.reviews.map((r) => `<div class="rv"><div class="who">${esc(r.name || '')}</div><p>${esc(r.text || '')}</p></div>`).join(''); $('secRv').hidden = false; }
+    const sns = (D.socials || []).map((s) => `<a href="${safe(s.url)}" target="_blank" rel="noopener">${esc(s.label || s.type)}</a>`).concat(D.website ? [`<a href="${safe(D.website)}" target="_blank" rel="noopener">🌐 Website</a>`] : []);
+    if (sns.length) { $('sns').innerHTML = sns.join(''); $('secSns').hidden = false; }
+    if (D.phone) { $('callBtn').href = 'tel:' + String(D.phone).replace(/[^\d+]/g, ''); $('callBtn').hidden = false; }
+    document.querySelectorAll('.gal img').forEach((im) => im.addEventListener('click', () => { $('lbImg').src = im.src; $('lb').classList.add('on'); }));
+    $('lb').addEventListener('click', () => $('lb').classList.remove('on'));
+    const toast = (m) => { const t = $('toast'); t.textContent = m; t.classList.add('on'); setTimeout(() => t.classList.remove('on'), 2200); };
+    $('askBtn').addEventListener('click', () => $('ov').classList.add('on'));
+    $('cancelBtn').addEventListener('click', () => $('ov').classList.remove('on'));
+    $('ov').addEventListener('click', (e) => { if (e.target === $('ov')) $('ov').classList.remove('on'); });
+    $('timing').addEventListener('click', (e) => { const b = e.target.closest('.tchip'); if (!b) return; const was = b.classList.contains('on'); document.querySelectorAll('.tchip').forEach((x) => x.classList.remove('on')); if (!was) b.classList.add('on'); });
+    // 문의는 카드와 같은 곳(leads)으로 들어가서 대시보드 "문의" 탭에 쌓인다
+    let libReady = null;
+    function lib() { if (!libReady) libReady = new Promise((res, rej) => { const a = document.createElement('script'); a.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0'; a.onerror = rej; a.onload = () => { const b = document.createElement('script'); b.src = '/js/supabase.js'; b.onload = res; b.onerror = rej; document.head.appendChild(b); }; document.head.appendChild(a); }); return libReady; }
+    $('sendBtn').addEventListener('click', async () => {
+      const name = $('fName').value.trim(), phone = $('fPhone').value.trim(), email = $('fEmail').value.trim(), memo = $('fMemo').value.trim();
+      const okP = phone.replace(/\D/g, '').length >= 8, okE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+      if (!okP && !okE) { toast(T('need')); return; }
+      $('sendBtn').disabled = true;
+      try {
+        await lib();
+        const tm = document.querySelector('.tchip.on');
+        const ok = await saveLeadToCloud(D.slug, phone, memo, { name, email, timing: tm ? tm.dataset.v : '' });
+        if (ok) { $('ov').classList.remove('on'); toast(T('sent')); ['fName', 'fPhone', 'fEmail', 'fMemo'].forEach((id) => { $(id).value = ''; }); }
+        else toast(String(window.__leadError || '').includes('lead_duplicate') ? T('dup') : T('fail'));
+      } catch (e) { toast(T('fail')); }
+      $('sendBtn').disabled = false;
+    });
+  </script>
+</body>
+</html>
