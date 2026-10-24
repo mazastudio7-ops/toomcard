@@ -69,7 +69,7 @@ module.exports = async (req, res) => {
   const rowsHtml = rows.map((r) => {
     const base = '/' + String(r.slug).split('/').map(encodeURIComponent).join('/');
     const img = safeImg(r.photo), sub = [r.company, IND[r.industry] ? IND[r.industry][li] : r.industry_text, [r.sido, r.city].filter(Boolean).join(' ')].filter(Boolean).join(' · ');
-    return `<a class="row" href="${r.has_home ? base + (r.kind === 'minihome' ? '' : '/page') : base}">
+    return `<a class="row" href="${r.has_home ? base + '/page' : base}">
       <span class="ph" style="${img ? `background-image:url('${esc(img)}')` : ''}">${img ? '' : esc(String(r.name || '').charAt(0))}</span>
       <span class="tx"><b>${esc(r.name)}</b><small>${esc(sub)}</small></span>
       <span class="bt">${r.demo ? `<i class="demo">${t.demo}</i>` : ''}${r.has_home ? `<i>🏠 ${t.home}</i>` : ''}<i>🪪 ${t.card}</i></span></a>`;

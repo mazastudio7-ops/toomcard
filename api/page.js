@@ -44,7 +44,7 @@ module.exports = async (req, res) => {
   const starOn = card.star && card.star.on && !(req.query && req.query.k);
   const shownName = starOn ? (String(card.star.nick || '').trim() || mask(card.name)) : (card.name || '');
   const pub = {
-    slug, mode, kind: card.kind || 'personal', hasHome: !!(page.on || card.kind === 'minihome'), hasLinks: !!(ml.on || card.kind === 'multilink'), name: shownName, company: card.company || '', role: card.role || '', industry: card.industry || '', industryText: card.industryText || '',
+    slug, mode, kind: card.kind || 'personal', hasCard: card.cardOn !== false && !['multilink', 'minihome'].includes(card.kind), hasHome: !!(page.on || card.kind === 'minihome'), hasLinks: !!(ml.on || card.kind === 'multilink'), name: shownName, company: card.company || '', role: card.role || '', industry: card.industry || '', industryText: card.industryText || '',
     region: card.region || null, logo: (card.logo && card.logo.src && !/\/assets\/(logo_toomcard|logo_toomus|logo_setupod|toomcard_hd)/.test(card.logo.src)) ? card.logo.src : '', avatar: (card.avatar && !/\/assets\/logo_/.test(card.avatar)) ? card.avatar : '',
     front: card.front && card.front.bg && card.front.bg.type === 'image' ? card.front.bg.src : (card.plateCardImage || ''),
     socials: (card.socials || []).filter((s) => s && s.url && !['kakao', 'whatsapp', 'telegram'].includes(s.type)).slice(0, 8),

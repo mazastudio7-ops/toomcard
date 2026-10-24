@@ -211,9 +211,11 @@ module.exports = async (req, res) => {
       }
     }
 
-    // 멀티링크·미니홈 카드: 명함 대신 페이지가 바로 열린다 (뒷면 없음)
-    if (cardFound && loadedCardObj && ['multilink', 'minihome'].includes(loadedCardObj.kind) && !(req.query && req.query.view === 'card')) {
-      return require('./page.js')(Object.assign({}, req, { query: Object.assign({}, req.query, { slug: cleanSlug, mode: loadedCardObj.kind === 'multilink' ? 'links' : 'home' }) }), res);
+    // 명함이 없는 아이디(멀티링크·미니홈만 만든 사람): /아이디 는 있는 페이지로 넘긴다. 명함·링크·미니홈은 서로 독립, 잇는 건 버튼뿐.
+    const noCard = cardFound && loadedCardObj && (loadedCardObj.cardOn === false || ['multilink', 'minihome'].includes(loadedCardObj.kind));
+    if (noCard && !(req.query && req.query.view === 'card')) {
+      const homeOn = (loadedCardObj.page && loadedCardObj.page.on) || loadedCardObj.kind === 'minihome';
+      return require('./page.js')(Object.assign({}, req, { query: Object.assign({}, req.query, { slug: cleanSlug, mode: homeOn ? 'home' : 'links' }) }), res);
     }
 
     // 없는 주소: 별칭(바뀐 아이디)이면 새 주소로, 아니면 404

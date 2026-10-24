@@ -95,18 +95,18 @@
     const $ = (id) => document.getElementById(id);
     const T = {
       ko: { dash: '내 명함 관리', save: '발행', saving: '발행 중…', saved: '발행했어요!', doneT: '발행했어요! 🎉', copy: '링크 복사', copied: '링크를 복사했어요', open: '열어 보기', secId: '주소', idL: '아이디', secHead: '위쪽', titleL: '페이지 제목', nameL: '이름 · 상호', heroL: '대표 사진', heroBtn: '사진 올리기', snsL: 'SNS · 연락처 (명함에서 가져와요)', secBlocks: '블록', pvCap: '실제 페이지가 이렇게 보여요', tabEdit: '✏️ 편집', tabPrev: '📱 미리보기',
-        links: '멀티링크', home: '미니홈', attached: '명함 "{n}"에 붙어요 · 주소 toomcard.com/{s}{p}', standalone: '명함 없이 이 페이지가 대표 주소가 돼요. 나중에 명함을 붙일 수 있어요.', heroAttached: '명함 앞면 사진을 써요. 바꾸려면 명함 수정에서 바꿔요.', heroNew: '세로 사진이 좋아요. 자동으로 가볍게 줄여요.', snsNone: '아직 없어요.', snsEdit: '명함에서 수정 →', login: '발행하려면 로그인이 필요해요', needName: '이름을 넣어 주세요', needSlug: '아이디를 5자 이상 정해 주세요', slugOk: 'toomcard.com/{a} 쓸 수 있어요', slugTaken: '이미 쓰는 아이디예요', slugBad: '영문 소문자·숫자·점만 5~20자', fail: '잠시 후 다시 해 주세요', uploading: '올리는 중…', uploaded: '올렸어요', fetching: '상품 정보를 가져오는 중…', fetched: '가져왔어요', fetchFail: '가져오지 못했어요. 제목과 사진을 직접 넣어 주세요.', needUrl: '먼저 주소를 넣어 주세요', pickCard: '어느 명함에 붙일까요?',
+        links: '멀티링크', home: '미니홈', addrPage: '이 페이지', addrCard: '명함', makeCard: '🪪 명함도 만들기 →', addrNew: '아이디를 정하면 toomcard.com/아이디 아래에 명함 · 멀티링크 · 미니홈을 각각 둘 수 있어요.', heroCard: '명함 앞면 사진을 써요. 바꾸려면 명함 수정에서 바꿔요.', heroNew: '세로 사진이 좋아요. 자동으로 가볍게 줄여요.', snsNone: '아직 없어요.', snsEdit: '명함에서 수정 →', login: '발행하려면 로그인이 필요해요', needName: '이름을 넣어 주세요', needSlug: '아이디를 5자 이상 정해 주세요', slugOk: 'toomcard.com/{a} 쓸 수 있어요', slugTaken: '이미 쓰는 아이디예요', slugBad: '영문 소문자·숫자·점만 5~20자', fail: '잠시 후 다시 해 주세요', uploading: '올리는 중…', uploaded: '올렸어요', fetching: '상품 정보를 가져오는 중…', fetched: '가져왔어요', fetchFail: '가져오지 못했어요. 제목과 사진을 직접 넣어 주세요.', needUrl: '먼저 주소를 넣어 주세요',
         b_title: '제목', b_text: '글', b_link: '링크', b_product: '상품', b_youtube: '유튜브', b_grid: '그리드', b_gallery: '사진', b_items: '상품 · 가격', b_location: '위치 · 영업시간', b_reviews: '후기', b_news: '소식', b_intro: '소개',
         ph_title: '예: 이번 주 영상', ph_text: '여기에 글을 써요', ph_link_t: '링크 이름', ph_link_d: '한 줄 설명 (선택)', ph_url: 'https://', ph_price: '가격', ph_pname: '상품·서비스 이름', ph_note: '설명 (선택)', ph_addr: '주소', ph_map: '지도 링크 (네이버·카카오 공유 주소)', ph_hours: '영업시간 (예: 매일 9:00~18:00)', ph_rvname: '이름', ph_rvtext: '후기 내용', ph_date: '2026-10-24', ph_news_t: '소식 제목', ph_news: '내용', ph_icon: '🔗',
         add: '＋ 추가', fetch: '가져오기', photo: '사진', up: '↑', down: '↓', del: '×',
         tpl_intro: '우리 가게를 소개해요.', tpl_links_title: '추천 링크' },
       en: { dash: 'My cards', save: 'Publish', saving: 'Publishing…', saved: 'Published!', doneT: 'Published! 🎉', copy: 'Copy link', copied: 'Link copied', open: 'Open', secId: 'Address', idL: 'ID', secHead: 'Top', titleL: 'Page title', nameL: 'Name · business', heroL: 'Hero photo', heroBtn: 'Upload photo', snsL: 'Socials · contact (from your card)', secBlocks: 'Blocks', pvCap: 'This is how the page looks', tabEdit: '✏️ Edit', tabPrev: '📱 Preview',
-        links: 'Multilink', home: 'Mini site', attached: 'Attached to card "{n}" · toomcard.com/{s}{p}', standalone: 'No card yet: this page is your main address. You can add a card later.', heroAttached: 'Uses your card’s front photo. Change it in the card editor.', heroNew: 'A portrait photo works best. It is shrunk automatically.', snsNone: 'None yet.', snsEdit: 'Edit on card →', login: 'Sign in to publish', needName: 'Please enter a name', needSlug: 'Pick an ID (5+ characters)', slugOk: 'toomcard.com/{a} is available', slugTaken: 'That ID is taken', slugBad: 'Lowercase letters, numbers and dots, 5–20', fail: 'Please try again shortly', uploading: 'Uploading…', uploaded: 'Uploaded', fetching: 'Fetching product…', fetched: 'Done', fetchFail: 'Could not fetch. Add title and photo yourself.', needUrl: 'Enter a URL first', pickCard: 'Attach to which card?',
+        links: 'Multilink', home: 'Mini site', addrPage: 'This page', addrCard: 'Card', makeCard: '🪪 Make a card too →', addrNew: 'Pick an ID and keep a card, a multilink and a mini site under toomcard.com/yourid.', heroCard: 'Uses your card’s front photo. Change it in the card editor.', heroNew: 'A portrait photo works best. It is shrunk automatically.', snsNone: 'None yet.', snsEdit: 'Edit on card →', login: 'Sign in to publish', needName: 'Please enter a name', needSlug: 'Pick an ID (5+ characters)', slugOk: 'toomcard.com/{a} is available', slugTaken: 'That ID is taken', slugBad: 'Lowercase letters, numbers and dots, 5–20', fail: 'Please try again shortly', uploading: 'Uploading…', uploaded: 'Uploaded', fetching: 'Fetching product…', fetched: 'Done', fetchFail: 'Could not fetch. Add title and photo yourself.', needUrl: 'Enter a URL first',
         b_title: 'Heading', b_text: 'Text', b_link: 'Link', b_product: 'Product', b_youtube: 'YouTube', b_grid: 'Grid', b_gallery: 'Photos', b_items: 'Products & prices', b_location: 'Location · hours', b_reviews: 'Reviews', b_news: 'News', b_intro: 'Intro',
         ph_title: 'e.g. This week’s video', ph_text: 'Write here', ph_link_t: 'Link name', ph_link_d: 'One line (optional)', ph_url: 'https://', ph_price: 'Price', ph_pname: 'Product or service', ph_note: 'Note (optional)', ph_addr: 'Address', ph_map: 'Map link', ph_hours: 'Hours (e.g. daily 9–18)', ph_rvname: 'Name', ph_rvtext: 'Review', ph_date: '2026-10-24', ph_news_t: 'News title', ph_news: 'Text', ph_icon: '🔗',
         add: '＋ Add', fetch: 'Fetch', photo: 'Photo', up: '↑', down: '↓', del: '×', tpl_intro: 'Tell people about your place.', tpl_links_title: 'My links' },
       de: { dash: 'Meine Karten', save: 'Veröffentlichen', saving: 'Wird veröffentlicht…', saved: 'Veröffentlicht!', doneT: 'Veröffentlicht! 🎉', copy: 'Link kopieren', copied: 'Link kopiert', open: 'Öffnen', secId: 'Adresse', idL: 'ID', secHead: 'Oben', titleL: 'Seitentitel', nameL: 'Name · Firma', heroL: 'Titelbild', heroBtn: 'Foto hochladen', snsL: 'Social · Kontakt (von deiner Karte)', secBlocks: 'Blöcke', pvCap: 'So sieht die Seite aus', tabEdit: '✏️ Bearbeiten', tabPrev: '📱 Vorschau',
-        links: 'Multilink', home: 'Mini-Seite', attached: 'Gehört zur Karte „{n}“ · toomcard.com/{s}{p}', standalone: 'Noch keine Karte: diese Seite ist deine Hauptadresse. Eine Karte kannst du später hinzufügen.', heroAttached: 'Nutzt das Titelfoto der Karte. Ändern im Karten-Editor.', heroNew: 'Hochformat ist ideal. Wird automatisch verkleinert.', snsNone: 'Noch nichts.', snsEdit: 'Auf der Karte ändern →', login: 'Zum Veröffentlichen anmelden', needName: 'Bitte Namen eingeben', needSlug: 'ID wählen (mind. 5 Zeichen)', slugOk: 'toomcard.com/{a} ist frei', slugTaken: 'Diese ID ist vergeben', slugBad: 'Kleinbuchstaben, Zahlen, Punkte, 5–20', fail: 'Bitte gleich noch einmal versuchen', uploading: 'Lädt hoch…', uploaded: 'Hochgeladen', fetching: 'Produkt wird geladen…', fetched: 'Fertig', fetchFail: 'Konnte nicht laden. Titel und Foto selbst eintragen.', needUrl: 'Zuerst eine URL eingeben', pickCard: 'Zu welcher Karte?',
+        links: 'Multilink', home: 'Mini-Seite', addrPage: 'Diese Seite', addrCard: 'Karte', makeCard: '🪪 Auch eine Karte erstellen →', addrNew: 'Wähle eine ID: unter toomcard.com/deineid gibt es Karte, Multilink und Mini-Seite.', heroCard: 'Nutzt das Titelfoto der Karte. Ändern im Karten-Editor.', heroNew: 'Hochformat ist ideal. Wird automatisch verkleinert.', snsNone: 'Noch nichts.', snsEdit: 'Auf der Karte ändern →', login: 'Zum Veröffentlichen anmelden', needName: 'Bitte Namen eingeben', needSlug: 'ID wählen (mind. 5 Zeichen)', slugOk: 'toomcard.com/{a} ist frei', slugTaken: 'Diese ID ist vergeben', slugBad: 'Kleinbuchstaben, Zahlen, Punkte, 5–20', fail: 'Bitte gleich noch einmal versuchen', uploading: 'Lädt hoch…', uploaded: 'Hochgeladen', fetching: 'Produkt wird geladen…', fetched: 'Fertig', fetchFail: 'Konnte nicht laden. Titel und Foto selbst eintragen.', needUrl: 'Zuerst eine URL eingeben',
         b_title: 'Überschrift', b_text: 'Text', b_link: 'Link', b_product: 'Produkt', b_youtube: 'YouTube', b_grid: 'Raster', b_gallery: 'Fotos', b_items: 'Produkte & Preise', b_location: 'Standort · Zeiten', b_reviews: 'Bewertungen', b_news: 'Neuigkeiten', b_intro: 'Vorstellung',
         ph_title: 'z. B. Video der Woche', ph_text: 'Hier schreiben', ph_link_t: 'Linkname', ph_link_d: 'Eine Zeile (optional)', ph_url: 'https://', ph_price: 'Preis', ph_pname: 'Produkt oder Leistung', ph_note: 'Hinweis (optional)', ph_addr: 'Adresse', ph_map: 'Kartenlink', ph_hours: 'Öffnungszeiten', ph_rvname: 'Name', ph_rvtext: 'Bewertung', ph_date: '2026-10-24', ph_news_t: 'Titel', ph_news: 'Text', ph_icon: '🔗',
         add: '＋ Hinzufügen', fetch: 'Laden', photo: 'Foto', up: '↑', down: '↓', del: '×', tpl_intro: 'Stell deinen Ort vor.', tpl_links_title: 'Meine Links' }
@@ -121,7 +121,8 @@
     /* ── 상태 ── */
     const params = new URLSearchParams(location.search);
     const mode = params.get('mode') === 'home' ? 'home' : 'links';            // links = 멀티링크, home = 미니홈
-    let card = null, slug = params.get('edit') || '', attached = false, hasCardBody = false, blocks = [], hero = '', slugOk = false, user = null;
+    let card = null, slug = params.get('edit') || '', hasCard = false, blocks = [], hero = '', slugOk = false, user = null;
+    const cardExists = (c) => !!c && c.cardOn !== false && !['multilink', 'minihome'].includes(c.kind);
     $('badge').textContent = t(mode); document.title = `${t(mode)} ${lang === 'ko' ? '에디터' : 'editor'} | TOOMCARD`;
     if (mode === 'home') $('fTitle').placeholder = lang === 'ko' ? '예: 성주참외 배가네' : 'e.g. Becker Farm'; else $('fTitle').placeholder = lang === 'ko' ? '예: 지훈의 추천 링크' : 'e.g. My links';
 
@@ -214,12 +215,12 @@
     function buildPub() {
       const c = card || {}; const name = $('fName').value.trim() || c.name || '';
       const pageBlocks = blocks.map((b) => Object.assign({}, b));
-      return { preview: true, slug: slug || 'preview', mode: mode, kind: c.kind || (mode === 'home' ? 'minihome' : 'multilink'), hasHome: mode === 'home' || !!(c.page && c.page.on), hasLinks: mode === 'links' || !!(c.ml && c.ml.on),
+      return { preview: true, slug: slug || 'preview', mode: mode, kind: 'personal', hasHome: mode === 'home' || !!(c.page && c.page.on), hasLinks: mode === 'links' || !!(c.ml && c.ml.on),
         name, company: c.company || '', role: c.role || '', industry: c.industry || '', industryText: c.industryText || '', region: c.region || null,
         logo: (c.logo && c.logo.src && !/\/assets\/(logo_toomcard|logo_toomus|logo_setupod|toomcard_hd)/.test(c.logo.src)) ? c.logo.src : '', avatar: '',
         front: hero || (c.front && c.front.bg && c.front.bg.type === 'image' ? c.front.bg.src : (c.plateCardImage || '')),
         socials: (c.socials || []).filter((s) => s && s.url && !['kakao', 'whatsapp', 'telegram'].includes(s.type)).slice(0, 8), website: c.primaryAction && c.primaryAction.url && c.primaryAction.url !== '#' ? c.primaryAction.url : '', phone: c.phone || '', star: false,
-        page: { title: $('fTitle').value.trim(), intro: '', gallery: [], items: [], address: '', mapUrl: '', hours: '', reviews: [], news: [], blocks: pageBlocks, mlTitle: mode === 'links' ? $('fTitle').value.trim() : '' } };
+        hasCard: hasCard, page: { title: $('fTitle').value.trim(), intro: '', gallery: [], items: [], address: '', mapUrl: '', hours: '', reviews: [], news: [], blocks: pageBlocks, mlTitle: mode === 'links' ? $('fTitle').value.trim() : '' } };
     }
     function updatePreview() {
       if (!tpl) return;
@@ -248,15 +249,16 @@
 
     /* ── 불러오기: ?edit=아이디 → 그 카드에 붙인다. 없으면 내 카드 중 하나, 그것도 없으면 새 페이지 ── */
     function showCardInfo() {
-      const c = card || {}; attached = !!card; hasCardBody = !!card && !['multilink', 'minihome'].includes(c.kind);
-      $('idField').hidden = attached; $('nameField').hidden = hasCardBody;
-      $('attachHint').textContent = attached ? (hasCardBody ? t('attached').replace('{n}', c.name || slug).replace('{s}', slug).replace('{p}', mode === 'home' ? '/page' : '/links') : `toomcard.com/${slug}`) : t('standalone');
+      const c = card || {}; hasCard = cardExists(card);
+      $('idField').hidden = !!card; $('nameField').hidden = hasCard;
+      const pageUrl = `toomcard.com/${slug || '…'}${mode === 'home' ? '/page' : '/links'}`;
+      $('attachHint').innerHTML = card ? `${t('addrPage')} <b>${pageUrl}</b>` + (hasCard ? ` · ${t('addrCard')} <b>toomcard.com/${slug}</b>` : ` · <a href="/maker?edit=${encodeURIComponent(slug)}">${t('makeCard')}</a>`) : t('addrNew');
       const front = c.front && c.front.bg && c.front.bg.type === 'image' ? c.front.bg.src : (c.plateCardImage || '');
-      if (hasCardBody && front) { $('heroTh').style.backgroundImage = `url('${front}')`; $('heroBtn').hidden = true; $('heroHint').textContent = t('heroAttached'); }
+      if (hasCard && front) { $('heroTh').style.backgroundImage = `url('${front}')`; $('heroBtn').hidden = true; $('heroHint').textContent = t('heroCard'); }
       else { if (front && !hero) { hero = front; $('heroTh').style.backgroundImage = `url('${front}')`; } $('heroBtn').hidden = false; $('heroHint').textContent = t('heroNew'); }
       const ro = (c.socials || []).filter((s) => s && s.url).map((s) => `<span>${esc(s.label || s.type)}</span>`).concat(c.phone ? [`<span>📞 ${esc(c.phone)}</span>`] : []).concat(c.primaryAction && c.primaryAction.url ? ['<span>🌐</span>'] : []);
       $('snsRo').innerHTML = ro.join('') || `<span style="color:var(--mut)">${t('snsNone')}</span>`;
-      $('snsHint').innerHTML = attached ? `<a href="/maker?edit=${encodeURIComponent(slug)}&tab=info">${t('snsEdit')}</a>` : '';
+      $('snsHint').innerHTML = card ? `<a href="/maker?edit=${encodeURIComponent(slug)}&tab=info">${t('snsEdit')}</a>` : '';
       $('fName').value = c.name || '';
     }
     function loadBlocksFrom(c) {
@@ -286,14 +288,14 @@
         const title = $('fTitle').value.trim().slice(0, 40);
         const clean = blocks.map((b) => { const o = Object.assign({}, b); if (o.list) o.list = o.list.filter((x) => Object.values(x).some(Boolean)); if (o.items) o.items = o.items.filter((x) => x.title || x.url); return o; }).filter((b) => b.type !== 'text' || b.text).slice(0, 24);
         let c = card ? JSON.parse(JSON.stringify(card)) : null;
-        if (!c) {   // 명함 없이 새로: 이 페이지가 대표 주소
+        if (!c) {   // 아이디가 아직 없으면 여기서 만든다 (명함은 없음 → /아이디 는 이 페이지로 넘어간다)
           const name = $('fName').value.trim(); if (!name) { toast(t('needName')); $('fName').focus(); return; }
           await checkSlug(); if (!slugOk || slugify($('fSlug').value).length < 5) { toast(t('needSlug')); $('fSlug').focus(); return; }
           slug = slugify($('fSlug').value);
-          c = { slug, id: slug, kind: mode === 'home' ? 'minihome' : 'multilink', name, role: '', company: '', slogan: '', phone: '', email: '', moatTags: [], logo: { src: '', alt: '' }, emblem: { on: true, source: 'initials', text: '', img: '', material: 'gold', shape: 'coin', motion: 'sweep' }, theme: 'obsidian', layout: 'plate', socials: [], links: [], backLayout: 'default', star: { on: false, tag: '' }, privacy: { phone: false, email: false },
+          c = { slug, id: slug, kind: 'personal', cardOn: false, name, role: '', company: '', slogan: '', phone: '', email: '', moatTags: [], logo: { src: '', alt: '' }, emblem: { on: true, source: 'initials', text: '', img: '', material: 'gold', shape: 'coin', motion: 'sweep' }, theme: 'obsidian', layout: 'plate', socials: [], links: [], backLayout: 'default', star: { on: false, tag: '' }, privacy: { phone: false, email: false },
             front: { bg: hero ? { type: 'image', src: hero } : { type: 'color', color: '#1a1a22', shade: 0, soft: true }, text: { layout: 'none', showLogo: false, tone: 'auto' }, finish: 'metal', qr: 'subtle', frame: 'full', frameTone: 'dark', look: 'clean' }, page: { on: false }, ml: { on: false } };
-        } else if (!hasCardBody && hero && hero !== ((c.front && c.front.bg && c.front.bg.src) || '')) { c.front = Object.assign({}, c.front, { bg: { type: 'image', src: hero } }); }
-        if (!hasCardBody && $('fName').value.trim()) c.name = $('fName').value.trim();
+        } else if (!hasCard && hero && hero !== ((c.front && c.front.bg && c.front.bg.src) || '')) { c.front = Object.assign({}, c.front, { bg: { type: 'image', src: hero } }); }
+        if (!hasCard && $('fName').value.trim()) c.name = $('fName').value.trim();
         if (mode === 'home') c.page = { on: true, title, blocks: clean, intro: '', gallery: [], items: [], news: [], address: '', mapUrl: '', hours: '', reviews: [] };
         else c.ml = { on: true, title, blocks: clean };
         c.slug = slug; c.id = slug;
@@ -303,7 +305,7 @@
         $('saveBtn').disabled = false;
         if (res && res.error) { toast(t('fail') + ' ' + res.error); return; }
         card = c; showCardInfo();
-        const url = `${location.origin}/${slug}${hasCardBody ? (mode === 'home' ? '/page' : '/links') : ''}`;
+        const url = `${location.origin}/${slug}${mode === 'home' ? '/page' : '/links'}`;
         $('doneUrl').textContent = url.replace(location.origin + '/', 'toomcard.com/'); $('doneUrl').href = url; $('doneOpen').href = url; $('done').classList.add('on'); $('done').scrollIntoView({ behavior: 'smooth', block: 'start' });
         toast(t('saved'));
         try { history.replaceState(null, '', `/editor?mode=${mode}&edit=${encodeURIComponent(slug)}`); } catch (e) {}

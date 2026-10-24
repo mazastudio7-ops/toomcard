@@ -899,18 +899,16 @@
       business: { fName: 'maker.name_ph', fRole: 'maker.role_ph', fCompany: 'maker.company_ph', fSlogan: 'maker.b_slogan_ph', fTags: 'maker.b_tags_ph' }
     };
     // 멀티링크·미니홈은 /editor 에서 만든다. 여기로 들어오면 넘겨 준다. 명함은 일반·비즈니스 둘뿐.
-    const MODE_OF_KIND = { multilink: 'links', minihome: 'home' };
     function setMode(m) {
       if (['links', 'home'].includes(m)) { const p = new URLSearchParams(location.search); location.replace('/editor?mode=' + m + (p.get('edit') ? '&edit=' + encodeURIComponent(p.get('edit')) : '')); return; }
-      if (!['personal', 'business'].includes(kind)) { kind = 'personal'; setKind(kind); }   // 페이지만 있던 카드에 명함을 붙인다
     }
     function setKind(k) {
-      kind = k === 'business' ? 'business' : (['multilink', 'minihome'].includes(k) ? k : 'personal');
+      kind = k === 'business' ? 'business' : 'personal';
       document.body.classList.toggle('kind-business', kind === 'business');
       document.body.classList.toggle('kind-personal', kind === 'personal');
 
       document.querySelectorAll('#kindSeg button').forEach((b) => b.setAttribute('aria-pressed', b.dataset.kind === kind ? 'true' : 'false'));
-      Object.entries(KIND_PH[kind === 'business' || kind === 'minihome' ? 'business' : 'personal']).forEach(([id, key]) => { const el = document.getElementById(id); if (el) el.placeholder = t(key); });
+      Object.entries(KIND_PH[kind === 'business' ? 'business' : 'personal']).forEach(([id, key]) => { const el = document.getElementById(id); if (el) el.placeholder = t(key); });
       if (typeof render === 'function') render();
     }
     let publishedUrl = '';
@@ -1239,12 +1237,13 @@
       card.role = $('fRole').value.trim();
       card.company = $('fCompany').value.trim();
       card.kind = kind;
-      card.region = kind !== 'multilink' ? { sido: $('fRegionSido').value, city: $('fRegionCity').value.trim().replace(/\s+/g, '').slice(0, 20), forest: $('fForest').checked && !!$('fRegionSido').value } : null;
+      card.region = { sido: $('fRegionSido').value, city: $('fRegionCity').value.trim().replace(/\s+/g, '').slice(0, 20), forest: $('fForest').checked && !!$('fRegionSido').value };
       card.industry = kind === 'business' ? $('fIndustry').value : '';
       card.industryText = (kind === 'business' && card.industry === 'other') ? $('fIndustryText').value.trim().slice(0, 20) : '';
       // 워터마크: 비즈니스는 회사명, 일반은 소속이 있으면 소속, 없으면 이름
       card.companyWatermark = kind === 'business' ? card.company : (card.company || card.name);
-      card.industry = (kind === 'business' || kind === 'minihome') ? $('fIndustry').value : card.industry;
+      card.industry = kind === 'business' ? $('fIndustry').value : card.industry;
+      card.cardOn = true;   // 메이커에서 저장하면 명함이 있는 아이디
       card.slogan = $('fSlogan').value.trim();
       card.phone = $('fPhone').value.trim();
       card.email = $('fEmail').value.trim();
@@ -2231,11 +2230,10 @@
         $('resultQr').innerHTML = '';
         try { new QRCode($('resultQr'), { text: publishedUrl, width: 104, height: 104, correctLevel: QRCode.CorrectLevel.M }); } catch (e) {}
         // 만든 것 모두 보여 주기 + 다음에 붙일 것 안내 (명함 → 멀티링크 → 미니홈을 자유롭게)
-        const base = `${location.origin}/${c.slug}`, isPageKind = c.kind === 'multilink' || c.kind === 'minihome';
-        const made = [], next = [];
-        if (!isPageKind) made.push([t('maker.res_card'), publishedUrl]);
-        if (c.ml && c.ml.on) made.push([t('maker.res_links'), c.kind === 'multilink' ? base : base + '/links']); else next.push(['ml', t('maker.res_add_links')]);
-        if (c.page && c.page.on) made.push([t('maker.res_home'), c.kind === 'minihome' ? base : base + '/page']); else next.push(['page', t('maker.res_add_home')]);
+        const base = `${location.origin}/${c.slug}`;
+        const made = [[t('maker.res_card'), publishedUrl]], next = [];
+        if (c.ml && c.ml.on) made.push([t('maker.res_links'), base + '/links']); else next.push(['ml', t('maker.res_add_links')]);
+        if (c.page && c.page.on) made.push([t('maker.res_home'), base + '/page']); else next.push(['page', t('maker.res_add_home')]);
         $('resMore').innerHTML = made.map(([l, u]) => `<div class="rm-row"><span>${l}</span><a href="${u}" target="_blank">${u.replace(location.origin + '/', 'toomcard.com/').split('?')[0]}</a><button type="button" class="rm-copy" data-u="${u}">${t('common.copy_link')}</button></div>`).join('')
           + (next.length ? `<div class="rm-next"><b>${t('maker.res_next')}</b>${next.map(([k, l]) => `<button type="button" class="rm-add" data-add="${k}">＋ ${l}</button>`).join('')}</div>` : '');
         $('result').classList.add('show'); clearDraft();
@@ -2402,9 +2400,9 @@
       if (ss[1]) { $('fSocial2Type').value = ss[1].type; $('fSocial2Url').value = ss[1].url; }
       setExtraSns(ss.slice(2));
       applyPage(c.page);
-      applyMl(c.ml, c.kind === 'multilink' && c.page ? c.page.blocks : null);
+      applyMl(c.ml);
       setKind(c.kind || (fromCloud ? 'business' : 'personal'));   // 예전 카드는 모두 비즈니스
-      setMode(new URLSearchParams(location.search).get('mode') || MODE_OF_KIND[kind] || 'card');
+      setMode(new URLSearchParams(location.search).get('mode') || 'card');   // 페이지만 있던 아이디도 여기서는 명함을 만든다
       $('fTags').value = (c.moatTags || []).join(', '); setSlugInputs(slug, !!fromCloud); checkSlug(); syncLogoShapeUI();
       // 예전 그라데이션 카드는 단색(부드러운 그라데이션)으로 읽는다
       if (card.front.bg.type === 'gradient') card.front.bg = { type: 'color', color: card.front.bg.from || DEFAULT_SOLID, shade: 0, soft: true };
@@ -2465,7 +2463,7 @@
       setTimeout(() => flip('show_back'), 450);   // 바꾼 뒷면을 바로 보여준다
     });
     $('kindSeg').addEventListener('click', (e) => { const b = e.target.closest('button[data-kind]'); if (b) setKind(b.dataset.kind); });
-    (() => { const p = new URLSearchParams(location.search); setKind(p.get('kind') || 'personal'); setMode(p.get('mode') || MODE_OF_KIND[p.get('kind')] || 'card'); })();
+    (() => { const p = new URLSearchParams(location.search); setKind(p.get('kind') || 'personal'); setMode(p.get('mode') || 'card'); })();
     renderBgGrid(); renderThemeChips(); renderStartChips(); renderCarousel(); syncAdjustUI();
     function preloadDesigns() {
       THEMES.forEach(([key]) => { const l = document.createElement('link'); l.rel = 'preload'; l.as = 'style'; l.href = `/themes/${key}.css`; document.head.appendChild(l); });

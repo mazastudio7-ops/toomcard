@@ -173,13 +173,13 @@
     document.documentElement.lang = L[lang] ? lang : 'ko';
     const cardUrl = '/' + String(D.slug || '').split('/').map(encodeURIComponent).join('/');
     $('backCard').href = cardUrl; $('backCard').textContent = T('back');
-    if (D.kind === 'multilink' || D.kind === 'minihome') $('backCard').hidden = true;   // 페이지 종류는 명함이 따로 없다
+    if (D.hasCard === false) $('backCard').hidden = true;   // 명함이 없는 아이디
     if (D.mode === 'links') { ['secIntro', 'secGal', 'secItems', 'secNews', 'secLoc', 'secRv'].forEach((id) => { const el = $(id); if (el) el.remove(); }); }   // 멀티링크는 블록·SNS만
     // 같은 사람의 다른 페이지로 가는 작은 버튼 (명함 · 미니홈 · 멀티링크를 자유롭게 오간다)
     const sw = [];
-    if (D.kind !== 'multilink' && D.kind !== 'minihome') sw.push(`<a href="${cardUrl}">${T('swCard')}</a>`);
-    if (D.mode === 'links' && D.hasHome) sw.push(`<a href="${cardUrl}${D.kind === 'minihome' ? '' : '/page'}">${T('swHome')}</a>`);
-    if (D.mode !== 'links' && D.hasLinks) sw.push(`<a href="${cardUrl}${D.kind === 'multilink' ? '' : '/links'}">${T('swLinks')}</a>`);
+    if (D.hasCard !== false) sw.push(`<a href="${cardUrl}">${T('swCard')}</a>`);
+    if (D.mode === 'links' && D.hasHome) sw.push(`<a href="${cardUrl}/page">${T('swHome')}</a>`);
+    if (D.mode !== 'links' && D.hasLinks) sw.push(`<a href="${cardUrl}/links">${T('swLinks')}</a>`);
     if (sw.length) $('switchRow').innerHTML = sw.join('');
     if (D.mode === 'links') { const mk = document.querySelector('[data-t="made"]'); if (mk) mk.textContent = T('madeLinks'); }
     if (D.front) { $('heroImg').src = D.front; $('heroImg').hidden = false; }
