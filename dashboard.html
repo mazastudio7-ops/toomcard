@@ -490,7 +490,7 @@
         const cc = cardOf(p), bg = frontBg(cc);
         const th = bg.type === 'image' && bg.src ? `background-image:url('${bg.src}')` : (bg.type === 'color' ? `background:linear-gradient(160deg, ${bg.color || '#3b1a6e'}, #07050d)` : `background-image:url('/assets/plate_onyx.jpg')`);
         const ini = (cc.name || p.slug || '?').trim().charAt(0).toUpperCase();
-        return `<a class="mini${main && p.slug === main.slug ? ' sel' : ''}" href="#" data-slug="${p.slug}"><div class="th" style="${th}">${bg.type === 'color' ? ini : ''}</div><small>${(cc.name || p.slug)}</small></a>`;
+        return `<a class="mini${main && p.slug === main.slug ? ' sel' : ''}" href="#" data-slug="${p.slug}"><div class="th" style="${th}">${bg.type === 'color' ? ini : ''}</div><small>${(cc.name || p.slug)}<br><span style="opacity:.6">/${p.slug}</span></small></a>`;
       }).join('') + `<a class="mini add" href="/maker"><div class="th">+</div><small>${T('add')}</small></a>`;
       row.querySelectorAll('.mini[data-slug]').forEach((a) => a.addEventListener('click', (e) => { e.preventDefault(); main = pods.find((p) => p.slug === a.dataset.slug); try { localStorage.setItem('toomcard_primary_personal_slug', main.slug); } catch (er) {} renderMine(); loadViews(); }));
     }
