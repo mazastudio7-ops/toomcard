@@ -1503,10 +1503,12 @@
       scheduleDraft();
     }
     /* ── 만들던 카드 임시 저장 (로그인하러 다녀와도, 창을 닫아도 이어서) ── */
-    const DRAFT_KEY = 'tc_maker_draft';
+    const DRAFT_KEY = 'tc_maker_draft2';   // 2: 예전에 다른 카드를 고치다 남은 초안은 버린다
+    try { localStorage.removeItem('tc_maker_draft'); } catch (e) {}
     let draftTimer = 0, draftReady = false;
     function scheduleDraft() { if (!draftReady) return; clearTimeout(draftTimer); draftTimer = setTimeout(saveDraft, 700); }
     function saveDraft() {
+      if (new URLSearchParams(location.search).get('edit')) return;   // 이미 있는 카드를 고칠 때는 "새 카드 초안"에 남기지 않는다
       try {
         const c = collect();
         const d = { v: 1, at: Date.now(), slugInput: $('fSlug').value, slugLetter: '', card: c, orig: typeof photoOrig === 'string' ? photoOrig : '' };

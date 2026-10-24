@@ -2293,6 +2293,8 @@
           if (data && data.user_id === session.user.id) {
             document.getElementById('ownerEdit').href = '/maker?edit=' + encodeURIComponent(slug);
             document.getElementById('ownerBar').classList.add('on');
+            // 내 카드에서는 "나도 만들기" 대신 "내 명함 수정"으로 (새 카드를 만들러 가지 않게)
+            const vb = document.getElementById('viralBadgeLink'); if (vb) vb.href = '/maker?edit=' + encodeURIComponent(slug);
             // 내 카드에 SNS·링크가 없으면 뒷면에 "추가하기" 안내 (방문자에게는 안 보인다)
             try {
               const cd = window.cardData || window.INITIAL_CARD_DATA || {};
