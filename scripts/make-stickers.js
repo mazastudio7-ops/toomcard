@@ -28,11 +28,12 @@ const FAMILIES = {
            poses: [['당근 수확', 'Carrot', 'Karotte'], ['구름 낮잠', 'Cloud nap', 'Wolken-Nickerchen'], ['독서', 'Reading', 'Lesen'], ['버블티', 'Bubble tea', 'Bubble Tea']] },
 };
 
-// 가장자리에서 이어진 밝은 바탕만 투명하게 (캐릭터 안의 흰색은 남긴다)
+// 흰 다이컷 테두리와 회색 외곽선까지 버리고 캐릭터 선 안쪽만 남긴다 (밝고 채도 낮은 곳만 바깥에서 흘러들어가 지운다).
+// 그 다음 2px 깎고 부드럽게 해서 어두운 배경에서도 테두리가 안 보이게.
 async function cutout(buf) {
   const { data, info } = await sharp(buf).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
   const w = info.width, h = info.height, seen = new Uint8Array(w * h), stack = [];
-  const light = (i) => data[i * 4] > 228 && data[i * 4 + 1] > 228 && data[i * 4 + 2] > 228;
+  const light = (i) => { const r = data[i * 4], g = data[i * 4 + 1], b = data[i * 4 + 2]; const lum = .299 * r + .587 * g + .114 * b, sat = Math.max(r, g, b) - Math.min(r, g, b); return lum > 185 && sat < 26; };
   for (let x = 0; x < w; x++) stack.push(x, (h - 1) * w + x);
   for (let y = 0; y < h; y++) stack.push(y * w, y * w + w - 1);
   while (stack.length) {
@@ -41,16 +42,11 @@ async function cutout(buf) {
     const x = p % w, y = (p / w) | 0;
     if (x > 0) stack.push(p - 1); if (x < w - 1) stack.push(p + 1); if (y > 0) stack.push(p - w); if (y < h - 1) stack.push(p + w);
   }
-  // 가장자리 다듬기: 바탕과 섞인 회색 테두리를 1px 깎고 부드럽게 (어두운 배경에서 계단·테두리가 안 보이게)
-  let alpha = new Float32Array(w * h); for (let i = 0; i < w * h; i++) alpha[i] = data[i * 4 + 3];
-  const box = (src) => {   // 3x3 평균 (가로 → 세로)
-    const t = new Float32Array(w * h), o = new Float32Array(w * h);
-    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) { const i = y * w + x; t[i] = (src[i] + src[i - (x > 0 ? 1 : 0)] + src[i + (x < w - 1 ? 1 : 0)]) / 3; }
-    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) { const i = y * w + x; o[i] = (t[i] + t[i - (y > 0 ? w : 0)] + t[i + (y < h - 1 ? w : 0)]) / 3; }
-    return o;
-  };
-  alpha = box(box(alpha));
-  for (let i = 0; i < w * h; i++) data[i * 4 + 3] = Math.max(0, Math.min(255, Math.round((alpha[i] - 0.45 * 255) * 2.6)));   // 바깥 1px 깎고 부드럽게
+  let a = new Float32Array(w * h); for (let i = 0; i < w * h; i++) a[i] = data[i * 4 + 3];
+  const erode = (src) => { const o = new Float32Array(w * h); for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) { let m = 255; for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) { const yy = y + dy, xx = x + dx; if (yy < 0 || yy >= h || xx < 0 || xx >= w) { m = 0; continue; } m = Math.min(m, src[yy * w + xx]); } o[y * w + x] = m; } return o; };
+  const box = (src) => { const t = new Float32Array(w * h), o = new Float32Array(w * h); for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) { const i = y * w + x; t[i] = (src[i] + src[i - (x > 0 ? 1 : 0)] + src[i + (x < w - 1 ? 1 : 0)]) / 3; } for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) { const i = y * w + x; o[i] = (t[i] + t[i - (y > 0 ? w : 0)] + t[i + (y < h - 1 ? w : 0)]) / 3; } return o; };
+  a = box(erode(erode(a)));
+  for (let i = 0; i < w * h; i++) data[i * 4 + 3] = Math.max(0, Math.min(255, Math.round((a[i] - 0.3 * 255) * 2)));
   return sharp(data, { raw: { width: w, height: h, channels: 4 } }).png().toBuffer();
 }
 
