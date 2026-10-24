@@ -46,7 +46,8 @@ module.exports = async (req, res) => {
     page: { title: page.title || '', intro: page.intro || '', gallery: (page.gallery || []).slice(0, 12), items: (page.items || []).slice(0, 20),
             address: page.address || '', mapUrl: page.mapUrl || '', hours: page.hours || '', reviews: (page.reviews || []).slice(0, 10), news: (page.news || []).slice(0, 10) }
   };
-  const title = `${pub.page.title || pub.company || pub.name} | ${pub.name} - TOOMCARD`;
+  const head = pub.page.title || pub.company || pub.name;
+  const title = head === pub.name ? `${pub.name} - TOOMCARD` : `${head} | ${pub.name} - TOOMCARD`;
   const desc = (pub.page.intro || '').replace(/\s+/g, ' ').slice(0, 120) || `${pub.name}의 미니 홈페이지`;
   let html = fs.readFileSync(path.join(process.cwd(), 'page.html'), 'utf8');
   const og = `https://toomcard.com/api/ogimg?s=${encodeURIComponent(slug)}`;
