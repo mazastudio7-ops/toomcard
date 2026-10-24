@@ -233,7 +233,8 @@ function renderActionDocks(data) {
   const moreBox = document.getElementById('moreLinks');
   const moreList = document.getElementById('moreLinksList');
 
-  const items = collectLinks(data);
+  const seen = new Set();   // 같은 이름·주소의 버튼은 한 번만 (대표 링크와 자동 링크 모음이 겹칠 때)
+  const items = collectLinks(data).filter((it) => { const k = String(it.label || '').trim().toLowerCase() || String(it.url || '').replace(/^https?:\/\/[^/]+/, ''); if (k && seen.has(k)) return false; seen.add(k); return true; });
   const mode = data.backLayout === 'links' ? 'links' : 'default';
   let html = '';
   let rest = [];
@@ -247,12 +248,11 @@ function renderActionDocks(data) {
       `<button class="btn-action btn-glass" onclick="event.stopPropagation(); downloadVCard();" title="${escHtml(t('card.save_contact_btn'))}"><i data-lucide="user-plus" style="width: 14px; height: 14px; color: #ffd978;"></i><span>${escHtml(t('card.save_contact_btn'))}</span></button>`,
       `<button class="btn-action btn-glass" onclick="event.stopPropagation(); openShareModal();" title="${escHtml(t('card.share_btn'))}"><i data-lucide="qr-code" style="width: 14px; height: 14px; color: #38bdf8;"></i><span>${escHtml(t('card.share_btn'))}</span></button>`
     ];
-    const firstRow = items.slice(0, 2).map(linkButtonHtml).concat(fillers).slice(0, 2);
-    html = `<div class="inside-action-row">${firstRow.join('')}</div>`;
-    rest = items.slice(2);
-    // 3번째부터의 SNS는 카드에 아이콘 줄로 보여 주고, 전체 목록은 더보기에도 둔다
-    const icons = rest.filter((it) => it.kind === 'social' && it.type !== 'social_modal' && it.url).slice(0, 6);
-    if (icons.length) html += `<div class="inside-social-icons">${icons.map((it) => `<a class="sico" href="${safeHref(it.url)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" title="${escHtml(it.label || it.type)}" aria-label="${escHtml(it.label || it.type)}">${getSocialIconSvg(it.type)}</a>`).join('')}</div>`;
+    // 링크·SNS는 전부 같은 모양의 버튼으로 두 칸씩 (MAZA 바로가기 · 카카오 1:1 처럼). 카드에는 6개까지, 나머지는 더보기
+    const btns = items.slice(0, 6).map(linkButtonHtml);
+    if (btns.length < 2) btns.push(...fillers.slice(0, 2 - btns.length));
+    for (let k = 0; k < btns.length; k += 2) html += `<div class="inside-action-row">${btns.slice(k, k + 2).join('')}</div>`;
+    rest = items.slice(6);
   }
   if (dockFront) dockFront.innerHTML = html;
   if (dockBack) dockBack.innerHTML = html;
@@ -1052,7 +1052,7 @@ function normalizeEmblem(data) {
   const base = data.kind === 'business' ? (data.company || data.name) : (data.name || data.company);
   let text = Array.from((e.text || '').trim()).slice(0, 3).join('');
   if (!text || (text === 'T' && base && emblemAutoText(base) !== 'T')) text = emblemAutoText(base);   // 예전 기본값 'T'(툼카드)는 본인 이니셜로
-  return { source, text, img: e.img || '', material: pick('material', 'gold'), shape: pick('shape', 'coin'), motion: pick('motion', 'sweep') };
+  return { source, text, img: e.img || '', material: pick('material', 'gold'), shape: pick('shape', 'tile'), motion: pick('motion', 'sweep') };
 }
 
 // 글자 → 마스크 PNG (불투명 흰 글자). 페이지에 로드된 웹폰트로 캔버스에 그린다

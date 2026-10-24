@@ -28,7 +28,7 @@
     "text": "",
     "img": "",
     "material": "silver",
-    "shape": "coin",
+    "shape": "tile",
     "motion": "sweep"
   },
   "front": {

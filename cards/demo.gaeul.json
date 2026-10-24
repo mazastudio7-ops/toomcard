@@ -17,7 +17,7 @@
   "email": "gaeul@toomcard.com",
   "moatTags": ["종신·건강", "자녀보험", "보험 리모델링"],
   "logo": { "src": "", "alt": "" },
-  "emblem": { "on": true, "source": "initials", "text": "", "img": "", "material": "gold", "shape": "coin", "motion": "sweep" },
+  "emblem": { "on": true, "source": "initials", "text": "", "img": "", "material": "gold", "shape": "tile", "motion": "sweep" },
   "front": {
     "bg": { "type": "image", "src": "/assets/sample_profile_film.jpg", "zoom": 1, "x": 50, "y": 30, "brightness": 1, "filter": "none", "blur": 0, "tint": "" },
     "text": { "layout": "bottom-left", "showLogo": false, "tone": "auto" },
