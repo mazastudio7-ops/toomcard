@@ -199,8 +199,25 @@ function renderSparseBack(data, items) {
   box.innerHTML = `
     <div class="bp-stats">${stat(t('card.bp_sns'), String(nSns), pageUrl)}${stat(t('card.bp_links'), String(nLinks), pageUrl)}${stat(t('card.bp_tags'), String(nTags), pageUrl)}${stat(t('card.bp_home'), pageUrl ? t('card.bp_yes') : t('card.bp_no'), pageUrl)}</div>
     <div class="inside-social-icons">${icons}</div>
+    <div class="bp-story" id="bpStory"></div>
     <div class="bp-empty"><span class="bp-ico">✦</span><span class="bp-txt">${escHtml(t('card.bp_empty'))}</span>${emptyCta}</div>`;
   if (window.lucide) window.lucide.createIcons();
+  renderStoryTiles(slug, !!(data.star && data.star.on));
+}
+// 스토리 타일: 🎂 N일째 함께 · 👀 N번 열림 · ♥ 좋아요 (공개 숫자만, 카드 앱의 "내 활동" 방식)
+async function renderStoryTiles(slug, starOn) {
+  const host = document.getElementById('bpStory'); if (!host || !slug) return;
+  try {
+    if (typeof supabaseClient === 'undefined' || !supabaseClient) return;
+    const { data, error } = await supabaseClient.rpc('tc_card_public_stats', { p_slug: slug });
+    if (error || !data) return;
+    const days = data.since ? Math.max(1, Math.floor((Date.now() - new Date(data.since + 'T00:00:00').getTime()) / 864e5) + 1) : 0;
+    const tiles = [];
+    if (days) tiles.push(['🎂', days, t('card.story_days')]);
+    tiles.push(['👀', Number(data.views || 0), t('card.story_views')]);
+    if (starOn) tiles.push(['♥', Number(data.likes || 0), t('card.story_likes')]);
+    host.innerHTML = tiles.slice(0, 2).map(([ic, n, lb]) => `<div class="bp-tile"><span class="bp-tile-ic">${ic}</span><b>${n.toLocaleString()}</b><span class="bp-tile-lb">${escHtml(lb)}</span></div>`).join('');
+  } catch (e) {}
 }
 function renderActionDocks(data) {
   const dockFront = document.getElementById('insideActionDockFront');
