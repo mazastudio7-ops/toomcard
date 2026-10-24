@@ -212,6 +212,7 @@
     .row-h { display: flex; align-items: center; justify-content: space-between; font-weight: 800; font-size: 15px; }
     .row { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
     .row::-webkit-scrollbar { display: none; }
+    .cswitch { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin: -10px 0 -8px; } .cswitch button { appearance: none; border: 1px solid rgba(255,255,255,.18); background: rgba(255,255,255,.05); color: rgba(255,255,255,.75); border-radius: 99px; padding: 7px 14px; font: 800 13px 'Noto Sans KR', sans-serif; cursor: pointer; } .cswitch button[aria-pressed="true"] { background: #ffd978; border-color: #ffd978; color: #1a1205; }
     .mini { flex: none; width: 104px; }
     .mini .th { height: 150px; border-radius: 16px; border: 1px solid rgba(255,255,255,.14); background-size: cover; background-position: center; background-color: #1a1626; display: grid; place-items: center; font: 900 30px 'Montserrat', sans-serif; color: #ffd978; }
     .mini small { display: block; text-align: center; margin-top: 6px; font-size: 12px; color: rgba(255,255,255,.65); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -264,6 +265,7 @@
       <div class="tabs" id="tabsRow" hidden style="justify-content:center;margin:0"></div>
       <a class="adminbar" id="adminBar" href="/admin/star" hidden><span>이젠스타 검토하러 가기</span><b id="adminCnt"></b></a>
       <div class="stage-w"><a class="pcard" id="cardLink" href="#" aria-label="open"><span class="pc-bg" id="pcBg"></span><span class="pc-tx" id="pcTx"><b id="pcName"></b><small id="pcRole"></small></span></a></div>
+      <div class="cswitch" id="cardSwitch" hidden></div>
       <div class="who"><b id="mName"></b><span id="mRole"></span><span class="since" id="mSince" hidden></span></div>
       <div class="linkbox">
         <span class="lb-l" data-k="linkLabel">내 명함 링크</span>
@@ -485,6 +487,8 @@
       $('mRole').textContent = [c.role, c.company].filter(Boolean).join(' · ');
       $('editBtn').href = `/maker?edit=${encodeURIComponent(slug)}`;
       renderTodos();
+      const cs2 = $('cardSwitch'); cs2.hidden = pods.length < 2; cs2.innerHTML = pods.length < 2 ? '' : pods.map((p) => `<button type="button" data-slug="${p.slug}" aria-pressed="${main && p.slug === main.slug}">/${p.slug}</button>`).join('');
+      cs2.querySelectorAll('button').forEach((b) => b.addEventListener('click', () => { main = pods.find((p) => p.slug === b.dataset.slug); try { localStorage.setItem('toomcard_primary_personal_slug', main.slug); } catch (er) {} renderMine(); loadViews(); }));
       const row = $('cardsRow');
       row.innerHTML = pods.map((p) => {
         const cc = cardOf(p), bg = frontBg(cc);
