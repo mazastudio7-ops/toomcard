@@ -19,9 +19,9 @@
     '.sm-drawer a.sm-small{font-size:13px;font-weight:500;color:rgba(255,255,255,.5);padding:10px 12px}' +
     '}';
   var LABEL = {
-    ko: { login: '로그인', home: '홈 · 갤러리', stars: '이젠스타', make: '내 카드 만들기', cards: '내 카드 관리', more: 'NFC 실물 (준비 중)', terms: '이용약관', privacy: '개인정보처리방침' },
-    en: { login: 'Log in', home: 'Home · Gallery', stars: 'e zen star', make: 'Make my card', cards: 'My cards', more: 'NFC cards (coming soon)', terms: 'Terms', privacy: 'Privacy' },
-    de: { login: 'Anmelden', home: 'Start · Galerie', stars: 'e zen star', make: 'Meine Karte erstellen', cards: 'Meine Karten', more: 'NFC-Karten (bald)', terms: 'Nutzungsbedingungen', privacy: 'Datenschutz' }
+    ko: { plink: '멀티링크', phome: '미니홈', pfriends: '툼 프렌즈', login: '로그인', home: '홈 · 갤러리', stars: '이젠스타', make: '내 카드 만들기', cards: '내 카드 관리', more: 'NFC 실물 (준비 중)', terms: '이용약관', privacy: '개인정보처리방침' },
+    en: { plink: 'Multilink', phome: 'Mini site', pfriends: 'TOOM Friends', login: 'Log in', home: 'Home · Gallery', stars: 'e zen star', make: 'Make my card', cards: 'My cards', more: 'NFC cards (coming soon)', terms: 'Terms', privacy: 'Privacy' },
+    de: { plink: 'Multilink', phome: 'Mini-Seite', pfriends: 'TOOM Friends', login: 'Anmelden', home: 'Start · Galerie', stars: 'e zen star', make: 'Meine Karte erstellen', cards: 'Meine Karten', more: 'NFC-Karten (bald)', terms: 'Nutzungsbedingungen', privacy: 'Datenschutz' }
   };
   function init() {
     var host = null;
@@ -41,6 +41,9 @@
         (logged ? '' : '<a class="sm-login" href="/dashboard">' + L.login + '</a>') +
         '<a class="sm-main" href="/maker">' + L.make + '</a>' +
         '<a href="/">' + L.home + '</a>' +
+        '<a href="/link">🔗 ' + L.plink + '</a>' +
+        '<a href="/minihome">🏠 ' + L.phome + '</a>' +
+        '<a href="/friends">🐻 ' + L.pfriends + '</a>' +
         '<a href="/#stars">' + L.stars + '</a>' +
         '<a href="/dashboard">' + L.cards + '</a>' +
         '<a href="/maker?nfc=1">' + L.more + '</a>' +

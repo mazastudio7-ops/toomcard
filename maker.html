@@ -46,6 +46,7 @@
 
     /* ── 헤더 ─────────────────────────────────────── */
     :root { --sat: env(safe-area-inset-top, 0px); }
+    .badge#modeBadge { white-space: nowrap; }
     .modes { display: flex; gap: 3px; padding: 3px; border-radius: 12px; background: rgba(255,255,255,.06); border: 1px solid var(--tc-border); }
     .modes button { appearance: none; border: 0; border-radius: 9px; padding: 7px 12px; background: transparent; color: var(--tc-text-muted); font: 800 12.5px var(--tc-font-body); cursor: pointer; white-space: nowrap; }
     .modes button[aria-pressed="true"] { background: var(--tc-accent); color: #000; }
@@ -460,13 +461,8 @@
     <a href="/" class="brand">
       <img src="/assets/logo_toomcard_mark.webp" alt="">
       <span>TOOM<span class="accent">CARD</span></span>
-      <span class="badge">STUDIO</span>
+      <span class="badge" id="modeBadge">STUDIO</span>
     </a>
-    <nav class="modes" id="modeSeg" aria-label="mode">
-      <button type="button" data-mode="card" aria-pressed="true">🪪 <span data-i18n="maker.mode_card">명함</span></button>
-      <button type="button" data-mode="links">🔗 <span data-i18n="maker.mode_links">멀티링크</span></button>
-      <button type="button" data-mode="home">🏠 <span data-i18n="maker.mode_home">미니홈</span></button>
-    </nav>
     <div class="header-right">
       <div data-i18n-switcher></div>
       <a href="/dashboard" class="link-quiet" data-i18n="nav.dashboard">내 명함 관리</a>
@@ -1007,7 +1003,7 @@
       if (isPage && typeof flip === 'function') flip('show_front');
       const fr = $('preview'); if (fr && fr.contentWindow) fr.contentWindow.postMessage({ action: 'page_mode', on: isPage }, '*');
       const fb = $('faceBadge'); if (fb) fb.hidden = isPage;
-      document.querySelectorAll('#modeSeg button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.mode === mode)));
+      const mb = $('modeBadge'); if (mb) mb.textContent = mode === 'links' ? t('maker.mode_links') : mode === 'home' ? t('maker.mode_home') : 'STUDIO';
       try { const u = new URL(location.href); if (mode === 'card') u.searchParams.delete('mode'); else u.searchParams.set('mode', mode); history.replaceState(null, '', u); } catch (e) {}
       setKind(kind);
       if (!(opts && opts.keepTab) && typeof openTab === 'function' && isMobile()) { currentTab = ''; openTab('info'); }
@@ -2712,7 +2708,6 @@
       setTimeout(() => flip('show_back'), 450);   // 바꾼 뒷면을 바로 보여준다
     });
     $('kindSeg').addEventListener('click', (e) => { const b = e.target.closest('button[data-kind]'); if (b) setKind(b.dataset.kind); });
-    $('modeSeg').addEventListener('click', (e) => { const b = e.target.closest('button[data-mode]'); if (b) setMode(b.dataset.mode); });
     $('addonSum').addEventListener('click', (e) => { const a = e.target.closest('a[data-mode]'); if (a) { e.preventDefault(); setMode(a.dataset.mode); } });
     (() => { const p = new URLSearchParams(location.search); setKind(p.get('kind') || 'personal'); const m0 = p.get('mode') || MODE_OF_KIND[p.get('kind')] || 'card'; hasCardBody = m0 === 'card'; setMode(m0, { keepTab: true }); })();
     renderBgGrid(); renderThemeChips(); renderStartChips(); renderCarousel(); syncAdjustUI();
