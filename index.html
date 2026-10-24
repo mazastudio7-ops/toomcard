@@ -231,9 +231,11 @@
     .rv.in2 { opacity: 1; transform: none; }
     /* 01 */
     .v-photo { position: relative; width: 150px; height: 240px; border-radius: 18px; background: url(/assets/sample_profile_creator.jpg) center top / cover; box-shadow: 0 20px 50px rgba(0,0,0,.5); overflow: hidden; }
+    .v-photo:before { content: ""; position: absolute; inset: 0; z-index: 1; mix-blend-mode: color; opacity: .55; animation: mood 6s ease-in-out infinite; }
+    @keyframes mood { 0% { background: transparent; } 20% { background: #ffb44a; } 45% { background: #7a45ff; } 70% { background: #2fb7a0; } 100% { background: transparent; } }
     .v-photo:after { content: ""; position: absolute; left: 0; right: 0; height: 36%; top: -40%; background: linear-gradient(180deg, transparent, rgba(255,217,120,.55), transparent); animation: scan 2.8s ease-in-out infinite; }
     @keyframes scan { to { top: 110%; } }
-    .v-photo b { position: absolute; left: 8px; right: 8px; bottom: 8px; padding: 6px; text-align: center; font-size: 11.5px; border-radius: 10px; background: rgba(0,0,0,.55); backdrop-filter: blur(6px); }
+    .v-photo b { z-index: 2; position: absolute; left: 8px; right: 8px; bottom: 8px; padding: 6px; text-align: center; font-size: 11.5px; border-radius: 10px; background: rgba(0,0,0,.55); backdrop-filter: blur(6px); }
     .corner { position: absolute; width: 22px; height: 22px; border: 2px solid #ffd978; }
     .corner.a { left: -10px; top: -10px; border-right: 0; border-bottom: 0; } .corner.b { right: -10px; top: -10px; border-left: 0; border-bottom: 0; }
     .corner.c { left: -10px; bottom: -10px; border-right: 0; border-top: 0; } .corner.d { right: -10px; bottom: -10px; border-left: 0; border-top: 0; }
@@ -259,7 +261,7 @@
     @keyframes rp { 0% { transform: scale(.3); opacity: .9; } 100% { transform: scale(3.6); opacity: 0; } }
     .v-tap .cd { position: relative; z-index: 2; width: 92px; height: 148px; border-radius: 14px; background: url(/assets/toomcard_front_plate.jpg) center / cover; box-shadow: 0 16px 40px rgba(0,0,0,.55); animation: tapn 3s ease-in-out infinite; }
     @keyframes tapn { 0%, 100% { transform: translateY(14px) rotate(-6deg); } 50% { transform: translateY(-6px) rotate(3deg); } }
-    @media (prefers-reduced-motion: reduce) { .kick i, .hero2 h1 em, .o-glow, .o-float, .v-photo:after, .fm, .v-url .ty, .v-ok, .v-tap .rp, .v-tap .cd, .hero2 .big { animation: none !important; } .rv { opacity: 1; transform: none; } .v-url .ty { width: 4ch; } .v-ok { opacity: 1; } }
+    @media (prefers-reduced-motion: reduce) { .kick i, .hero2 h1 em, .o-glow, .o-float, .v-photo:before, .v-photo:after, .fm, .v-url .ty, .v-ok, .v-tap .rp, .v-tap .cd, .hero2 .big { animation: none !important; } .rv { opacity: 1; transform: none; } .v-url .ty { width: 4ch; } .v-ok { opacity: 1; } }
 
     /* ===== 카드 극장 (FILM 형식) ===== */
     .theater { display: grid; grid-template-columns: minmax(0, 1fr) 290px; gap: 16px; align-items: start; margin: 24px 0 34px; text-align: left; }
@@ -361,8 +363,8 @@
     <a href="#st1" data-i18n="h2.r1">01 사진</a><a href="#st2" data-i18n="h2.r2">02 꾸미기</a><a href="#st3" data-i18n="h2.r3">03 발행</a><a href="#st4" data-i18n="h2.r4">04 공유</a><a href="#stars" class="rstar" data-i18n="h2.r5">★ 이젠스타</a>
   </div></nav>
 
-  <section class="stp rv" id="st1"><div class="stp-t"><span class="no">STEP 01</span><h2 data-i18n="h2.st1h">사진 한 장 고르기</h2><p data-i18n="h2.st1p">폰 갤러리에서 마음에 드는 사진 한 장이면 돼요. 배경은 자동으로 지워지고, 밝기와 분위기도 한 번에 맞춰져요.</p><div class="tags2"><span data-i18n="h2.st1t1">1분</span><span data-i18n="h2.st1t2">무료</span><span data-i18n="h2.st1t3">배경 자동 제거</span></div></div>
-    <div class="vx"><div class="v-photo"><i class="corner a"></i><i class="corner b"></i><i class="corner c"></i><i class="corner d"></i><b>배경을 지우는 중…</b></div></div></section>
+  <section class="stp rv" id="st1"><div class="stp-t"><span class="no">STEP 01</span><h2 data-i18n="h2.st1h">사진 한 장 고르기</h2><p data-i18n="h2.st1p">폰 갤러리에서 마음에 드는 사진 한 장이면 돼요. 색과 분위기를 한 번에 바꿔 보고, 밝기와 크기도 손끝으로 맞춰요.</p><div class="tags2"><span data-i18n="h2.st1t1">1분</span><span data-i18n="h2.st1t2">무료</span><span data-i18n="h2.st1t3">색·분위기 변경</span></div></div>
+    <div class="vx"><div class="v-photo"><i class="corner a"></i><i class="corner b"></i><i class="corner c"></i><i class="corner d"></i><b data-i18n="h2.st1v">분위기를 바꾸는 중…</b></div></div></section>
   <section class="stp flipx rv" id="st2"><div class="stp-t"><span class="no">STEP 02</span><h2 data-i18n="h2.st2h">양옆으로 넘기며 꾸미기</h2><p data-i18n="h2.st2p">폴라로이드, 필름, 매거진, 아치… 프레임과 로고, 색, 움직임까지. 마음에 드는 모습이 나올 때까지 넘겨 보세요.</p><div class="tags2"><span data-i18n="h2.st2t1">프레임 7종</span><span data-i18n="h2.st2t2">로고 모션</span><span data-i18n="h2.st2t3">되돌리기</span></div></div>
     <div class="vx"><div class="v-frames"><i class="fm f1"></i><i class="fm f2"></i><i class="fm f3"></i><i class="fm f4"></i></div></div></section>
   <section class="stp rv" id="st3"><div class="stp-t"><span class="no">STEP 03</span><h2 data-i18n="h2.st3h">이름이 곧 주소</h2><p data-i18n="h2.st3p">toomcard.com/내이름 — 외우기 쉬운 내 주소가 생겨요. 로그인해서 저장하면 언제든 고칠 수 있어요.</p><div class="tags2"><span data-i18n="h2.st3t1">내 주소</span><span data-i18n="h2.st3t2">Google 로그인</span><span data-i18n="h2.st3t3">언제든 수정</span></div></div>
