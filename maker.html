@@ -531,6 +531,7 @@
             <div class="field"><label data-i18n="maker.page_blocks">블록 (최대 20) — 링크·그리드·유튜브·제목·글</label>
               <div id="pgBlocks"></div>
               <div class="chips" style="margin-top:6px">
+                <button type="button" class="chip" data-blk="product">🛒 <span data-i18n="maker.blk_product">상품</span></button>
                 <button type="button" class="chip" data-blk="link">🔗 <span data-i18n="maker.blk_link">링크</span></button>
                 <button type="button" class="chip" data-blk="grid">▦ <span data-i18n="maker.blk_grid">그리드</span></button>
                 <button type="button" class="chip" data-blk="youtube">▶ <span data-i18n="maker.blk_youtube">유튜브</span></button>
@@ -1076,7 +1077,7 @@
     $('pgRvBtn').addEventListener('click', () => { if ($('pgRv').children.length < 5) pgRow($('pgRv'), 'rv'); });
     /* 블록 편집: 세텁팟 멀티링크처럼 블록을 순서대로 쌓는다 */
     const BLK = { list: [] };
-    const BLK_NAMES = { link: 'maker.blk_link', grid: 'maker.blk_grid', youtube: 'maker.blk_youtube', title: 'maker.blk_title', text: 'maker.blk_text' };
+    const BLK_NAMES = { product: 'maker.blk_product', link: 'maker.blk_link', grid: 'maker.blk_grid', youtube: 'maker.blk_youtube', title: 'maker.blk_title', text: 'maker.blk_text' };
     function blkRender() {
       const box = $('pgBlocks'); box.innerHTML = '';
       BLK.list.forEach((b, i) => {
@@ -1085,6 +1086,7 @@
         let body = '';
         if (b.type === 'title') body = `<input class="input b-text" maxlength="40" placeholder="${t('maker.blk_title_ph')}" value="${(b.text || '').replace(/"/g, '&quot;')}">`;
         else if (b.type === 'text') body = `<textarea class="input b-text" rows="3" maxlength="1000" placeholder="${t('maker.blk_text_ph')}">${(b.text || '').replace(/</g, '&lt;')}</textarea>`;
+        else if (b.type === 'product') body = `<input class="input b-url" type="url" placeholder="https://link.coupang.com/… · https://smartstore.naver.com/…" value="${(b.url || '').replace(/"/g, '&quot;')}"><div class="two"><input class="input b-price" maxlength="20" placeholder="${t('maker.blk_price')}" value="${(b.price || '').replace(/"/g, '&quot;')}"><input class="input b-title" maxlength="60" placeholder="${t('maker.blk_product_title')}" value="${(b.title || '').replace(/"/g, '&quot;')}"></div><div class="bh" style="gap:8px"><button type="button" class="btn-secondary b-fetch" style="width:auto;height:auto;padding:6px 10px;font-size:12px">${t('maker.blk_fetch')}</button><button type="button" class="btn-secondary b-photo" style="width:auto;height:auto;padding:6px 10px;font-size:12px">${t('maker.blk_photo')}</button><span class="b-img-note">${b.image ? '🖼 ' + t('maker.blk_img_ok') : ''}</span></div>`;
         else if (b.type === 'link') body = `<div class="two"><input class="input b-icon" maxlength="2" placeholder="🔗" value="${(b.icon || '').replace(/"/g, '&quot;')}"><input class="input b-title" maxlength="40" placeholder="${t('maker.blk_link_title')}" value="${(b.title || '').replace(/"/g, '&quot;')}"></div><input class="input b-desc" maxlength="60" placeholder="${t('maker.blk_link_desc')}" value="${(b.desc || '').replace(/"/g, '&quot;')}"><input class="input b-url" type="url" placeholder="https://" value="${(b.url || '').replace(/"/g, '&quot;')}">`;
         else if (b.type === 'youtube') body = `<input class="input b-title" maxlength="40" placeholder="${t('maker.blk_title_ph')}" value="${(b.title || '').replace(/"/g, '&quot;')}"><input class="input b-url" type="url" placeholder="https://youtu.be/…" value="${(b.url || '').replace(/"/g, '&quot;')}">`;
         else if (b.type === 'grid') body = `<div class="gitems">${(b.items && b.items.length ? b.items : [{}, {}]).slice(0, 8).map((it) => `<div class="g"><input class="input gi-icon" maxlength="2" placeholder="🔗" value="${(it.icon || '').replace(/"/g, '&quot;')}"><input class="input gi-title" maxlength="20" placeholder="${t('maker.blk_link_title')}" value="${(it.title || '').replace(/"/g, '&quot;')}"><input class="input gi-url" type="url" placeholder="https://" value="${(it.url || '').replace(/"/g, '&quot;')}"></div>`).join('')}</div><button type="button" class="btn-secondary b-add" style="margin-top:4px">+ ${t('maker.blk_grid_add')}</button>`;
@@ -1096,6 +1098,7 @@
         const b = BLK.list[Number(row.dataset.i)] || {}; const v = (c) => { const el = row.querySelector('.' + c); return el ? el.value.trim() : ''; };
         if (b.type === 'title' || b.type === 'text') return { type: b.type, text: v('b-text') };
         if (b.type === 'link') return { type: 'link', icon: v('b-icon'), title: v('b-title'), desc: v('b-desc'), url: v('b-url') };
+        if (b.type === 'product') return { type: 'product', url: v('b-url'), title: v('b-title'), price: v('b-price'), image: b.image || '', site: b.site || '' };
         if (b.type === 'youtube') return { type: 'youtube', title: v('b-title'), url: v('b-url') };
         if (b.type === 'grid') return { type: 'grid', items: [...row.querySelectorAll('.gitems .g')].map((g) => ({ icon: g.querySelector('.gi-icon').value.trim(), title: g.querySelector('.gi-title').value.trim(), url: g.querySelector('.gi-url').value.trim() })).filter((x) => x.title || x.url) };
         return b;
@@ -1109,6 +1112,22 @@
       if (btn.dataset.del) BLK.list.splice(i, 1);
       else if (btn.dataset.mv) { const j = i + Number(btn.dataset.mv); if (j < 0 || j >= BLK.list.length) return; [BLK.list[i], BLK.list[j]] = [BLK.list[j], BLK.list[i]]; }
       else if (btn.classList.contains('b-add')) { const b = BLK.list[i]; b.items = (b.items || []).concat([{}]); }
+      else if (btn.classList.contains('b-photo')) {
+        // 쿠팡·스마트스토어는 사진을 자동으로 못 가져오니 직접 올린다 (저장소, 로그인 필요)
+        const b = BLK.list[i]; const inp = document.createElement('input'); inp.type = 'file'; inp.accept = 'image/*';
+        inp.onchange = async () => { const f = inp.files[0]; if (!f) return; try { await ensureCloud(); const u = await getCurrentUser(); if (!u) { toast(t('maker.logo_anim_login')); try { openAuthModal(); } catch (er) {} return; } toast(t('maker.page_uploading')); const blob = await shrinkToBlob(f, 800); const path = `${u.id}/prod-${Date.now()}.jpg`; const up = await supabaseClient.storage.from('card-assets').upload(path, blob, { contentType: 'image/jpeg', cacheControl: '31536000' }); if (up.error) throw up.error; b.image = supabaseClient.storage.from('card-assets').getPublicUrl(path).data.publicUrl; toast(t('maker.page_uploaded')); blkRender(); } catch (er) { console.warn(er); toast(t('maker.logo_anim_fail')); } };
+        inp.click(); return;
+      }
+      else if (btn.classList.contains('b-fetch')) {
+        const b = BLK.list[i]; if (!/^https?:\/\//.test(b.url || '')) { toast(t('maker.blk_need_url')); return; }
+        btn.disabled = true; toast(t('maker.blk_fetching'));
+        fetch('/api/unfurl?u=' + encodeURIComponent(b.url)).then((r) => r.json()).then((d) => {
+          if (d && (d.title || d.image)) { if (!b.title && d.title) b.title = d.title; if (!b.price && d.price) b.price = d.price; b.image = d.image || ''; b.site = d.site || ''; toast(t('maker.blk_fetched')); }
+          else toast(t('maker.blk_fetch_fail'));
+          blkRender();
+        }).catch(() => { toast(t('maker.blk_fetch_fail')); blkRender(); });
+        return;
+      }
       blkRender();
     });
     function collectPage() {
