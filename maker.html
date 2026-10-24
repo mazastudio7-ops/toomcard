@@ -448,8 +448,8 @@
     .more-opt { margin-top: 6px; border-top: 1px solid var(--tc-border); padding-top: 10px; } .more-opt > summary { cursor: pointer; font-weight: 800; font-size: 13.5px; color: var(--tc-text-subtle); padding: 4px 0 10px; list-style: none; } .more-opt > summary::before { content: '+ '; } .more-opt[open] > summary::before { content: '− '; } .more-opt[open] { display: flex; flex-direction: column; gap: 14px; }
     .sns-chips { display: flex; flex-wrap: wrap; gap: 6px; } .sns-chips button { appearance: none; border: 1px solid var(--tc-border); background: rgba(255,255,255,.05); color: var(--tc-text); border-radius: 99px; padding: 8px 13px; font: 800 13px var(--tc-font-body); cursor: pointer; } .sns-chips button[aria-pressed="true"] { background: var(--tc-accent); color: #000; border-color: var(--tc-accent); }
     .car-thumb { overflow: hidden; }
-    /* 폰도 날개 없이 카드 하나만 (디자인은 '앞면' 줄에서 고른다) */
-    @media (max-width: 980px) { .car-stack, .car-nav, .car-label, .sug-pill { display: none !important; } }
+    /* 폰도 날개 없이 카드 하나만 (디자인은 '앞면' 줄에서 고른다). '앞면·폰 배경화면' 이름표는 카드 위(QR·엠블럼)를 가려서 폰에서는 숨긴다 — 앞면/뒷면 버튼이 같은 걸 알려 준다 */
+    @media (max-width: 980px) { .car-stack, .car-nav, .car-label, .sug-pill, .face-badge { display: none !important; } }
     .ft-full { inset: 0; }
     /* 양옆 추천 이름표: 카드가 화면 밖으로 나가도 보이도록 무대 양 끝에 고정 */
     .sug-pill { position: absolute; top: 50%; z-index: 7; transform: translateY(-50%); max-width: 34%; padding: 8px 12px; border-radius: 99px; background: rgba(10,8,18,.78); border: 1px solid rgba(255,217,120,.6); color: #ffd978; font: 800 12px/1.2 var(--tc-font-body); text-align: center; cursor: pointer; backdrop-filter: blur(8px); box-shadow: 0 6px 18px rgba(0,0,0,.45); }
