@@ -402,7 +402,8 @@ async function recordPageView(slug) {
         referrer: ref,
         channel: utmSource ? `${channel} (${utmSource})` : channel,
         device: isMobile ? 'Mobile' : 'Desktop',
-        userAgent: navigator.userAgent
+        userAgent: navigator.userAgent,
+        dev: starDeviceId()   // TODAY/TOTAL 은 같은 기기를 하루 1번만 센다
       }
     });
     
