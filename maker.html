@@ -316,6 +316,11 @@
     body:not(.kind-multilink) .ml-only { display: none; }
     body:not(.kind-minihome) .mh-only { display: none; }
     body.kind-minihome .seg-hint .biz-only { display: none; }
+    /* 멀티링크·미니홈 = 페이지: 명함 꾸미기(글자·로고·마감·뒷면)는 숨기고 정보 · 대표 사진 · 발행만 남긴다 */
+    body.kind-page .tabbar [data-tab="text"], body.kind-page .tabbar [data-tab="logo"], body.kind-page .tabbar [data-tab="finish"],
+    body.kind-page .panel .section[data-tab="text"], body.kind-page .panel .section[data-tab="logo"], body.kind-page .panel .section[data-tab="finish"],
+    body.kind-page .tool-btn[data-face="back"], body.kind-page #fxField, body.kind-page #lookField, body.kind-page .photo-perks { display: none !important; }
+    body.kind-page .tabbar { grid-template-columns: repeat(3, 1fr); }
     body.kind-multilink .biz-only, body.kind-multilink .per-only, body.kind-multilink #pageBox .toggle .switch,
     body.kind-minihome .per-only, body.kind-minihome #pageBox .toggle .switch { display: none; }
     body.kind-multilink #pageBox, body.kind-minihome #pageBox { border-color: rgba(255,217,120,.6); }
@@ -934,6 +939,16 @@
       document.body.classList.toggle('kind-personal', kind === 'personal');
       document.body.classList.toggle('kind-multilink', kind === 'multilink');
       document.body.classList.toggle('kind-minihome', kind === 'minihome');
+      const isPage = kind === 'multilink' || kind === 'minihome';
+      document.body.classList.toggle('kind-page', isPage);
+      // 페이지 종류는 '앞면'이 아니라 '대표 사진'
+      document.querySelectorAll('[data-i18n="maker.tab_photo"]').forEach((el) => { el.textContent = t(isPage ? 'maker.tab_hero' : 'maker.tab_photo'); });
+      document.querySelectorAll('[data-i18n="maker.cta_photo"], [data-i18n="maker.pick_photo"]').forEach((el) => { el.textContent = t(isPage ? 'maker.cta_hero' : el.dataset.i18n); });
+      document.querySelectorAll('[data-i18n="maker.sec_photo"]').forEach((el) => { el.textContent = t(isPage ? 'maker.sec_hero' : 'maker.sec_photo'); });
+      document.querySelectorAll('[data-i18n="maker.front"]').forEach((el) => { el.textContent = t(isPage ? 'maker.hero' : 'maker.front'); });
+      if (isPage && typeof flip === 'function') flip('show_front');
+      const fr = $('preview'); if (fr && fr.contentWindow) fr.contentWindow.postMessage({ action: 'page_mode', on: isPage }, '*');
+      const fb = $('faceBadge'); if (fb) fb.hidden = isPage;
       if (kind === 'multilink' || kind === 'minihome') { card.page = Object.assign({ on: true }, card.page || {}, { on: true }); if (typeof syncPageUI === 'function') syncPageUI(); }   // 멀티링크는 미니홈이 곧 본체
       document.querySelectorAll('#kindSeg button').forEach((b) => b.setAttribute('aria-pressed', b.dataset.kind === kind ? 'true' : 'false'));
       Object.entries(KIND_PH[kind === 'business' || kind === 'minihome' ? 'business' : 'personal']).forEach(([id, key]) => { const el = document.getElementById(id); if (el) el.placeholder = t(key); });
@@ -1376,7 +1391,7 @@
       const send = () => {
         const frame = $('preview');
         renderSeq += 1;
-        if (frame && frame.contentWindow) frame.contentWindow.postMessage({ action: 'render', card: previewCard(), seq: renderSeq }, '*');
+        if (frame && frame.contentWindow) { frame.contentWindow.postMessage({ action: 'render', card: previewCard(), seq: renderSeq }, '*'); frame.contentWindow.postMessage({ action: 'page_mode', on: document.body.classList.contains('kind-page') }, '*'); }
       };
       if (immediate) send(); else renderTimer = setTimeout(send, delay || 80);
       scheduleDraft();

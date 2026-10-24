@@ -792,6 +792,7 @@ function setupSwipe() {
   if (inMaker) {
     cardSceneEl.style.touchAction = 'none';
     window.addEventListener('message', (e) => { if (e.data && e.data.action === 'photo_mode') photoMode = !!e.data.on; });
+    window.addEventListener('message', (e) => { if (e.data && e.data.action === 'page_mode') document.body.classList.toggle('page-mode', !!e.data.on); });   // 멀티링크·미니홈 미리보기: 뒤집기 없음
     cardSceneEl.addEventListener('touchstart', (e) => {
       lastX = e.touches[0].clientX; lastY = e.touches[0].clientY;
       lastDist = e.touches.length > 1 ? dist(e.touches) : 0;
