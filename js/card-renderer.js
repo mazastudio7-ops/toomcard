@@ -1174,7 +1174,7 @@ function renderFrontLayers(data) {
   }
 
   // 마감
-  container.classList.remove('plate-finish-metal', 'plate-finish-glass', 'plate-finish-matte');
+  container.classList.remove('plate-finish-metal', 'plate-finish-glass', 'plate-finish-matte', 'plate-finish-studio', 'plate-finish-holo');
   container.classList.add(`plate-finish-${front.finish}`);
 
   // 글자·로고

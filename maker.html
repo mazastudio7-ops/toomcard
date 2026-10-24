@@ -1102,6 +1102,7 @@
       if (seq !== slugSeq) return slugOk;
       if (rs && rs.length) { slugOk = false; say('warn', t('maker.slug_reserved', { a: name })); return false; }
       const mine = (pods || []).some((r) => me && r.user_id === me);
+      if (mine && name.toLowerCase() !== String(new URLSearchParams(location.search).get('edit') || '').toLowerCase()) { slugOk = false; say('warn', t('maker.slug_mine', { a: name })); return false; }   // 이미 내 명함인 아이디로 새로 만들면 덮어쓰게 된다
       if (!(pods || []).length || mine) { slugOk = true; say('ok', t('maker.slug_ok', { a: name })); return true; }
       // 이미 있는 아이디: 숫자를 붙인 아이디를 추천한다
       const cands = [name + '2', name + '7', name + '01', name + '2026', name + '.kr'].map((x) => x.slice(0, 20));
@@ -2571,10 +2572,13 @@
         syncSnsChips(); render(true);
       });
       $('stB_ad').append(...ad);
-      { const ff = $('frameChips').closest('.field'), nx = $('stB_image').querySelector('.step-next'); if (ff) $('stB_image').insertBefore(ff, nx || null); }   // 틀은 사진을 다루는 단계에서
-      $('stB_adv').append(...adv, $('secText'), $('secLogo'), $('secFinish'));
+      { const nx = $('stB_image').querySelector('.step-next'); const ff = $('frameChips').closest('.field'); if (ff) $('stB_image').insertBefore(ff, nx || null); $('stB_image').insertBefore($('secText'), nx || null); }   // 틀·앞면 글자 위치는 앞면을 만지는 단계에서
+      // 고급 옵션 안에서도 앞면 항목을 만지면 카드가 앞면으로, 뒷면 항목이면 뒷면으로 돌아간다
+      [['finishChips', '.field', 'front'], ['qrSwitch', '.toggle', 'front'], ['logoSwitch', '.toggle', 'front'], ['backLayoutChips', '.field', 'back'], ['themeChips', '.field', 'back']].forEach(([id, sel, side]) => { const el = $(id) && $(id).closest(sel); if (el) el.dataset.side = side; });
+      box.addEventListener('click', (e) => { const s = e.target.closest('[data-side]'); if (s && s.closest('.step.open')) flip(s.dataset.side === 'front' ? 'show_front' : 'show_back'); });   // 틀은 사진을 다루는 단계에서
+      $('stB_adv').append(...adv, $('secLogo'), $('secFinish'));
       // 단계 열고 닫기 · 다음
-      box.querySelectorAll('.step-h').forEach((h) => h.addEventListener('click', () => { const s = h.parentElement; const was = s.classList.contains('open'); box.querySelectorAll('.step').forEach((x) => x.classList.remove('open')); if (!was) s.classList.add('open'); }));
+      box.querySelectorAll('.step-h').forEach((h) => h.addEventListener('click', () => { const s = h.parentElement; const was = s.classList.contains('open'); box.querySelectorAll('.step').forEach((x) => x.classList.remove('open')); if (!was) { s.classList.add('open'); const k = s.dataset.step; if (k === 'design' || k === 'image') flip('show_front'); else if (k !== 'adv') flip('show_back'); } }));
       defs.forEach(([k], i) => { if (i < defs.length - 1 && k !== 'design') { const n = document.createElement('button'); n.type = 'button'; n.className = 'step-next'; n.textContent = t('maker.st_next'); n.addEventListener('click', () => { markStep(k); openStep(defs[i + 1][0]); }); $('stB_' + k).appendChild(n); } });
       $('stepDone').addEventListener('click', () => { document.body.classList.add('done'); flip('show_front'); setTimeout(renderCarousel, 320); const pr = document.querySelector('.panel-right'); if (pr) pr.scrollTop = 0; });
       document.body.classList.add('steps');
