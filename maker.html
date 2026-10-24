@@ -359,7 +359,7 @@
       :root { --tabbar-h: 62px; --sheet-h: calc(var(--app-h, 100dvh) * 0.5); }
       body { overflow: hidden; }
       .studio-header { padding: calc(10px + var(--sat)) 14px 10px; flex-wrap: wrap; }
-      .modes { order: 10; width: 100%; } .modes button { flex: 1; }
+      .modes { order: 10; width: 100%; } .modes button { flex: 1; padding: 8px 4px; }
       .brand .badge, .link-quiet { display: none; }
       .studio { display: block; min-height: 0; }
       .stage {
@@ -462,12 +462,12 @@
       <span>TOOM<span class="accent">CARD</span></span>
       <span class="badge">STUDIO</span>
     </a>
+    <nav class="modes" id="modeSeg" aria-label="mode">
+      <button type="button" data-mode="card" aria-pressed="true">🪪 <span data-i18n="maker.mode_card">명함</span></button>
+      <button type="button" data-mode="links">🔗 <span data-i18n="maker.mode_links">멀티링크</span></button>
+      <button type="button" data-mode="home">🏠 <span data-i18n="maker.mode_home">미니홈</span></button>
+    </nav>
     <div class="header-right">
-      <nav class="modes" id="modeSeg" aria-label="mode">
-        <button type="button" data-mode="card" aria-pressed="true">🪪 <span data-i18n="maker.mode_card">명함</span></button>
-        <button type="button" data-mode="links">🔗 <span data-i18n="maker.mode_links">멀티링크</span></button>
-        <button type="button" data-mode="home">🏠 <span data-i18n="maker.mode_home">미니홈</span></button>
-      </nav>
       <div data-i18n-switcher></div>
       <a href="/dashboard" class="link-quiet" data-i18n="nav.dashboard">내 명함 관리</a>
     </div>
