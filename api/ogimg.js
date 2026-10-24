@@ -1,5 +1,5 @@
 // 카톡·메신저 링크 미리보기 이미지: 카드의 앞면 사진을 1200x630 으로 만들어 돌려준다.
-// GET /api/ogimg?s=<카드 주소>   (예: a/배미자)  →  image/jpeg
+// GET /api/ogimg?s=<카드 주소>   (예: a/배미자)  →  image/jpeg   ·  &t=card 이면 명함 비율 세로 썸네일
 // 사진이 가로로 안 맞아도 잘리지 않게: 흐리게 깐 배경 + 가운데에 사진 전체를 둔다.
 const sharp = require('sharp');
 
@@ -63,6 +63,12 @@ module.exports = async (req, res) => {
     if (!buf) return fallback();
 
     const base = sharp(buf, { animated: false }).rotate();
+    if (req.query && req.query.t === 'card') {   // 홈 "실제 명함" 줄: 세로 썸네일 (명함 비율)
+      const th = await base.clone().resize(360, 577, { fit: 'cover', position: 'top' }).jpeg({ quality: 78, mozjpeg: true }).toBuffer();
+      res.setHeader('Content-Type', 'image/jpeg');
+      res.setHeader('Cache-Control', 'public, s-maxage=3600, stale-while-revalidate=86400');
+      return res.status(200).send(th);
+    }
     const bgImg = await base.clone().resize(W, H, { fit: 'cover', position: 'attention' }).blur(28).modulate({ brightness: 0.55 }).toBuffer();
     const fg = await base.clone().resize({ height: H, width: W, fit: 'inside', withoutEnlargement: false }).toBuffer();
     const out = await sharp(bgImg).composite([{ input: fg, gravity: 'center' }]).jpeg({ quality: 82, mozjpeg: true }).toBuffer();

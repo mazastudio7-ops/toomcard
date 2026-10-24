@@ -100,8 +100,22 @@
     .tile.in.tilt { transition: transform .12s ease-out, box-shadow .3s ease; transition-delay: 0s; }
     .tile.in:hover { box-shadow: 0 24px 54px rgba(0,0,0,0.65), 0 0 0 1px rgba(255,217,120,0.35); }
     .tile[hidden] { display: none; }
-    .ini { position: absolute; left: 0; right: 0; top: 34%; text-align: center; font: 900 96px/1 'Montserrat', sans-serif; background: linear-gradient(180deg,#fff6d6,#d9b25f 55%,#8a6a2a); -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(0 6px 14px rgba(0,0,0,0.45)); }
-    .tile.light .ini { background: linear-gradient(180deg,#5a4a2c,#2b2418); -webkit-background-clip: text; background-clip: text; }
+    /* 단색 카드: 큰 글자 대신 실제 명함처럼 — 금빛 이니셜 동전 + 소속 · 이름 · 직함 */
+    .ini { position: absolute; left: 50%; top: 24%; width: 30%; aspect-ratio: 1; transform: translateX(-50%); display: grid; place-items: center; border-radius: 50%; font: 900 clamp(20px, 3vw, 30px)/1 'Montserrat', sans-serif; color: #3a2a0c; background: radial-gradient(circle at 35% 30%, #fff6d6, #e2bd68 45%, #9a7430 100%); box-shadow: inset 0 0 0 3px rgba(255,255,255,.35), inset 0 -6px 12px rgba(0,0,0,.25), 0 10px 24px rgba(0,0,0,.45); }
+    .tile.light .ini { color: #fff8e6; background: radial-gradient(circle at 35% 30%, #8a7450, #4a3a20 60%, #2b2418); }
+    .real { margin: 6px auto 26px; max-width: 1180px; }
+    .real-h { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 12px; padding: 0 16px 10px; }
+    .real-h b { font-size: 18px; font-weight: 900; } .real-h span { font-size: 13px; color: rgba(255,255,255,.55); }
+    .real-row { display: flex; gap: 12px; overflow-x: auto; padding: 4px 16px 14px; scroll-snap-type: x mandatory; scrollbar-width: none; }
+    .real-row::-webkit-scrollbar { display: none; }
+    .rc { flex: none; width: 128px; scroll-snap-align: start; text-decoration: none; color: #fff; }
+    .rc .im { width: 128px; aspect-ratio: 330 / 529; border-radius: 14px; background: #1a1a22 center / cover no-repeat; border: 1px solid rgba(255,255,255,.12); box-shadow: 0 10px 26px rgba(0,0,0,.45); transition: transform .2s; }
+    .rc:hover .im { transform: translateY(-3px); }
+    .rc b { display: block; margin-top: 7px; font-size: 13px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .rc small { display: block; font-size: 11px; color: rgba(255,255,255,.5); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .rc .st { color: #ffd978; }
+    .nm small { display: block; font: 800 9.5px/1.2 'Montserrat', sans-serif; letter-spacing: .18em; opacity: .7; margin-bottom: 4px; text-transform: uppercase; }
+    .nm em { display: block; font-style: normal; font-weight: 600; font-size: 11.5px; opacity: .75; margin-top: 3px; }
     .nm { position: absolute; left: 14px; right: 14px; bottom: 16px; font-weight: 900; font-size: 17px; text-shadow: 0 2px 12px rgba(0,0,0,0.6); }
     .tile.light .nm { color: #2b2418; text-shadow: none; }
     .go { position: absolute; right: 12px; top: 12px; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font-style: normal; font-weight: 800; background: rgba(0,0,0,0.45); border: 1px solid rgba(255,255,255,0.25); transition: transform .3s, background .3s; }
@@ -397,6 +411,10 @@
       </div>
       <ol class="tchaps" id="tChaps"></ol>
     </div>
+    <section class="real" id="realCards">
+      <div class="real-h"><b data-i18n="h2.realT">지금 만들어진 명함</b><span data-i18n="h2.realD">툼카드로 만든 실제 명함이에요. 눌러서 보세요.</span></div>
+      <div class="real-row" id="realRow"></div>
+    </section>
     <div class="allcap" data-i18n="h2.all">전체 카드</div>
     <div class="chips" id="chips">
       <button class="chip" data-f="all" aria-pressed="true" data-i18n="home.cat_all">전체</button>
@@ -408,7 +426,7 @@
       <a class="tile" data-cat="brand" href="/maker.html?preset=onyx" style="background-image:url(/assets/plate_onyx.jpg)"><span class="nm">정하린</span><i class="go">→</i></a>
       <a class="tile fr-arch" data-cat="photo" href="/maker?sample=creator"><span class="ph" style="background-image:url(/assets/sample_profile_creator.jpg)"></span><span class="nm">김하늘</span><i class="go">→</i></a>
       <a class="tile" data-cat="brand" href="/maker.html?preset=aurora" style="background-image:url(/assets/plate_aurora.jpg)"><span class="nm">Noah Kim</span><i class="go">→</i></a>
-      <a class="tile" data-cat="color" href="/maker.html?preset=obsidian" style="background:linear-gradient(160deg,#1c1c22,color-mix(in srgb,#1c1c22 55%,#000))"><b class="ini">A</b><span class="nm">Alex Rivera</span><i class="go">→</i></a>
+      <a class="tile" data-cat="color" href="/maker.html?preset=obsidian" style="background:linear-gradient(160deg,#1c1c22,color-mix(in srgb,#1c1c22 55%,#000))"><b class="ini">A</b><span class="nm"><small>STUDIO RIVERA</small>Alex Rivera<em>Product Designer</em></span><i class="go">→</i></a>
       <a class="tile" data-cat="brand" href="/maker.html?preset=champagne" style="background-image:url(/assets/plate_champagne.jpg)"><span class="nm">최유나</span><i class="go">→</i></a>
       <a class="tile fr-polaroid" data-cat="photo" href="/maker?sample=ceo"><span class="ph" style="background-image:url(/assets/sample_profile_ceo.jpg)"></span><span class="nm">박도윤</span><i class="go">→</i></a>
       <a class="tile" data-cat="brand" href="/maker.html?preset=forest" style="background-image:url(/assets/plate_forest.jpg)"><span class="nm">Jonas Becker</span><i class="go">→</i></a>
@@ -416,12 +434,12 @@
       <a class="tile" data-cat="brand" href="/maker.html?preset=dream" style="background-image:url(/assets/plate_dream.jpg)"><span class="nm">Lea Schmidt</span><i class="go">→</i></a>
       <a class="tile" data-cat="brand" href="/maker.html?preset=taekwon" style="background-image:url(/assets/plate_taekwon.jpg)"><span class="nm">강태호</span><i class="go">→</i></a>
       <a class="tile" data-cat="brand" href="/maker.html?preset=dancheong" style="background-image:url(/assets/plate_dancheong.jpg)"><span class="nm">Daniel Kang</span><i class="go">→</i></a>
-      <a class="tile" data-cat="color" href="/maker.html?preset=violet" style="background:linear-gradient(160deg,#3b1a6e,color-mix(in srgb,#3b1a6e 55%,#000))"><b class="ini">M</b><span class="nm">Mina Choi</span><i class="go">→</i></a>
+      <a class="tile" data-cat="color" href="/maker.html?preset=violet" style="background:linear-gradient(160deg,#3b1a6e,color-mix(in srgb,#3b1a6e 55%,#000))"><b class="ini">M</b><span class="nm"><small>BLOOM AGENCY</small>Mina Choi<em>브랜드 디렉터</em></span><i class="go">→</i></a>
       <a class="tile fr-magazine" data-cat="photo" href="/maker?sample=tech" style="background-image:url(/assets/sample_profile_tech.jpg)"><b class="mast">TOOMCARD</b><span class="nm">한지훈</span><i class="go">→</i></a>
-      <a class="tile" data-cat="color" href="/maker.html?preset=navy-gold" style="background:linear-gradient(160deg,#0e1a3d,color-mix(in srgb,#0e1a3d 55%,#000))"><b class="ini">L</b><span class="nm">Lukas Weber</span><i class="go">→</i></a>
+      <a class="tile" data-cat="color" href="/maker.html?preset=navy-gold" style="background:linear-gradient(160deg,#0e1a3d,color-mix(in srgb,#0e1a3d 55%,#000))"><b class="ini">L</b><span class="nm"><small>WEBER ARCHITEKTEN</small>Lukas Weber<em>Architekt</em></span><i class="go">→</i></a>
       <a class="tile fr-film" data-cat="photo" href="/maker?sample=film"><span class="ph" style="background-image:url(/assets/sample_profile_film.jpg)"></span><span class="nm">이서연</span><i class="go">→</i></a>
-      <a class="tile" data-cat="color" href="/maker.html?preset=emerald" style="background:linear-gradient(160deg,#064e3b,color-mix(in srgb,#064e3b 55%,#000))"><b class="ini">S</b><span class="nm">Sora Kim</span><i class="go">→</i></a>
-      <a class="tile light" data-cat="color" href="/maker.html?preset=warm-sand" style="background:linear-gradient(160deg,#c9b79c,color-mix(in srgb,#c9b79c 55%,#000))"><b class="ini">E</b><span class="nm">Emma Hoffmann</span><i class="go">→</i></a>
+      <a class="tile" data-cat="color" href="/maker.html?preset=emerald" style="background:linear-gradient(160deg,#064e3b,color-mix(in srgb,#064e3b 55%,#000))"><b class="ini">S</b><span class="nm"><small>한빛생명</small>Sora Kim<em>보험 설계사</em></span><i class="go">→</i></a>
+      <a class="tile light" data-cat="color" href="/maker.html?preset=warm-sand" style="background:linear-gradient(160deg,#c9b79c,color-mix(in srgb,#c9b79c 55%,#000))"><b class="ini">E</b><span class="nm"><small>HOFFMANN FOTO</small>Emma Hoffmann<em>Fotografin</em></span><i class="go">→</i></a>
     </div>
   </section>
 
@@ -486,7 +504,7 @@
         { n: '폴라로이드', cls: 'fr-polaroid', st: '', html: P + 'sample_profile_ceo.jpg)"></span><span class="nm">박도윤</span>', href: '/maker?sample=ceo' },
         { n: '필름', cls: 'fr-film', st: '', html: P + 'sample_profile_film.jpg)"></span><span class="nm">이서연</span>', href: '/maker?sample=film' },
         { n: '매거진', cls: 'fr-magazine', st: 'background-image:url(/assets/sample_profile_tech.jpg)', html: '<b class="mast">TOOMCARD</b><span class="nm">한지훈</span>', href: '/maker?sample=tech' },
-        { n: '단색', cls: '', st: 'background:linear-gradient(160deg,#3b1a6e,color-mix(in srgb,#3b1a6e 55%,#000))', html: '<b class="ini">M</b><span class="nm">Mina Choi</span>', href: '/maker.html?preset=violet' }
+        { n: '단색', cls: '', st: 'background:linear-gradient(160deg,#3b1a6e,color-mix(in srgb,#3b1a6e 55%,#000))', html: '<b class="ini">M</b><span class="nm"><small>BLOOM AGENCY</small>Mina Choi<em>브랜드 디렉터</em></span>', href: '/maker.html?preset=violet' }
       ];
       var N = LOOKS.length, cur = 0, userTouched = false, pauseUntil = 0;
       var chips = LOOKS.map(function (l, i) {
@@ -553,7 +571,7 @@
         { k: 'ONYX', t: '묵직한 블랙 메탈', d: '브러시드 메탈 위에 이름만 또렷하게', cls: '', st: 'background-image:url(/assets/plate_onyx.jpg)', html: '<span class="nm">정하린</span>', href: '/maker.html?preset=onyx', amb: '200,200,215' },
         { k: '아치', t: '사진이 아치 속에 서요', d: '부드러운 곡선 프레임에 이름을 담아요', cls: 'fr-arch', st: '', html: P + 'sample_profile_creator.jpg)"></span><span class="nm">김하늘</span>', href: '/maker?sample=creator', amb: '167,139,250' },
         { k: 'AURORA', t: '밤하늘 오로라', d: '보랏빛·청록빛이 번지는 유리 카드', cls: '', st: 'background-image:url(/assets/plate_aurora.jpg)', html: '<span class="nm">Noah Kim</span>', href: '/maker.html?preset=aurora', amb: '110,190,255' },
-        { k: '단색', t: '사진 없이도 멋지게', d: '색 하나와 이니셜만으로 완성하는 카드', cls: '', st: 'background:linear-gradient(160deg,#1c1c22,color-mix(in srgb,#1c1c22 55%,#000))', html: '<b class="ini">A</b><span class="nm">Alex Rivera</span>', href: '/maker.html?preset=obsidian', amb: '190,190,215' },
+        { k: '단색', t: '사진 없이도 멋지게', d: '색 하나와 이니셜만으로 완성하는 카드', cls: '', st: 'background:linear-gradient(160deg,#1c1c22,color-mix(in srgb,#1c1c22 55%,#000))', html: '<b class="ini">A</b><span class="nm"><small>STUDIO RIVERA</small>Alex Rivera<em>Product Designer</em></span>', href: '/maker.html?preset=obsidian', amb: '190,190,215' },
         { k: '폴라로이드', t: '인화한 한 장처럼', d: '따뜻한 필름 감성의 사진 카드', cls: 'fr-polaroid', st: '', html: P + 'sample_profile_ceo.jpg)"></span><span class="nm">박도윤</span>', href: '/maker?sample=ceo', amb: '255,200,150' },
         { k: 'CHAMPAGNE', t: '샴페인 골드', d: '사업용으로 어울리는 금빛 메탈 카드', cls: '', st: 'background-image:url(/assets/plate_champagne.jpg)', html: '<span class="nm">최유나</span>', href: '/maker.html?preset=champagne', amb: '255,217,120' },
         { k: '매거진', t: '잡지 표지처럼', d: '큰 사진 위에 이름이 올라가는 카드', cls: 'fr-magazine', st: 'background-image:url(/assets/sample_profile_tech.jpg)', html: '<b class="mast">TOOMCARD</b><span class="nm">한지훈</span>', href: '/maker?sample=tech', amb: '120,255,200' },
@@ -626,5 +644,33 @@
   </script>
   <script src="/js/home-stars.js" defer></script>
   <script src="/js/site-menu.js"></script>
+  <script>
+    // 지금 만들어진 명함: 우리 카드 + 이젠스타에 올라간 카드 (이젠스타 카드는 이름을 가린 채로 온다)
+    (function () {
+      var row = document.getElementById('realRow'); if (!row) return;
+      var esc = function (v) { return String(v == null ? '' : v).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
+      var OURS = [
+        { href: '/toomcard', img: '/assets/toomcard_front_plate.jpg', n: 'TOOMCARD', s: 'Official' },
+        { href: '/toomus', img: '/assets/toomus_front_plate.jpg', n: 'TOOMUS', s: 'TOOMUS' },
+        { href: '/ceo', img: '/assets/toomcard_front_plate.jpg', n: 'Andrew K', s: 'TOOMUS · CEO' },
+        { href: '/maza', img: '/assets/maza_front_plate.jpg', n: 'MAZA', s: 'MAZA STUDIO' },
+        { href: '/setupod', img: '/assets/setupod_front_plate.jpg', n: 'SETUPOD', s: 'Turnkey web' },
+        { href: '/maza/yongsu', img: '/assets/maza_front_plate.jpg', n: '김용수', s: 'MAZA STUDIO' },
+        { href: '/maza/jiyeon', img: '/assets/maza_front_plate.jpg', n: '유지연', s: 'MAZA STUDIO' }
+      ];
+      var card = function (c, star) { return '<a class="rc" href="' + esc(c.href) + '"><div class="im" style="background-image:url(\'' + esc(c.img) + '\')"></div><b>' + esc(c.n) + '</b><small' + (star ? ' class="st"' : '') + '>' + esc(c.s) + '</small></a>'; };
+      row.innerHTML = OURS.map(function (c) { return card(c); }).join('');
+      var K = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9tbGNicnNsenZkdHF3YnN6Z3ZnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI3Mzc4NTQsImV4cCI6MjEwODMxMzg1NH0.j2YVNIFIit7nzvaGGCprpFhPQfpQ6cQCf5n-2Dctg3g';
+      fetch('https://omlcbrslzvdtqwbszgvg.supabase.co/rest/v1/rpc/star_feed', { method: 'POST', headers: { apikey: K, Authorization: 'Bearer ' + K, 'Content-Type': 'application/json' }, body: JSON.stringify({ p_tag: null, p_sort: 'new', p_limit: 12, p_offset: 0 }) })
+        .then(function (r) { return r.json(); }).then(function (list) {
+          if (!Array.isArray(list) || !list.length) return;
+          var stars = list.map(function (x) {
+            var c = x.card || {}, nm = (c.star && c.star.nick) || c.name || '';
+            return card({ href: '/' + String(x.slug).split('/').map(encodeURIComponent).join('/'), img: '/api/ogimg?t=card&s=' + encodeURIComponent(x.slug), n: nm, s: '★ ' + (Number(x.likes || 0)) }, true);
+          }).join('');
+          row.insertAdjacentHTML('afterbegin', stars);   // 이젠스타 카드를 맨 앞에
+        }).catch(function () {});
+    })();
+  </script>
 </body>
 </html>
