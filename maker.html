@@ -640,7 +640,7 @@
           <div class="fr-grid" id="friendGrid"></div>
           <div class="fr-row" id="friendOpts" hidden>
             <div class="chips fr-colors" id="friendColors"></div>
-            <div class="chips" id="friendSizes"><button class="chip" type="button" data-size="sm" data-i18n="maker.size_sm">작게</button><button class="chip" type="button" data-size="md" aria-pressed="true" data-i18n="maker.size_md">보통</button><button class="chip" type="button" data-size="lg" data-i18n="maker.size_lg">크게</button></div>
+            <div class="chips" id="friendSizes"><button class="chip" type="button" data-size="xs" data-i18n="maker.size_xs">아주 작게</button><button class="chip" type="button" data-size="sm" data-i18n="maker.size_sm">작게</button><button class="chip" type="button" data-size="md" aria-pressed="true" data-i18n="maker.size_md">보통</button><button class="chip" type="button" data-size="lg" data-i18n="maker.size_lg">크게</button><button class="chip" type="button" data-size="xl" data-i18n="maker.size_xl">꽉 차게</button></div>
           </div>
           <a class="photo-off" href="/friends" target="_blank" rel="noopener" style="display:block;margin-top:6px;color:#ffd978;text-decoration:none" data-i18n="maker.friends_more">친구들 전체 보기 →</a>
         </div>
@@ -1069,7 +1069,7 @@
       { id: 'maza',      type: 'image', src: '/assets/maza_front_plate.jpg',     tag: 'MAZA', brand: true },
     ];
     let ownPlateId = '';   // 고치는 카드가 원래 쓰던 브랜드 플레이트 (그 카드에서는 계속 보인다)
-    const plateOk = (b) => !b.brand || isAdminUser || b.id === ownPlateId;
+    const plateOk = (b) => !b.brand || b.id === ownPlateId;   // 브랜드 플레이트는 그 회사 카드(팀 관리)에서만. 관리자도 여기서는 못 고른다
     const THEMES = [
       ['obsidian', '옵시디언', '#475569'], ['navy-gold', '골드 네이비', '#ffd54f'], ['violet', '바이올렛', '#a855f7'],
       ['white-minimal', '화이트', '#ffffff'], ['emerald', '에메랄드', '#10b981'], ['frosted-acrylic', '프로스티드', '#38bdf8'],
@@ -1105,12 +1105,12 @@
       { key: 'setupod',  label: 'SETUPOD',  bgId: 'setupod',  text: 'none', finish: 'glass', theme: 'violet', logo: '/assets/logo_setupod.gif', brand: true },
       { key: 'maza',     label: 'MAZA',     bgId: 'maza',     text: 'none', finish: 'metal', theme: 'violet', logo: '/assets/logo_maza.gif', brand: true },
     ];
-    function markAdmin() {   // 관리자: 브랜드 플레이트·로고까지 보여 준다
+    function markAdmin() {   // 관리자: 예약 아이디를 쓸 수 있다 (플레이트는 관리자도 일반과 같다)
       if (isAdminUser) return;
       isAdminUser = true; document.body.classList.add('is-admin');
       renderBgGrid(); renderStartChips(); renderCarousel();
     }
-    const designOk = (d) => !d.brand || isAdminUser || d.bgId === ownPlateId;
+    const designOk = (d) => !d.brand || d.bgId === ownPlateId;
     // 예전 주소(?preset=...)와 templates.html 링크 호환: 단색 + 마감 + 뒷면 색으로 바꿔 연다
     const LEGACY_PRESETS = {
       obsidian:          { color: '#1c1c22', text: 'bottom-left',   finish: 'metal', theme: 'obsidian' },
@@ -1883,7 +1883,10 @@
 
     /* ── 툼 프렌즈: 캐릭터 + 배경색 + 크기 → 앞면 플레이트 (브라우저에서 그려서 카드 데이터에 넣는다) ── */
     const FRIEND_COLORS = ['#fff3e4', '#ffe4ec', '#e3f6ef', '#ece6ff', '#fff7d6', '#e0f0ff', '#f4f4f6', '#1d2550', '#1a1a22', '#2b3a2f'];
-    let friendsManifest = null, friendState = { id: '', color: FRIEND_COLORS[0], size: 'md' };
+    const FRIEND_PLATES = ['onyx', 'champagne', 'aurora', 'marble', 'forest', 'rose', 'ocean'];   // 메탈 플레이트 위에도 올릴 수 있다
+    const DARK_PLATES = ['onyx', 'aurora', 'forest', 'ocean'];
+    let friendsManifest = null, friendState = { id: '', color: FRIEND_COLORS[0], size: 'md' };   // color: '#hex' 또는 'plate:onyx'
+    const friendIsDark = () => friendState.color.startsWith('plate:') ? DARK_PLATES.includes(friendState.color.slice(6)) : parseInt(friendState.color.slice(1), 16) < 0x808080;
     async function loadFriends() {
       if (!friendsManifest) { try { friendsManifest = await fetch('/assets/stickers/manifest.json').then((r) => r.json()); } catch (e) { return null; } }
       renderFriendGrid(); return friendsManifest;
@@ -1893,7 +1896,8 @@
       const lg = (window.i18n && i18n.lang) || 'ko';
       g.innerHTML = Object.entries(friendsManifest.families).map(([fam, f]) => `<div class="fr-fam">${f.emoji} ${f[lg] || f.ko}</div>` +
         friendsManifest.stickers.filter((s) => s.family === fam).map((s) => `<img src="/assets/stickers/${s.id}.png" alt="${s[lg] || s.ko}" title="${s[lg] || s.ko}" data-id="${s.id}" loading="lazy" aria-pressed="${s.id === friendState.id}">`).join('')).join('');
-      const c = $('friendColors'); c.innerHTML = FRIEND_COLORS.map((x) => `<button class="chip" type="button" data-color="${x}" style="background:${x}" aria-pressed="${x === friendState.color}" aria-label="${x}"></button>`).join('');
+      const c = $('friendColors'); c.innerHTML = FRIEND_COLORS.map((x) => `<button class="chip" type="button" data-color="${x}" style="background:${x}" aria-pressed="${x === friendState.color}" aria-label="${x}"></button>`).join('')
+        + FRIEND_PLATES.map((p) => `<button class="chip" type="button" data-color="plate:${p}" style="background:url('/assets/plate_${p}.jpg') center/cover" aria-pressed="${'plate:' + p === friendState.color}" aria-label="${p}" title="${p.toUpperCase()}"></button>`).join('');
       $('friendSizes').querySelectorAll('.chip').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.size === friendState.size)));
       $('friendOpts').hidden = !friendState.id;
     }
@@ -1901,20 +1905,28 @@
     function composeFriendPlate() {
       return new Promise((resolve, reject) => {
         const W = 832, H = 1334, cv = document.createElement('canvas'); cv.width = W; cv.height = H; const ctx = cv.getContext('2d');
-        const dark = parseInt(friendState.color.slice(1), 16) < 0x808080;
+        const dark = friendIsDark();
+        const drawSticker = () => {
+          const img = new Image(); img.onload = () => {
+            // 크기: 아주 작게(배지) ~ 꽉 차게(카드 폭을 거의 다 쓰고 아래로 살짝 넘침)
+            const box = { xs: 240, sm: 400, md: 560, lg: 720, xl: 900 }[friendState.size] || 560;
+            const sc = Math.min(box / img.width, box / img.height), w = img.width * sc, h = img.height * sc, x = (W - w) / 2;
+            const y = friendState.size === 'xl' ? 90 : friendState.size === 'xs' ? 120 : 150 + (box - h) / 2;
+            ctx.fillStyle = 'rgba(0,0,0,.12)'; ctx.beginPath(); ctx.ellipse(W / 2, Math.min(y + h - 6, H - 40), w * .36, 20, 0, 0, Math.PI * 2); ctx.fill();
+            ctx.drawImage(img, x, y, w, h);
+            resolve(cv.toDataURL('image/jpeg', .82));
+          }; img.onerror = reject; img.src = '/assets/stickers/' + friendState.id + '.png';
+        };
+        if (friendState.color.startsWith('plate:')) {   // 메탈 플레이트 위에
+          const pl = new Image(); pl.onload = () => { ctx.drawImage(pl, 0, 0, W, H); drawSticker(); }; pl.onerror = reject; pl.src = '/assets/plate_' + friendState.color.slice(6) + '.jpg'; return;
+        }
         const g = ctx.createLinearGradient(0, 0, 0, H); g.addColorStop(0, friendState.color); g.addColorStop(1, shadeHex(friendState.color, dark ? 22 : -34));
         ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
         ctx.fillStyle = 'rgba(255,255,255,' + (dark ? .18 : .4) + ')';
         for (let i = 0; i < 38; i++) { ctx.beginPath(); ctx.arc((i * 151) % W, (i * 283) % H, dark ? 2 + (i % 3) : 6 + (i % 4) * 3, 0, Math.PI * 2); ctx.fill(); }
         const rg = ctx.createRadialGradient(W / 2, H * .38, 10, W / 2, H * .38, W * .55); rg.addColorStop(0, 'rgba(255,255,255,' + (dark ? .14 : .5) + ')'); rg.addColorStop(1, 'rgba(255,255,255,0)');
         ctx.fillStyle = rg; ctx.fillRect(0, 0, W, H);
-        const img = new Image(); img.onload = () => {
-          const box = { sm: 400, md: 560, lg: 700 }[friendState.size] || 560;
-          const sc = Math.min(box / img.width, box / img.height), w = img.width * sc, h = img.height * sc, x = (W - w) / 2, y = 150 + (box - h) / 2;
-          ctx.fillStyle = 'rgba(0,0,0,.12)'; ctx.beginPath(); ctx.ellipse(W / 2, y + h - 6, w * .36, 20, 0, 0, Math.PI * 2); ctx.fill();
-          ctx.drawImage(img, x, y, w, h);
-          resolve(cv.toDataURL('image/jpeg', .82));
-        }; img.onerror = reject; img.src = '/assets/stickers/' + friendState.id + '.png';
+        drawSticker();
       });
     }
     async function applyFriend() {
@@ -1924,7 +1936,7 @@
         card.friend = Object.assign({}, friendState);
         setBg({ type: 'image', src }, 'friend');
         if (!textTouched) { card.front.text.layout = 'bottom-center'; pressOnly($('textChips'), 'layout', 'bottom-center'); }
-        card.front.frameTone = parseInt(friendState.color.slice(1), 16) < 0x808080 ? 'dark' : 'light';
+        card.front.frameTone = friendIsDark() ? 'dark' : 'light';
         renderFriendGrid(); render();
       } catch (e) { toast(t('maker.publish_fail')); }
     }
@@ -2756,6 +2768,8 @@
       }
       else if (params.get('friend')) {
         friendState.id = String(params.get('friend')).replace(/[^a-z0-9-]/g, '');
+        const bgp = params.get('bg') || ''; if (/^#[0-9a-f]{6}$/i.test(bgp)) friendState.color = bgp; else if (FRIEND_PLATES.includes(bgp)) friendState.color = 'plate:' + bgp;
+        if (['xs', 'sm', 'md', 'lg', 'xl'].includes(params.get('size'))) friendState.size = params.get('size');
         loadFriends().then(() => { if (friendsManifest && friendsManifest.stickers.some((s) => s.id === friendState.id)) applyFriend(); else render(); });
       }
       else if (preset && (DESIGNS.some((d) => d.key === (START_ALIAS[preset] || preset)) || LEGACY_PRESETS[START_ALIAS[preset] || preset])) {
