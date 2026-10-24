@@ -2105,7 +2105,7 @@
       const img = isImageBg(), sol = isSolidBg();
       const up = currentBgId === 'upload';
       $('photoAdjust').hidden = !up; $('solidAdjust').hidden = !sol; $('photoOff').hidden = true;
-      $('photoCta').hidden = up; $('photoRe').hidden = !up; $('fxField').hidden = !up; $('lookField').hidden = !up;
+      $('photoCta').hidden = up; $('photoRe').hidden = !up; $('fxField').hidden = true;   /* 사람 오리기는 결과가 거칠어서 끔: 사진은 원본 그대로 */ $('lookField').hidden = !up;
       if (sol) {
         const b = card.front.bg, c = String(b.color || '').toLowerCase();
         document.querySelectorAll('#solidChips .tint[data-color]').forEach((el) => el.setAttribute('aria-pressed', el.dataset.color === c ? 'true' : 'false'));
@@ -2639,7 +2639,7 @@
       const draft = (!edit && !sample && !params.get('preset')) ? loadDraft() : null;
       if (draft) {
         applyCardData(draft.card, draft.slugInput, false);
-        if (draft.orig && currentBgId === 'upload') photoOrig = draft.orig;
+        if (draft.orig && currentBgId === 'upload') { photoOrig = draft.orig; if (card.front.bg.src !== draft.orig) commitFx(draft.orig); }   // 예전에 오려 둔 사진은 원본으로 되돌린다
         if (backFromLogin) { if (isMobile()) { currentTab = ''; openTab('publish'); } toast(t('maker.draft_back')); }
         else setTimeout(() => toastAction(t('maker.draft_loaded'), t('maker.draft_new'), () => { clearDraft(); location.replace('/maker'); }), 600);
       }
