@@ -410,6 +410,7 @@
     .lt-chip { appearance: none; font: 700 13px 'Noto Sans KR', sans-serif; color: rgba(255,255,255,.8); background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.18); border-radius: 99px; padding: 9px 14px; cursor: pointer; }
     .lt-chip.on { color: #1a1205; background: #ffd978; border-color: #ffd978; }
     .btn-minihome { border-color: rgba(255,217,120,.6) !important; color: #ffd978 !important; }
+    .owner-hint { display: block; margin-top: 8px; text-align: center; font-size: 12px; font-weight: 800; color: #ffd978; text-decoration: none; border: 1px dashed rgba(255,217,120,.5); border-radius: 10px; padding: 8px; }
     .owner-bar { display: none; position: fixed; z-index: 70; top: calc(10px + env(safe-area-inset-top, 0px)); right: 12px; gap: 6px; }
     .owner-bar.on { display: flex; }
     .owner-bar a { padding: 8px 12px; border-radius: 99px; font: 800 12px 'Noto Sans KR', sans-serif; text-decoration: none; color: #1a1205; background: #ffd978; box-shadow: 0 4px 14px rgba(0,0,0,.4); }
@@ -2269,6 +2270,13 @@
           if (data && data.user_id === session.user.id) {
             document.getElementById('ownerEdit').href = '/maker?edit=' + encodeURIComponent(slug);
             document.getElementById('ownerBar').classList.add('on');
+            // 내 카드에 SNS·링크가 없으면 뒷면에 "추가하기" 안내 (방문자에게는 안 보인다)
+            try {
+              const cd = window.cardData || window.INITIAL_CARD_DATA || {};
+              const n = ((cd.socials || []).filter((s) => s && s.url).length) + ((cd.links || []).filter((l) => l && l.url).length);
+              const dock = document.getElementById('insideActionDockBack');
+              if (!n && dock && !dock.querySelector('.owner-hint')) dock.insertAdjacentHTML('beforeend', `<a class="owner-hint" href="/maker?edit=${encodeURIComponent(slug)}&tab=info" onclick="event.stopPropagation()">＋ ${(window.i18n ? i18n.t('card.owner_add_sns') : 'SNS·링크 추가하기')}</a>`);
+            } catch (e2) {}
             if (window.i18n && i18n.apply) i18n.apply(document.getElementById('ownerBar'));
           }
         } catch (e) {}

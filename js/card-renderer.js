@@ -188,7 +188,13 @@ function renderActionDocks(data) {
     html = items.slice(0, 6).map((it) => `<div class="inside-action-row">${linkButtonHtml(it)}</div>`).join('');
   } else {
     // 기본·큰 로고: 카드에는 2개, 나머지는 더보기 시트
-    html = items.length ? `<div class="inside-action-row">${items.slice(0, 2).map(linkButtonHtml).join('')}</div>` : '';
+    // 링크가 없거나 하나뿐이면 누구에게나 쓸모 있는 기본 버튼으로 채운다 (뒷면이 비어 보이지 않게)
+    const fillers = [
+      `<button class="btn-action btn-glass" onclick="event.stopPropagation(); downloadVCard();" title="${escHtml(t('card.save_contact_btn'))}"><i data-lucide="user-plus" style="width: 14px; height: 14px; color: #ffd978;"></i><span>${escHtml(t('card.save_contact_btn'))}</span></button>`,
+      `<button class="btn-action btn-glass" onclick="event.stopPropagation(); openShareModal();" title="${escHtml(t('card.share_btn'))}"><i data-lucide="qr-code" style="width: 14px; height: 14px; color: #38bdf8;"></i><span>${escHtml(t('card.share_btn'))}</span></button>`
+    ];
+    const firstRow = items.slice(0, 2).map(linkButtonHtml).concat(fillers).slice(0, 2);
+    html = `<div class="inside-action-row">${firstRow.join('')}</div>`;
     rest = items.slice(2);
     // 3번째부터의 SNS는 카드에 아이콘 줄로 보여 주고, 전체 목록은 더보기에도 둔다
     const icons = rest.filter((it) => it.kind === 'social' && it.type !== 'social_modal' && it.url).slice(0, 6);
