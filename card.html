@@ -435,6 +435,8 @@
     .owner-bar a { padding: 8px 12px; border-radius: 99px; font: 800 12px 'Noto Sans KR', sans-serif; text-decoration: none; color: #1a1205; background: #ffd978; box-shadow: 0 4px 14px rgba(0,0,0,.4); }
     .owner-bar a.g { color: #ffd978; background: rgba(8,6,14,.78); border: 1px solid rgba(255,217,120,.5); backdrop-filter: blur(8px); }
     body.in-simulator .owner-bar, body.maker-embed .owner-bar { display: none !important; }
+    /* 메이커 미리보기에서는 문의·공유 같은 창이 카드를 덮지 않게 한다 (뒷면 아이콘을 눌러도 안 열린다) */
+    body.in-simulator .modal-overlay, .maker-embed .modal-overlay { display: none !important; }
     #phoneValue.masked, #emailValue.masked { opacity: .55; letter-spacing: .04em; }
     body.star-public #contactLine { display: flex !important; }
     .tc-hl { outline: 2px solid #ffd978; outline-offset: 5px; border-radius: 10px; box-shadow: 0 0 26px rgba(255,217,120,.55); transition: box-shadow .2s, outline-color .2s; }
