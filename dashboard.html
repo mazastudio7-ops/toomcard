@@ -82,6 +82,13 @@
     .cc svg { width: 100%; height: auto; display: block; }
     .cc .bar { cursor: pointer; } .cc .bar:hover, .cc .bar.sel { opacity: .8; }
     .cc .empty { font-size: 12.5px; color: rgba(255,255,255,.45); padding: 10px 0; }
+    .donut { display: flex; align-items: center; gap: 14px; }
+    .donut svg { width: 120px; height: 120px; flex: none; }
+    .dlg { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 5px; }
+    .dl { display: flex; align-items: center; gap: 7px; font-size: 12.5px; }
+    .dl i { width: 10px; height: 10px; border-radius: 3px; flex: none; }
+    .dl .nm { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: rgba(255,255,255,.78); }
+    .dl b { font-weight: 800; } .dl small { color: rgba(255,255,255,.45); min-width: 30px; text-align: right; }
     .crow { display: flex; align-items: center; gap: 8px; font-size: 12.5px; margin: 5px 0; }
     .crow .nm { flex: 0 0 38%; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: rgba(255,255,255,.75); }
     .crow .tr { flex: 1; height: 10px; border-radius: 99px; background: rgba(255,255,255,.07); overflow: hidden; }
@@ -515,6 +522,16 @@
       const lab = `<text x="4" y="${H - 3}" font-size="10" fill="rgba(255,255,255,.45)">${cmd(days[0].d)}</text><text x="${W - 4}" y="${H - 3}" font-size="10" text-anchor="end" fill="rgba(255,255,255,.45)">${cmd(days[n - 1].d)}</text><text x="${W - 4}" y="10" font-size="10" text-anchor="end" fill="rgba(255,255,255,.45)">max ${max}</text>`;
       return `<svg viewBox="0 0 ${W} ${H}" role="img">${gl}${bars}${lab}</svg>`;
     }
+    /* 도넛: 비율은 도넛, 숫자는 옆 범례 (보험 쪽에서 가장 익숙한 모양) */
+    const DONUT_COLORS = ['#ffd978', '#a78bfa', '#7dd3fc', '#4ade80', '#fb7185', '#fbbf24'];
+    function donutHtml(list, colors) {
+      const tot = list.reduce((a, x) => a + x.n, 0); if (!tot) return '';
+      const R = 42, C = 2 * Math.PI * R; let off = 0;
+      const segs = list.map((x, i) => { const len = x.n / tot * C; const s = `<circle r="${R}" cx="60" cy="60" fill="none" stroke="${colors[i % colors.length]}" stroke-width="16" stroke-dasharray="${len.toFixed(2)} ${(C - len).toFixed(2)}" stroke-dashoffset="${(-off).toFixed(2)}" transform="rotate(-90 60 60)"></circle>`; off += len; return s; }).join('');
+      const top = list[0], pct = Math.round(top.n / tot * 100);
+      const legend = list.map((x, i) => `<div class="dl"><i style="background:${colors[i % colors.length]}"></i><span class="nm">${lesc(x.name)}</span><b>${x.n}</b><small>${Math.round(x.n / tot * 100)}%</small></div>`).join('');
+      return `<div class="donut"><svg viewBox="0 0 120 120" role="img">${segs}<text x="60" y="56" text-anchor="middle" font-size="18" font-weight="900" fill="#fff">${pct}%</text><text x="60" y="72" text-anchor="middle" font-size="9" fill="rgba(255,255,255,.55)">${lesc(String(top.name).slice(0, 10))}</text></svg><div class="dlg">${legend}</div></div>`;
+    }
     function rowsHtml(list, color) { const mx = Math.max(1, ...list.map((x) => x.n)); return list.map((x) => `<div class="crow"><span class="nm">${lesc(x.name)}</span><span class="tr"><i style="width:${Math.max(4, Math.round(x.n / mx * 100))}%;background:${color}"></i></span><span class="v">${x.n}</span></div>`).join(''); }
     function renderCharts() {
       const box = $('chartBox'); if (!cData || !cData.days) { box.hidden = true; return; }
@@ -524,10 +541,10 @@
       $('chViews').innerHTML = sumV ? barSvg(days, 'views', '#a78bfa') : `<p class="empty">${T('cEmpty')}</p>`;
       $('chLeads').innerHTML = sumL ? barSvg(days, 'leads', '#ffd978') : `<p class="empty">${T('cEmptyL')}</p>`;
       const ch = (cData.lead_channels && cData.lead_channels.length ? cData.lead_channels : cData.view_channels) || [];
-      $('chChan').innerHTML = ch.length ? rowsHtml(ch, '#7dd3fc') : `<p class="empty">${T('cEmpty')}</p>`;
+      $('chChan').innerHTML = ch.length ? donutHtml(ch, DONUT_COLORS) : `<p class="empty">${T('cEmpty')}</p>`;
       const f = cData.funnel || {}, tot = Object.values(f).reduce((a, b) => a + Number(b), 0);
       const steps = [['new', f.new], ['contacted', f.contacted], ['talking', f.talking], ['won', f.won]].map(([k, v]) => ({ name: T('l_' + k), n: Number(v || 0) }));
-      $('chFun').innerHTML = tot ? rowsHtml(steps, '#ffd978') : `<p class="empty">${T('cEmptyL')}</p>`;
+      $('chFun').innerHTML = tot ? donutHtml(steps.filter((x) => x.n > 0), ['#a78bfa', '#7dd3fc', '#ffd978', '#4ade80']) : `<p class="empty">${T('cEmptyL')}</p>`;
       $('cvFun').textContent = tot ? T('cWon').replace('{p}', Math.round(Number(f.won || 0) / tot * 100)) : '';
       renderToday(); renderChLinks();
       box.hidden = false;

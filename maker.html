@@ -279,6 +279,9 @@
     .tint.custom { position: relative; overflow: hidden; background: conic-gradient(#ff4d4d, #ffd24d, #4dff88, #4dd2ff, #7a4dff, #ff4dd2, #ff4d4d); }
     .tint.custom input { position: absolute; inset: -8px; width: 50px; height: 50px; opacity: 0; cursor: pointer; }
     .sns-row { display: grid; grid-template-columns: 110px 1fr 34px; gap: 8px; margin-top: 8px; }
+    .idfield .url-preview { border-color: rgba(255,217,120,.45); }
+    body:not(.is-admin) #fLetter, body:not(.is-admin) #slashSp { display: none !important; }
+    body:not(.is-admin) .url-preview > span:first-child::after { content: 'a/'; }
     .extra-row { display: grid; grid-template-columns: 92px 1fr 34px; gap: 8px; margin-bottom: 8px; }
     .x-del { background: none; border: 1px solid var(--tc-border); border-radius: 8px; color: var(--tc-text-subtle); font-size: 16px; cursor: pointer; }
     #addLinkBtn[hidden] { display: none; }
@@ -428,6 +431,11 @@
       <!-- 1. 기본 정보 -->
       <section class="section" id="secInfo" data-tab="info" data-side="back">
         <div class="section-title"><i data-lucide="user"></i><span data-i18n="maker.sec_info">1. 기본 정보</span></div>
+        <div class="field idfield">
+          <label><span data-i18n="maker.slug">아이디 (명함 주소)</span> <span style="font-weight:600;opacity:.6;" data-i18n="maker.slug_hint">영문·숫자 3~20자 · 인스타그램처럼 먼저 정해요</span></label>
+          <div class="url-preview"><span>toomcard.com/</span><select id="fLetter" aria-label="a"></select><span id="slashSp">/</span><input id="fSlug" placeholder="my_id" data-i18n-placeholder="maker.slug_ph" autocapitalize="off" autocomplete="off" spellcheck="false" maxlength="20" inputmode="latin"></div>
+          <div class="slug-msg" id="slugMsg"></div>
+        </div>
         <div class="seg" id="kindSeg">
           <button type="button" data-kind="personal" aria-pressed="true" data-i18n="maker.kind_personal">일반</button>
           <button type="button" data-kind="business" data-i18n="maker.kind_business">비즈니스</button>
@@ -720,11 +728,6 @@
       <div class="sheet-head"><span class="sheet-title"></span><button type="button" onclick="closeSheet()" data-i18n="maker.done">완료</button></div>
       <section class="section" id="secPublish" data-tab="publish">
         <div class="section-title"><i data-lucide="globe"></i><span data-i18n="maker.sec_publish">발행</span></div>
-        <div class="field">
-          <label><span data-i18n="maker.slug">명함 주소</span> <span style="font-weight:600;opacity:.6;" data-i18n="maker.slug_hint">비워두면 자동 생성</span></label>
-          <div class="url-preview"><span>toomcard.com/</span><select id="fLetter" aria-label="a"></select><span id="slashSp">/</span><input id="fSlug" placeholder="alex" data-i18n-placeholder="maker.slug_ph" autocapitalize="off" autocomplete="off"></div>
-          <div class="slug-msg" id="slugMsg"></div>
-        </div>
         <!-- 이젠스타(자랑 피드): 켜면 검토 후 홈 이젠스타 탭에 올라간다. 전화·이메일은 기본 비공개 -->
         <div class="star-box">
           <div class="toggle"><span><b data-i18n="maker.star_on">이젠스타에 올리기</b><small class="star-desc" data-i18n="maker.star_desc">검토 후 홈 '이젠스타' 탭에 올라가요. 좋아요를 받고 내 링크를 홍보할 수 있어요.</small></span><button class="switch" id="starSwitch" role="switch" aria-checked="false" type="button"></button></div>
@@ -914,12 +917,12 @@
     const t = (k, v) => (window.i18n ? i18n.t(k, v) : k);
 
     /* ── 렌더 ───────────────────────────────────────── */
-    function slugify(v) { return (v || '').toLowerCase().replace(/[^a-z0-9가-힣_-]/g, '').slice(0, 40); }
+    function slugify(v) { return (v || '').toLowerCase().replace(/[^a-z0-9._-]/g, '').replace(/^[._-]+/, '').slice(0, 20); }   // 아이디는 영문·숫자만 (인스타그램처럼)
     /* 주소: toomcard.com/<글자>/<이름> — 같은 이름은 글자(a, b, c …)로 구분한다. 글자 없는 맨 앞 주소는 관리자·예전 카드만 */
     const LETTERS = 'abcdefghijklmnopqrstuvwxyz'.split('');
     let lockedSlug = '', rootSlug = false, letterTouched = false, slugTimer = 0, slugSeq = 0, adminOpt = false, slugOk = true;
     $('fLetter').innerHTML = LETTERS.map((l) => `<option value="${l}">${l}</option>`).join(''); $('fLetter').value = 'a';
-    function slugName() { return slugify($('fSlug').value) || slugify($('fName').value); }
+    function slugName() { return slugify($('fSlug').value); }
     function curSlug() { if (lockedSlug) return lockedSlug; const n = slugName(); if (!n) return ''; const l = $('fLetter').value; return (rootSlug || !l) ? n : l + '/' + n; }
     function syncRootUI() { $('fLetter').style.display = rootSlug ? 'none' : ''; $('slashSp').style.display = rootSlug ? 'none' : ''; }
     function setSlugInputs(slug) {
@@ -930,13 +933,21 @@
       else { $('fLetter').value = 'a'; $('fSlug').value = ''; letterTouched = false; }
       syncRootUI();
     }
+    $('fSlug').addEventListener('input', () => { const v = $('fSlug').value, c = slugify(v); if (v !== c) { $('fSlug').value = c; if (/[가-힣]/.test(v)) { const m = $('slugMsg'); m.className = 'slug-msg warn'; m.textContent = t('maker.slug_en_only'); return; } } });
+    // 로그인돼 있고 아이디가 비어 있으면 구글 이메일 앞부분을 제안한다 (새 카드일 때만)
+    async function suggestIdFromLogin() {
+      try { if ($('fSlug').value || lockedSlug || rootSlug || editLoaded) return; await ensureCloud(); const u = await getCurrentUser(); const local = u && u.email ? slugify(u.email.split('@')[0]) : ''; if (local && !$('fSlug').value) { $('fSlug').value = local; checkSlug(); } } catch (e) {}
+    }
     async function checkSlug() {
       const msg = $('slugMsg'), name = slugName();
       const say = (cls, txt) => { msg.className = 'slug-msg ' + cls; msg.textContent = txt; };
-      if (rootSlug || !$('fLetter').value || !name) { slugOk = true; say('', rootSlug ? t('maker.slug_root') : t('maker.slug_note')); return true; }
+      if (rootSlug) { slugOk = true; say('', t('maker.slug_root')); return true; }
+      if (!name) { slugOk = false; say('', t('maker.slug_note')); return false; }
+      if (name.length < 3) { slugOk = false; say('warn', t('maker.slug_short')); return false; }
+      if (!$('fLetter').value) { slugOk = true; say('', t('maker.slug_root')); return true; }
       const seq = ++slugSeq;
       try { await ensureCloud(); } catch (e) { return true; }
-      if (!adminOpt) { adminOpt = true; try { const r = await supabaseClient.rpc('tc_is_admin'); if (r && r.data === true) $('fLetter').insertAdjacentHTML('afterbegin', '<option value="">·</option>'); } catch (e) {} }
+      if (!adminOpt) { adminOpt = true; try { const r = await supabaseClient.rpc('tc_is_admin'); if (r && r.data === true) { document.body.classList.add('is-admin'); $('fLetter').insertAdjacentHTML('afterbegin', '<option value="">·</option>'); } } catch (e) {} }
       const { data, error } = await supabaseClient.from('pods').select('slug,user_id').in('slug', LETTERS.map((l) => l + '/' + name));
       if (seq !== slugSeq) return slugOk;
       if (error) return true;
@@ -953,6 +964,7 @@
     $('fSlug').addEventListener('input', schedSlug); $('fName').addEventListener('input', schedSlug);
     $('fLetter').addEventListener('change', () => { letterTouched = true; schedSlug(); render(false, 260); });
     document.addEventListener('i18n:change', () => checkSlug()); document.addEventListener('DOMContentLoaded', () => checkSlug());
+    document.addEventListener('DOMContentLoaded', () => { if (!new URLSearchParams(location.search).get('edit')) setTimeout(suggestIdFromLogin, 1200); });
 
     /* ── 추가 링크 (최대 3개) ───────────────────────── */
     const MAX_EXTRA = 3;
@@ -2027,7 +2039,7 @@
         toast(t('maker.publishing'));
         const consent = { ageConfirmed: true, lang: (window.i18n && i18n.lang) || 'ko', at: new Date().toISOString() };
         const { pub, priv } = splitPrivate(c);
-        if (!(await checkSlug())) { btn.disabled = false; toast(t('maker.slug_pick')); return; }
+        if (!(await checkSlug())) { btn.disabled = false; toast(t('maker.slug_pick')); if (isMobile()) openTab('info'); $('fSlug').focus(); return; }
         c.slug = curSlug() || c.slug; c.id = c.slug;   // 확인하면서 글자가 바뀌었을 수 있다
         const res = await syncPodToCloud(c.slug, { name: c.name, handle: c.role, bio: c.company, theme: c.theme }, { ...pub, card: pub, consent });
         btn.disabled = false;
