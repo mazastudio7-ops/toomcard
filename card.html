@@ -410,6 +410,12 @@
     .lt-chip { appearance: none; font: 700 13px 'Noto Sans KR', sans-serif; color: rgba(255,255,255,.8); background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.18); border-radius: 99px; padding: 9px 14px; cursor: pointer; }
     .lt-chip.on { color: #1a1205; background: #ffd978; border-color: #ffd978; }
     .btn-minihome { border-color: rgba(255,217,120,.6) !important; color: #ffd978 !important; }
+    .back-sparse { display: flex; flex-direction: column; align-items: center; gap: 7px; margin: 4px 0 14px; }
+    .back-sparse[hidden] { display: none; }
+    .bsq { width: 92px; height: 92px; padding: 7px; background: #fff; border-radius: 14px; box-shadow: 0 6px 18px rgba(0,0,0,.45); }
+    .bsq img, .bsq canvas { width: 100% !important; height: 100% !important; display: block; }
+    .bsq-t { font-size: 11px; color: rgba(255,255,255,.55); letter-spacing: .02em; }
+    .card-scene.back-sparse-on .back-info-container { margin-top: 0 !important; }
     .owner-hint { display: block; margin-top: 8px; text-align: center; font-size: 12px; font-weight: 800; color: #ffd978; text-decoration: none; border: 1px dashed rgba(255,217,120,.5); border-radius: 10px; padding: 8px; }
     .owner-bar { display: none; position: fixed; z-index: 70; top: calc(10px + env(safe-area-inset-top, 0px)); right: 12px; gap: 6px; }
     .owner-bar.on { display: flex; }
@@ -1928,6 +1934,11 @@
             <div class="back-info-container">
               <div class="back-company-name" id="backCompany"></div>
               <div class="back-company-slogan" id="backSlogan"></div>
+              <!-- 정보가 적은 카드: 가운데를 QR로 채운다 (스캔하면 바로 이 명함) -->
+              <div class="back-sparse" id="backSparse" hidden>
+                <div class="bsq" id="backSparseQr"></div>
+                <span class="bsq-t" data-i18n="card.sparse_qr">카메라로 스캔하면 이 명함이 열려요</span>
+              </div>
 
               <div class="profile-row">
                 <span class="role-title" id="roleTitle"></span>

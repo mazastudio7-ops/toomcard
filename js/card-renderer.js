@@ -173,6 +173,23 @@ function applyBackLayout(data) {
   if (mode !== 'default') scene.classList.add(`back-${mode}`);
 }
 
+// 정보가 적은 카드(소개·알약·링크가 거의 없음): 뒷면 가운데에 QR 을 넣어 비어 보이지 않게 한다
+function renderSparseBack(data, items) {
+  const box = document.getElementById('backSparse'), scene = document.getElementById('cardScene');
+  if (!box) return;
+  const sparse = (data.backLayout || 'default') === 'default' && !String(data.slogan || '').trim() && !(data.moatTags || []).length && (items || []).length <= 1;
+  box.hidden = !sparse; if (scene) scene.classList.toggle('back-sparse-on', sparse);
+  if (!sparse) return;
+  // 미니홈 소개 첫 줄을 한 줄 소개로 (소개가 비어 있을 때만)
+  const slog = document.getElementById('backSlogan');
+  if (slog && !slog.textContent.trim() && data.page && data.page.on && data.page.intro) slog.textContent = String(data.page.intro).split('\n')[0].slice(0, 60);
+  const target = document.getElementById('backSparseQr');
+  const url = qrBaseUrl();
+  if (target.dataset.url === url) return;
+  target.innerHTML = ''; target.dataset.url = url;
+  if (typeof QRCode === 'undefined') return;
+  try { new QRCode(target, { text: url, width: 156, height: 156, colorDark: '#0c0a14', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M }); } catch (e) {}
+}
 function renderActionDocks(data) {
   const dockFront = document.getElementById('insideActionDockFront');
   const dockBack = document.getElementById('insideActionDockBack');
@@ -202,6 +219,7 @@ function renderActionDocks(data) {
   }
   if (dockFront) dockFront.innerHTML = html;
   if (dockBack) dockBack.innerHTML = html;
+  renderSparseBack(data, items);
   if (moreBox && moreList) {
     moreList.innerHTML = rest.map(linkButtonHtml).join('');
     moreBox.hidden = rest.length === 0;
