@@ -445,6 +445,7 @@
     .toast.show { pointer-events: auto; }
     @media (max-width: 980px) { .toast { bottom: calc(var(--tabbar-h, 62px) + 78px + env(safe-area-inset-bottom)); max-width: calc(100vw - 32px); } }
     .toast-act { margin-left: 12px; appearance: none; border: 0; border-radius: 99px; padding: 6px 12px; background: var(--tc-accent); color: #000; font: 800 12.5px var(--tc-font-body); cursor: pointer; }
+    .more-opt { margin-top: 6px; border-top: 1px solid var(--tc-border); padding-top: 10px; } .more-opt > summary { cursor: pointer; font-weight: 800; font-size: 13.5px; color: var(--tc-text-subtle); padding: 4px 0 10px; list-style: none; } .more-opt > summary::before { content: '+ '; } .more-opt[open] > summary::before { content: '− '; } .more-opt[open] { display: flex; flex-direction: column; gap: 14px; }
     .car-thumb { overflow: hidden; }
     /* 폰도 날개 없이 카드 하나만 (디자인은 '앞면' 줄에서 고른다) */
     @media (max-width: 980px) { .car-stack, .car-nav, .car-label, .sug-pill { display: none !important; } }
@@ -677,7 +678,7 @@
         <div class="field"><input type="file" id="logoFile" accept="image/*" class="input" style="padding-top:8px;"></div>
         <div class="field"><label data-i18n="maker.logo_shape">로고 모양</label><div class="chips" id="logoShapeChips"><button class="chip" type="button" data-shape="" aria-pressed="true" data-i18n="maker.logo_shape_auto">자동</button><button class="chip" type="button" data-shape="square" aria-pressed="false" data-i18n="maker.logo_shape_square">사각</button><button class="chip" type="button" data-shape="circle" aria-pressed="false" data-i18n="maker.logo_shape_circle">원</button></div></div>
         <div class="toggle"><span data-i18n="maker.show_logo">앞면에도 로고 표시</span><button class="switch" id="logoSwitch" role="switch" aria-checked="false"></button></div>
-        <div class="hr"></div>
+        <details class="more-opt"><summary data-i18n="maker.logo_more">로고가 없을 때 · 엠블럼 꾸미기 · 3D 제작</summary>
         <div class="section-title"><i data-lucide="badge-check"></i><span data-i18n="maker.sec_logo">금속 엠블럼</span></div>
         <p class="section-hint" data-i18n="maker.emblem_hint">로고가 없을 때 이름 이니셜로 금속 엠블럼을 만들어 뒷면에 달아요. 로고를 올리면 자동으로 꺼져요.</p>
         <div class="toggle"><span data-i18n="maker.emblem_on">엠블럼 쓰기</span><button class="switch" id="emblemSwitch" role="switch" aria-checked="true"></button></div>
@@ -725,6 +726,7 @@
         <div class="hr"></div>
         <button type="button" class="btn-secondary" onclick="openOrderModal()"><i data-lucide="sparkles"></i><span data-i18n="maker.order_btn">내 로고 3D로 제작 신청</span></button>
         <p class="photo-off" data-i18n="maker.order_note">전문 디자이너가 움직이는 3D 로고(GIF·영상)를 만들어 드려요. 견적은 신청 후 안내해요.</p>
+        </details>
       </section>
 
       <!-- 4. 마감 -->
@@ -2527,7 +2529,7 @@
       $('stB_image').appendChild($('secPhoto'));
       // ③ 정보: 기본 칸만 (연결·광고·고급은 각자 단계로)
       const info = $('secInfo'); $('stB_info').appendChild(info);
-      const conn = [...info.querySelectorAll(':scope > .conn')], ad = [...info.querySelectorAll(':scope > .adfield')], adv = [...info.querySelectorAll(':scope > .adv')];
+      const conn = [...info.querySelectorAll(':scope > .conn')], ad = [...info.querySelectorAll(':scope > .adfield')], adv = [...info.querySelectorAll(':scope > .adv')].filter((el) => !el.querySelector('#fCompany'));   // 회사/브랜드는 정보 입력에 둔다
       // ④ SNS 자리: 칩으로 고르고(주소는 나중에), 밑에 주소 칸
       const chips = document.createElement('div'); chips.className = 'sns-chips'; chips.id = 'snsChips';
       const SLOTS = [['kakao', 'KakaoTalk'], ['whatsapp', 'WhatsApp'], ['instagram', 'Instagram'], ['youtube', 'YouTube'], ['tiktok', 'TikTok'], ['threads', 'Threads'], ['x', 'X'], ['linkedin', 'LinkedIn'], ['web', t('common.website')]];
@@ -2547,6 +2549,7 @@
         syncSnsChips(); render(true);
       });
       $('stB_ad').append(...ad);
+      { const ff = $('frameChips').closest('.field'), nx = $('stB_image').querySelector('.step-next'); if (ff) $('stB_image').insertBefore(ff, nx || null); }   // 틀은 사진을 다루는 단계에서
       $('stB_adv').append(...adv, $('secText'), $('secLogo'), $('secFinish'));
       // 단계 열고 닫기 · 다음
       box.querySelectorAll('.step-h').forEach((h) => h.addEventListener('click', () => { const s = h.parentElement; const was = s.classList.contains('open'); box.querySelectorAll('.step').forEach((x) => x.classList.remove('open')); if (!was) s.classList.add('open'); }));
