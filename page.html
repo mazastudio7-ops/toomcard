@@ -33,6 +33,18 @@
     .gal { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
     .gal img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 12px; display: block; cursor: zoom-in; background: #151128; }
     .gal img:first-child { grid-column: span 3; aspect-ratio: 16/10; }
+    .blk { padding: 18px 20px 0; }
+    .blk h2.ct { margin: 6px 0 2px; }
+    .blk p.tx { margin: 0; white-space: pre-wrap; line-height: 1.7; font-size: 14.5px; color: rgba(255,255,255,.88); }
+    .lk { display: flex; align-items: center; gap: 12px; padding: 14px; border-radius: 16px; background: var(--card); border: 1px solid var(--line); text-decoration: none; color: #fff; margin-top: 8px; }
+    .lk .ic { width: 38px; height: 38px; border-radius: 12px; display: grid; place-items: center; background: rgba(255,217,120,.12); font-size: 18px; flex: none; }
+    .lk .tt { flex: 1; min-width: 0; } .lk b { display: block; font-size: 14.5px; } .lk small { display: block; color: var(--mut); font-size: 12px; margin-top: 2px; }
+    .lk .ar { color: var(--mut); }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+    .gi { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 14px 8px; border-radius: 16px; background: var(--card); border: 1px solid var(--line); text-decoration: none; color: #fff; font-size: 13px; font-weight: 700; text-align: center; }
+    .gi .ic { font-size: 22px; }
+    .yt { position: relative; aspect-ratio: 16/9; border-radius: 16px; overflow: hidden; background: #000; margin-top: 8px; }
+    .yt iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
     .items { display: flex; flex-direction: column; gap: 8px; }
     .item { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 14px; background: var(--card); border: 1px solid var(--line); }
     .item .nm { flex: 1; min-width: 0; font-weight: 700; }
@@ -79,6 +91,7 @@
     <div class="head"><img class="lg" id="logo" alt="" hidden><div class="lg ini" id="ini" hidden></div><div><h1 id="title"></h1><div class="sub" id="sub"></div></div></div>
     <div class="chips" id="chips"></div>
     <section id="secIntro" hidden><div class="intro" id="intro"></div></section>
+    <div id="blocks"></div>
     <section id="secGal" hidden><h2 data-t="gal">사진</h2><div class="gal" id="gal"></div></section>
     <section id="secItems" hidden><h2 data-t="items">상품 · 가격</h2><div class="items" id="items"></div></section>
     <section id="secNews" hidden><h2 data-t="news">소식</h2><div class="news" id="news"></div></section>
@@ -132,6 +145,18 @@
     if (D.industryText || D.industry) chips.push(D.industryText || D.industry);
     $('chips').innerHTML = chips.map((c) => `<span class="chip">${esc(c)}</span>`).join('');
     if (P.intro) { $('intro').textContent = P.intro; $('secIntro').hidden = false; }
+    // 블록(순서대로): 제목 · 글 · 링크 · 그리드 · 유튜브 (세텁팟 멀티링크 방식)
+    const ytId = (u) => { const m = String(u || '').match(/(?:youtu\.be\/|v=|shorts\/|embed\/)([A-Za-z0-9_-]{6,})/); return m ? m[1] : ''; };
+    const blocksHtml = (P.blocks || []).map((b) => {
+      if (!b || !b.type) return '';
+      if (b.type === 'title') return `<div class="blk"><h2 class="ct">${esc(b.text)}</h2></div>`;
+      if (b.type === 'text') return `<div class="blk"><p class="tx">${esc(b.text)}</p></div>`;
+      if (b.type === 'link') return `<div class="blk"><a class="lk" href="${safe(b.url)}" target="_blank" rel="noopener"><span class="ic">${esc(b.icon || '🔗')}</span><span class="tt"><b>${esc(b.title)}</b>${b.desc ? `<small>${esc(b.desc)}</small>` : ''}</span><span class="ar">›</span></a></div>`;
+      if (b.type === 'grid') return `<div class="blk"><div class="grid2">${(b.items || []).slice(0, 8).map((it) => `<a class="gi" href="${safe(it.url)}" target="_blank" rel="noopener"><span class="ic">${esc(it.icon || '🔗')}</span>${esc(it.title)}</a>`).join('')}</div></div>`;
+      if (b.type === 'youtube') { const id = ytId(b.url); return id ? `<div class="blk">${b.title ? `<h2 class="ct">${esc(b.title)}</h2>` : ''}<div class="yt"><iframe src="https://www.youtube-nocookie.com/embed/${id}" title="YouTube" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div></div>` : ''; }
+      return '';
+    }).join('');
+    $('blocks').innerHTML = blocksHtml;
     if (P.gallery && P.gallery.length) { $('gal').innerHTML = P.gallery.map((u) => `<img src="${esc(u)}" alt="" loading="lazy">`).join(''); $('secGal').hidden = false; }
     if (P.items && P.items.length) { $('items').innerHTML = P.items.map((it) => `<div class="item"><div class="nm">${esc(it.name)}${it.note ? `<small>${esc(it.note)}</small>` : ''}</div><div class="pr">${esc(it.price)}</div></div>`).join(''); $('secItems').hidden = false; }
     if (P.news && P.news.length) { $('news').innerHTML = P.news.map((n) => `<div class="nw"><div class="d">${esc(n.date || '')}</div><b>${esc(n.title || '')}</b><p>${esc(n.text || '')}</p></div>`).join(''); $('secNews').hidden = false; }

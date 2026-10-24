@@ -44,7 +44,7 @@ module.exports = async (req, res) => {
     website: card.primaryAction && card.primaryAction.url && card.primaryAction.url !== '#' ? card.primaryAction.url : '',
     phone: starOn ? '' : (card.phone || ''), star: !!starOn,
     page: { title: page.title || '', intro: page.intro || '', gallery: (page.gallery || []).slice(0, 12), items: (page.items || []).slice(0, 20),
-            address: page.address || '', mapUrl: page.mapUrl || '', hours: page.hours || '', reviews: (page.reviews || []).slice(0, 10), news: (page.news || []).slice(0, 10) }
+            address: page.address || '', mapUrl: page.mapUrl || '', hours: page.hours || '', reviews: (page.reviews || []).slice(0, 10), news: (page.news || []).slice(0, 10), blocks: (page.blocks || []).slice(0, 20) }
   };
   const head = pub.page.title || pub.company || pub.name;
   const title = head === pub.name ? `${pub.name} - TOOMCARD` : `${head} | ${pub.name} - TOOMCARD`;
