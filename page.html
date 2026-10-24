@@ -235,14 +235,15 @@
         $('gbList').innerHTML = (data && data.length) ? data.map((g) => { const d = new Date(g.created_at); return `<div class="gbi"><div class="h">${esc(g.name)}<small>${d.getFullYear()}.${d.getMonth() + 1}.${d.getDate()}</small></div><p>${esc(g.body)}</p></div>`; }).join('') : `<p style="color:var(--mut);font-size:13px;margin:10px 2px 0">${T('gbEmpty')}</p>`;
       } catch (e) {}
     }
-    window.addEventListener('load', () => setTimeout(async () => {
+    // 큰 사진을 기다리지 않고 바로 숫자·나무를 불러온다
+    setTimeout(async () => {
       try {
         await lib();
         if (typeof recordPageView === 'function') recordPageView(D.slug);
         let tz = 'Asia/Seoul'; try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || tz; } catch (e) {}
         loadTree(tz); loadGb(); loadFw();
       } catch (e) {}
-    }, 300));
+    }, 0);
     // 툼 가든: 다녀간 사람(물)·일촌·방명록·좋아요로 자라는 나무
     let fwCount = 0;
     async function loadTree(tz) {

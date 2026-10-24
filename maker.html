@@ -240,6 +240,7 @@
     #emLogoField[hidden], #emTextField[hidden], #emblemControls[hidden] { display: none; }
     #emblemControls.off { opacity: 0.4; pointer-events: none; }
     .hr { height: 1px; background: var(--tc-border); margin: 2px 0; }
+    .btn-ai[hidden] { display: none; }
     .btn-ai { display: flex; flex-direction: column; align-items: center; gap: 2px; width: 100%; margin-top: 10px; padding: 12px; border-radius: 14px; border: 1px solid rgba(255,217,120,.55); background: linear-gradient(135deg, rgba(255,217,120,.16), rgba(168,85,247,.16)); color: #ffd978; font: 800 14px inherit; font-family: inherit; cursor: pointer; }
     .btn-ai small { font-weight: 600; font-size: 11.5px; color: rgba(255,255,255,.65); }
     .btn-ai i { width: 16px; height: 16px; }
@@ -1062,7 +1063,11 @@
     function schedSlug() { clearTimeout(slugTimer); slugTimer = setTimeout(checkSlug, 500); }
     $('fSlug').addEventListener('input', schedSlug);
     document.addEventListener('i18n:change', () => checkSlug()); document.addEventListener('DOMContentLoaded', () => checkSlug());
-    document.addEventListener('DOMContentLoaded', () => { if (!new URLSearchParams(location.search).get('edit')) setTimeout(suggestIdFromLogin, 1200); syncPageUI(); syncMlUI(); });
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!new URLSearchParams(location.search).get('edit')) setTimeout(suggestIdFromLogin, 1200);
+      else { const s = document.querySelector('#btnPublish span'); s.setAttribute('data-i18n', 'maker.save_edit'); s.textContent = t('maker.save_edit'); }   // 고치는 중이면 "저장하기"
+      syncPageUI(); syncMlUI();
+    });
 
     /* ── 추가 링크 (최대 3개) ───────────────────────── */
     const MAX_EXTRA = 3;
