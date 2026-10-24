@@ -2292,6 +2292,15 @@
           if (data && data.user_id === session.user.id) {
             document.getElementById('ownerEdit').href = '/maker?edit=' + encodeURIComponent(slug);
             document.getElementById('ownerBar').classList.add('on');
+            // 내 카드는 나에게 가리지 않는다: 비공개로 따로 저장한 전화·이메일을 불러와 보여 준다 (이젠스타 공개 보기는 그대로 가린다)
+            try {
+              const pv = typeof getMyPrivateCard === 'function' ? await getMyPrivateCard(slug) : null;
+              if (pv && !document.body.classList.contains('star-public') && typeof cardData !== 'undefined' && cardData && typeof populateCard === 'function') {
+                const nd = Object.assign({}, cardData, { phone: pv.phone || cardData.phone || '', email: pv.email || cardData.email || '', privateContact: false });
+                nd.vcard = Object.assign({}, cardData.vcard, pv.phone ? { tel: pv.phone } : {}, pv.email ? { email: pv.email } : {});
+                populateCard(nd);
+              }
+            } catch (e3) {}
             // 내 카드에서는 "나도 만들기" 대신 "내 명함 수정"으로 (새 카드를 만들러 가지 않게)
             const vb = document.getElementById('viralBadgeLink'); if (vb) vb.href = '/maker?edit=' + encodeURIComponent(slug);
             // 내 카드에 SNS·링크가 없으면 뒷면에 "추가하기" 안내 (방문자에게는 안 보인다)
