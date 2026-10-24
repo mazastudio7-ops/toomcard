@@ -2668,7 +2668,7 @@
     document.addEventListener('i18n:change', () => { syncEmblemUI(); setKind(kind); renderThemeChips(); renderStartChips(); renderCarousel(); if (currentTab) document.querySelectorAll('.sheet-title').forEach((el) => { el.textContent = t(TAB_TITLES[currentTab]); }); render(); });
     // 뷰어가 초기 렌더를 끝내면 card_ready를 보낸다. 그 뒤에 그려야 덮어써지지 않는다.
     window.addEventListener('message', (e) => {
-      if (e.data && e.data.action === 'swipe') { const d = e.data.dir === 'next' ? 1 : -1; goDesign(designIdx + d, d); return; }
+      if (e.data && e.data.action === 'swipe') { flip(e.data.dir === 'next' ? 'show_back' : 'show_front'); return; }   // 카드를 옆으로 밀면 디자인이 바뀌지 않고 앞·뒷면만 넘어간다 (디자인은 '디자인 가져오기'에서만)
       if (e.data && e.data.action === 'pan') { onPan(e.data.dx, e.data.dy); return; }
       if (e.data && e.data.action === 'pinch') { onPinch(e.data.ratio); return; }
       if (e.data && e.data.action === 'drag') { onDrag(e.data.dx); return; }
