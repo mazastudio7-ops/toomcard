@@ -111,6 +111,12 @@
 
     /* 배경 썸네일 */
     .bg-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 7px; }
+    .fr-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; margin-top: 6px; }
+    .fr-grid img { width: 100%; aspect-ratio: 1; object-fit: contain; padding: 6px; border-radius: 12px; background: rgba(255,255,255,.06); border: 1.5px solid transparent; cursor: pointer; transition: transform .12s; }
+    .fr-grid img:hover { transform: translateY(-2px); } .fr-grid img[aria-pressed="true"] { border-color: #ffd978; background: rgba(255,217,120,.16); }
+    .fr-grid .fr-fam { grid-column: 1 / -1; font-size: 12px; font-weight: 800; color: rgba(255,255,255,.6); margin-top: 4px; }
+    .fr-row { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+    .fr-colors .chip { width: 28px; height: 28px; padding: 0; border-radius: 50%; border: 2px solid rgba(255,255,255,.18); } .fr-colors .chip[aria-pressed="true"] { border-color: #ffd978; box-shadow: 0 0 0 2px rgba(255,217,120,.35); }
     .bg-thumb {
       aspect-ratio: 3 / 4; border-radius: 10px; cursor: pointer; overflow: hidden;
       border: 2px solid transparent; background-size: cover; background-position: center;
@@ -612,6 +618,16 @@
           <ul class="photo-perks"><li data-i18n="maker.perk1">사람만 오려서 배경 바꾸기</li><li data-i18n="maker.perk2">틀 8가지 (폴라로이드·필름·잡지 표지…)</li><li data-i18n="maker.perk3">크기·위치·색감 조절</li></ul>
         </div>
         <button type="button" class="btn-secondary" id="photoRe" onclick="pickPhoto()" hidden><i data-lucide="image-plus"></i><span data-i18n="maker.pick_photo">내 사진 고르기</span></button>
+        <div class="field" id="friendBox">
+          <label><span data-i18n="maker.friends">🐻 툼 프렌즈로 만들기</span></label>
+          <p class="photo-off" data-i18n="maker.friends_hint">사진 대신 툼돌이·툼냥이·툼깡이를 앞면에 그려요. 색과 크기를 바꿀 수 있어요.</p>
+          <div class="fr-grid" id="friendGrid"></div>
+          <div class="fr-row" id="friendOpts" hidden>
+            <div class="chips fr-colors" id="friendColors"></div>
+            <div class="chips" id="friendSizes"><button class="chip" type="button" data-size="sm" data-i18n="maker.size_sm">작게</button><button class="chip" type="button" data-size="md" aria-pressed="true" data-i18n="maker.size_md">보통</button><button class="chip" type="button" data-size="lg" data-i18n="maker.size_lg">크게</button></div>
+          </div>
+          <a class="photo-off" href="/friends" target="_blank" rel="noopener" style="display:block;margin-top:6px;color:#ffd978;text-decoration:none" data-i18n="maker.friends_more">친구들 전체 보기 →</a>
+        </div>
         <button type="button" class="btn-ai" id="aiPhotoBtn" onclick="openAiPhoto()" hidden><i data-lucide="sparkles"></i><span data-i18n="maker.ai_btn">AI 프로필 사진 만들기</span><small data-i18n="maker.ai_btn_sub">사진관 안 가도 정장·스튜디오 사진 6장</small></button>
         <div class="field" id="fxField">
           <label data-i18n="maker.fx">사진 배경</label>
@@ -1829,6 +1845,59 @@
       e.target.value = '';
     });
 
+    /* ── 툼 프렌즈: 캐릭터 + 배경색 + 크기 → 앞면 플레이트 (브라우저에서 그려서 카드 데이터에 넣는다) ── */
+    const FRIEND_COLORS = ['#fff3e4', '#ffe4ec', '#e3f6ef', '#ece6ff', '#fff7d6', '#e0f0ff', '#f4f4f6', '#1d2550', '#1a1a22', '#2b3a2f'];
+    let friendsManifest = null, friendState = { id: '', color: FRIEND_COLORS[0], size: 'md' };
+    async function loadFriends() {
+      if (!friendsManifest) { try { friendsManifest = await fetch('/assets/stickers/manifest.json').then((r) => r.json()); } catch (e) { return null; } }
+      renderFriendGrid(); return friendsManifest;
+    }
+    function renderFriendGrid() {
+      const g = $('friendGrid'); if (!g || !friendsManifest) return;
+      const lg = (window.i18n && i18n.lang) || 'ko';
+      g.innerHTML = Object.entries(friendsManifest.families).map(([fam, f]) => `<div class="fr-fam">${f.emoji} ${f[lg] || f.ko}</div>` +
+        friendsManifest.stickers.filter((s) => s.family === fam).map((s) => `<img src="/assets/stickers/${s.id}.png" alt="${s[lg] || s.ko}" title="${s[lg] || s.ko}" data-id="${s.id}" loading="lazy" aria-pressed="${s.id === friendState.id}">`).join('')).join('');
+      const c = $('friendColors'); c.innerHTML = FRIEND_COLORS.map((x) => `<button class="chip" type="button" data-color="${x}" style="background:${x}" aria-pressed="${x === friendState.color}" aria-label="${x}"></button>`).join('');
+      $('friendSizes').querySelectorAll('.chip').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.size === friendState.size)));
+      $('friendOpts').hidden = !friendState.id;
+    }
+    function shadeHex(hex, amt) { const n = parseInt(hex.slice(1), 16); const f = (v) => Math.max(0, Math.min(255, Math.round(v + amt))); return '#' + [f(n >> 16), f((n >> 8) & 255), f(n & 255)].map((v) => v.toString(16).padStart(2, '0')).join(''); }
+    function composeFriendPlate() {
+      return new Promise((resolve, reject) => {
+        const W = 832, H = 1334, cv = document.createElement('canvas'); cv.width = W; cv.height = H; const ctx = cv.getContext('2d');
+        const dark = parseInt(friendState.color.slice(1), 16) < 0x808080;
+        const g = ctx.createLinearGradient(0, 0, 0, H); g.addColorStop(0, friendState.color); g.addColorStop(1, shadeHex(friendState.color, dark ? 22 : -34));
+        ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+        ctx.fillStyle = 'rgba(255,255,255,' + (dark ? .18 : .4) + ')';
+        for (let i = 0; i < 38; i++) { ctx.beginPath(); ctx.arc((i * 151) % W, (i * 283) % H, dark ? 2 + (i % 3) : 6 + (i % 4) * 3, 0, Math.PI * 2); ctx.fill(); }
+        const rg = ctx.createRadialGradient(W / 2, H * .38, 10, W / 2, H * .38, W * .55); rg.addColorStop(0, 'rgba(255,255,255,' + (dark ? .14 : .5) + ')'); rg.addColorStop(1, 'rgba(255,255,255,0)');
+        ctx.fillStyle = rg; ctx.fillRect(0, 0, W, H);
+        const img = new Image(); img.onload = () => {
+          const box = { sm: 400, md: 560, lg: 700 }[friendState.size] || 560;
+          const sc = Math.min(box / img.width, box / img.height), w = img.width * sc, h = img.height * sc, x = (W - w) / 2, y = 150 + (box - h) / 2;
+          ctx.fillStyle = 'rgba(0,0,0,.12)'; ctx.beginPath(); ctx.ellipse(W / 2, y + h - 6, w * .36, 20, 0, 0, Math.PI * 2); ctx.fill();
+          ctx.drawImage(img, x, y, w, h);
+          resolve(cv.toDataURL('image/jpeg', .82));
+        }; img.onerror = reject; img.src = '/assets/stickers/' + friendState.id + '.png';
+      });
+    }
+    async function applyFriend() {
+      if (!friendState.id) return;
+      try {
+        const src = await composeFriendPlate();
+        card.friend = Object.assign({}, friendState);
+        setBg({ type: 'image', src }, 'friend');
+        if (!textTouched) { card.front.text.layout = 'bottom-center'; pressOnly($('textChips'), 'layout', 'bottom-center'); }
+        card.front.frameTone = parseInt(friendState.color.slice(1), 16) < 0x808080 ? 'dark' : 'light';
+        renderFriendGrid(); render();
+      } catch (e) { toast(t('maker.publish_fail')); }
+    }
+    $('friendGrid').addEventListener('click', (e) => { const im = e.target.closest('img[data-id]'); if (!im) return; friendState.id = im.dataset.id; applyFriend(); });
+    $('friendColors').addEventListener('click', (e) => { const b = e.target.closest('[data-color]'); if (!b) return; friendState.color = b.dataset.color; applyFriend(); });
+    $('friendSizes').addEventListener('click', (e) => { const b = e.target.closest('[data-size]'); if (!b) return; friendState.size = b.dataset.size; applyFriend(); });
+    document.addEventListener('i18n:change', renderFriendGrid);
+    setTimeout(loadFriends, 1200);
+
     /* ── 글자 · 마감 · 뒷면 ─────────────────────────── */
     function pressOnly(container, attr, value) {
       container.querySelectorAll('.chip').forEach((c) => c.setAttribute('aria-pressed', c.dataset[attr] === value ? 'true' : 'false'));
@@ -2525,6 +2594,7 @@
       $('fRegionSido').value = (c.region && c.region.sido) || ''; $('fRegionCity').value = (c.region && c.region.city) || ''; $('fForest').checked = !!(c.region && c.region.forest); $('fIndustry').value = c.industry || ''; $('fIndustryText').value = c.industryText || ''; $('fIndustryText').hidden = c.industry !== 'other';
       $('fSlogan').value = c.slogan || ''; $('fPhone').value = c.phone || ''; $('fEmail').value = c.email || '';
       $('fWebsite').value = (c.primaryAction && c.primaryAction.url) || '';
+      if (c.friend && c.friend.id) { friendState = Object.assign({}, friendState, c.friend); loadFriends(); }
       $('fAdUrl').value = (c.affiliateAction && c.affiliateAction.url) || ''; $('fAdLabel').value = (c.affiliateAction && c.affiliateAction.label) || '';
       const ss = (c.socials || []).filter((s) => s.url);
       if (ss[0]) { $('fSocialType').value = ss[0].type; $('fSocialUrl').value = ss[0].url; }
@@ -2644,6 +2714,10 @@
         setFrame(sp.frame);
         sugOrig = null; makeSuggestions('photo'); designIdx = 1;
         renderCarousel();
+      }
+      else if (params.get('friend')) {
+        friendState.id = String(params.get('friend')).replace(/[^a-z0-9-]/g, '');
+        loadFriends().then(() => { if (friendsManifest && friendsManifest.stickers.some((s) => s.id === friendState.id)) applyFriend(); else render(); });
       }
       else if (preset && (DESIGNS.some((d) => d.key === (START_ALIAS[preset] || preset)) || LEGACY_PRESETS[START_ALIAS[preset] || preset])) {
         const pk = START_ALIAS[preset] || preset;

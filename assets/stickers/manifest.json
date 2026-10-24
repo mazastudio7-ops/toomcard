@@ -1,0 +1,248 @@
+{
+ "families": {
+  "bear": {
+   "ko": "툼돌이",
+   "en": "Toomdol the Bear",
+   "de": "Toomdol der Bär",
+   "emoji": "🐻"
+  },
+  "cat": {
+   "ko": "툼냥이",
+   "en": "Toomnyang the Cat",
+   "de": "Toomnyang die Katze",
+   "emoji": "🐱"
+  },
+  "bunny": {
+   "ko": "툼깡이",
+   "en": "Toomkkang the Bunny",
+   "de": "Toomkkang der Hase",
+   "emoji": "🐰"
+  }
+ },
+ "stickers": [
+  {
+   "id": "bear-01",
+   "family": "bear",
+   "ko": "커피 한 잔",
+   "en": "Coffee",
+   "de": "Kaffee"
+  },
+  {
+   "id": "bear-02",
+   "family": "bear",
+   "ko": "일하는 중",
+   "en": "Working",
+   "de": "Bei der Arbeit"
+  },
+  {
+   "id": "bear-03",
+   "family": "bear",
+   "ko": "꿀잠",
+   "en": "Fast asleep",
+   "de": "Tiefschlaf"
+  },
+  {
+   "id": "bear-04",
+   "family": "bear",
+   "ko": "독서",
+   "en": "Reading",
+   "de": "Lesen"
+  },
+  {
+   "id": "bear-05",
+   "family": "bear",
+   "ko": "하트",
+   "en": "Heart",
+   "de": "Herz"
+  },
+  {
+   "id": "bear-06",
+   "family": "bear",
+   "ko": "소파 휴식",
+   "en": "Sofa break",
+   "de": "Sofa-Pause"
+  },
+  {
+   "id": "bear-07",
+   "family": "bear",
+   "ko": "팬케이크",
+   "en": "Pancakes",
+   "de": "Pfannkuchen"
+  },
+  {
+   "id": "bear-08",
+   "family": "bear",
+   "ko": "화분 키우기",
+   "en": "Plant care",
+   "de": "Pflanzenpflege"
+  },
+  {
+   "id": "bear-09",
+   "family": "bear",
+   "ko": "킥보드",
+   "en": "Scooter",
+   "de": "Roller"
+  },
+  {
+   "id": "bear-10",
+   "family": "bear",
+   "ko": "음악 감상",
+   "en": "Music",
+   "de": "Musik"
+  },
+  {
+   "id": "bear-11",
+   "family": "bear",
+   "ko": "공부",
+   "en": "Studying",
+   "de": "Lernen"
+  },
+  {
+   "id": "bear-12",
+   "family": "bear",
+   "ko": "낮잠",
+   "en": "Nap",
+   "de": "Nickerchen"
+  },
+  {
+   "id": "cat-01",
+   "family": "cat",
+   "ko": "구름 낮잠",
+   "en": "Cloud nap",
+   "de": "Wolken-Nickerchen"
+  },
+  {
+   "id": "cat-02",
+   "family": "cat",
+   "ko": "간식 타임",
+   "en": "Snack time",
+   "de": "Snackzeit"
+  },
+  {
+   "id": "cat-03",
+   "family": "cat",
+   "ko": "기지개",
+   "en": "Stretch",
+   "de": "Strecken"
+  },
+  {
+   "id": "cat-04",
+   "family": "cat",
+   "ko": "뜨개질",
+   "en": "Knitting",
+   "de": "Stricken"
+  },
+  {
+   "id": "cat-05",
+   "family": "cat",
+   "ko": "독서",
+   "en": "Reading",
+   "de": "Lesen"
+  },
+  {
+   "id": "cat-06",
+   "family": "cat",
+   "ko": "거품 목욕",
+   "en": "Bubble bath",
+   "de": "Schaumbad"
+  },
+  {
+   "id": "cat-07",
+   "family": "cat",
+   "ko": "도넛",
+   "en": "Donuts",
+   "de": "Donuts"
+  },
+  {
+   "id": "cat-08",
+   "family": "cat",
+   "ko": "커피",
+   "en": "Coffee",
+   "de": "Kaffee"
+  },
+  {
+   "id": "cat-09",
+   "family": "cat",
+   "ko": "그림 그리기",
+   "en": "Drawing",
+   "de": "Zeichnen"
+  },
+  {
+   "id": "cat-10",
+   "family": "cat",
+   "ko": "실뭉치 놀이",
+   "en": "Yarn play",
+   "de": "Wollknäuel"
+  },
+  {
+   "id": "cat-11",
+   "family": "cat",
+   "ko": "물 주기",
+   "en": "Watering",
+   "de": "Gießen"
+  },
+  {
+   "id": "cat-12",
+   "family": "cat",
+   "ko": "가을 산책",
+   "en": "Autumn walk",
+   "de": "Herbstspaziergang"
+  },
+  {
+   "id": "cat-13",
+   "family": "cat",
+   "ko": "노트북",
+   "en": "Laptop",
+   "de": "Laptop"
+  },
+  {
+   "id": "cat-14",
+   "family": "cat",
+   "ko": "자전거",
+   "en": "Bicycle",
+   "de": "Fahrrad"
+  },
+  {
+   "id": "cat-15",
+   "family": "cat",
+   "ko": "요리",
+   "en": "Cooking",
+   "de": "Kochen"
+  },
+  {
+   "id": "cat-16",
+   "family": "cat",
+   "ko": "음악 감상",
+   "en": "Music",
+   "de": "Musik"
+  },
+  {
+   "id": "bunny-01",
+   "family": "bunny",
+   "ko": "당근 수확",
+   "en": "Carrot",
+   "de": "Karotte"
+  },
+  {
+   "id": "bunny-02",
+   "family": "bunny",
+   "ko": "구름 낮잠",
+   "en": "Cloud nap",
+   "de": "Wolken-Nickerchen"
+  },
+  {
+   "id": "bunny-03",
+   "family": "bunny",
+   "ko": "독서",
+   "en": "Reading",
+   "de": "Lesen"
+  },
+  {
+   "id": "bunny-04",
+   "family": "bunny",
+   "ko": "버블티",
+   "en": "Bubble tea",
+   "de": "Bubble Tea"
+  }
+ ]
+}

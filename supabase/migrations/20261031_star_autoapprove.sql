@@ -48,3 +48,6 @@ update public.star_review sr set status = 'approved', flags = '{}', approved_onc
   from public.pods p
   where p.slug = sr.slug and sr.status = 'pending'
     and coalesce(array_length(public.star_array_minus(sr.flags, array['nophoto']), 1), 0) = 0;
+
+-- 페이지 주소로 쓰는 아이디는 예약
+insert into public.tc_reserved_slugs (slug, note) values ('friends', 'system'), ('stickers', 'system') on conflict do nothing;
