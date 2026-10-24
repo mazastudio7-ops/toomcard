@@ -19,7 +19,9 @@
   function liked(slug) { try { return localStorage.getItem('tc_liked_' + slug) === '1'; } catch (e) { return false; } }
   function tile(row) {
     const c = row.card || {}, bg = (c.front && c.front.bg) || {};
-    const st = bg.type === 'image' && bg.src ? `background-image:url('${esc(bg.src)}')` : (bg.type === 'color' ? `background:linear-gradient(160deg,${esc(bg.color || '#3b1a6e')},#07050d)` : '');
+    // 올린 사진이 data: 주소(수백 KB)이면 같은 주소를 화면에 두세 번 박게 되어 폰에서 이미지가 비곤 한다 → 가벼운 썸네일 주소를 쓴다
+    const bgSrc = bg.src && String(bg.src).slice(0, 5) === 'data:' ? `/api/ogimg?t=card&s=${encodeURIComponent(row.slug)}` : bg.src;
+    const st = bg.type === 'image' && bgSrc ? `background-image:url('${esc(bgSrc)}')` : (bg.type === 'color' ? `background:linear-gradient(160deg,${esc(bg.color || '#3b1a6e')},#07050d)` : '');
     return `<a class="stile" href="/${String(row.slug).split('/').map(encodeURIComponent).join('/')}?from=star" style="${st}" data-slug="${esc(row.slug)}">
       ${c.tag && TAG[c.tag] ? `<span class="tg">${esc(T(TAG[c.tag]))}</span>` : ''}
       <span class="who"><b>${esc(c.name || '')}</b><span>${esc(c.role || '')}</span></span>

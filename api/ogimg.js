@@ -42,7 +42,7 @@ async function loadImage(src) {
 
 module.exports = async (req, res) => {
   const raw = decodeURIComponent(String((req.query && req.query.s) || '')).trim();
-  const slug = raw.replace(/[^a-zA-Z0-9_\-\/가-힣]/g, '').slice(0, 80);
+  const slug = raw.replace(/[^a-zA-Z0-9_.\-\/가-힣]/g, '').slice(0, 80);
   const fallback = async () => {
     const b = await fetchBuf(ORIGIN + '/assets/og_default.jpg');
     res.setHeader('Content-Type', 'image/jpeg');
