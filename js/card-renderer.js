@@ -410,7 +410,7 @@ function sanitizeForPublicStar(d) {
 // 명함 링크(?k=…)로 들어오면 비공개 항목(전화·이메일·카톡 등)을 합쳐서 보여준다
 async function mergeSharePrivate(card, slug) {
   const k = new URLSearchParams(location.search).get('k');
-  if (!k || !card || !card.star || !card.star.on || typeof getPrivateCard !== 'function') return card;
+  if (!k || !card || typeof getPrivateCard !== 'function') return card;
   try {
     const priv = await getPrivateCard(slug, k);
     if (priv) {
@@ -617,7 +617,7 @@ function populateCard(data) {
   const phoneValue = document.getElementById('phoneValue');
   const emailValue = document.getElementById('emailValue');
   const contactDot = document.getElementById('contactDot');
-  const starMask = document.body.classList.contains('star-public') || data.hideContact === true;   // hideContact: 공식 카드 — 번호·이메일은 글자로 안 보이고, 버튼(전화·저장)으로만 쓴다
+  const starMask = document.body.classList.contains('star-public') || data.hideContact === true || (data.privateContact === true && !data.phone && !data.email);   // hideContact: 공식 카드 — 번호·이메일은 글자로 안 보이고, 버튼(전화·저장)으로만 쓴다
   // 이젠스타 공개 보기: 실제 명함과 같은 모양으로, 전화·이메일 자리는 가려서 보여 준다
   if (phoneValue) { phoneValue.innerText = starMask ? '🔒 ●●●-●●●●-●●●●' : (data.phone || ''); phoneValue.classList.toggle('masked', starMask); }
   if (emailValue) { emailValue.innerText = starMask ? '●●●●@●●●●.com' : (data.email || ''); emailValue.classList.toggle('masked', starMask); }

@@ -2285,15 +2285,18 @@
     $('starTags').addEventListener('click', (e) => { const b = e.target.closest('.chip'); if (!b) return; card.star.tag = b.dataset.tag; syncStarUI(); });
     // 이젠스타에 올린 카드는 비공개 항목(전화·이메일)을 공개 데이터에서 빼서 따로 저장한다
     function splitPrivate(c) {
+      // 모든 카드: 전화·이메일은 공개 데이터에서 빼고 따로 저장한다. 명함 링크(?k=…)로 보낸 사람에게만 보인다.
       const pub = JSON.parse(JSON.stringify(c));
-      if (!(c.star && c.star.on)) return { pub, priv: null };
-      // 이젠스타에는 SNS·링크만 공개한다: 전화·이메일·카톡·왓츠앱은 항상 비공개로 따로 저장 (명함 링크로 보낸 사람에게만 보인다)
+      const star = !!(c.star && c.star.on);
       const priv = {};
       if (c.phone) { priv.phone = c.phone; pub.phone = ''; if (pub.vcard) pub.vcard.tel = ''; }
       if (c.email) { priv.email = c.email; pub.email = ''; if (pub.vcard) pub.vcard.email = ''; }
-      const isContact = (s) => s && (s.type === 'kakao' || s.type === 'whatsapp' || s.type === 'telegram');
-      const cs = (pub.socials || []).filter(isContact);
-      if (cs.length) { priv.contactSocials = cs; pub.socials = (pub.socials || []).filter((s) => !isContact(s)); }
+      if (star) {   // 이젠스타에는 SNS·링크만 공개한다: 카톡·왓츠앱도 비공개
+        const isContact = (s) => s && (s.type === 'kakao' || s.type === 'whatsapp' || s.type === 'telegram');
+        const cs = (pub.socials || []).filter(isContact);
+        if (cs.length) { priv.contactSocials = cs; pub.socials = (pub.socials || []).filter((s) => !isContact(s)); }
+      }
+      if (Object.keys(priv).length) pub.privateContact = true; else delete pub.privateContact;
       return { pub, priv: Object.keys(priv).length ? priv : null };
     }
 
@@ -2511,7 +2514,7 @@
       card.emblem = Object.assign({}, DEFAULT_CARD.emblem, c.emblem || { on: false });   // 예전 카드는 엠블럼 없이 기존 로고 그대로
       $('emText').value = (c.emblem && c.emblem.text) || ''; syncEmblemUI();
       card.star = Object.assign({ on: false, tag: '' }, c.star || {}); card.privacy = Object.assign({ phone: false, email: false }, c.privacy || {}); syncStarUI();
-      if (fromCloud && card.star.on && typeof getMyPrivateCard === 'function') {
+      if (fromCloud && typeof getMyPrivateCard === 'function') {
         getMyPrivateCard(slug).then((pv) => { if (!pv) return; if (pv.phone && !$('fPhone').value) $('fPhone').value = pv.phone; if (pv.email && !$('fEmail').value) $('fEmail').value = pv.email; (pv.contactSocials || []).forEach((s) => { if (!$('fSocialUrl').value) { $('fSocialType').value = s.type; $('fSocialUrl').value = s.url; } else if (!$('fSocial2Url').value) { $('fSocial2Type').value = s.type; $('fSocial2Url').value = s.url; } else addSocialRow(s.type, s.url); }); render(); });
       }
       pressOnly($('textChips'), 'layout', card.front.text.layout); setLogo(card.front.text.showLogo);
